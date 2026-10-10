@@ -4,6 +4,40 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Toko Gitar AYRI | Jual Beli & Servis Gitar Bogor</title>
+    <meta name="description" content="Toko Gitar AYRI di Bogor: jual beli dan tukar tambah gitar, servis, setup, nut/saddle custom, serta perlengkapan gitar. Buka setiap hari kecuali hari libur nasional.">
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8E%B8%3C/text%3E%3C/svg%3E">
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "MusicStore",
+      "name": "Toko Gitar AYRI",
+      "description": "Jual beli, tukar tambah, servis, dan perlengkapan gitar di Bogor.",
+      "telephone": "+6285795738637",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "Jln. Jabaru II, Bojong Baru, Pasirkuda",
+        "addressLocality": "Kota Bogor",
+        "addressRegion": "Jawa Barat",
+        "addressCountry": "ID"
+      },
+      "geo": {
+        "@type": "GeoCoordinates",
+        "latitude": -6.607992165386357,
+        "longitude": 106.78217685952863
+      },
+      "hasMap": "https://maps.app.goo.gl/siPKx3ksHu6sZY7h8",
+      "openingHoursSpecification": [
+        { "@type": "OpeningHoursSpecification", "dayOfWeek": ["Monday","Tuesday","Wednesday","Thursday","Saturday","Sunday"], "opens": "12:00", "closes": "19:00" },
+        { "@type": "OpeningHoursSpecification", "dayOfWeek": "Friday", "opens": "13:00", "closes": "19:00" }
+      ],
+      "sameAs": [
+        "https://instagram.com/ayrigitar",
+        "https://shopee.co.id/gitarbekasbogor",
+        "https://tokopedia.com/rioalamnur",
+        "https://maps.app.goo.gl/siPKx3ksHu6sZY7h8"
+      ]
+    }
+    </script>
     <!-- Tailwind CSS untuk styling cepat -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome untuk ikon-ikon cantik -->
@@ -13,6 +47,8 @@
         .text-brand { color: #d97706; } 
         .bg-brand { background-color: #d97706; }
         .hover-bg-brand:hover { background-color: #b45309; }
+        /* Offset anchor agar judul section tidak tertutup navbar */
+        html { scroll-padding-top: 4rem; }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-900 font-sans antialiased">
@@ -22,33 +58,56 @@
         <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16">
                 <div class="flex items-center">
-                    <a href="#" class="text-2xl font-bold text-slate-900">Toko Gitar <span class="text-brand">AYRI</span></a>
+                    <a href="#" class="text-xl sm:text-2xl font-bold text-slate-900">Toko Gitar <span class="text-brand">AYRI</span></a>
                 </div>
-                <!-- Menu Navbar -->
+                <!-- Menu Desktop -->
                 <div class="hidden md:flex items-center space-x-8">
                     <a href="#layanan" class="text-slate-600 hover:text-brand transition font-medium">Layanan</a>
                     <a href="#marketplace" class="text-slate-600 hover:text-brand transition font-medium">Marketplace</a>
                     <a href="#lokasi" class="text-slate-600 hover:text-brand transition font-medium">Lokasi</a>
                     <a href="#kontak" class="text-slate-600 hover:text-brand transition font-medium">Kontak</a>
+                    <a href="https://wa.me/6285795738637?text=Halo%20AYRI%2C%20saya%20mau%20tanya%20servis%20gitar" target="_blank" class="bg-[#0B8043] hover:bg-[#086B38] text-white px-4 py-2 rounded-full font-semibold text-sm transition flex items-center gap-2">
+                        <i class="fab fa-whatsapp text-lg"></i> Chat WhatsApp
+                    </a>
                 </div>
+                <!-- Tombol Hamburger (Mobile) -->
+                <div class="flex items-center md:hidden">
+                    <button id="menu-btn" type="button" aria-label="Buka menu" aria-expanded="false" aria-controls="mobile-menu"
+                            class="w-11 h-11 -mr-2 flex items-center justify-center text-slate-700 hover:text-brand rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500">
+                        <i id="menu-icon" class="fas fa-bars text-2xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!-- Menu Mobile -->
+        <div id="mobile-menu" class="hidden md:hidden border-t border-slate-100 bg-white">
+            <div class="px-4 py-3 flex flex-col">
+                <a href="#layanan" class="mobile-link py-3 text-slate-700 hover:text-brand font-medium border-b border-slate-100">Layanan</a>
+                <a href="#marketplace" class="mobile-link py-3 text-slate-700 hover:text-brand font-medium border-b border-slate-100">Marketplace</a>
+                <a href="#lokasi" class="mobile-link py-3 text-slate-700 hover:text-brand font-medium border-b border-slate-100">Lokasi</a>
+                <a href="#kontak" class="mobile-link py-3 text-slate-700 hover:text-brand font-medium">Kontak</a>
+                <a href="https://wa.me/6285795738637?text=Halo%20AYRI%2C%20saya%20mau%20tanya%20servis%20gitar" target="_blank" class="mt-3 mb-2 bg-[#0B8043] hover:bg-[#086B38] text-white py-3 rounded-full font-semibold transition flex items-center justify-center gap-2">
+                    <i class="fab fa-whatsapp text-xl"></i> Chat via WhatsApp
+                </a>
             </div>
         </div>
     </nav>
 
     <!-- Hero Section -->
-    <section class="pt-32 pb-20 bg-white">
+    <section class="pt-28 sm:pt-32 pb-16 sm:pb-20 bg-white">
         <div class="max-w-6xl mx-auto px-4 text-center sm:px-6 lg:px-8">
-            <h1 class="text-4xl md:text-5xl font-extrabold text-slate-900 tracking-tight mb-4">
-                Solusi Terbaik untuk <span class="text-brand">Gitar Anda</span>
+            <h1 class="text-3xl sm:text-4xl md:text-5xl font-extrabold text-slate-900 tracking-tight mb-4">
+                Servis, Jual Beli &amp; Tukar Tambah <span class="text-brand">Gitar di Bogor</span>
             </h1>
-            <p class="text-lg md:text-xl text-slate-600 mb-10 max-w-2xl mx-auto">
-                Pusat jual beli, servis profesional, dan perlengkapan gitar terlengkap di Bogor.
+            <p class="text-base sm:text-lg md:text-xl text-slate-600 mb-8 sm:mb-10 max-w-2xl mx-auto">
+                Setup, servis, dan nut/saddle custom dari tulang atau tanduk. Jual atau tukar tambah gitar dengan penilaian jujur dan transparan.
             </p>
-            <div class="flex justify-center">
-                <!-- Tombol WhatsApp -->
-                <a href="https://wa.me/6285795738637" target="_blank" class="bg-[#25D366] hover:bg-[#128C7E] text-white px-8 py-3 rounded-full font-medium transition shadow-lg flex items-center gap-2 text-lg">
-                    <i class="fab fa-whatsapp text-2xl"></i> Hubungi kami via Whatsapp
+            <div class="flex flex-col items-center gap-3">
+                <!-- Tombol WhatsApp (pesan sudah terisi otomatis) -->
+                <a href="https://wa.me/6285795738637?text=Halo%20AYRI%2C%20saya%20mau%20tanya%20servis%20gitar" target="_blank" class="bg-[#0B8043] hover:bg-[#086B38] text-white w-full sm:w-auto justify-center px-6 sm:px-8 py-3.5 rounded-full font-semibold transition shadow-lg flex items-center gap-2 text-base sm:text-lg">
+                    <i class="fab fa-whatsapp text-2xl"></i> Tanya Servis atau Harga Gitar di WhatsApp
                 </a>
+                <p class="text-sm text-slate-600">Buka Sen&ndash;Min 12.00&ndash;19.00 (Jumat mulai 13.00) &middot; Pasirkuda, Bogor</p>
             </div>
         </div>
     </section>
@@ -124,7 +183,7 @@
                                 <i class="fas fa-map-marker-alt text-brand text-lg"></i>
                             </div>
                             <div>
-                                <h4 class="font-bold text-slate-900 mt-2">Jalan Jabaru II, Pasirkuda, Bogor</h4>
+                                <h4 class="font-bold text-slate-900 mt-2">Jln. Jabaru II, Bojong Baru, Pasirkuda, Kota Bogor</h4>
                             </div>
                         </div>
                     </div>
@@ -134,15 +193,15 @@
                             <i class="far fa-clock text-brand"></i> Jam Operasional
                         </h4>
                         <ul class="text-slate-600 space-y-2">
-                            <li class="flex justify-between">
+                            <li class="flex flex-col sm:flex-row sm:justify-between">
                                 <span>Senin - Kamis & Sabtu - Minggu:</span>
                                 <span class="font-medium">12:00 - 19:00</span>
                             </li>
-                            <li class="flex justify-between">
+                            <li class="flex flex-col sm:flex-row sm:justify-between">
                                 <span>Jumat:</span>
                                 <span class="font-medium">13:00 - 19:00</span>
                             </li>
-                            <li class="flex justify-between text-red-500 font-medium mt-2 pt-2 border-t border-slate-200">
+                            <li class="flex flex-col sm:flex-row sm:justify-between text-red-600 font-medium mt-2 pt-2 border-t border-slate-200">
                                 <span>Hari Libur Nasional:</span>
                                 <span>Tutup</span>
                             </li>
@@ -153,9 +212,9 @@
                     </a>
                 </div>
                 <!-- Peta Interaktif -->
-                <div class="md:w-1/2 w-full rounded-2xl h-96 overflow-hidden shadow-sm border border-slate-200">
+                <div class="md:w-1/2 w-full rounded-2xl h-72 md:h-96 overflow-hidden shadow-sm border border-slate-200">
                     <iframe 
-                        src="https://maps.google.com/maps?q=Jalan%20Jabaru%20II,%20Pasirkuda,%20Bogor&t=&z=15&ie=UTF8&iwloc=&output=embed" 
+                        src="https://maps.google.com/maps?q=Toko%20Gitar%20AYRI%20JUAL%20-%20BELI%20-%20SERVIS%20Bogor&t=&z=15&ie=UTF8&iwloc=&output=embed" 
                         width="100%" 
                         height="100%" 
                         style="border:0;" 
@@ -184,11 +243,11 @@
                     <div class="flex flex-col gap-3">
                         <!-- WhatsApp -->
                         <a href="https://wa.me/6285795738637" target="_blank" class="hover:text-brand transition flex items-center justify-center md:justify-start gap-2">
-                            <i class="fab fa-whatsapp text-xl"></i> +6285795738637
+                            <img src="https://cdn.simpleicons.org/whatsapp/25D366" alt="WhatsApp" class="w-6 h-6"> +6285795738637
                         </a>
                         <!-- Instagram -->
                         <a href="https://instagram.com/ayrigitar" target="_blank" class="hover:text-brand transition flex items-center justify-center md:justify-start gap-2">
-                            <i class="fab fa-instagram text-xl"></i> @ayrigitar
+                            <img src="https://cdn.simpleicons.org/instagram/E4405F" alt="Instagram" class="w-6 h-6"> @ayrigitar
                         </a>
                     </div>
                 </div>
@@ -214,5 +273,34 @@
         </div>
     </footer>
     
+    <!-- Tombol WhatsApp melayang -->
+    <a href="https://wa.me/6285795738637?text=Halo%20AYRI%2C%20saya%20mau%20tanya%20servis%20gitar" target="_blank" aria-label="Chat via WhatsApp"
+       class="fixed bottom-5 right-5 z-50 w-14 h-14 rounded-full bg-[#0B8043] hover:bg-[#086B38] text-white flex items-center justify-center shadow-xl transition">
+        <i class="fab fa-whatsapp text-3xl"></i>
+    </a>
+
+    <script>
+        // Menu hamburger (mobile)
+        (function () {
+            var btn = document.getElementById('menu-btn');
+            var menu = document.getElementById('mobile-menu');
+            var icon = document.getElementById('menu-icon');
+            function setOpen(open) {
+                menu.classList.toggle('hidden', !open);
+                btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+                btn.setAttribute('aria-label', open ? 'Tutup menu' : 'Buka menu');
+                icon.className = open ? 'fas fa-times text-2xl' : 'fas fa-bars text-2xl';
+            }
+            btn.addEventListener('click', function () {
+                setOpen(menu.classList.contains('hidden'));
+            });
+            document.querySelectorAll('.mobile-link').forEach(function (a) {
+                a.addEventListener('click', function () { setOpen(false); });
+            });
+            window.addEventListener('resize', function () {
+                if (window.innerWidth >= 768) setOpen(false);
+            });
+        })();
+    </script>
 </body>
 </html>
