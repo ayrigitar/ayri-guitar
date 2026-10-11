@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tuner Gitar Online Gratis | Toko Gitar AYRI</title>
+    <meta name="description" content="Tuner gitar online gratis: setel senar gitar akustik dan elektrik langsung dari HP atau laptop. Tanpa aplikasi, cukup izinkan mikrofon.">
+    <!-- Tailwind CSS & FontAwesome -->
+    <link rel="stylesheet" href="style-artikel.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .text-brand { color: #d97706; } 
+        .bg-brand { background-color: #d97706; }
+        /* Hover warna brand (kelas khusus, bukan bawaan Tailwind) */
+        .hover\:text-brand:hover { color: #d97706; }
+        .group:hover .group-hover\:bg-brand { background-color: #d97706; }
+    </style>
+    <meta name="theme-color" content="#15100c">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&display=swap">
+    <link rel="stylesheet" href="theme-dark.css">
+    <script src="theme.js"></script>
+</head>
+<body class="bg-slate-50 text-slate-900 font-sans antialiased">
+    
+    <!-- Navbar (Link kembali ke index.html) -->
+    <nav class="bg-white shadow-sm fixed w-full z-50">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <a href="index.html" class="text-xl sm:text-2xl font-bold text-slate-900">Toko Gitar <span class="text-brand">AYRI</span></a>
+                </div>
+                <div class="hidden md:flex items-center space-x-8">
+                    <!-- Kembali ke Halaman Utama -->
+                    <a href="index.html" class="text-slate-600 hover:text-brand transition font-medium"><i class="fas fa-home"></i> Beranda</a>
+                    <a href="index.html#layanan" class="text-slate-600 hover:text-brand transition font-medium">Layanan</a>
+                    <a href="index.html#harga" class="text-slate-600 hover:text-brand transition font-medium">Harga Servis</a>
+                    <a href="https://wa.me/6285795738637" target="_blank" class="bg-[#0B8043] hover:bg-[#086B38] text-white px-4 py-2 rounded-full font-semibold text-sm transition">Chat WhatsApp</a>
+                </div>
+                <!-- Tombol Kembali untuk Mobile -->
+                <div class="flex items-center md:hidden">
+                    <a href="index.html" class="text-slate-700 hover:text-brand font-bold text-sm"><i class="fas fa-arrow-left"></i> Kembali</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- BAGIAN KONTEN ARTIKEL -->
+    <main class="tuner">
+        <h1>Tuner Gitar Online</h1>
+        <p class="t-sub">Setel senar gitar langsung dari HP atau laptop, gratis dan tanpa aplikasi. Tekan Mulai, izinkan mikrofon, lalu petik satu senar.</p>
+        <div class="t-card">
+            <div class="t-note"><span id="note">--</span><sup id="oct"></sup></div>
+            <div id="status" class="t-status" aria-live="polite">Tekan tombol Mulai</div>
+            <div class="t-meter"><div id="needle" class="t-needle"></div></div>
+            <div class="t-scale"><span>Terlalu rendah</span><span>Pas</span><span>Terlalu tinggi</span></div>
+            <div id="hz" class="t-hz">0 Hz</div>
+            <button id="start" type="button" class="t-btn">Mulai Tuner</button>
+        </div>
+        <h2>Pilih nada senar</h2>
+        <div class="t-row">
+            <select id="tuning" aria-label="Pilih setelan">
+                <option value="s">Standar (E A D G B E)</option>
+                <option value="d">Drop D (D A D G B E)</option>
+                <option value="h">Turun setengah nada (Eb)</option>
+            </select>
+            <button id="auto" type="button" class="t-btn alt">Deteksi otomatis</button>
+        </div>
+        <div id="strings" class="t-strings"></div>
+        <p class="t-help">Ketuk salah satu senar untuk mendengar nada acuannya, lalu petik senar gitar Anda sampai jarum berada di tengah dan tulisan berubah hijau. Gunakan di ruangan yang tenang dan petik satu senar saja.</p>
+        <a class="t-cta" href="https://wa.me/6285795738637?text=Halo%20AYRI%2C%20saya%20mau%20tanya%20servis%20gitar" target="_blank"><strong>Senar sering fals atau susah disetel?</strong><br>Mungkin gitar perlu setup. Tanya kami lewat WhatsApp.</a>
+    </main>
+    <script>
+    (function () {
+        var NAMES = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+        var TUNINGS = { s:[40,45,50,55,59,64], d:[38,45,50,55,59,64], h:[39,44,49,54,58,63] };
+        var $ = function (id) { return document.getElementById(id); };
+        var tuning = 's', target = null, ctx, analyser, buf, timer, hist = [], lastHeard = 0, tone;
+        var f = function (m) { return 440 * Math.pow(2, (m - 69) / 12); };
+        function drawStrings() {
+            var h = '';
+            TUNINGS[tuning].forEach(function (m, i) {
+                h += '<button type="button" class="t-string' + (target === i ? ' on' : '') + '" data-i="' + i + '">' + NAMES[m % 12] + '<small>Senar ' + (6 - i) + '</small></button>';
+            });
+            $('strings').innerHTML = h;
+        }
+        function audio() { if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)(); if (ctx.state === 'suspended') ctx.resume(); return ctx; }
+        function play(freq) {
+            var c = audio(), o = c.createOscillator(), g = c.createGain(), t = c.currentTime;
+            o.type = 'triangle'; o.frequency.value = freq;
+            g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.5, t + 0.03); g.gain.exponentialRampToValueAtTime(0.0001, t + 1.8);
+            o.connect(g); g.connect(c.destination); o.start(t); o.stop(t + 1.9);
+        }
+        $('strings').addEventListener('click', function (e) {
+            var b = e.target.closest('.t-string'); if (!b) return;
+            target = +b.getAttribute('data-i'); drawStrings(); play(f(TUNINGS[tuning][target]));
+        });
+        $('auto').addEventListener('click', function () { target = null; drawStrings(); });
+        $('tuning').addEventListener('change', function () { tuning = this.value; target = null; drawStrings(); });
+
+        function pitch(b, sr) {
+            var n = b.length, rms = 0, i, j;
+            for (i = 0; i < n; i++) rms += b[i] * b[i];
+            if (Math.sqrt(rms / n) < 0.01) return -1;
+            var r1 = 0, r2 = n - 1;
+            for (i = 0; i < n / 2; i++) if (Math.abs(b[i]) < 0.2) { r1 = i; break; }
+            for (i = 1; i < n / 2; i++) if (Math.abs(b[n - i]) < 0.2) { r2 = n - i; break; }
+            b = b.slice(r1, r2); n = b.length;
+            var c = new Float32Array(n);
+            for (i = 0; i < n; i++) { var s = 0; for (j = 0; j < n - i; j++) s += b[j] * b[j + i]; c[i] = s; }
+            var d = 0; while (d < n - 1 && c[d] > c[d + 1]) d++;
+            var mx = -1, p = -1;
+            for (i = d; i < n; i++) if (c[i] > mx) { mx = c[i]; p = i; }
+            if (p < 1 || p >= n - 1) return -1;
+            var a = (c[p - 1] + c[p + 1] - 2 * c[p]) / 2, bb = (c[p + 1] - c[p - 1]) / 2;
+            if (a) p = p - bb / (2 * a);
+            var hz = sr / p; return (hz > 60 && hz < 1200) ? hz : -1;
+        }
+        function show(hz) {
+            var midi, ref;
+            if (target !== null) { midi = TUNINGS[tuning][target]; ref = f(midi); }
+            else { midi = Math.round(12 * Math.log(hz / 440) / Math.LN2 + 69); ref = f(midi); }
+            var cents = 1200 * Math.log(hz / ref) / Math.LN2;
+            $('note').textContent = NAMES[midi % 12]; $('oct').textContent = Math.floor(midi / 12) - 1;
+            $('hz').textContent = hz.toFixed(1) + ' Hz  (' + (cents > 0 ? '+' : '') + Math.round(cents) + ' sen)';
+            $('needle').style.left = (50 + Math.max(-50, Math.min(50, cents))) + '%';
+            var st = $('status'), ok = Math.abs(cents) <= 5;
+            $('needle').className = 't-needle' + (ok ? ' ok' : '');
+            st.className = 't-status ' + (ok ? 'ok' : 'bad');
+            st.textContent = ok ? 'Pas! Nada sudah tepat' : (cents < 0 ? 'Terlalu rendah, kencangkan senar' : 'Terlalu tinggi, kendurkan senar');
+        }
+        function tick() {
+            analyser.getFloatTimeDomainData(buf);
+            var hz = pitch(buf, ctx.sampleRate), now = Date.now();
+            if (hz > 0) {
+                hist.push(hz); if (hist.length > 5) hist.shift(); lastHeard = now;
+                var s = hist.slice().sort(function (x, y) { return x - y; }); show(s[Math.floor(s.length / 2)]);
+            } else if (now - lastHeard > 800) {
+                hist = []; $('status').className = 't-status'; $('status').textContent = 'Petik satu senar...';
+            }
+        }
+        $('start').addEventListener('click', function () {
+            var btn = this;
+            if (timer) { clearInterval(timer); timer = null; if (tone) tone.getTracks().forEach(function (t) { t.stop(); }); btn.textContent = 'Mulai Tuner'; $('status').className = 't-status'; $('status').textContent = 'Tuner berhenti'; return; }
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) { $('status').textContent = 'Browser ini belum mendukung mikrofon. Coba Chrome atau Safari terbaru.'; return; }
+            navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false } }).then(function (stream) {
+                tone = stream; var c = audio(); analyser = c.createAnalyser(); analyser.fftSize = 4096;
+                c.createMediaStreamSource(stream).connect(analyser); buf = new Float32Array(analyser.fftSize);
+                btn.textContent = 'Berhenti'; $('status').textContent = 'Petik satu senar...'; timer = setInterval(tick, 100);
+            }).catch(function () { $('status').className = 't-status bad'; $('status').textContent = 'Mikrofon tidak diizinkan. Buka pengaturan situs di browser dan izinkan mikrofon.'; });
+        });
+        drawStrings();
+    })();
+    </script>
+
+    <footer id="kontak" class="bg-slate-900 text-slate-400 py-12">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center md:items-start gap-8">
+            <div class="text-center md:text-left mb-6 md:mb-0">
+                <a href="index.html" class="text-2xl font-bold text-white mb-2 block">Toko Gitar <span class="text-brand">AYRI</span></a>
+                <p class="text-sm max-w-xs">Bengkel & Toko Gitar Terpercaya di Bogor. Jual beli, servis, dan perlengkapan.</p>
+            </div>
+            <div class="flex flex-col md:flex-row gap-12 w-full md:w-auto">
+                <div class="text-center md:text-left">
+                    <h4 class="text-white font-semibold mb-4">Hubungi Kami</h4>
+                    <div class="flex flex-col gap-3">
+                        <a href="https://wa.me/6285795738637" target="_blank" class="hover:text-brand transition flex items-center justify-center md:justify-start gap-2">
+                            <img src="https://cdn.simpleicons.org/whatsapp/25D366" alt="WhatsApp" class="w-6 h-6"> +6285795738637
+                        </a>
+                        <a href="https://instagram.com/ayrigitar" target="_blank" class="hover:text-brand transition flex items-center justify-center md:justify-start gap-2">
+                            <img src="https://cdn.simpleicons.org/instagram/E4405F" alt="Instagram" class="w-6 h-6"> @ayrigitar
+                        </a>
+                    </div>
+                </div>
+                <div class="text-center md:text-left">
+                    <h4 class="text-white font-semibold mb-4">Marketplace</h4>
+                    <div class="flex flex-col gap-3">
+                        <a href="https://shopee.co.id/gitarbekasbogor" target="_blank" class="hover:text-white transition flex items-center justify-center md:justify-start gap-2 group">
+                            <img src="https://cdn.simpleicons.org/shopee/EE4D2D" alt="Shopee Logo" class="w-5 h-5 group-hover:scale-110 transition-transform">
+                            Shopee
+                        </a>
+                        <a href="https://tokopedia.com/rioalamnur" target="_blank" class="hover:text-white transition flex items-center justify-center md:justify-start gap-2 group mt-2">
+                            <img src="https://assets.tokopedia.net/assets-tokopedia-lite/v2/arael/kratos/36c1015e.png" alt="Tokopedia" class="w-6 h-6 group-hover:scale-110 transition-transform">
+                            <span>Tokopedia</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 mt-10 pt-8 border-t border-slate-800 text-sm text-center">
+            &copy; 2026 Toko Gitar AYRI. All rights reserved.
+        </div>
+    </footer>
+    <!-- Tombol WhatsApp melayang -->
+    <a href="https://wa.me/6285795738637?text=Halo%20AYRI%2C%20saya%20mau%20tanya%20servis%20gitar" target="_blank" aria-label="Chat via WhatsApp"
+       class="fixed bottom-5 right-5 z-50 w-14 h-14 rounded-full bg-[#0B8043] hover:bg-[#086B38] text-white flex items-center justify-center shadow-xl transition">
+        <i class="fab fa-whatsapp text-3xl"></i>
+    </a>
+</body>
+</html>

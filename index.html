@@ -69,6 +69,12 @@
         .hover-bg-brand:hover { background-color: #b45309; }
         html { scroll-padding-top: 5rem; }
     </style>
+    <meta name="theme-color" content="#15100c">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&display=swap">
+    <link rel="stylesheet" href="theme-dark.css">
+    <script src="theme.js"></script>
 </head>
 <body class="bg-slate-50 text-slate-900 font-sans antialiased">
     
@@ -84,6 +90,7 @@
                     <a href="#layanan" class="text-slate-600 hover:text-brand transition font-medium">Layanan</a>
                     <a href="#harga" class="text-slate-600 hover:text-brand transition font-medium">Harga</a>
                     <a href="#artikel" class="text-slate-600 hover:text-brand transition font-medium">Artikel</a>
+                    <a href="tuner.html" class="text-slate-600 hover:text-brand transition font-medium">Tuner</a>
                     <a href="#marketplace" class="text-slate-600 hover:text-brand transition font-medium">Marketplace</a>
                     <a href="#lokasi" class="text-slate-600 hover:text-brand transition font-medium">Lokasi</a>
                     <a href="https://wa.me/6285795738637?text=Halo%20AYRI%2C%20saya%20mau%20tanya%20servis%20gitar" target="_blank" class="bg-[#0B8043] hover:bg-[#086B38] text-white px-4 py-2 rounded-full font-semibold text-sm transition flex items-center gap-2">
@@ -104,6 +111,7 @@
                 <a href="#layanan" class="mobile-link py-3 text-slate-700 hover:text-brand font-medium border-b border-slate-100">Layanan</a>
                 <a href="#harga" class="mobile-link py-3 text-slate-700 hover:text-brand font-medium border-b border-slate-100">Harga Servis</a>
                 <a href="#artikel" class="mobile-link py-3 text-slate-700 hover:text-brand font-medium border-b border-slate-100">Artikel</a>
+                <a href="tuner.html" class="mobile-link py-3 text-slate-700 hover:text-brand font-medium border-b border-slate-100">Tuner</a>
                 <a href="#marketplace" class="mobile-link py-3 text-slate-700 hover:text-brand font-medium border-b border-slate-100">Marketplace</a>
                 <a href="#lokasi" class="mobile-link py-3 text-slate-700 hover:text-brand font-medium border-b border-slate-100">Lokasi</a>
                 <a href="#kontak" class="mobile-link py-3 text-slate-700 hover:text-brand font-medium">Kontak</a>
@@ -112,8 +120,8 @@
     </nav>
 
     <!-- Hero Section -->
-    <section class="pt-28 sm:pt-32 pb-16 sm:pb-20 bg-white">
-        <div class="max-w-6xl mx-auto px-4 text-center sm:px-6 lg:px-8">
+    <section class="hero pt-28 sm:pt-32 pb-16 sm:pb-20 bg-white">
+        <div class="max-w-6xl mx-auto px-4 text-center sm:px-6 lg:px-8" style="position:relative;z-index:1">
             <h1 class="text-3xl sm:text-4xl md:text-5xl font-extrabold text-slate-900 tracking-tight mb-4">
                 Servis, Jual Beli &amp; Tukar Tambah <span class="text-brand">Gitar di Bogor</span>
             </h1>
@@ -127,6 +135,7 @@
                 <p class="text-sm text-slate-600">Buka Sen&ndash;Min 12.00&ndash;19.00 (Jumat mulai 13.00) &middot; Pasirkuda, Bogor</p>
             </div>
         </div>
+        <div class="fretboard" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div>
     </section>
 
     <!-- Services Section -->
@@ -292,6 +301,15 @@
                     </div>
                 </a>
             </div>
+        </div>
+    </section>
+
+    <!-- Tuner Gitar -->
+    <section id="tuner" class="py-20 bg-white border-t border-slate-100">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h2 class="text-3xl font-bold text-slate-900 mb-4">Tuner Gitar Gratis</h2>
+            <p class="text-slate-600 mb-8">Setel senar gitar Anda langsung dari HP, tanpa aplikasi. Cukup izinkan mikrofon dan petik senarnya.</p>
+            <a href="tuner.html" class="inline-flex items-center justify-center gap-2 bg-[#0B8043] hover:bg-[#086B38] text-white px-8 py-3.5 rounded-full font-semibold transition shadow-lg text-lg">Buka Tuner Gitar</a>
         </div>
     </section>
 
