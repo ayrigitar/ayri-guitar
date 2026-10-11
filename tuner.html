@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tuner Gitar Online Gratis | Toko Gitar AYRI</title>
-    <meta name="description" content="Tuner gitar online gratis: setel senar gitar akustik dan elektrik langsung dari HP atau laptop. Tanpa aplikasi, cukup izinkan mikrofon.">
+    <title>Tuner Gitar, Bass & Ukulele Online Gratis | Toko Gitar AYRI</title>
+    <meta name="description" content="Tuner online gratis untuk gitar akustik, gitar listrik, bass, ukulele, dan guitalele, plus setelan custom. Tanpa aplikasi, cukup izinkan mikrofon.">
     <!-- Tailwind CSS & FontAwesome -->
     <link rel="stylesheet" href="style-artikel.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -48,45 +48,131 @@
 
     <!-- BAGIAN KONTEN ARTIKEL -->
     <main class="tuner">
-        <h1>Tuner Gitar Online</h1>
-        <p class="t-sub">Setel senar gitar langsung dari HP atau laptop, gratis dan tanpa aplikasi. Tekan Mulai, izinkan mikrofon, lalu petik satu senar.</p>
+        <h1>Tuner Gitar, Bass &amp; Ukulele</h1>
+        <p class="t-sub">Setel senar langsung dari HP atau laptop, gratis dan tanpa aplikasi. Pilih alat musik, tekan Mulai, izinkan mikrofon, lalu petik satu senar.</p>
         <div class="t-card">
+            <svg id="vu" class="vu" viewBox="0 0 400 250" role="img" aria-label="Meter nada bergaya VU meter">
+                <defs>
+                    <linearGradient id="vuBez" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5a3d26"/><stop offset="1" stop-color="#241810"/></linearGradient>
+                    <radialGradient id="vuFace" cx="50%" cy="85%" r="95%"><stop offset="0" stop-color="#fbf0cb"/><stop offset=".7" stop-color="#ecd49a"/><stop offset="1" stop-color="#cfae6b"/></radialGradient>
+                    <clipPath id="vuClip"><rect x="12" y="12" width="376" height="226" rx="12"/></clipPath>
+                </defs>
+                <rect x="1" y="1" width="398" height="248" rx="22" fill="url(#vuBez)" stroke="#c9a24a" stroke-width="2"/>
+                <g clip-path="url(#vuClip)">
+                    <rect x="12" y="12" width="376" height="226" fill="url(#vuFace)"/>
+                    <g id="vuTicks"></g>
+                    <text x="62" y="62" class="vuT">RENDAH</text><text x="338" y="62" class="vuT" text-anchor="end">TINGGI</text>
+                    <text x="200" y="182" class="vuB" text-anchor="middle">AYRI TUNER</text>
+                    <circle id="vuLamp" cx="352" cy="100" r="9" fill="#5a5047" stroke="#3b2a1a" stroke-width="2"/>
+                    <text x="352" y="128" class="vuT" text-anchor="middle">PAS</text>
+                    <g id="needle" transform="rotate(-58 200 225)"><line x1="200" y1="225" x2="200" y2="34" stroke="#17100b" stroke-width="2.6" stroke-linecap="round"/></g>
+                    <path d="M154 240A46 46 0 0 1 246 240Z" fill="#2b1e14"/><circle cx="200" cy="232" r="7" fill="#c9a24a"/>
+                    <ellipse cx="120" cy="30" rx="130" ry="34" fill="#fff" opacity=".13"/>
+                </g>
+            </svg>
             <div class="t-note"><span id="note">--</span><sup id="oct"></sup></div>
             <div id="status" class="t-status" aria-live="polite">Tekan tombol Mulai</div>
-            <div class="t-meter"><div id="needle" class="t-needle"></div></div>
-            <div class="t-scale"><span>Terlalu rendah</span><span>Pas</span><span>Terlalu tinggi</span></div>
             <div id="hz" class="t-hz">0 Hz</div>
             <button id="start" type="button" class="t-btn">Mulai Tuner</button>
         </div>
-        <h2>Pilih nada senar</h2>
+        <h2>Alat musik &amp; setelan</h2>
         <div class="t-row">
-            <select id="tuning" aria-label="Pilih setelan">
-                <option value="s">Standar (E A D G B E)</option>
-                <option value="d">Drop D (D A D G B E)</option>
-                <option value="h">Turun setengah nada (Eb)</option>
-            </select>
-            <button id="auto" type="button" class="t-btn alt">Deteksi otomatis</button>
+            <label>Alat musik<select id="inst"></select></label>
+            <label>Setelan<select id="tuning"></select></label>
+            <label>Kepekaan mikrofon<select id="sens"><option value="r">Rendah (ruangan ramai)</option><option value="s" selected>Sedang</option><option value="t">Tinggi (ruangan sepi)</option></select></label>
         </div>
+        <div id="editor" class="t-editor" hidden></div>
+        <div class="t-row"><button id="auto" type="button" class="t-btn alt">Deteksi otomatis</button></div>
         <div id="strings" class="t-strings"></div>
-        <p class="t-help">Ketuk salah satu senar untuk mendengar nada acuannya, lalu petik senar gitar Anda sampai jarum berada di tengah dan tulisan berubah hijau. Gunakan di ruangan yang tenang dan petik satu senar saja.</p>
-        <a class="t-cta" href="https://wa.me/6285795738637?text=Halo%20AYRI%2C%20saya%20mau%20tanya%20servis%20gitar" target="_blank"><strong>Senar sering fals atau susah disetel?</strong><br>Mungkin gitar perlu setup. Tanya kami lewat WhatsApp.</a>
+        <p class="t-help">Ketuk salah satu senar untuk mendengar nada acuan dan memilihnya sebagai target. Petik senar sampai jarum berada di tengah dan lampu PAS menyala hijau. Untuk bass, nada acuan dimainkan lebih tinggi karena speaker HP tidak bisa menyuarakan nada sangat rendah. Gunakan di ruangan tenang dan petik satu senar saja.</p>
+        <a class="t-cta" href="https://wa.me/6285795738637?text=Halo%20AYRI%2C%20saya%20mau%20tanya%20servis%20gitar" target="_blank"><strong>Senar sering fals atau susah disetel?</strong><br>Mungkin alat musik perlu setup. Tanya kami lewat WhatsApp.</a>
     </main>
     <script>
     (function () {
         var NAMES = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
-        var TUNINGS = { s:[40,45,50,55,59,64], d:[38,45,50,55,59,64], h:[39,44,49,54,58,63] };
+        var GT = { s:['Standar (E A D G B E)',[40,45,50,55,59,64]], d:['Drop D (D A D G B E)',[38,45,50,55,59,64]], h:['Turun setengah nada (Eb)',[39,44,49,54,58,63]], w:['Turun satu nada (D standar)',[38,43,48,53,57,62]], g:['Open G (D G D G B D)',[38,43,50,55,59,62]], x:['DADGAD',[38,45,50,55,57,62]] };
+        var INST = {
+            ak:['Gitar akustik',GT], el:['Gitar listrik',GT],
+            b4:['Bass 4 senar',{ s:['Standar (E A D G)',[28,33,38,43]], d:['Drop D (D A D G)',[26,33,38,43]], h:['Turun setengah nada (Eb)',[27,32,37,42]] }],
+            b5:['Bass 5 senar',{ s:['Standar (B E A D G)',[23,28,33,38,43]], h:['Turun setengah nada',[22,27,32,37,42]] }],
+            uk:['Ukulele',{ s:['Standar (G C E A)',[67,60,64,69]], l:['Low G (G rendah)',[55,60,64,69]], b:['Baritone (D G B E)',[50,55,59,64]] }],
+            gl:['Guitalele',{ s:['Standar (A D G C E A)',[45,50,55,60,64,69]], h:['Turun setengah nada',[44,49,54,59,63,68]] }],
+            cu:['Custom (atur sendiri)',null]
+        };
+        var GATE = { r:0.04, s:0.02, t:0.01 };
         var $ = function (id) { return document.getElementById(id); };
-        var tuning = 's', target = null, ctx, analyser, buf, timer, hist = [], lastHeard = 0, tone;
+        var inst = 'ak', tun = 's', cust = [40,45,50,55,59,64], target = null, lock = null;
+        var ctx, analyser, buf, timer, hist = [], rej = 0, lastHeard = 0, stream, cs = null, tuned = false;
+        var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+        try { var sv = JSON.parse(localStorage.getItem('ayri-tuner-custom')); if (sv && sv.length) cust = sv; } catch (e) {}
         var f = function (m) { return 440 * Math.pow(2, (m - 69) / 12); };
-        function drawStrings() {
-            var h = '';
-            TUNINGS[tuning].forEach(function (m, i) {
-                h += '<button type="button" class="t-string' + (target === i ? ' on' : '') + '" data-i="' + i + '">' + NAMES[m % 12] + '<small>Senar ' + (6 - i) + '</small></button>';
-            });
-            $('strings').innerHTML = h;
+        var cur = function () { return inst === 'cu' ? cust : INST[inst][1][tun][1]; };
+
+        /* ---------- VU meter ---------- */
+        var CX = 200, CY = 225;
+        function pt(r, d) { var a = d * Math.PI / 180; return [CX + r * Math.sin(a), CY - r * Math.cos(a)]; }
+        function arc(r, a0, a1, col, w) { var p = pt(r, a0), q = pt(r, a1); return '<path d="M' + p[0].toFixed(1) + ' ' + p[1].toFixed(1) + 'A' + r + ' ' + r + ' 0 0 1 ' + q[0].toFixed(1) + ' ' + q[1].toFixed(1) + '" fill="none" stroke="' + col + '" stroke-width="' + w + '"/>'; }
+        (function () {
+            var h = arc(158, -50, 50, '#3b2a1a', 1.5) + arc(163, -5, 5, '#2e8b4a', 8) + arc(163, -50, -35, '#b3392b', 8) + arc(163, 35, 50, '#b3392b', 8);
+            for (var c = -50; c <= 50; c += 5) {
+                var big = c % 10 === 0, p = pt(big ? 140 : 147, c), q = pt(155, c);
+                h += '<line x1="' + p[0].toFixed(1) + '" y1="' + p[1].toFixed(1) + '" x2="' + q[0].toFixed(1) + '" y2="' + q[1].toFixed(1) + '" stroke="#3b2a1a" stroke-width="' + (big ? 2.2 : 1.2) + '"/>';
+            }
+            [-50, -25, 0, 25, 50].forEach(function (c) { var p = pt(122, c); h += '<text x="' + p[0].toFixed(1) + '" y="' + (p[1] + 5).toFixed(1) + '" class="vuN" text-anchor="middle">' + (c > 0 ? '+' : '') + c + '</text>'; });
+            $('vuTicks').innerHTML = h;
+        })();
+        var ang = -58, vel = 0, tgt = -58, raf = 0;
+        function draw() { $('needle').setAttribute('transform', 'rotate(' + ang.toFixed(2) + ' ' + CX + ' ' + CY + ')'); }
+        function loop() {
+            vel = (vel + (tgt - ang) * 0.12) * 0.78; ang += vel; draw();
+            raf = (Math.abs(tgt - ang) > 0.05 || Math.abs(vel) > 0.05) ? requestAnimationFrame(loop) : 0;
         }
+        function aim(a) { tgt = a; if (reduce) { ang = a; draw(); } else if (!raf) raf = requestAnimationFrame(loop); }
+        function lamp(on) { $('vuLamp').setAttribute('fill', on === null ? '#5a5047' : (on ? '#35d06b' : '#7a2b22')); }
+
+        /* ---------- UI ---------- */
+        function fillInst() {
+            $('inst').innerHTML = Object.keys(INST).map(function (k) { return '<option value="' + k + '"' + (k === inst ? ' selected' : '') + '>' + INST[k][0] + '</option>'; }).join('');
+        }
+        function fillTun() {
+            var t = INST[inst][1]; $('tuning').parentNode.hidden = !t;
+            if (t) { if (!t[tun]) tun = Object.keys(t)[0]; $('tuning').innerHTML = Object.keys(t).map(function (k) { return '<option value="' + k + '"' + (k === tun ? ' selected' : '') + '>' + t[k][0] + '</option>'; }).join(''); }
+            $('editor').hidden = inst !== 'cu'; if (inst === 'cu') drawEditor();
+        }
+        function drawStrings() {
+            var n = cur().length;
+            $('strings').innerHTML = cur().map(function (m, i) {
+                return '<button type="button" class="t-string' + (target === i ? ' on' : '') + '" data-i="' + i + '">' + NAMES[m % 12] + '<sub>' + (Math.floor(m / 12) - 1) + '</sub><small>Senar ' + (n - i) + '</small></button>';
+            }).join('');
+        }
+        function drawEditor() {
+            var h = cust.map(function (m, i) {
+                var o = ''; NAMES.forEach(function (nm, k) { o += '<option value="' + k + '"' + (k === m % 12 ? ' selected' : '') + '>' + nm + '</option>'; });
+                var oc = ''; for (var x = 0; x <= 7; x++) oc += '<option value="' + x + '"' + (x === Math.floor(m / 12) - 1 ? ' selected' : '') + '>' + x + '</option>';
+                return '<div class="t-ed"><span>Senar ' + (cust.length - i) + '</span><select data-n="' + i + '" aria-label="Nada senar ' + (cust.length - i) + '">' + o + '</select><select data-o="' + i + '" aria-label="Oktaf senar ' + (cust.length - i) + '">' + oc + '</select></div>';
+            }).join('');
+            $('editor').innerHTML = h + '<div class="t-row"><button type="button" class="t-btn alt" data-add="1">+ Tambah senar</button><button type="button" class="t-btn alt" data-add="-1">&minus; Kurangi senar</button></div><p class="t-help" style="margin-top:0">Pilih nada dan oktaf tiap senar (contoh gitar: E2 untuk senar 6). Pengaturan ini tersimpan di perangkat Anda.</p>';
+        }
+        function saveCust() { try { localStorage.setItem('ayri-tuner-custom', JSON.stringify(cust)); } catch (e) {} }
+        function reset() { target = null; lock = null; cs = null; hist = []; drawStrings(); }
+        $('inst').addEventListener('change', function () { inst = this.value; tun = 's'; fillTun(); reset(); });
+        $('tuning').addEventListener('change', function () { tun = this.value; reset(); });
+        $('auto').addEventListener('click', function () { target = null; drawStrings(); });
+        $('editor').addEventListener('change', function (e) {
+            var s = e.target, i = s.getAttribute('data-n'), j = s.getAttribute('data-o');
+            if (i !== null) cust[i] = Math.floor(cust[i] / 12) * 12 + (+s.value);
+            if (j !== null) cust[j] = (+s.value + 1) * 12 + cust[j] % 12;
+            saveCust(); target = null; drawStrings();
+        });
+        $('editor').addEventListener('click', function (e) {
+            var d = e.target.getAttribute('data-add'); if (!d) return;
+            if (d === '1' && cust.length < 8) cust.push(Math.min(cust[cust.length - 1] + 5, 95));
+            if (d === '-1' && cust.length > 1) cust.pop();
+            saveCust(); target = null; drawEditor(); drawStrings();
+        });
         function audio() { if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)(); if (ctx.state === 'suspended') ctx.resume(); return ctx; }
         function play(freq) {
+            while (freq < 98) freq *= 2;
             var c = audio(), o = c.createOscillator(), g = c.createGain(), t = c.currentTime;
             o.type = 'triangle'; o.frequency.value = freq;
             g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.5, t + 0.03); g.gain.exponentialRampToValueAtTime(0.0001, t + 1.8);
@@ -94,63 +180,72 @@
         }
         $('strings').addEventListener('click', function (e) {
             var b = e.target.closest('.t-string'); if (!b) return;
-            target = +b.getAttribute('data-i'); drawStrings(); play(f(TUNINGS[tuning][target]));
+            target = +b.getAttribute('data-i'); cs = null; hist = []; drawStrings(); play(f(cur()[target]));
         });
-        $('auto').addEventListener('click', function () { target = null; drawStrings(); });
-        $('tuning').addEventListener('change', function () { tuning = this.value; target = null; drawStrings(); });
 
-        function pitch(b, sr) {
-            var n = b.length, rms = 0, i, j;
-            for (i = 0; i < n; i++) rms += b[i] * b[i];
-            if (Math.sqrt(rms / n) < 0.01) return -1;
-            var r1 = 0, r2 = n - 1;
-            for (i = 0; i < n / 2; i++) if (Math.abs(b[i]) < 0.2) { r1 = i; break; }
-            for (i = 1; i < n / 2; i++) if (Math.abs(b[n - i]) < 0.2) { r2 = n - i; break; }
+        /* ---------- deteksi nada ---------- */
+        function pitch(raw, sr, gate) {
+            var D = 4, n = Math.floor(raw.length / D), b = new Float32Array(n), i, j, rms = 0, pk = 0;
+            for (i = 0; i < n; i++) { var s = 0; for (j = 0; j < D; j++) s += raw[i * D + j]; b[i] = s / D; rms += b[i] * b[i]; if (Math.abs(b[i]) > pk) pk = Math.abs(b[i]); }
+            if (Math.sqrt(rms / n) < gate) return -1;
+            var th = 0.2 * pk, r1 = 0, r2 = n - 1;
+            for (i = 0; i < n / 2; i++) if (Math.abs(b[i]) < th) { r1 = i; break; }
+            for (i = 1; i < n / 2; i++) if (Math.abs(b[n - i]) < th) { r2 = n - i; break; }
             b = b.slice(r1, r2); n = b.length;
-            var c = new Float32Array(n);
-            for (i = 0; i < n; i++) { var s = 0; for (j = 0; j < n - i; j++) s += b[j] * b[j + i]; c[i] = s; }
-            var d = 0; while (d < n - 1 && c[d] > c[d + 1]) d++;
+            var half = n >> 1, c = new Float32Array(half);
+            for (i = 0; i < half; i++) { var t = 0; for (j = 0; j < n - i; j++) t += b[j] * b[j + i]; c[i] = t; }
+            var d = 0; while (d < half - 1 && c[d] > c[d + 1]) d++;
             var mx = -1, p = -1;
-            for (i = d; i < n; i++) if (c[i] > mx) { mx = c[i]; p = i; }
-            if (p < 1 || p >= n - 1) return -1;
+            for (i = d; i < half; i++) if (c[i] > mx) { mx = c[i]; p = i; }
+            if (p < 1 || p >= half - 1 || mx < 0.3 * c[0]) return -1;
             var a = (c[p - 1] + c[p + 1] - 2 * c[p]) / 2, bb = (c[p + 1] - c[p - 1]) / 2;
             if (a) p = p - bb / (2 * a);
-            var hz = sr / p; return (hz > 60 && hz < 1200) ? hz : -1;
+            var hz = sr / D / p; return (hz > 25 && hz < 1400) ? hz : -1;
         }
+        var cents = function (hz, ref) { return 1200 * Math.log(hz / ref) / Math.LN2; };
         function show(hz) {
             var midi, ref;
-            if (target !== null) { midi = TUNINGS[tuning][target]; ref = f(midi); }
-            else { midi = Math.round(12 * Math.log(hz / 440) / Math.LN2 + 69); ref = f(midi); }
-            var cents = 1200 * Math.log(hz / ref) / Math.LN2;
+            if (target !== null) { midi = cur()[target]; ref = f(midi); while (hz / ref > 1.45) hz /= 2; while (hz / ref < 0.69) hz *= 2; }
+            else {
+                midi = Math.round(12 * Math.log(hz / 440) / Math.LN2 + 69);
+                if (lock !== null && Math.abs(cents(hz, f(lock))) < 65) midi = lock; else lock = midi;
+                ref = f(midi);
+            }
+            var c = cents(hz, ref); cs = cs === null ? c : cs + 0.35 * (c - cs);
+            tuned = Math.abs(cs) <= (tuned ? 8 : 5);
             $('note').textContent = NAMES[midi % 12]; $('oct').textContent = Math.floor(midi / 12) - 1;
-            $('hz').textContent = hz.toFixed(1) + ' Hz  (' + (cents > 0 ? '+' : '') + Math.round(cents) + ' sen)';
-            $('needle').style.left = (50 + Math.max(-50, Math.min(50, cents))) + '%';
-            var st = $('status'), ok = Math.abs(cents) <= 5;
-            $('needle').className = 't-needle' + (ok ? ' ok' : '');
-            st.className = 't-status ' + (ok ? 'ok' : 'bad');
-            st.textContent = ok ? 'Pas! Nada sudah tepat' : (cents < 0 ? 'Terlalu rendah, kencangkan senar' : 'Terlalu tinggi, kendurkan senar');
+            $('hz').textContent = hz.toFixed(1) + ' Hz  (' + (cs > 0 ? '+' : '') + Math.round(cs) + ' sen)';
+            aim(Math.max(-52, Math.min(52, cs))); lamp(tuned);
+            var st = $('status'); st.className = 't-status ' + (tuned ? 'ok' : 'bad');
+            st.textContent = tuned ? 'Pas! Nada sudah tepat' : (cs < 0 ? 'Terlalu rendah, kencangkan senar' : 'Terlalu tinggi, kendurkan senar');
         }
         function tick() {
             analyser.getFloatTimeDomainData(buf);
-            var hz = pitch(buf, ctx.sampleRate), now = Date.now();
+            var hz = pitch(buf, ctx.sampleRate, GATE[$('sens').value]), now = Date.now();
             if (hz > 0) {
-                hist.push(hz); if (hist.length > 5) hist.shift(); lastHeard = now;
-                var s = hist.slice().sort(function (x, y) { return x - y; }); show(s[Math.floor(s.length / 2)]);
-            } else if (now - lastHeard > 800) {
-                hist = []; $('status').className = 't-status'; $('status').textContent = 'Petik satu senar...';
+                lastHeard = now;
+                if (hist.length >= 3) {
+                    var m = hist.slice().sort(function (x, y) { return x - y; })[hist.length >> 1];
+                    if (Math.abs(cents(hz, m)) > 100 && rej < 3) { rej++; return; }
+                }
+                rej = 0; hist.push(hz); if (hist.length > 7) hist.shift();
+                if (hist.length >= 3) show(hist.slice().sort(function (x, y) { return x - y; })[hist.length >> 1]);
+            } else if (now - lastHeard > 900) {
+                hist = []; lock = null; cs = null; tuned = false; aim(-58); lamp(null);
+                $('status').className = 't-status'; $('status').textContent = 'Petik satu senar...';
             }
         }
         $('start').addEventListener('click', function () {
             var btn = this;
-            if (timer) { clearInterval(timer); timer = null; if (tone) tone.getTracks().forEach(function (t) { t.stop(); }); btn.textContent = 'Mulai Tuner'; $('status').className = 't-status'; $('status').textContent = 'Tuner berhenti'; return; }
+            if (timer) { clearInterval(timer); timer = null; if (stream) stream.getTracks().forEach(function (t) { t.stop(); }); btn.textContent = 'Mulai Tuner'; aim(-58); lamp(null); $('status').className = 't-status'; $('status').textContent = 'Tuner berhenti'; return; }
             if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) { $('status').textContent = 'Browser ini belum mendukung mikrofon. Coba Chrome atau Safari terbaru.'; return; }
-            navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false } }).then(function (stream) {
-                tone = stream; var c = audio(); analyser = c.createAnalyser(); analyser.fftSize = 4096;
-                c.createMediaStreamSource(stream).connect(analyser); buf = new Float32Array(analyser.fftSize);
+            navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false } }).then(function (s) {
+                stream = s; var c = audio(); analyser = c.createAnalyser(); analyser.fftSize = 8192;
+                c.createMediaStreamSource(s).connect(analyser); buf = new Float32Array(analyser.fftSize);
                 btn.textContent = 'Berhenti'; $('status').textContent = 'Petik satu senar...'; timer = setInterval(tick, 100);
             }).catch(function () { $('status').className = 't-status bad'; $('status').textContent = 'Mikrofon tidak diizinkan. Buka pengaturan situs di browser dan izinkan mikrofon.'; });
         });
-        drawStrings();
+        fillInst(); fillTun(); drawStrings(); draw();
     })();
     </script>
 
