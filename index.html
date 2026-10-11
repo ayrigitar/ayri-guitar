@@ -57,12 +57,15 @@
     }
     </script>
     <!-- Tailwind CSS untuk styling cepat -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="style-index.css">
     <!-- FontAwesome untuk ikon-ikon cantik -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         .text-brand { color: #d97706; } 
         .bg-brand { background-color: #d97706; }
+        /* Hover warna brand (kelas khusus, bukan bawaan Tailwind) */
+        .hover\:text-brand:hover { color: #d97706; }
+        .group:hover .group-hover\:bg-brand { background-color: #d97706; }
         .hover-bg-brand:hover { background-color: #b45309; }
         html { scroll-padding-top: 5rem; }
     </style>
