@@ -58,7 +58,6 @@ html[data-theme="dark"] .hero p{color:var(--muted)}
 .theme-toggle{position:fixed;left:16px;bottom:20px;z-index:50;display:flex;align-items:center;gap:8px;min-height:48px;padding:0 18px;border-radius:999px;border:2px solid #cbd5e1;background:#fff;color:#0f172a;font:600 1rem/1 ui-sans-serif,system-ui,sans-serif;cursor:pointer;box-shadow:0 8px 20px -8px rgba(0,0,0,.35)}
 .theme-toggle:hover{border-color:#b45309}
 html[data-theme="dark"] .theme-toggle{background:#2a1f17;color:#f1e8da;border-color:rgba(224,169,59,.5)}
-
 /* ---- tuner ---- */
 :root{--card:#fff;--ink:#0f172a;--sub:#475569;--edge:#e2e8f0;--acc:#b45309;--ok:#15803d;--bad:#b91c1c;--soft:#f8fafc}
 html[data-theme="dark"]{--card:#1f1712;--ink:#f1e8da;--sub:#c4b8a6;--edge:rgba(241,232,218,.14);--acc:#e0a93b;--ok:#4ade80;--bad:#ff8a7a;--soft:#2a1f17}
@@ -86,18 +85,11 @@ html[data-theme="dark"]{--card:#1f1712;--ink:#f1e8da;--sub:#c4b8a6;--edge:rgba(2
 @media (prefers-reduced-motion:reduce){.t-needle{transition:none}}
 .tuner h1,.tuner h2{font-weight:700}
 
-/* ---- tuner: VU meter modern ---- */
-.modern-vu { max-width: 480px; margin: 0 auto 1.5rem; }
-.vu-track { stroke: var(--edge); }
-.vu-tick-center { stroke: var(--ink); }
-.vu-tick { stroke: var(--edge); }
-.vu-text-side { font: 700 13px ui-sans-serif, system-ui, sans-serif; fill: var(--sub); letter-spacing: 0.05em; }
-.vu-pivot-outer { fill: var(--card); stroke: var(--edge); }
-.vu-pivot-inner { fill: var(--sub); }
-
-/* Membuat teks bersinar halus */
-.t-status.ok { text-shadow: 0 0 10px rgba(34, 197, 94, 0.4); transition: text-shadow 0.3s ease; }
-
+/* ---- tuner: VU meter retro ---- */
+.vu{display:block;width:100%;max-width:460px;height:auto;margin:0 auto 1rem;filter:drop-shadow(0 12px 18px rgba(0,0,0,.45))}
+.vuT{font:700 12px ui-sans-serif,system-ui,sans-serif;letter-spacing:.08em;fill:#5b4630}
+.vuN{font:700 14px Georgia,'Times New Roman',serif;fill:#3b2a1a}
+.vuB{font:italic 700 15px Georgia,'Times New Roman',serif;fill:#5b4630;letter-spacing:.06em}
 .t-note{font-size:4.6rem}
 .t-note sup{font-size:1.6rem}
 .t-row label{display:flex;flex-direction:column;gap:.25rem;font-size:.9rem;color:var(--sub);flex:1 1 180px}

@@ -11,6 +11,7 @@
     <style>
         .text-brand { color: #d97706; } 
         .bg-brand { background-color: #d97706; }
+        /* Hover warna brand (kelas khusus, bukan bawaan Tailwind) */
         .hover\:text-brand:hover { color: #d97706; }
         .group:hover .group-hover\:bg-brand { background-color: #d97706; }
     </style>
@@ -31,11 +32,13 @@
                     <a href="index.html" class="text-xl sm:text-2xl font-bold text-slate-900">Toko Gitar <span class="text-brand">AYRI</span></a>
                 </div>
                 <div class="hidden md:flex items-center space-x-8">
+                    <!-- Kembali ke Halaman Utama -->
                     <a href="index.html" class="text-slate-600 hover:text-brand transition font-medium"><i class="fas fa-home"></i> Beranda</a>
                     <a href="index.html#layanan" class="text-slate-600 hover:text-brand transition font-medium">Layanan</a>
                     <a href="index.html#harga" class="text-slate-600 hover:text-brand transition font-medium">Harga Servis</a>
                     <a href="https://wa.me/6285795738637" target="_blank" class="bg-[#0B8043] hover:bg-[#086B38] text-white px-4 py-2 rounded-full font-semibold text-sm transition">Chat WhatsApp</a>
                 </div>
+                <!-- Tombol Kembali untuk Mobile -->
                 <div class="flex items-center md:hidden">
                     <a href="index.html" class="text-slate-700 hover:text-brand font-bold text-sm"><i class="fas fa-arrow-left"></i> Kembali</a>
                 </div>
@@ -48,28 +51,24 @@
         <h1>Tuner Gitar, Bass &amp; Ukulele</h1>
         <p class="t-sub">Setel senar langsung dari HP atau laptop, gratis dan tanpa aplikasi. Pilih alat musik, tekan Mulai, izinkan mikrofon, lalu petik satu senar.</p>
         <div class="t-card">
-            <svg id="vu" class="vu modern-vu" viewBox="0 0 400 220" role="img" aria-label="Meter nada digital">
+            <svg id="vu" class="vu" viewBox="0 0 400 250" role="img" aria-label="Meter nada bergaya VU meter">
                 <defs>
-                    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
-                        <feGaussianBlur stdDeviation="5" result="blur" />
-                        <feMerge>
-                            <feMergeNode in="blur"/>
-                            <feMergeNode in="SourceGraphic"/>
-                        </feMerge>
-                    </filter>
+                    <linearGradient id="vuBez" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5a3d26"/><stop offset="1" stop-color="#241810"/></linearGradient>
+                    <radialGradient id="vuFace" cx="50%" cy="85%" r="95%"><stop offset="0" stop-color="#fbf0cb"/><stop offset=".7" stop-color="#ecd49a"/><stop offset="1" stop-color="#cfae6b"/></radialGradient>
+                    <clipPath id="vuClip"><rect x="12" y="12" width="376" height="226" rx="12"/></clipPath>
                 </defs>
-                <path d="M 40 200 A 160 160 0 0 1 360 200" fill="none" class="vu-track" stroke-width="12" stroke-linecap="round"/>
-                <line x1="200" y1="30" x2="200" y2="55" class="vu-tick-center" stroke-width="6" stroke-linecap="round"/>
-                <line x1="100" y1="75" x2="115" y2="92" class="vu-tick" stroke-width="4" stroke-linecap="round"/>
-                <line x1="300" y1="75" x2="285" y2="92" class="vu-tick" stroke-width="4" stroke-linecap="round"/>
-                <text x="45" y="215" class="vu-text-side" text-anchor="start">◀ RENDAH (b)</text>
-                <text x="355" y="215" class="vu-text-side" text-anchor="end">(#) TINGGI ▶</text>
-                <g id="needle" transform="rotate(-58 200 200)">
-                    <line x1="200" y1="200" x2="200" y2="40" stroke="var(--sub)" stroke-width="8" stroke-linecap="round" id="vuNeedleLine" />
-                    <circle cx="200" cy="40" r="10" fill="var(--sub)" id="vuNeedleTip" />
+                <rect x="1" y="1" width="398" height="248" rx="22" fill="url(#vuBez)" stroke="#c9a24a" stroke-width="2"/>
+                <g clip-path="url(#vuClip)">
+                    <rect x="12" y="12" width="376" height="226" fill="url(#vuFace)"/>
+                    <g id="vuTicks"></g>
+                    <text x="62" y="62" class="vuT">RENDAH</text><text x="338" y="62" class="vuT" text-anchor="end">TINGGI</text>
+                    <text x="200" y="182" class="vuB" text-anchor="middle">AYRI TUNER</text>
+                    <circle id="vuLamp" cx="352" cy="100" r="9" fill="#5a5047" stroke="#3b2a1a" stroke-width="2"/>
+                    <text x="352" y="128" class="vuT" text-anchor="middle">PAS</text>
+                    <g id="needle" transform="rotate(-58 200 225)"><line x1="200" y1="225" x2="200" y2="34" stroke="#17100b" stroke-width="2.6" stroke-linecap="round"/></g>
+                    <path d="M154 240A46 46 0 0 1 246 240Z" fill="#2b1e14"/><circle cx="200" cy="232" r="7" fill="#c9a24a"/>
+                    <ellipse cx="120" cy="30" rx="130" ry="34" fill="#fff" opacity=".13"/>
                 </g>
-                <circle cx="200" cy="200" r="16" class="vu-pivot-outer" stroke-width="4"/>
-                <circle cx="200" cy="200" r="6" class="vu-pivot-inner"/>
             </svg>
             <div class="t-note"><span id="note">--</span><sup id="oct"></sup></div>
             <div id="status" class="t-status" aria-live="polite">Tekan tombol Mulai</div>
@@ -85,7 +84,7 @@
         <div id="editor" class="t-editor" hidden></div>
         <div class="t-row"><button id="auto" type="button" class="t-btn alt">Deteksi otomatis</button></div>
         <div id="strings" class="t-strings"></div>
-        <p class="t-help">Ketuk salah satu senar untuk mendengar nada acuan dan memilihnya sebagai target. Petik senar sampai jarum berada di tengah dan menyala hijau terang. Untuk bass, nada acuan dimainkan lebih tinggi karena speaker HP tidak bisa menyuarakan nada sangat rendah. Gunakan di ruangan tenang dan petik satu senar saja.</p>
+        <p class="t-help">Ketuk salah satu senar untuk mendengar nada acuan dan memilihnya sebagai target. Petik senar sampai jarum berada di tengah dan lampu PAS menyala hijau. Untuk bass, nada acuan dimainkan lebih tinggi karena speaker HP tidak bisa menyuarakan nada sangat rendah. Gunakan di ruangan tenang dan petik satu senar saja.</p>
         <a class="t-cta" href="https://wa.me/6285795738637?text=Halo%20AYRI%2C%20saya%20mau%20tanya%20servis%20gitar" target="_blank"><strong>Senar sering fals atau susah disetel?</strong><br>Mungkin alat musik perlu setup. Tanya kami lewat WhatsApp.</a>
     </main>
     <script>
@@ -109,8 +108,19 @@
         var f = function (m) { return 440 * Math.pow(2, (m - 69) / 12); };
         var cur = function () { return inst === 'cu' ? cust : INST[inst][1][tun][1]; };
 
-        /* ---------- VU meter Modern ---------- */
-        var CX = 200, CY = 200;
+        /* ---------- VU meter ---------- */
+        var CX = 200, CY = 225;
+        function pt(r, d) { var a = d * Math.PI / 180; return [CX + r * Math.sin(a), CY - r * Math.cos(a)]; }
+        function arc(r, a0, a1, col, w) { var p = pt(r, a0), q = pt(r, a1); return '<path d="M' + p[0].toFixed(1) + ' ' + p[1].toFixed(1) + 'A' + r + ' ' + r + ' 0 0 1 ' + q[0].toFixed(1) + ' ' + q[1].toFixed(1) + '" fill="none" stroke="' + col + '" stroke-width="' + w + '"/>'; }
+        (function () {
+            var h = arc(158, -50, 50, '#3b2a1a', 1.5) + arc(163, -5, 5, '#2e8b4a', 8) + arc(163, -50, -35, '#b3392b', 8) + arc(163, 35, 50, '#b3392b', 8);
+            for (var c = -50; c <= 50; c += 5) {
+                var big = c % 10 === 0, p = pt(big ? 140 : 147, c), q = pt(155, c);
+                h += '<line x1="' + p[0].toFixed(1) + '" y1="' + p[1].toFixed(1) + '" x2="' + q[0].toFixed(1) + '" y2="' + q[1].toFixed(1) + '" stroke="#3b2a1a" stroke-width="' + (big ? 2.2 : 1.2) + '"/>';
+            }
+            [-50, -25, 0, 25, 50].forEach(function (c) { var p = pt(122, c); h += '<text x="' + p[0].toFixed(1) + '" y="' + (p[1] + 5).toFixed(1) + '" class="vuN" text-anchor="middle">' + (c > 0 ? '+' : '') + c + '</text>'; });
+            $('vuTicks').innerHTML = h;
+        })();
         var ang = -58, vel = 0, tgt = -58, raf = 0;
         function draw() { $('needle').setAttribute('transform', 'rotate(' + ang.toFixed(2) + ' ' + CX + ' ' + CY + ')'); }
         function loop() {
@@ -118,18 +128,7 @@
             raf = (Math.abs(tgt - ang) > 0.05 || Math.abs(vel) > 0.05) ? requestAnimationFrame(loop) : 0;
         }
         function aim(a) { tgt = a; if (reduce) { ang = a; draw(); } else if (!raf) raf = requestAnimationFrame(loop); }
-        function lamp(on) { 
-            var color = on === null ? 'var(--sub)' : (on ? '#22c55e' : '#f59e0b'); 
-            $('vuNeedleLine').setAttribute('stroke', color);
-            $('vuNeedleTip').setAttribute('fill', color);
-            if (on) {
-                $('vuNeedleTip').setAttribute('filter', 'url(#glow)');
-                $('vuNeedleLine').setAttribute('filter', 'url(#glow)');
-            } else {
-                $('vuNeedleTip').removeAttribute('filter');
-                $('vuNeedleLine').removeAttribute('filter');
-            }
-        }
+        function lamp(on) { $('vuLamp').setAttribute('fill', on === null ? '#5a5047' : (on ? '#35d06b' : '#7a2b22')); }
 
         /* ---------- UI ---------- */
         function fillInst() {
@@ -287,6 +286,7 @@
             &copy; 2026 Toko Gitar AYRI. All rights reserved.
         </div>
     </footer>
+    <!-- Tombol WhatsApp melayang -->
     <a href="https://wa.me/6285795738637?text=Halo%20AYRI%2C%20saya%20mau%20tanya%20servis%20gitar" target="_blank" aria-label="Chat via WhatsApp"
        class="fixed bottom-5 right-5 z-50 w-14 h-14 rounded-full bg-[#0B8043] hover:bg-[#086B38] text-white flex items-center justify-center shadow-xl transition">
         <i class="fab fa-whatsapp text-3xl"></i>
