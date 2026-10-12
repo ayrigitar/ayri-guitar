@@ -118,3 +118,17 @@ html[data-theme="dark"]{--okbg:rgba(74,222,128,.08)}
 .bf-bub.on i{display:block}.bf-bub.l i{left:calc(100% + 8px)}.bf-bub.r i{right:calc(100% + 8px)}.bf-bub.good i{display:none}
 .tm.ok .bf-bub{box-shadow:0 0 0 6px rgba(21,128,61,.25)}
 @media (prefers-reduced-motion:reduce){.bf-bub,.tm{transition:none}}
+
+/* ---- tuner: kepala gitar ---- */
+.hs{display:grid;grid-template-columns:1fr 150px 1fr;align-items:stretch;height:280px;max-width:420px;margin:0 auto}
+.hs-col{display:grid;align-items:center;justify-items:center}
+.hs-svg{width:150px;height:280px;display:block}
+.hs .t-string{width:58px;height:58px;min-height:0;padding:0;border-radius:50%;font-size:1.55rem;background:var(--soft);transition:border-color .2s,background .2s,box-shadow .2s}
+.hs .t-string sub{font-size:.7rem;margin-left:1px}
+.hs .t-string.sel{border-color:var(--acc);box-shadow:none}
+.hs .t-string.act{background:var(--acc);border-color:var(--acc);color:#fff}
+.hs .t-string.done{border-color:var(--ok);box-shadow:0 0 0 3px rgba(21,128,61,.3)}
+.hs .t-string.done.act{background:var(--ok)}
+.hs-svg .pg rect{fill:#d9d9d9;stroke:#8a8a8a;stroke-width:1.5;transition:fill .2s}
+.hs-svg .pg.act rect{fill:#fff}
+.hs-svg .pg.done rect{fill:#4ade80}

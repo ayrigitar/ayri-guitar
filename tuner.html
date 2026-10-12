@@ -70,8 +70,8 @@
         </div>
         <div id="editor" class="t-editor" hidden></div>
         <div class="t-row"><button id="auto" type="button" class="t-btn alt">Deteksi otomatis</button></div>
-        <div id="strings" class="t-strings"></div>
-        <p class="t-help">Ketuk salah satu senar untuk mendengar nada acuan dan memilihnya sebagai target. Petik senar sampai jarum berada di tengah dan lampu PAS menyala hijau. Untuk bass, nada acuan dimainkan lebih tinggi karena speaker HP tidak bisa menyuarakan nada sangat rendah. Gunakan di ruangan tenang dan petik satu senar saja.</p>
+        <div id="strings" class="hs"></div>
+        <p class="t-help">Ketuk salah satu senar untuk mendengar nada acuan dan memilihnya sebagai target. Petik satu senar sampai gelembung berada di tengah dan berwarna hijau. Senar yang sudah pas akan bercincin hijau. Untuk bass, nada acuan dimainkan lebih tinggi karena speaker HP tidak bisa menyuarakan nada sangat rendah. Gunakan di ruangan tenang dan petik satu senar saja.</p>
         <a class="t-cta" href="https://wa.me/6285795738637?text=Halo%20AYRI%2C%20saya%20mau%20tanya%20servis%20gitar" target="_blank"><strong>Senar sering fals atau susah disetel?</strong><br>Mungkin alat musik perlu setup. Tanya kami lewat WhatsApp.</a>
     </main>
     <script>
@@ -89,7 +89,7 @@
         var GATE = { r:0.04, s:0.02, t:0.01 };
         var $ = function (id) { return document.getElementById(id); };
         var inst = 'ak', tun = 's', cust = [40,45,50,55,59,64], target = null, lock = null;
-        var ctx, analyser, buf, timer, hist = [], rej = 0, lastHeard = 0, stream, cs = null, tuned = false;
+        var ctx, analyser, buf, timer, hist = [], rej = 0, lastHeard = 0, stream, cs = null, tuned = false, act = -1, done = {}, doneKey = '';
         var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
         try { var sv = JSON.parse(localStorage.getItem('ayri-tuner-custom')); if (sv && sv.length) cust = sv; } catch (e) {}
         var f = function (m) { return 440 * Math.pow(2, (m - 69) / 12); };
@@ -125,10 +125,31 @@
             $('editor').hidden = inst !== 'cu'; if (inst === 'cu') drawEditor();
         }
         function drawStrings() {
-            var n = cur().length;
-            $('strings').innerHTML = cur().map(function (m, i) {
-                return '<button type="button" class="t-string' + (target === i ? ' on' : '') + '" data-i="' + i + '">' + NAMES[m % 12] + '<sub>' + (Math.floor(m / 12) - 1) + '</sub><small>Senar ' + (n - i) + '</small></button>';
-            }).join('');
+            var s = cur(), n = s.length, L = Math.ceil(n / 2), key = inst + tun + s.join(',');
+            if (key !== doneKey) { doneKey = key; done = {}; act = -1; }
+            function btn(i) { var m = s[i]; return '<button type="button" class="t-string" data-i="' + i + '" aria-label="Senar ' + (n - i) + ', nada ' + NAMES[m % 12] + '">' + NAMES[m % 12] + '<sub>' + (Math.floor(m / 12) - 1) + '</sub></button>'; }
+            var li = [], ri = [], i;
+            for (i = L - 1; i >= 0; i--) li.push(i);
+            for (i = L; i < n; i++) ri.push(i);
+            var H = 280, svg = '<svg class="hs-svg" viewBox="0 0 150 ' + H + '" aria-hidden="true"><defs><linearGradient id="wd" x1="0" x2="1"><stop offset="0" stop-color="#7a3f20"/><stop offset=".5" stop-color="#a45a33"/><stop offset="1" stop-color="#6b3419"/></linearGradient></defs>'
+                + '<path d="M38 ' + H + ' L42 80 Q44 14 75 10 Q106 14 108 80 L112 ' + H + ' Z" fill="url(#wd)" stroke="#f3e4cf" stroke-width="2"/><ellipse cx="75" cy="' + (H - 40) + '" rx="12" ry="22" fill="#1a1109" opacity=".75"/>';
+            function post(i, r, cnt, side) {
+                var y = H * (r + 0.5) / cnt, x = side ? 106 : 44, nx = n > 1 ? 58 + 34 * i / (n - 1) : 75, kx = side ? 124 : 4;
+                return '<line x1="' + nx + '" y1="' + H + '" x2="' + x + '" y2="' + y + '" stroke="#e8e0d0" stroke-width="1.4" opacity=".9"/><g class="pg" data-i="' + i + '"><rect x="' + kx + '" y="' + (y - 12) + '" width="22" height="24" rx="8"/><line x1="' + (side ? 124 : 26) + '" y1="' + y + '" x2="' + (side ? 106 : 44) + '" y2="' + y + '" stroke="#c9c9c9" stroke-width="5"/><circle cx="' + x + '" cy="' + y + '" r="5" fill="#d8d8d8" stroke="#777"/></g>';
+            }
+            li.forEach(function (i, r) { svg += post(i, r, li.length, 0); });
+            ri.forEach(function (i, r) { svg += post(i, r, ri.length, 1); });
+            $('strings').innerHTML = '<div class="hs-col" style="grid-template-rows:repeat(' + li.length + ',1fr)">' + li.map(btn).join('') + '</div>' + svg + '</svg><div class="hs-col" style="grid-template-rows:repeat(' + Math.max(ri.length, 1) + ',1fr)">' + ri.map(btn).join('') + '</div>';
+            mark();
+        }
+        function mark() {
+            var els = $('strings').querySelectorAll('[data-i]');
+            for (var k = 0; k < els.length; k++) {
+                var i = +els[k].getAttribute('data-i'), c = [];
+                if (els[k].tagName === 'BUTTON') c.push('t-string');
+                if (target === i) c.push('sel'); if (act === i) c.push('act'); if (done[i]) c.push('done');
+                if (els[k].tagName === 'BUTTON') els[k].className = c.join(' '); else els[k].setAttribute('class', 'pg ' + c.slice(+(els[k].tagName === 'BUTTON')).join(' '));
+            }
         }
         function drawEditor() {
             var h = cust.map(function (m, i) {
@@ -165,7 +186,7 @@
         }
         $('strings').addEventListener('click', function (e) {
             var b = e.target.closest('.t-string'); if (!b) return;
-            target = +b.getAttribute('data-i'); cs = null; hist = []; drawStrings(); play(f(cur()[target]));
+            target = +b.getAttribute('data-i'); cs = null; hist = []; mark(); play(f(cur()[target]));
         });
 
         /* ---------- deteksi nada ---------- */
@@ -198,6 +219,9 @@
             }
             var c = cents(hz, ref); cs = cs === null ? c : cs + 0.35 * (c - cs);
             tuned = Math.abs(cs) <= (tuned ? 8 : 5);
+            var idx = target !== null ? target : cur().indexOf(midi);
+            if (idx !== act) { act = idx; mark(); }
+            if (tuned && idx >= 0 && !done[idx]) { done[idx] = true; mark(); }
             $('note').textContent = NAMES[midi % 12]; $('oct').textContent = Math.floor(midi / 12) - 1;
             $('hz').textContent = hz.toFixed(1) + ' Hz  (' + (cs > 0 ? '+' : '') + Math.round(cs) + ' sen)';
             aim(Math.max(-52, Math.min(52, cs))); lamp(tuned);
@@ -216,13 +240,13 @@
                 rej = 0; hist.push(hz); if (hist.length > 7) hist.shift();
                 if (hist.length >= 3) show(hist.slice().sort(function (x, y) { return x - y; })[hist.length >> 1]);
             } else if (now - lastHeard > 900) {
-                hist = []; lock = null; cs = null; tuned = false; aim(-58); lamp(null);
+                hist = []; lock = null; cs = null; tuned = false; aim(-58); lamp(null); act = -1; mark();
                 $('status').className = 't-status'; $('status').textContent = 'Petik satu senar...';
             }
         }
         $('start').addEventListener('click', function () {
             var btn = this;
-            if (timer) { clearInterval(timer); timer = null; if (stream) stream.getTracks().forEach(function (t) { t.stop(); }); btn.textContent = 'Mulai Tuner'; aim(-58); lamp(null); $('status').className = 't-status'; $('status').textContent = 'Tuner berhenti'; return; }
+            if (timer) { clearInterval(timer); timer = null; if (stream) stream.getTracks().forEach(function (t) { t.stop(); }); btn.textContent = 'Mulai Tuner'; aim(-58); lamp(null); act = -1; mark(); $('status').className = 't-status'; $('status').textContent = 'Tuner berhenti'; return; }
             if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) { $('status').textContent = 'Browser ini belum mendukung mikrofon. Coba Chrome atau Safari terbaru.'; return; }
             navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false } }).then(function (s) {
                 stream = s; var c = audio(); analyser = c.createAnalyser(); analyser.fftSize = 8192;
