@@ -118,3 +118,15 @@ html[data-theme="dark"]{--okbg:rgba(74,222,128,.08)}
 .bf-bub.on i{display:block}.bf-bub.l i{left:calc(100% + 8px)}.bf-bub.r i{right:calc(100% + 8px)}.bf-bub.good i{display:none}
 .tm.ok .bf-bub{box-shadow:0 0 0 6px rgba(21,128,61,.25)}
 @media (prefers-reduced-motion:reduce){.bf-bub,.tm{transition:none}}
+
+/* ---- tuner: acuan A4 & penanda senar ---- */
+.t-a4{margin:0 0 1rem;padding:.9rem;border:1px solid var(--edge);border-radius:1rem;background:var(--card)}
+.t-a4l{display:block;font-weight:700;color:var(--ink);margin-bottom:.5rem}
+.t-a4c{display:flex;gap:.5rem;align-items:center}
+.t-a4c button,.t-a4p button{min-height:48px;min-width:48px;border-radius:.8rem;border:2px solid var(--edge);background:var(--soft);color:var(--ink);font-weight:700;font-size:1.3rem;cursor:pointer}
+.t-a4c input{flex:1;min-width:0;min-height:48px;text-align:center;font-size:1.3rem;font-weight:700;border-radius:.8rem;border:2px solid var(--edge);background:var(--card);color:var(--ink)}
+.t-a4p{display:flex;gap:.5rem;margin-top:.6rem;flex-wrap:wrap}.t-a4p button{font-size:1rem;padding:0 1rem}
+.t-a4p button.on{border-color:var(--acc);box-shadow:0 0 0 2px var(--acc) inset}
+.t-string.act{background:var(--acc);border-color:var(--acc);color:#fff}.t-string.act small,.t-string.act sub{color:#fff}
+.t-string.done{border-color:var(--ok);box-shadow:0 0 0 3px rgba(21,128,61,.3)}
+.t-string.done.act{background:var(--ok)}
