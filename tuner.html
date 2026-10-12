@@ -11,7 +11,6 @@
     <style>
         .text-brand { color: #d97706; } 
         .bg-brand { background-color: #d97706; }
-        /* Hover warna brand (kelas khusus, bukan bawaan Tailwind) */
         .hover\:text-brand:hover { color: #d97706; }
         .group:hover .group-hover\:bg-brand { background-color: #d97706; }
     </style>
@@ -32,13 +31,11 @@
                     <a href="index.html" class="text-xl sm:text-2xl font-bold text-slate-900">Toko Gitar <span class="text-brand">AYRI</span></a>
                 </div>
                 <div class="hidden md:flex items-center space-x-8">
-                    <!-- Kembali ke Halaman Utama -->
                     <a href="index.html" class="text-slate-600 hover:text-brand transition font-medium"><i class="fas fa-home"></i> Beranda</a>
                     <a href="index.html#layanan" class="text-slate-600 hover:text-brand transition font-medium">Layanan</a>
                     <a href="index.html#harga" class="text-slate-600 hover:text-brand transition font-medium">Harga Servis</a>
                     <a href="https://wa.me/6285795738637" target="_blank" class="bg-[#0B8043] hover:bg-[#086B38] text-white px-4 py-2 rounded-full font-semibold text-sm transition">Chat WhatsApp</a>
                 </div>
-                <!-- Tombol Kembali untuk Mobile -->
                 <div class="flex items-center md:hidden">
                     <a href="index.html" class="text-slate-700 hover:text-brand font-bold text-sm"><i class="fas fa-arrow-left"></i> Kembali</a>
                 </div>
@@ -50,13 +47,30 @@
     <main class="tuner">
         <h1>Tuner Gitar, Bass &amp; Ukulele</h1>
         <p class="t-sub">Setel senar langsung dari HP atau laptop, gratis dan tanpa aplikasi. Pilih alat musik, tekan Mulai, izinkan mikrofon, lalu petik satu senar.</p>
-        <div class="t-card tm idle" id="tm">
-            <div class="bf" role="img" aria-label="Penunjuk ketepatan nada">
-                <span class="bf-s bf-fl">&#9837;</span><span class="bf-s bf-sh">&#9839;</span>
-                <div class="bf-mid"></div>
-                <canvas id="trail" width="640" height="300"></canvas>
-                <div id="bub" class="bf-bub"><b id="cts"></b><i id="hint"></i></div>
-            </div>
+        <div class="t-card">
+            <svg id="vu" class="vu modern-vu" viewBox="0 0 400 220" role="img" aria-label="Meter nada digital">
+                <defs>
+                    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+                        <feGaussianBlur stdDeviation="5" result="blur" />
+                        <feMerge>
+                            <feMergeNode in="blur"/>
+                            <feMergeNode in="SourceGraphic"/>
+                        </feMerge>
+                    </filter>
+                </defs>
+                <path d="M 40 200 A 160 160 0 0 1 360 200" fill="none" class="vu-track" stroke-width="12" stroke-linecap="round"/>
+                <line x1="200" y1="30" x2="200" y2="55" class="vu-tick-center" stroke-width="6" stroke-linecap="round"/>
+                <line x1="100" y1="75" x2="115" y2="92" class="vu-tick" stroke-width="4" stroke-linecap="round"/>
+                <line x1="300" y1="75" x2="285" y2="92" class="vu-tick" stroke-width="4" stroke-linecap="round"/>
+                <text x="45" y="215" class="vu-text-side" text-anchor="start">◀ RENDAH (b)</text>
+                <text x="355" y="215" class="vu-text-side" text-anchor="end">(#) TINGGI ▶</text>
+                <g id="needle" transform="rotate(-58 200 200)">
+                    <line x1="200" y1="200" x2="200" y2="40" stroke="var(--sub)" stroke-width="8" stroke-linecap="round" id="vuNeedleLine" />
+                    <circle cx="200" cy="40" r="10" fill="var(--sub)" id="vuNeedleTip" />
+                </g>
+                <circle cx="200" cy="200" r="16" class="vu-pivot-outer" stroke-width="4"/>
+                <circle cx="200" cy="200" r="6" class="vu-pivot-inner"/>
+            </svg>
             <div class="t-note"><span id="note">--</span><sup id="oct"></sup></div>
             <div id="status" class="t-status" aria-live="polite">Tekan tombol Mulai</div>
             <div id="hz" class="t-hz">0 Hz</div>
@@ -70,8 +84,8 @@
         </div>
         <div id="editor" class="t-editor" hidden></div>
         <div class="t-row"><button id="auto" type="button" class="t-btn alt">Deteksi otomatis</button></div>
-        <div id="strings" class="hs"></div>
-        <p class="t-help">Ketuk salah satu senar untuk mendengar nada acuan dan memilihnya sebagai target. Petik satu senar sampai gelembung berada di tengah dan berwarna hijau. Senar yang sudah pas akan bercincin hijau. Untuk bass, nada acuan dimainkan lebih tinggi karena speaker HP tidak bisa menyuarakan nada sangat rendah. Gunakan di ruangan tenang dan petik satu senar saja.</p>
+        <div id="strings" class="t-strings"></div>
+        <p class="t-help">Ketuk salah satu senar untuk mendengar nada acuan dan memilihnya sebagai target. Petik senar sampai jarum berada di tengah dan menyala hijau terang. Untuk bass, nada acuan dimainkan lebih tinggi karena speaker HP tidak bisa menyuarakan nada sangat rendah. Gunakan di ruangan tenang dan petik satu senar saja.</p>
         <a class="t-cta" href="https://wa.me/6285795738637?text=Halo%20AYRI%2C%20saya%20mau%20tanya%20servis%20gitar" target="_blank"><strong>Senar sering fals atau susah disetel?</strong><br>Mungkin alat musik perlu setup. Tanya kami lewat WhatsApp.</a>
     </main>
     <script>
@@ -89,31 +103,33 @@
         var GATE = { r:0.04, s:0.02, t:0.01 };
         var $ = function (id) { return document.getElementById(id); };
         var inst = 'ak', tun = 's', cust = [40,45,50,55,59,64], target = null, lock = null;
-        var ctx, analyser, buf, timer, hist = [], rej = 0, lastHeard = 0, stream, cs = null, tuned = false, act = -1, done = {}, doneKey = '';
+        var ctx, analyser, buf, timer, hist = [], rej = 0, lastHeard = 0, stream, cs = null, tuned = false;
         var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
         try { var sv = JSON.parse(localStorage.getItem('ayri-tuner-custom')); if (sv && sv.length) cust = sv; } catch (e) {}
         var f = function (m) { return 440 * Math.pow(2, (m - 69) / 12); };
         var cur = function () { return inst === 'cu' ? cust : INST[inst][1][tun][1]; };
 
-        /* ---------- penunjuk ---------- */
-        var tr = [];
-        function pos(c) { return 10 + (Math.max(-50, Math.min(50, c)) + 50) * 0.8; }
-        function aim(c) {
-            var bub = $('bub'), g = $('trail').getContext('2d'), cv = $('trail');
-            g.clearRect(0, 0, cv.width, cv.height);
-            if (c < -55) { bub.className = 'bf-bub'; bub.style.left = '50%'; $('cts').textContent = ''; $('hint').textContent = ''; tr = []; return; }
-            var good = tuned, side = c < 0 ? 'l' : 'r';
-            bub.className = 'bf-bub on ' + (good ? 'good' : 'warn') + ' ' + side; bub.style.left = pos(c) + '%';
-            $('cts').textContent = (c > 0 ? '+' : '') + Math.round(c);
-            $('hint').textContent = good ? 'Pas!' : (c < 0 ? 'Kencangkan' : 'Kendurkan');
-            tr.unshift(c); if (tr.length > 30) tr.pop();
-            g.lineWidth = 5; g.lineCap = 'round'; g.strokeStyle = good ? '#16a34a' : '#d97706';
-            for (var i = 1; i < tr.length; i++) {
-                g.globalAlpha = 1 - i / tr.length; g.beginPath();
-                g.moveTo(cv.width * pos(tr[i - 1]) / 100, 125 + (i - 1) * 5); g.lineTo(cv.width * pos(tr[i]) / 100, 125 + i * 5); g.stroke();
+        /* ---------- VU meter Modern ---------- */
+        var CX = 200, CY = 200;
+        var ang = -58, vel = 0, tgt = -58, raf = 0;
+        function draw() { $('needle').setAttribute('transform', 'rotate(' + ang.toFixed(2) + ' ' + CX + ' ' + CY + ')'); }
+        function loop() {
+            vel = (vel + (tgt - ang) * 0.12) * 0.78; ang += vel; draw();
+            raf = (Math.abs(tgt - ang) > 0.05 || Math.abs(vel) > 0.05) ? requestAnimationFrame(loop) : 0;
+        }
+        function aim(a) { tgt = a; if (reduce) { ang = a; draw(); } else if (!raf) raf = requestAnimationFrame(loop); }
+        function lamp(on) { 
+            var color = on === null ? 'var(--sub)' : (on ? '#22c55e' : '#f59e0b'); 
+            $('vuNeedleLine').setAttribute('stroke', color);
+            $('vuNeedleTip').setAttribute('fill', color);
+            if (on) {
+                $('vuNeedleTip').setAttribute('filter', 'url(#glow)');
+                $('vuNeedleLine').setAttribute('filter', 'url(#glow)');
+            } else {
+                $('vuNeedleTip').removeAttribute('filter');
+                $('vuNeedleLine').removeAttribute('filter');
             }
         }
-        function lamp(on) { $('tm').className = 't-card tm' + (on === null ? ' idle' : (on ? ' ok' : '')); }
 
         /* ---------- UI ---------- */
         function fillInst() {
@@ -125,31 +141,10 @@
             $('editor').hidden = inst !== 'cu'; if (inst === 'cu') drawEditor();
         }
         function drawStrings() {
-            var s = cur(), n = s.length, L = Math.ceil(n / 2), key = inst + tun + s.join(',');
-            if (key !== doneKey) { doneKey = key; done = {}; act = -1; }
-            function btn(i) { var m = s[i]; return '<button type="button" class="t-string" data-i="' + i + '" aria-label="Senar ' + (n - i) + ', nada ' + NAMES[m % 12] + '">' + NAMES[m % 12] + '<sub>' + (Math.floor(m / 12) - 1) + '</sub></button>'; }
-            var li = [], ri = [], i;
-            for (i = L - 1; i >= 0; i--) li.push(i);
-            for (i = L; i < n; i++) ri.push(i);
-            var H = 280, svg = '<svg class="hs-svg" viewBox="0 0 150 ' + H + '" aria-hidden="true"><defs><linearGradient id="wd" x1="0" x2="1"><stop offset="0" stop-color="#7a3f20"/><stop offset=".5" stop-color="#a45a33"/><stop offset="1" stop-color="#6b3419"/></linearGradient></defs>'
-                + '<path d="M38 ' + H + ' L42 80 Q44 14 75 10 Q106 14 108 80 L112 ' + H + ' Z" fill="url(#wd)" stroke="#f3e4cf" stroke-width="2"/><ellipse cx="75" cy="' + (H - 40) + '" rx="12" ry="22" fill="#1a1109" opacity=".75"/>';
-            function post(i, r, cnt, side) {
-                var y = H * (r + 0.5) / cnt, x = side ? 106 : 44, nx = n > 1 ? 58 + 34 * i / (n - 1) : 75, kx = side ? 124 : 4;
-                return '<line x1="' + nx + '" y1="' + H + '" x2="' + x + '" y2="' + y + '" stroke="#e8e0d0" stroke-width="1.4" opacity=".9"/><g class="pg" data-i="' + i + '"><rect x="' + kx + '" y="' + (y - 12) + '" width="22" height="24" rx="8"/><line x1="' + (side ? 124 : 26) + '" y1="' + y + '" x2="' + (side ? 106 : 44) + '" y2="' + y + '" stroke="#c9c9c9" stroke-width="5"/><circle cx="' + x + '" cy="' + y + '" r="5" fill="#d8d8d8" stroke="#777"/></g>';
-            }
-            li.forEach(function (i, r) { svg += post(i, r, li.length, 0); });
-            ri.forEach(function (i, r) { svg += post(i, r, ri.length, 1); });
-            $('strings').innerHTML = '<div class="hs-col" style="grid-template-rows:repeat(' + li.length + ',1fr)">' + li.map(btn).join('') + '</div>' + svg + '</svg><div class="hs-col" style="grid-template-rows:repeat(' + Math.max(ri.length, 1) + ',1fr)">' + ri.map(btn).join('') + '</div>';
-            mark();
-        }
-        function mark() {
-            var els = $('strings').querySelectorAll('[data-i]');
-            for (var k = 0; k < els.length; k++) {
-                var i = +els[k].getAttribute('data-i'), c = [];
-                if (els[k].tagName === 'BUTTON') c.push('t-string');
-                if (target === i) c.push('sel'); if (act === i) c.push('act'); if (done[i]) c.push('done');
-                if (els[k].tagName === 'BUTTON') els[k].className = c.join(' '); else els[k].setAttribute('class', 'pg ' + c.slice(+(els[k].tagName === 'BUTTON')).join(' '));
-            }
+            var n = cur().length;
+            $('strings').innerHTML = cur().map(function (m, i) {
+                return '<button type="button" class="t-string' + (target === i ? ' on' : '') + '" data-i="' + i + '">' + NAMES[m % 12] + '<sub>' + (Math.floor(m / 12) - 1) + '</sub><small>Senar ' + (n - i) + '</small></button>';
+            }).join('');
         }
         function drawEditor() {
             var h = cust.map(function (m, i) {
@@ -186,7 +181,7 @@
         }
         $('strings').addEventListener('click', function (e) {
             var b = e.target.closest('.t-string'); if (!b) return;
-            target = +b.getAttribute('data-i'); cs = null; hist = []; mark(); play(f(cur()[target]));
+            target = +b.getAttribute('data-i'); cs = null; hist = []; drawStrings(); play(f(cur()[target]));
         });
 
         /* ---------- deteksi nada ---------- */
@@ -219,9 +214,6 @@
             }
             var c = cents(hz, ref); cs = cs === null ? c : cs + 0.35 * (c - cs);
             tuned = Math.abs(cs) <= (tuned ? 8 : 5);
-            var idx = target !== null ? target : cur().indexOf(midi);
-            if (idx !== act) { act = idx; mark(); }
-            if (tuned && idx >= 0 && !done[idx]) { done[idx] = true; mark(); }
             $('note').textContent = NAMES[midi % 12]; $('oct').textContent = Math.floor(midi / 12) - 1;
             $('hz').textContent = hz.toFixed(1) + ' Hz  (' + (cs > 0 ? '+' : '') + Math.round(cs) + ' sen)';
             aim(Math.max(-52, Math.min(52, cs))); lamp(tuned);
@@ -240,13 +232,13 @@
                 rej = 0; hist.push(hz); if (hist.length > 7) hist.shift();
                 if (hist.length >= 3) show(hist.slice().sort(function (x, y) { return x - y; })[hist.length >> 1]);
             } else if (now - lastHeard > 900) {
-                hist = []; lock = null; cs = null; tuned = false; aim(-58); lamp(null); act = -1; mark();
+                hist = []; lock = null; cs = null; tuned = false; aim(-58); lamp(null);
                 $('status').className = 't-status'; $('status').textContent = 'Petik satu senar...';
             }
         }
         $('start').addEventListener('click', function () {
             var btn = this;
-            if (timer) { clearInterval(timer); timer = null; if (stream) stream.getTracks().forEach(function (t) { t.stop(); }); btn.textContent = 'Mulai Tuner'; aim(-58); lamp(null); act = -1; mark(); $('status').className = 't-status'; $('status').textContent = 'Tuner berhenti'; return; }
+            if (timer) { clearInterval(timer); timer = null; if (stream) stream.getTracks().forEach(function (t) { t.stop(); }); btn.textContent = 'Mulai Tuner'; aim(-58); lamp(null); $('status').className = 't-status'; $('status').textContent = 'Tuner berhenti'; return; }
             if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) { $('status').textContent = 'Browser ini belum mendukung mikrofon. Coba Chrome atau Safari terbaru.'; return; }
             navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false } }).then(function (s) {
                 stream = s; var c = audio(); analyser = c.createAnalyser(); analyser.fftSize = 8192;
@@ -254,7 +246,7 @@
                 btn.textContent = 'Berhenti'; $('status').textContent = 'Petik satu senar...'; timer = setInterval(tick, 100);
             }).catch(function () { $('status').className = 't-status bad'; $('status').textContent = 'Mikrofon tidak diizinkan. Buka pengaturan situs di browser dan izinkan mikrofon.'; });
         });
-        fillInst(); fillTun(); drawStrings(); lamp(null);
+        fillInst(); fillTun(); drawStrings(); draw();
     })();
     </script>
 
@@ -295,7 +287,6 @@
             &copy; 2026 Toko Gitar AYRI. All rights reserved.
         </div>
     </footer>
-    <!-- Tombol WhatsApp melayang -->
     <a href="https://wa.me/6285795738637?text=Halo%20AYRI%2C%20saya%20mau%20tanya%20servis%20gitar" target="_blank" aria-label="Chat via WhatsApp"
        class="fixed bottom-5 right-5 z-50 w-14 h-14 rounded-full bg-[#0B8043] hover:bg-[#086B38] text-white flex items-center justify-center shadow-xl transition">
         <i class="fab fa-whatsapp text-3xl"></i>
