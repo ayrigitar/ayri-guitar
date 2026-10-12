@@ -50,26 +50,13 @@
     <main class="tuner">
         <h1>Tuner Gitar, Bass &amp; Ukulele</h1>
         <p class="t-sub">Setel senar langsung dari HP atau laptop, gratis dan tanpa aplikasi. Pilih alat musik, tekan Mulai, izinkan mikrofon, lalu petik satu senar.</p>
-        <div class="t-card">
-            <svg id="vu" class="vu" viewBox="0 0 400 250" role="img" aria-label="Meter nada bergaya VU meter">
-                <defs>
-                    <linearGradient id="vuBez" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5a3d26"/><stop offset="1" stop-color="#241810"/></linearGradient>
-                    <radialGradient id="vuFace" cx="50%" cy="85%" r="95%"><stop offset="0" stop-color="#fbf0cb"/><stop offset=".7" stop-color="#ecd49a"/><stop offset="1" stop-color="#cfae6b"/></radialGradient>
-                    <clipPath id="vuClip"><rect x="12" y="12" width="376" height="226" rx="12"/></clipPath>
-                </defs>
-                <rect x="1" y="1" width="398" height="248" rx="22" fill="url(#vuBez)" stroke="#c9a24a" stroke-width="2"/>
-                <g clip-path="url(#vuClip)">
-                    <rect x="12" y="12" width="376" height="226" fill="url(#vuFace)"/>
-                    <g id="vuTicks"></g>
-                    <text x="62" y="62" class="vuT">RENDAH</text><text x="338" y="62" class="vuT" text-anchor="end">TINGGI</text>
-                    <text x="200" y="182" class="vuB" text-anchor="middle">AYRI TUNER</text>
-                    <circle id="vuLamp" cx="352" cy="100" r="9" fill="#5a5047" stroke="#3b2a1a" stroke-width="2"/>
-                    <text x="352" y="128" class="vuT" text-anchor="middle">PAS</text>
-                    <g id="needle" transform="rotate(-58 200 225)"><line x1="200" y1="225" x2="200" y2="34" stroke="#17100b" stroke-width="2.6" stroke-linecap="round"/></g>
-                    <path d="M154 240A46 46 0 0 1 246 240Z" fill="#2b1e14"/><circle cx="200" cy="232" r="7" fill="#c9a24a"/>
-                    <ellipse cx="120" cy="30" rx="130" ry="34" fill="#fff" opacity=".13"/>
-                </g>
-            </svg>
+        <div class="t-card tm idle" id="tm">
+            <div class="bf" role="img" aria-label="Penunjuk ketepatan nada">
+                <span class="bf-s bf-fl">&#9837;</span><span class="bf-s bf-sh">&#9839;</span>
+                <div class="bf-mid"></div>
+                <canvas id="trail" width="640" height="300"></canvas>
+                <div id="bub" class="bf-bub"><b id="cts"></b><i id="hint"></i></div>
+            </div>
             <div class="t-note"><span id="note">--</span><sup id="oct"></sup></div>
             <div id="status" class="t-status" aria-live="polite">Tekan tombol Mulai</div>
             <div id="hz" class="t-hz">0 Hz</div>
@@ -108,27 +95,25 @@
         var f = function (m) { return 440 * Math.pow(2, (m - 69) / 12); };
         var cur = function () { return inst === 'cu' ? cust : INST[inst][1][tun][1]; };
 
-        /* ---------- VU meter ---------- */
-        var CX = 200, CY = 225;
-        function pt(r, d) { var a = d * Math.PI / 180; return [CX + r * Math.sin(a), CY - r * Math.cos(a)]; }
-        function arc(r, a0, a1, col, w) { var p = pt(r, a0), q = pt(r, a1); return '<path d="M' + p[0].toFixed(1) + ' ' + p[1].toFixed(1) + 'A' + r + ' ' + r + ' 0 0 1 ' + q[0].toFixed(1) + ' ' + q[1].toFixed(1) + '" fill="none" stroke="' + col + '" stroke-width="' + w + '"/>'; }
-        (function () {
-            var h = arc(158, -50, 50, '#3b2a1a', 1.5) + arc(163, -5, 5, '#2e8b4a', 8) + arc(163, -50, -35, '#b3392b', 8) + arc(163, 35, 50, '#b3392b', 8);
-            for (var c = -50; c <= 50; c += 5) {
-                var big = c % 10 === 0, p = pt(big ? 140 : 147, c), q = pt(155, c);
-                h += '<line x1="' + p[0].toFixed(1) + '" y1="' + p[1].toFixed(1) + '" x2="' + q[0].toFixed(1) + '" y2="' + q[1].toFixed(1) + '" stroke="#3b2a1a" stroke-width="' + (big ? 2.2 : 1.2) + '"/>';
+        /* ---------- penunjuk ---------- */
+        var tr = [];
+        function pos(c) { return 10 + (Math.max(-50, Math.min(50, c)) + 50) * 0.8; }
+        function aim(c) {
+            var bub = $('bub'), g = $('trail').getContext('2d'), cv = $('trail');
+            g.clearRect(0, 0, cv.width, cv.height);
+            if (c < -55) { bub.className = 'bf-bub'; bub.style.left = '50%'; $('cts').textContent = ''; $('hint').textContent = ''; tr = []; return; }
+            var good = tuned, side = c < 0 ? 'l' : 'r';
+            bub.className = 'bf-bub on ' + (good ? 'good' : 'warn') + ' ' + side; bub.style.left = pos(c) + '%';
+            $('cts').textContent = (c > 0 ? '+' : '') + Math.round(c);
+            $('hint').textContent = good ? 'Pas!' : (c < 0 ? 'Kencangkan' : 'Kendurkan');
+            tr.unshift(c); if (tr.length > 30) tr.pop();
+            g.lineWidth = 5; g.lineCap = 'round'; g.strokeStyle = good ? '#16a34a' : '#d97706';
+            for (var i = 1; i < tr.length; i++) {
+                g.globalAlpha = 1 - i / tr.length; g.beginPath();
+                g.moveTo(cv.width * pos(tr[i - 1]) / 100, 125 + (i - 1) * 5); g.lineTo(cv.width * pos(tr[i]) / 100, 125 + i * 5); g.stroke();
             }
-            [-50, -25, 0, 25, 50].forEach(function (c) { var p = pt(122, c); h += '<text x="' + p[0].toFixed(1) + '" y="' + (p[1] + 5).toFixed(1) + '" class="vuN" text-anchor="middle">' + (c > 0 ? '+' : '') + c + '</text>'; });
-            $('vuTicks').innerHTML = h;
-        })();
-        var ang = -58, vel = 0, tgt = -58, raf = 0;
-        function draw() { $('needle').setAttribute('transform', 'rotate(' + ang.toFixed(2) + ' ' + CX + ' ' + CY + ')'); }
-        function loop() {
-            vel = (vel + (tgt - ang) * 0.12) * 0.78; ang += vel; draw();
-            raf = (Math.abs(tgt - ang) > 0.05 || Math.abs(vel) > 0.05) ? requestAnimationFrame(loop) : 0;
         }
-        function aim(a) { tgt = a; if (reduce) { ang = a; draw(); } else if (!raf) raf = requestAnimationFrame(loop); }
-        function lamp(on) { $('vuLamp').setAttribute('fill', on === null ? '#5a5047' : (on ? '#35d06b' : '#7a2b22')); }
+        function lamp(on) { $('tm').className = 't-card tm' + (on === null ? ' idle' : (on ? ' ok' : '')); }
 
         /* ---------- UI ---------- */
         function fillInst() {
@@ -245,7 +230,7 @@
                 btn.textContent = 'Berhenti'; $('status').textContent = 'Petik satu senar...'; timer = setInterval(tick, 100);
             }).catch(function () { $('status').className = 't-status bad'; $('status').textContent = 'Mikrofon tidak diizinkan. Buka pengaturan situs di browser dan izinkan mikrofon.'; });
         });
-        fillInst(); fillTun(); drawStrings(); draw();
+        fillInst(); fillTun(); drawStrings(); lamp(null);
     })();
     </script>
 
