@@ -1,8 +1,8 @@
 /* Service worker Toko Gitar AYRI.
    Naikkan angka VERSION setiap kali Anda mengubah daftar file di bawah. */
-var VERSION = 'ayri-v1';
-var CORE = ['./', 'index.html', 'tuner.html', 'artikel-custom-nut.html', 'style-index.css', 'style-artikel.css',
-    'theme-dark.css', 'theme.js', 'pwa.js', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png', 'apple-touch-icon.png', 'favicon-48.png'];
+var VERSION = 'ayri-v2';
+var CORE = ['./', 'index.html', 'tuner.html', 'chords.html', 'metronom.html', 'artikel-custom-nut.html', 'style-index.css', 'style-artikel.css',
+    'theme-dark.css', 'tools.css', 'theme.js', 'pwa.js', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png', 'apple-touch-icon.png', 'favicon-48.png'];
 var FONT_HOSTS = ['fonts.googleapis.com', 'fonts.gstatic.com'];
 
 self.addEventListener('install', function (e) {
