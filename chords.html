@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chord Gitar: Diagram, Suara &amp; Bentuk Lain | Toko Gitar AYRI</title>
-    <meta name="description" content="Perpustakaan chord gitar gratis: diagram jari, suara chord, beberapa bentuk tiap chord, mode kidal, favorit, dan latihan progresi. Coba C, Am, F#m7, dan lainnya.">
+    <title>Chord Gitar, Ukulele &amp; Guitalele: Diagram & Suara | Toko Gitar AYRI</title>
+    <meta name="description" content="Perpustakaan chord gratis untuk gitar, ukulele, dan guitalele: diagram jari, suara chord, beberapa bentuk tiap chord, mode kidal, favorit, dan latihan progresi.">
     <link rel="canonical" href="https://ayrigitar.com/chords.html">
     <meta property="og:type" content="website">
     <meta property="og:locale" content="id_ID">
     <meta property="og:site_name" content="Toko Gitar AYRI">
-    <meta property="og:title" content="Chord Gitar: Diagram, Suara &amp; Bentuk Lain | Toko Gitar AYRI">
-    <meta property="og:description" content="Perpustakaan chord gitar gratis: diagram jari, suara chord, beberapa bentuk tiap chord, mode kidal, favorit, dan latihan progresi. Coba C, Am, F#m7, dan lainnya.">
+    <meta property="og:title" content="Chord Gitar, Ukulele &amp; Guitalele: Diagram & Suara | Toko Gitar AYRI">
+    <meta property="og:description" content="Perpustakaan chord gratis untuk gitar, ukulele, dan guitalele: diagram jari, suara chord, beberapa bentuk tiap chord, mode kidal, favorit, dan latihan progresi.">
     <meta property="og:url" content="https://ayrigitar.com/chords.html">
     <meta name="twitter:card" content="summary">
     <link rel="manifest" href="manifest.webmanifest">
@@ -24,9 +24,9 @@
 {
   "@context": "https://schema.org",
   "@type": "WebApplication",
-  "name": "Perpustakaan Chord Gitar AYRI",
+  "name": "Perpustakaan Chord Gitar, Ukulele & Guitalele AYRI",
   "url": "https://ayrigitar.com/chords.html",
-  "description": "Perpustakaan chord gitar gratis: diagram jari, suara chord, beberapa bentuk tiap chord, mode kidal, favorit, dan latihan progresi. Coba C, Am, F#m7, dan lainnya.",
+  "description": "Perpustakaan chord gratis untuk gitar, ukulele, dan guitalele: diagram jari, suara chord, beberapa bentuk tiap chord, mode kidal, favorit, dan latihan progresi.",
   "applicationCategory": "MusicApplication",
   "operatingSystem": "Semua perangkat dengan browser modern",
   "inLanguage": "id",
@@ -88,9 +88,10 @@
     <!-- BAGIAN KONTEN ARTIKEL -->
     <main class="tuner wide">
 <nav class="tt" aria-label="Alat latihan"><a href="tuner.html">Tuner</a><a href="chords.html" aria-current="page">Chord</a><a href="metronom.html">Metronom</a></nav>
-        <h1>Perpustakaan Chord Gitar</h1>
-        <p class="t-sub">Pilih nada dasar dan jenis chord, lihat beberapa bentuk jarinya, lalu dengarkan suaranya. Gratis, tanpa aplikasi.</p>
-        <label class="lbl" for="q" style="margin-top:0">Cari chord</label>
+        <h1>Perpustakaan Chord: Gitar, Ukulele &amp; Guitalele</h1>
+        <p class="t-sub">Pilih alat musik, nada dasar, dan jenis chord, lihat beberapa bentuk jarinya, lalu dengarkan suaranya. Gratis, tanpa aplikasi.</p>
+        <span class="lbl" style="margin-top:0">Alat musik</span><div id="insts" class="chips"></div><p class="hint" id="iinfo"></p>
+        <label class="lbl" for="q">Cari chord</label>
         <input id="q" class="srch" type="text" inputmode="text" autocomplete="off" placeholder="Ketik, misalnya: Am7 atau F#m" aria-describedby="qh">
         <div class="hint" id="qh"></div>
         <span class="lbl">Nada dasar</span><div id="roots" class="rootg"></div>
@@ -112,7 +113,7 @@
         <div id="pgc" class="chips" style="margin-top:.6rem"></div>
         <div class="pg-row"><label for="pgbpm" class="fld" style="flex-direction:row;align-items:center">Tempo <input id="pgbpm" type="number" inputmode="numeric" min="40" max="200" value="80"> BPM</label><button id="pgplay" type="button" class="t-btn" style="min-height:50px;font-size:1rem">Mainkan progresi</button></div>
         <h2>Cara membaca diagram</h2>
-        <p class="t-sub" style="font-size:1rem">Garis vertikal adalah senar (kiri = senar tebal/6, kanan = senar tipis/1). Bulatan adalah posisi jari dan angkanya nomor jari (1 telunjuk, 2 tengah, 3 manis, 4 kelingking). Tanda &quot;&times;&quot; berarti senar tidak dipetik, lingkaran kosong berarti senar dipetik terbuka, dan tulisan seperti &quot;3fr&quot; berarti diagram mulai dari fret ke-3. Batang panjang adalah barre, yaitu satu jari menekan beberapa senar sekaligus.</p>
+        <p class="t-sub" style="font-size:1rem">Garis vertikal adalah senar, urutannya sama dengan huruf nama senar di bawah diagram. Bulatan adalah posisi jari dan angkanya nomor jari (1 telunjuk, 2 tengah, 3 manis, 4 kelingking). Tanda &quot;&times;&quot; berarti senar tidak dipetik, lingkaran kosong berarti senar dipetik terbuka, dan tulisan seperti &quot;3fr&quot; berarti diagram mulai dari fret ke-3. Batang panjang adalah barre, yaitu satu jari menekan beberapa senar sekaligus.</p>
         <a class="t-cta" href="index.html#harga"><strong>Gitar susah disetel atau berdengung?</strong><br>Lihat estimasi biaya setup &amp; servis di Toko Gitar AYRI Bogor &rarr;</a>
     </main>
     <script>
@@ -120,7 +121,11 @@
     var $ = function (i) { return document.getElementById(i); };
     var NM = ['C', 'C#', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'Ab', 'A', 'Bb', 'B'];
     var RB = ['C', 'C#/Db', 'D', 'Eb/D#', 'E', 'F', 'F#/Gb', 'G', 'Ab/G#', 'A', 'Bb/A#', 'B'];
-    var OPC = [4, 9, 2, 7, 11, 4], OMD = [40, 45, 50, 55, 59, 64], SN = ['E', 'A', 'D', 'G', 'B', 'E'];
+    var INSTS = {
+        gtr: { key: 'gtr', name: 'Gitar', n: 6, pc: [4, 9, 2, 7, 11, 4], md: [40, 45, 50, 55, 59, 64], sn: ['E', 'A', 'D', 'G', 'B', 'E'], max: 15, info: 'Gitar standar: E A D G B E (senar 6 sampai 1).' },
+        uke: { key: 'uke', name: 'Ukulele', n: 4, pc: [7, 0, 4, 9], md: [67, 60, 64, 69], sn: ['G', 'C', 'E', 'A'], max: 12, info: 'Ukulele standar: G C E A (senar 4 sampai 1, G-nya nada tinggi).' },
+        gll: { key: 'gll', name: 'Guitalele', n: 6, pc: [9, 2, 7, 0, 4, 9], md: [45, 50, 55, 60, 64, 69], sn: ['A', 'D', 'G', 'C', 'E', 'A'], max: 15, base: 'gtr', shift: 5, info: 'Guitalele: A D G C E A, empat tingkat di atas gitar. Bentuk jarinya sama dengan gitar, hanya namanya bergeser.' }
+    }, I = INSTS.gtr;
     function disp(s) { return s.replace(/#/g, '\u266F').replace(/b/g, '\u266D'); }
     var TYPES = [
         { k: 'maj', s: '', n: 'Mayor', iv: [0, 4, 7] }, { k: 'm', s: 'm', n: 'Minor', iv: [0, 3, 7] },
@@ -153,6 +158,31 @@
         ['A', 'maj', 'x02220', '001230'], ['A', 'm', 'x02210', '002310'], ['A', '7', 'x02020', '002030'], ['A', 'm7', 'x02010', '002010'], ['A', 'maj7', 'x02120', '003120'], ['A', 'sus2', 'x02200', '001200'], ['A', 'sus4', 'x02230', '001240'], ['A', '5', 'x022xx', '001200'],
         ['G', 'maj', '320003', '210003'], ['G', '7', '320001', '320001'], ['G', 'maj7', '320002', '210003'], ['G', '6', '320000', '210000'], ['G', 'sus4', '330013', '230014'],
         ['F', 'maj7', 'xx3210', '003210'], ['B', '7', 'x21202', '021304'], ['A', '9', 'x02423', '001423']];
+    INSTS.gtr.tpl = TPL; INSTS.gtr.open = OPEN;
+    INSTS.uke.tpl = {
+        maj: [{ ri: 1, f: [0, 0, 0, 3] }, { ri: 0, f: [0, 2, 3, 2] }, { ri: 3, f: [2, 1, 0, 0] }, { ri: 2, f: [1, -1, 0, -1] }, { ri: 1, f: [0, 0, 0, -2] }],
+        m: [{ ri: 1, f: [0, 3, 3, 3] }, { ri: 0, f: [0, 2, 3, 1] }, { ri: 3, f: [2, 0, 0, 0] }, { ri: 1, f: [0, 0, -1, -2] }, { ri: 1, f: [-4, 0, -1, -2] }],
+        '7': [{ ri: 1, f: [0, 0, 0, 1] }, { ri: 0, f: [0, 2, 1, 2] }, { ri: 3, f: [0, 1, 0, 0] }, { ri: 2, f: [1, 2, 0, 2] }, { ri: 1, f: [0, -2, 0, -2] }],
+        maj7: [{ ri: 1, f: [0, 0, 0, 2] }, { ri: 0, f: [0, 2, 2, 2] }, { ri: 3, f: [1, 1, 0, 0] }],
+        m7: [{ ri: 3, f: [0, 0, 0, 0] }, { ri: 0, f: [0, 2, 1, 1] }, { ri: 2, f: [0, 2, 0, 2] }],
+        sus4: [{ ri: 1, f: [0, 0, 1, 3] }, { ri: 0, f: [0, 2, 3, 3] }, { ri: 3, f: [2, 2, 0, 0] }],
+        sus2: [{ ri: 1, f: [0, 2, 3, 3] }, { ri: 1, f: [0, 0, -2, -2] }],
+        '5': [{ ri: 1, f: [0, 0, -9, -9] }],
+        '6': [{ ri: 1, f: [0, 0, 0, 0] }, { ri: 0, f: [0, 2, 0, 2] }],
+        add9: [{ ri: 1, f: [0, 2, 0, 3] }],
+        dim: [{ ri: 3, f: [-9, 0, -1, 0] }],
+        aug: [{ ri: 1, f: [1, 0, 0, 3] }, { ri: 0, f: [0, 3, 3, 2] }]
+    };
+    INSTS.uke.open = [];
+    function autoF(f, barre) {
+        var idx = [], g = f.map(function () { return 0; }), n = 0;
+        f.forEach(function (x, i) { if (x > 0) idx.push(i); });
+        if (!idx.length) return g;
+        idx.sort(function (a, b) { return f[a] - f[b] || a - b; });
+        var mn = f[idx[0]], bar = barre && idx.filter(function (i) { return f[i] === mn; }).length >= 2;
+        idx.forEach(function (i) { if (bar && f[i] === mn) g[i] = 1; else g[i] = Math.min(4, ++n + (bar ? 1 : 0)); });
+        return g;
+    }
     var PROGS = [
         { n: 'I\u2013V\u2013vi\u2013IV (Pop)', c: [[0, 'maj'], [7, 'maj'], [9, 'm'], [5, 'maj']] },
         { n: 'I\u2013IV\u2013V (Rock/Blues)', c: [[0, 'maj'], [5, 'maj'], [7, 'maj']] },
@@ -162,59 +192,63 @@
         { n: 'Canon', c: [[0, 'maj'], [7, 'maj'], [9, 'm'], [4, 'm'], [5, 'maj'], [0, 'maj'], [5, 'maj'], [7, 'maj']] }
     ];
     function tIdx(k) { for (var i = 0; i < TYPES.length; i++) if (TYPES[i].k === k) return i; return 0; }
-    function pcs(v) { var r = []; for (var i = 0; i < 6; i++) if (v.f[i] >= 0) r.push((OPC[i] + v.f[i]) % 12); return r; }
-    function valid(v, root, t) {
-        var set = t.iv.map(function (x) { return (root + x) % 12; }), p = pcs(v), i;
+    function pcs(v, pc) { var r = []; for (var i = 0; i < v.f.length; i++) if (v.f[i] >= 0) r.push((pc[i] + v.f[i]) % 12); return r; }
+    function valid(v, root, t, pc) {
+        var set = t.iv.map(function (x) { return (root + x) % 12; }), p = pcs(v, pc), i;
         if (p.indexOf(root) < 0) return false;
         for (i = 0; i < p.length; i++) if (set.indexOf(p[i]) < 0) return false;
         for (i = 0; i < set.length; i++) { if (t.iv[i] === 7 && t.iv.length > 3) continue; if (p.indexOf(set[i]) < 0) return false; }
         return true;
     }
     function parseOpen(a) { var f = [], g = [], i; for (i = 0; i < 6; i++) { f.push(a[2][i] === 'x' ? -1 : +a[2][i]); g.push(+a[3][i]); } return { f: f, g: g, open: true }; }
-    function voicings(root, ti) {
-        var t = TYPES[ti], out = [], seen = {}, i, hasOpen = false;
-        function add(v) { var k = v.f.join(','); if (seen[k] || !valid(v, root, t)) return; seen[k] = 1; out.push(v); }
-        OPEN.forEach(function (a) { if (NM.indexOf(a[0]) === root && a[1] === t.k) { add(parseOpen(a)); hasOpen = true; } });
-        (TPL[t.k] || []).forEach(function (tp) {
-            var si = 6 - tp.r, base = ((root - OPC[si]) % 12 + 12) % 12, f = [], g = tp.g.slice(), ok = true;
+    function genV(inst, root, ti) {
+        var t = TYPES[ti], out = [], seen = {}, hasOpen = false;
+        function add(v) { var k = v.f.join(','); if (seen[k] || !valid(v, root, t, inst.pc)) return; seen[k] = 1; out.push(v); }
+        (inst.open || []).forEach(function (a) { if (NM.indexOf(a[0]) === root && a[1] === t.k) { add(parseOpen(a)); hasOpen = true; } });
+        (inst.tpl[t.k] || []).forEach(function (tp) {
+            var si = tp.ri !== undefined ? tp.ri : 6 - tp.r, base = ((root - inst.pc[si]) % 12 + 12) % 12, f = [], g = tp.g ? tp.g.slice() : null, ok = true;
             if (base === 0 && hasOpen) return;
             tp.f.forEach(function (x) { if (x === -9) f.push(-1); else { var a = x + base; if (a < 0) ok = false; f.push(a); } });
-            if (!ok || Math.max.apply(null, f) > 15) return;
-            if (base === 0) { var n = 0; g = f.map(function (a) { return a > 0 ? Math.min(4, ++n) : 0; }); }
+            if (!ok || Math.max.apply(null, f) > inst.max) return;
+            if (base === 0 || !g) g = autoF(f, base > 0);
             else g = g.map(function (x, i) { return f[i] <= 0 ? 0 : x; });
             add({ f: f, g: g, open: base === 0 });
         });
         out.sort(function (a, b) { return minF(a) - minF(b); });
-        return out;
+        return out.slice(0, 6);
+    }
+    function voicings(root, ti, inst) {
+        inst = inst || I;
+        return inst.base ? genV(INSTS[inst.base], ((root - inst.shift) % 12 + 12) % 12, ti) : genV(inst, root, ti);
     }
     function minF(v) { var m = 99; v.f.forEach(function (x) { if (x > 0 && x < m) m = x; }); return m === 99 ? 0 : m; }
     function diagram(v, o) {
         o = o || {};
-        var x0 = 40, sx = 24, y0 = 58, fh = 34, nF = 5, fr = v.f.filter(function (x) { return x > 0; });
+        var n = v.f.length, x0 = 40, sx = 120 / (n - 1), y0 = 58, fh = 34, nF = 5, fr = v.f.filter(function (x) { return x > 0; });
         var mx = fr.length ? Math.max.apply(null, fr) : 0, mn = fr.length ? Math.min.apply(null, fr) : 1, base = mx <= 5 ? 1 : mn, i, s;
-        function X(k) { return o.left ? x0 + (5 - k) * sx : x0 + k * sx; }
-        s = '<svg viewBox="0 0 200 ' + (o.mini ? 230 : 250) + '" class="cd" role="img" aria-label="' + (o.alt || 'Diagram chord') + '">';
-        for (i = 0; i <= nF; i++) s += '<line x1="' + x0 + '" x2="' + (x0 + 5 * sx) + '" y1="' + (y0 + i * fh) + '" y2="' + (y0 + i * fh) + '" class="' + (i === 0 && base === 1 ? 'cd-nut' : 'cd-f') + '"/>';
-        for (i = 0; i < 6; i++) s += '<line x1="' + X(i) + '" x2="' + X(i) + '" y1="' + y0 + '" y2="' + (y0 + nF * fh) + '" class="cd-s" stroke-width="' + (1 + (5 - i) * 0.35).toFixed(2) + '"/>';
+        function X(k) { return o.left ? x0 + (n - 1 - k) * sx : x0 + k * sx; }
+        s = '<svg viewBox="0 0 200 ' + (o.mini ? 230 : 266) + '" class="cd" role="img" aria-label="' + (o.alt || 'Diagram chord') + '">';
+        for (i = 0; i <= nF; i++) s += '<line x1="' + x0 + '" x2="' + (x0 + 120) + '" y1="' + (y0 + i * fh) + '" y2="' + (y0 + i * fh) + '" class="' + (i === 0 && base === 1 ? 'cd-nut' : 'cd-f') + '"/>';
+        for (i = 0; i < n; i++) s += '<line x1="' + X(i) + '" x2="' + X(i) + '" y1="' + y0 + '" y2="' + (y0 + nF * fh) + '" class="cd-s" stroke-width="' + (1 + (n - 1 - i) * 0.35).toFixed(2) + '"/>';
         if (base > 1) s += '<text x="' + (o.left ? 192 : 8) + '" y="' + (y0 + fh / 2 + 5) + '" class="cd-fr"' + (o.left ? ' text-anchor="end"' : '') + '>' + base + 'fr</text>';
-        for (i = 0; i < 6; i++) {
+        for (i = 0; i < n; i++) {
             if (v.f[i] < 0) s += '<path d="M' + (X(i) - 6) + ' ' + (y0 - 20) + 'l12 12m0-12l-12 12" class="cd-x"/>';
             else if (v.f[i] === 0) s += '<circle cx="' + X(i) + '" cy="' + (y0 - 14) + '" r="6" class="cd-o"/>';
         }
         var bf = 0, bi = [];
-        for (i = 0; i < 6; i++) if (v.f[i] > 0 && v.g[i] === 1) { if (!bf) bf = v.f[i]; if (v.f[i] === bf) bi.push(i); }
+        for (i = 0; i < n; i++) if (v.f[i] > 0 && v.g[i] === 1) { if (!bf) bf = v.f[i]; if (v.f[i] === bf) bi.push(i); }
         var barre = bi.length >= 2;
         if (barre) { var xa = Math.min(X(bi[0]), X(bi[bi.length - 1])), xb = Math.max(X(bi[0]), X(bi[bi.length - 1]));
             s += '<rect x="' + (xa - 11) + '" y="' + (y0 + (bf - base) * fh + fh / 2 - 10) + '" width="' + (xb - xa + 22) + '" height="20" rx="10" class="cd-barre"/>';
             if (!o.mini) s += '<text x="' + X(bi[0]) + '" y="' + (y0 + (bf - base) * fh + fh / 2 + 5) + '" class="cd-dt">1</text>'; }
-        for (i = 0; i < 6; i++) {
+        for (i = 0; i < n; i++) {
             if (v.f[i] <= 0 || (barre && v.f[i] === bf && v.g[i] === 1)) continue;
             var cy = y0 + (v.f[i] - base) * fh + fh / 2;
             s += '<circle cx="' + X(i) + '" cy="' + cy + '" r="11" class="cd-dot"/>';
-            if (!o.mini) s += '<text x="' + X(i) + '" y="' + (cy + 5) + '" class="cd-dt">' + (o.note ? disp(NM[(OPC[i] + v.f[i]) % 12]) : (v.g[i] || '')) + '</text>';
+            if (!o.mini) s += '<text x="' + X(i) + '" y="' + (cy + 5) + '" class="cd-dt">' + (o.note ? disp(NM[(I.pc[i] + v.f[i]) % 12]) : (v.g[i] || '')) + '</text>';
         }
-        if (!o.mini) for (i = 0; i < 6; i++) {
-            s += '<text x="' + X(i) + '" y="' + (y0 + nF * fh + 24) + '" class="cd-nm">' + SN[i] + '</text>';
+        if (!o.mini) for (i = 0; i < n; i++) {
+            s += '<text x="' + X(i) + '" y="' + (y0 + nF * fh + 26) + '" class="cd-nm">' + I.sn[i] + '</text>';
             s += '<rect class="cd-hit" data-s="' + i + '" x="' + (X(i) - 12) + '" y="' + (y0 - 28) + '" width="24" height="' + (nF * fh + 56) + '"/>';
         }
         return s + '</svg>';
@@ -241,34 +275,41 @@
     }
     function strum(v, mode, delay) {
         var c = audio(), t0 = c.currentTime + 0.03 + (delay || 0), idx = [], i;
-        for (i = 0; i < 6; i++) if (v.f[i] >= 0) idx.push(i);
+        for (i = 0; i < v.f.length; i++) if (v.f[i] >= 0) idx.push(i);
         if (mode === 'u') idx.reverse();
         var gap = mode === 'a' ? 0.28 : 0.04;
-        idx.forEach(function (s, n) { pluck(OMD[s] + v.f[s], t0 + n * gap, mode === 'a' ? 0.3 : 0.2); });
+        idx.forEach(function (s, n) { pluck(I.md[s] + v.f[s], t0 + n * gap, mode === 'a' ? 0.3 : 0.2); });
     }
     /* ---------- state ---------- */
-    var st = { root: 0, ti: 0, vi: 0, left: false, note: false }, vs = [], favs = [], prog = { i: 0, timer: null, n: 0 };
-    try { var sv = JSON.parse(localStorage.getItem('ayri-chords') || '{}'); st.left = !!sv.left; st.note = !!sv.note; favs = JSON.parse(localStorage.getItem('ayri-chords-fav') || '[]'); } catch (e) {}
-    function save() { try { localStorage.setItem('ayri-chords', JSON.stringify({ left: st.left, note: st.note })); localStorage.setItem('ayri-chords-fav', JSON.stringify(favs)); } catch (e) {} }
+    var st = { root: 0, ti: 0, vi: 0, left: false, note: false, inst: 'gtr' }, vs = [], favs = [], prog = { i: 0, timer: null, n: 0 };
+    try { var sv = JSON.parse(localStorage.getItem('ayri-chords') || '{}'); st.left = !!sv.left; st.note = !!sv.note; if (INSTS[sv.inst]) { st.inst = sv.inst; I = INSTS[st.inst]; } favs = JSON.parse(localStorage.getItem('ayri-chords-fav') || '[]'); } catch (e) {}
+    function save() { try { localStorage.setItem('ayri-chords', JSON.stringify({ left: st.left, note: st.note, inst: st.inst })); localStorage.setItem('ayri-chords-fav', JSON.stringify(favs)); } catch (e) {} }
     function name(r, ti) { return NM[r] + TYPES[ti].s; }
-    function favKey() { return st.root + '|' + TYPES[st.ti].k + '|' + st.vi; }
+    function favKey() { return st.inst + '|' + st.root + '|' + TYPES[st.ti].k + '|' + st.vi; }
+    function fparse(k) { var a = k.split('|'); if (a.length === 3) a.unshift('gtr'); return { inst: a[0], root: +a[1], ti: tIdx(a[2]), vi: +a[3] }; }
     function render() {
         vs = voicings(st.root, st.ti); if (st.vi >= vs.length) st.vi = 0;
-        var v = vs[st.vi], t = TYPES[st.ti], i;
-        if (!v) { $('dia').innerHTML = '<p class="hint">Bentuk chord belum tersedia.</p>'; return; }
-        $('cname').textContent = disp(name(st.root, st.ti)); $('ctype').textContent = t.n;
-        $('cnotes').textContent = 'Nada penyusun: ' + t.iv.map(function (x) { return disp(NM[(st.root + x) % 12]); }).join(' \u2013 ');
-        $('dia').innerHTML = diagram(v, { left: st.left, note: st.note, alt: 'Diagram chord ' + name(st.root, st.ti) });
-        $('pinfo').textContent = 'Bentuk ' + (st.vi + 1) + ' dari ' + vs.length + (v.open ? ' \u00b7 posisi terbuka' : ' \u00b7 fret ' + minF(v));
-        $('thumbs').innerHTML = vs.map(function (x, k) { return '<button type="button" data-v="' + k + '" class="' + (k === st.vi ? 'on' : '') + '" aria-label="Bentuk ' + (k + 1) + '">' + diagram(x, { mini: true, left: st.left }) + '</button>'; }).join('');
+        var v = vs[st.vi], tp = TYPES[st.ti], i;
+        $('cname').textContent = disp(name(st.root, st.ti)); $('ctype').textContent = tp.n + ' \u00b7 ' + I.name;
+        $('cnotes').textContent = 'Nada penyusun: ' + tp.iv.map(function (x) { return disp(NM[(st.root + x) % 12]); }).join(' \u2013 ');
+        if (v) {
+            $('dia').innerHTML = diagram(v, { left: st.left, note: st.note, alt: 'Diagram chord ' + name(st.root, st.ti) + ' untuk ' + I.name });
+            $('pinfo').textContent = 'Bentuk ' + (st.vi + 1) + ' dari ' + vs.length + (v.open ? ' \u00b7 posisi terbuka' : ' \u00b7 fret ' + minF(v));
+            $('thumbs').innerHTML = vs.map(function (x, k) { return '<button type="button" data-v="' + k + '" class="' + (k === st.vi ? 'on' : '') + '" aria-label="Bentuk ' + (k + 1) + '">' + diagram(x, { mini: true, left: st.left }) + '</button>'; }).join('');
+        } else {
+            $('dia').innerHTML = '<p class="hint" style="text-align:center;padding:2rem 0">Bentuk chord ini belum tersedia untuk ' + I.name + '. Coba jenis chord lain.</p>';
+            $('pinfo').textContent = '-'; $('thumbs').innerHTML = '';
+        }
+        $('iinfo').textContent = I.info;
         $('fav').setAttribute('aria-pressed', favs.indexOf(favKey()) > -1 ? 'true' : 'false');
         var rb = $('roots').children; for (i = 0; i < rb.length; i++) rb[i].setAttribute('aria-pressed', i === st.root ? 'true' : 'false');
-        var tb = $('types').children; for (i = 0; i < tb.length; i++) tb[i].setAttribute('aria-pressed', i === st.ti ? 'true' : 'false');
+        var tb = $('types').children; for (i = 0; i < tb.length; i++) { tb[i].setAttribute('aria-pressed', i === st.ti ? 'true' : 'false'); tb[i].classList.toggle('na', !voicings(st.root, i).length); }
+        var ib = $('insts').children; for (i = 0; i < ib.length; i++) ib[i].setAttribute('aria-pressed', ib[i].dataset.i === st.inst ? 'true' : 'false');
         $('tg-left').setAttribute('aria-pressed', st.left); $('tg-note').setAttribute('aria-pressed', st.note);
         renderFavs(); renderProg();
     }
     function renderFavs() {
-        $('favs').innerHTML = favs.length ? favs.map(function (k) { var a = k.split('|'); return '<span class="pre"><button type="button" class="chip" data-f="' + k + '">' + disp(name(+a[0], tIdx(a[1]))) + '</button><button type="button" class="chip fav-x" data-d="' + k + '" aria-label="Hapus favorit">\u00d7</button></span>'; }).join('') : '<p class="hint">Tekan bintang \u2606 pada chord untuk menyimpannya di sini.</p>';
+        $('favs').innerHTML = favs.length ? favs.map(function (k) { var a = fparse(k); return '<span class="pre"><button type="button" class="chip" data-f="' + k + '">' + disp(name(a.root, a.ti)) + '<small>' + INSTS[a.inst].name + '</small></button><button type="button" class="chip fav-x" data-d="' + k + '" aria-label="Hapus favorit">\u00d7</button></span>'; }).join('') : '<p class="hint">Tekan bintang \u2606 pada chord untuk menyimpannya di sini.</p>';
     }
     function pc(c) { return PROGS[prog.i].c[c]; }
     function renderProg() {
@@ -276,6 +317,7 @@
         $('pgc').innerHTML = PROGS[prog.i].c.map(function (c, n) { var r = (st.root + c[0]) % 12; return '<button type="button" class="chip prog' + (prog.n === n && prog.timer ? ' on' : '') + '" data-c="' + n + '">' + disp(name(r, tIdx(c[1]))) + '</button>'; }).join('');
         $('pgplay').textContent = prog.timer ? 'Berhenti' : 'Mainkan progresi';
     }
+    function setInst(k) { st.inst = k; I = INSTS[k]; st.vi = 0; stopProg(); save(); render(); }
     function pick(r, ti, vi) { st.root = r; st.ti = ti; st.vi = vi || 0; render(); }
     function stopProg() { clearInterval(prog.timer); prog.timer = null; renderProg(); }
     function playProg() {
@@ -284,12 +326,14 @@
         function tick() {
             var n = Math.floor(step / 4) % cs.length, b = step % 4, c = cs[n];
             if (b === 0) { prog.n = n; st.root = (+$('roots').dataset.key + c[0]) % 12; st.ti = tIdx(c[1]); st.vi = 0; render(); }
-            if (b === 0 || b === 2) strum(vs[0] || { f: [-1, -1, -1, -1, -1, -1] }, b === 0 ? 'd' : 'u');
+            if (b === 0 || b === 2) if (vs[0]) strum(vs[0], b === 0 ? 'd' : 'u');
             step++;
         }
         $('roots').dataset.key = st.root; tick(); prog.timer = setInterval(tick, beat * 1000); renderProg();
     }
     /* ---------- UI wiring ---------- */
+    $('insts').innerHTML = Object.keys(INSTS).map(function (k) { return '<button type="button" class="chip" data-i="' + k + '">' + INSTS[k].name + '</button>'; }).join('');
+    $('insts').addEventListener('click', function (e) { var b = e.target.closest('[data-i]'); if (b) setInst(b.dataset.i); });
     $('roots').innerHTML = RB.map(function (n, i) { return '<button type="button" class="chip" data-r="' + i + '">' + disp(n) + '</button>'; }).join('');
     $('types').innerHTML = TYPES.map(function (t, i) { return '<button type="button" class="chip" data-t="' + i + '">' + (t.s ? t.s : 'Mayor') + '</button>'; }).join('');
     $('roots').addEventListener('click', function (e) { var r = e.target.closest('[data-r]'); if (r) { stopProg(); pick(+r.dataset.r, st.ti); } });
@@ -297,19 +341,19 @@
     $('thumbs').addEventListener('click', function (e) { var r = e.target.closest('[data-v]'); if (r) { st.vi = +r.dataset.v; render(); strum(vs[st.vi], 'd'); } });
     $('prev').addEventListener('click', function () { st.vi = (st.vi + vs.length - 1) % vs.length; render(); });
     $('next').addEventListener('click', function () { st.vi = (st.vi + 1) % vs.length; render(); });
-    $('sd').addEventListener('click', function () { strum(vs[st.vi], 'd'); });
-    $('su').addEventListener('click', function () { strum(vs[st.vi], 'u'); });
-    $('sa').addEventListener('click', function () { strum(vs[st.vi], 'a'); });
-    $('dia').addEventListener('click', function (e) { var h = e.target.closest('[data-s]'); if (!h) return; var s = +h.dataset.s, v = vs[st.vi]; if (v.f[s] >= 0) pluck(OMD[s] + v.f[s], audio().currentTime + 0.02, 0.3); });
+    $('sd').addEventListener('click', function () { if (vs[st.vi]) strum(vs[st.vi], 'd'); });
+    $('su').addEventListener('click', function () { if (vs[st.vi]) strum(vs[st.vi], 'u'); });
+    $('sa').addEventListener('click', function () { if (vs[st.vi]) strum(vs[st.vi], 'a'); });
+    $('dia').addEventListener('click', function (e) { var h = e.target.closest('[data-s]'); if (!h) return; var s = +h.dataset.s, v = vs[st.vi]; if (v && v.f[s] >= 0) pluck(I.md[s] + v.f[s], audio().currentTime + 0.02, 0.3); });
     $('tg-left').addEventListener('click', function () { st.left = !st.left; save(); render(); });
     $('tg-note').addEventListener('click', function () { st.note = !st.note; save(); render(); });
     $('fav').addEventListener('click', function () { var k = favKey(), i = favs.indexOf(k); if (i > -1) favs.splice(i, 1); else favs.push(k); save(); render(); });
     $('favs').addEventListener('click', function (e) {
         var d = e.target.closest('[data-d]'); if (d) { favs.splice(favs.indexOf(d.dataset.d), 1); save(); render(); return; }
-        var f = e.target.closest('[data-f]'); if (f) { var a = f.dataset.f.split('|'); pick(+a[0], tIdx(a[1]), +a[2]); }
+        var f = e.target.closest('[data-f]'); if (f) { var a = fparse(f.dataset.f); st.inst = a.inst; I = INSTS[a.inst]; pick(a.root, a.ti, a.vi); }
     });
     $('pgs').addEventListener('click', function (e) { var p = e.target.closest('[data-p]'); if (p) { stopProg(); prog.i = +p.dataset.p; renderProg(); } });
-    $('pgc').addEventListener('click', function (e) { var c = e.target.closest('[data-c]'); if (c) { stopProg(); var x = pc(+c.dataset.c); pick((st.root + x[0]) % 12, tIdx(x[1])); strum(vs[0], 'd'); } });
+    $('pgc').addEventListener('click', function (e) { var c = e.target.closest('[data-c]'); if (c) { stopProg(); var x = pc(+c.dataset.c); pick((st.root + x[0]) % 12, tIdx(x[1])); if (vs[0]) strum(vs[0], 'd'); } });
     $('pgplay').addEventListener('click', playProg);
     var SUF = { '': 'maj', maj: 'maj', M: 'maj', m: 'm', min: 'm', '-': 'm', '7': '7', maj7: 'maj7', M7: 'maj7', m7: 'm7', min7: 'm7', sus2: 'sus2', sus4: 'sus4', sus: 'sus4', '5': '5', '6': '6', add9: 'add9', dim: 'dim', aug: 'aug', '+': 'aug', '9': '9' };
     $('q').addEventListener('input', function () {
@@ -324,7 +368,7 @@
         $('qh').textContent = 'Contoh: C, Am, F#m7, Bbmaj7, Dsus4, E7';
     });
     render();
-    window.__ch = { voicings: voicings, TYPES: TYPES, NM: NM };
+    window.__ch = { voicings: voicings, TYPES: TYPES, NM: NM, INSTS: INSTS };
 })();
 
     </script>

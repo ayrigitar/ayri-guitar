@@ -95,3 +95,4 @@ html[data-theme=dark] .ad.l2{color:#15100c}
 .pre{display:inline-flex;align-items:center;gap:.2rem}
 @media (max-width:420px){.rootg{grid-template-columns:repeat(4,1fr)}.lcd-n{font-size:5rem}}
 @media (prefers-reduced-motion:reduce){.led,.flash{transition:none}}
+.chip.na{opacity:.4}

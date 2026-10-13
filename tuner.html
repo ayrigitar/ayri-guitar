@@ -112,7 +112,8 @@
         <div class="t-a4">
             <span class="t-a4l">Acuan nada A4 (Hz)</span>
             <div class="t-a4c"><button id="a4m" type="button" aria-label="Turunkan 1 Hz">&minus;</button><input id="a4" type="number" inputmode="decimal" min="400" max="480" step="0.1" value="440" aria-label="Frekuensi nada A4 dalam Hz"><button id="a4p" type="button" aria-label="Naikkan 1 Hz">+</button></div>
-            <div class="t-a4p"><button type="button" data-a4="415">415</button><button type="button" data-a4="432">432</button><button type="button" data-a4="440">440</button><button type="button" data-a4="442">442</button></div>
+            <div class="t-a4s" id="a4s"></div>
+            <button type="button" id="a4r" class="a4r" style="display:none">Kembali ke standar 440 Hz</button>
         </div>
         <div id="editor" class="t-editor" hidden></div>
         <div class="t-row"><button id="auto" type="button" class="t-btn alt">Deteksi otomatis</button></div>
@@ -135,7 +136,7 @@
             kr:['Kromatik (semua nada)',null],
             cu:['Custom (atur sendiri)',null]
         };
-        var GATE = { r:0.02, s:0.008, t:0.004 };
+        var GATE = { r:0.004, s:0.002, t:0.001 };
         var $ = function (id) { return document.getElementById(id); };
         var A4 = 440, lockIdx = -1, inst = 'ak', tun = 's', cust = [40,45,50,55,59,64], target = null, lock = null;
         var ctx, analyser, buf, timer, hist = [], rej = 0, lastHeard = 0, stream, cs = null, tuned = false, act = -1, done = {}, doneKey = '';
@@ -228,34 +229,59 @@
         });
 
         /* ---------- deteksi nada ---------- */
-        function pitch(raw, sr, gate) {
-            var D = 4, n = Math.floor(raw.length / D), b = new Float32Array(n), i, j, rms = 0;
-            for (i = 0; i < n; i++) { var s = 0; for (j = 0; j < D; j++) s += raw[i * D + j]; b[i] = s / D; rms += b[i] * b[i]; }
-            if (Math.sqrt(rms / n) < gate) return -1;
-            var fs = sr / D, maxLag = Math.min(n >> 1, Math.ceil(fs / 25)), minLag = Math.floor(fs / 1400);
-            var sq = new Float64Array(n + 1); for (i = 0; i < n; i++) sq[i + 1] = sq[i] + b[i] * b[i];
-            var nz = new Float32Array(maxLag + 1), tau, acf, m;
-            for (tau = 0; tau <= maxLag; tau++) {
-                acf = 0; for (j = 0; j < n - tau; j++) acf += b[j] * b[j + tau];
-                m = sq[n - tau] + (sq[n] - sq[tau]);
-                nz[tau] = m > 0 ? 2 * acf / m : 0;
-            }
-            var peaks = [], mx = 0, pos = 0, inSeg = false;
-            tau = 1; while (tau < maxLag && nz[tau] > 0) tau++;
+        /* ENGINE-START */
+        function nsdfCoarse(b, fs) {
+            var n = b.length, maxLag = Math.min(n >> 1, Math.ceil(fs / 25)), minLag = Math.floor(fs / 1400), j, tau, acf, m;
+            var sq = new Float64Array(n + 1); for (j = 0; j < n; j++) sq[j + 1] = sq[j] + b[j] * b[j];
+            var nz = new Float32Array(maxLag + 2);
+            for (tau = 0; tau <= maxLag; tau++) { acf = 0; for (j = 0; j < n - tau; j++) acf += b[j] * b[j + tau]; m = sq[n - tau] + (sq[n] - sq[tau]); nz[tau] = m > 0 ? 2 * acf / m : 0; }
+            var peaks = [], mx = 0, pos = 0, seg = false; tau = 1; while (tau < maxLag && nz[tau] > 0) tau++;
             for (; tau < maxLag; tau++) {
-                if (nz[tau] > 0 && nz[tau - 1] <= 0) { inSeg = true; mx = 0; pos = tau; }
-                if (inSeg) {
-                    if (nz[tau] > mx && nz[tau] >= nz[tau - 1] && nz[tau] >= nz[tau + 1]) { mx = nz[tau]; pos = tau; }
-                    if (nz[tau + 1] <= 0) { if (mx > 0 && pos >= minLag) peaks.push(pos); inSeg = false; }
-                }
+                if (nz[tau] > 0 && nz[tau - 1] <= 0) { seg = true; mx = 0; pos = tau; }
+                if (seg) { if (nz[tau] > mx && nz[tau] >= nz[tau - 1] && nz[tau] >= nz[tau + 1]) { mx = nz[tau]; pos = tau; } if (nz[tau + 1] <= 0) { if (mx > 0 && pos >= minLag) peaks.push(pos); seg = false; } }
             }
-            if (!peaks.length) return -1;
+            if (!peaks.length) return null;
             var top = 0; peaks.forEach(function (p) { if (nz[p] > top) top = nz[p]; });
-            if (top < 0.8) return -1;
-            var p = peaks.filter(function (q) { return nz[q] >= 0.9 * top; })[0];
-            var a = nz[p - 1], bb = nz[p], c = nz[p + 1], den = a - 2 * bb + c, d = den ? 0.5 * (a - c) / den : 0;
-            var hz = fs / (p + d); return (hz > 25 && hz < 1400) ? hz : -1;
+            var p = peaks.filter(function (q) { return nz[q] >= 0.88 * top; })[0];
+            var a = nz[p - 1], bb = nz[p], c = nz[p + 1], den = a - 2 * bb + c;
+            return { lag: p + (den ? 0.5 * (a - c) / den : 0), clar: top };
         }
+        function pitch(raw, sr, gate) {
+            var D = 4, N = raw.length, n = N >> 2, b = new Float32Array(n), i, j, rms = 0;
+            for (i = 0; i < n; i++) { var s = 0; for (j = 0; j < D; j++) s += raw[i * D + j]; b[i] = s / D; rms += b[i] * b[i]; }
+            rms = Math.sqrt(rms / n); if (rms < gate) return [-1, 0, rms];
+            var co = nsdfCoarse(b, sr / D); if (!co || co.clar < 0.6) return [-1, co ? co.clar : 0, rms];
+            var p0 = co.lag * D, m = Math.max(1, Math.floor(0.06 * sr / p0)), target = m * p0, r = 2 * m + 3, lo = Math.floor(target - r), hi = Math.ceil(target + r);
+            if (hi + 64 > N) { m = 1; target = p0; r = 6; lo = Math.floor(target - r); hi = Math.ceil(target + r); }
+            var e0 = 0, vals = [], L, k;
+            for (L = lo; L <= hi; L++) { var acf = 0, e1 = 0, e2 = 0, cnt = N - L; for (k = 0; k < cnt; k++) { acf += raw[k] * raw[k + L]; e1 += raw[k] * raw[k]; e2 += raw[k + L] * raw[k + L]; } vals.push((e1 + e2) > 0 ? 2 * acf / (e1 + e2) : 0); }
+            var bi = 0; for (i = 1; i < vals.length; i++) if (vals[i] > vals[bi]) bi = i;
+            var Ls = lo + bi;
+            if (bi > 0 && bi < vals.length - 1) { var a = vals[bi - 1], bb = vals[bi], c = vals[bi + 1], den = a - 2 * bb + c; if (den) Ls += 0.5 * (a - c) / den; }
+            var per = Ls / m; if (Math.abs(per - p0) > D * 1.5) per = p0;
+            var hz = sr / per; return [(hz > 25 && hz < 1400) ? hz : -1, co.clar, rms];
+        }
+        function makeFilter() {
+            var s = null, raw = [], onset = 0, lastT = 0, outl = 0;
+            function med(a) { return a.slice().sort(function (x, y) { return x - y; })[a.length >> 1]; }
+            return {
+                reset: function () { s = null; raw = []; onset = 0; outl = 0; },
+                feed: function (hz, t) {
+                    if (hz <= 0) { if (t - lastT > 900) { s = null; raw = []; onset = 0; outl = 0; } return null; }
+                    if (t - lastT > 900 && raw.length === 0) onset = 0;
+                    lastT = t;
+                    if (!onset) onset = t + 160; if (t < onset) return null;
+                    var x = 1200 * Math.log(hz / 440) / Math.LN2;
+                    if (raw.length >= 3) { var m = med(raw); if (Math.abs(x - m) > 35) { if (++outl > 4) { raw = []; s = null; outl = 0; } else return s === null ? null : s; } else outl = 0; }
+                    raw.push(x); if (raw.length > 7) raw.shift();
+                    if (raw.length < 3) return null;
+                    var xm = med(raw.slice(-5));
+                    if (s === null) s = xm; else { var d = xm - s; if (Math.abs(d) > 60) s = xm; else s += (Math.abs(d) < 6 ? 0.18 : 0.4) * d; }
+                    return s;
+                }
+            };
+        }
+        /* ENGINE-END */
         var cents = function (hz, ref) { return 1200 * Math.log(hz / ref) / Math.LN2; };
         function show(hz) {
             var s = cur(), n = s.length, midi, ref, idx = -1, i, d, best;
@@ -278,8 +304,8 @@
                 if (lock !== null && Math.abs(cents(hz, f(lock))) < 65) midi = lock; else lock = midi;
                 ref = f(midi);
             }
-            var c = cents(hz, ref); cs = cs === null ? c : cs + 0.35 * (c - cs);
-            tuned = Math.abs(cs) <= (tuned ? 8 : 5);
+            var c = cents(hz, ref); cs = (cs === null || idx !== act) ? c : cs + 0.6 * (c - cs);
+            tuned = Math.abs(cs) <= (tuned ? 7 : 4);
             if (idx !== act) { act = idx; mark(); }
             if (tuned && idx >= 0 && !done[idx]) { done[idx] = true; mark(); }
             $('note').textContent = NAMES[midi % 12]; $('oct').textContent = Math.floor(midi / 12) - 1;
@@ -288,19 +314,17 @@
             var st = $('status'); st.className = 't-status ' + (tuned ? 'ok' : 'bad');
             st.textContent = tuned ? 'Pas! Nada sudah tepat' : (cs < 0 ? 'Terlalu rendah, kencangkan senar' : 'Terlalu tinggi, kendurkan senar');
         }
+        var filt = makeFilter();
         function tick() {
             analyser.getFloatTimeDomainData(buf);
-            var hz = pitch(buf, ctx.sampleRate, GATE[$('sens').value]), now = Date.now();
-            if (hz > 0) {
-                lastHeard = now;
-                if (hist.length >= 3) {
-                    var m = hist.slice().sort(function (x, y) { return x - y; })[hist.length >> 1];
-                    if (Math.abs(cents(hz, m)) > 100 && rej < 3) { rej++; return; }
-                }
-                rej = 0; hist.push(hz); if (hist.length > 5) hist.shift();
-                if (hist.length >= 2) show(hist.slice().sort(function (x, y) { return x - y; })[hist.length >> 1]);
-            } else if (now - lastHeard > 900) {
-                hist = []; lock = null; lockIdx = -1; cs = null; tuned = false; aim(-58); lamp(null); act = -1; mark();
+            var now = Date.now(), sr = ctx.sampleRate, r = pitch(buf.subarray(buf.length - 8192), sr, GATE[$('sens').value]);
+            if (r[0] > 0 && r[0] < 100) r = pitch(buf, sr, GATE[$('sens').value]);
+            var ok = r[0] > 0 && r[1] >= 0.6;
+            if (ok) lastHeard = now;
+            var sm = filt.feed(ok ? r[0] : -1, now);
+            if (sm !== null) show(440 * Math.pow(2, sm / 1200));
+            else if (!ok && now - lastHeard > 900) {
+                filt.reset(); hist = []; lock = null; lockIdx = -1; cs = null; tuned = false; aim(-58); lamp(null); act = -1; mark();
                 $('status').className = 't-status'; $('status').textContent = 'Petik satu senar...';
             }
         }
@@ -313,22 +337,22 @@
             if (timer) { clearInterval(timer); timer = null; if (stream) stream.getTracks().forEach(function (t) { t.stop(); }); btn.textContent = 'Mulai Tuner'; releaseWake(); aim(-58); lamp(null); act = -1; mark(); $('status').className = 't-status'; $('status').textContent = 'Tuner berhenti'; return; }
             if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) { $('status').textContent = 'Browser ini belum mendukung mikrofon. Coba Chrome atau Safari terbaru.'; return; }
             navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false } }).then(function (s) {
-                stream = s; var c = audio(); analyser = c.createAnalyser(); analyser.fftSize = 8192;
+                stream = s; var c = audio(); analyser = c.createAnalyser(); analyser.fftSize = 16384;
                 c.createMediaStreamSource(s).connect(analyser); buf = new Float32Array(analyser.fftSize);
-                btn.textContent = 'Berhenti'; keepAwake(); $('status').textContent = 'Petik satu senar...'; timer = setInterval(tick, 60);
+                btn.textContent = 'Berhenti'; keepAwake(); $('status').textContent = 'Petik satu senar...'; filt.reset(); timer = setInterval(tick, 50);
             }).catch(function () { $('status').className = 't-status bad'; $('status').textContent = 'Mikrofon tidak diizinkan. Buka pengaturan situs di browser dan izinkan mikrofon.'; });
         });
         function setA4(v) {
             v = parseFloat(v); if (!(v >= 400 && v <= 480)) v = 440;
             A4 = Math.round(v * 10) / 10; $('a4').value = A4;
-            var bs = document.querySelectorAll('[data-a4]'); for (var i = 0; i < bs.length; i++) bs[i].className = (+bs[i].getAttribute('data-a4') === A4) ? 'on' : '';
+            var std = A4 === 440; $('a4r').style.display = std ? 'none' : ''; $('a4s').className = 't-a4s' + (std ? '' : ' chg'); $('a4s').textContent = std ? '\u2713 Standar (440 Hz)' : 'Acuan diubah dari standar. Tuner ini tidak lagi memakai 440 Hz.';
             try { localStorage.setItem('ayri-tuner-a4', A4); } catch (e) {}
             cs = null; hist = []; lock = null; lockIdx = -1;
         }
         $('a4').addEventListener('change', function () { setA4(this.value); });
         $('a4m').addEventListener('click', function () { setA4(A4 - 1); });
         $('a4p').addEventListener('click', function () { setA4(A4 + 1); });
-        document.querySelector('.t-a4p').addEventListener('click', function (e) { var v = e.target.getAttribute('data-a4'); if (v) setA4(v); });
+        $('a4r').addEventListener('click', function () { setA4(440); });
         try { setA4(localStorage.getItem('ayri-tuner-a4') || 440); } catch (e) { setA4(440); }
         fillInst(); fillTun(); drawStrings(); lamp(null);
     })();
