@@ -1,6 +1,6 @@
 /* ===== Alat latihan AYRI: chord & metronom ===== */
-.tt{display:flex;gap:.5rem;margin:0 0 1.2rem;flex-wrap:wrap}
-.tt a{flex:1;min-width:6.5rem;text-align:center;padding:.8rem .6rem;border-radius:999px;border:2px solid var(--edge);background:var(--card);color:var(--ink);font-weight:700;text-decoration:none}
+.tt{display:flex;gap:.35rem;margin:0 0 1.2rem;flex-wrap:nowrap}
+.tt a{flex:1 1 0;min-width:0;text-align:center;padding:.75rem .15rem;font-size:.88rem;border-radius:999px;border:2px solid var(--edge);background:var(--card);color:var(--ink);font-weight:700;text-decoration:none}
 .tt a[aria-current=page]{background:var(--acc);border-color:var(--acc);color:#fff}
 html[data-theme=dark] .tt a[aria-current=page]{color:#15100c}
 .wide{max-width:760px}
@@ -96,3 +96,28 @@ html[data-theme=dark] .ad.l2{color:#15100c}
 @media (max-width:420px){.rootg{grid-template-columns:repeat(4,1fr)}.lcd-n{font-size:5rem}}
 @media (prefers-reduced-motion:reduce){.led,.flash{transition:none}}
 .chip.na{opacity:.4}
+
+/* ===== transkrip ===== */
+.drop{display:flex;flex-direction:column;align-items:center;gap:.3rem;padding:2.2rem 1rem;border:3px dashed var(--edge);border-radius:1.2rem;background:var(--soft);color:var(--ink);text-align:center;cursor:pointer}
+.drop b{font-size:1.3rem}.drop span{color:var(--sub)}.drop:hover,.drop.over{border-color:var(--acc)}
+.prgb{margin:1rem 0}.prgt{height:14px;border-radius:99px;background:var(--soft);border:1px solid var(--edge);overflow:hidden}#bar{height:100%;width:0;background:var(--acc);transition:width .2s}
+#ptxt{display:block;margin-top:.4rem;color:var(--sub);font-weight:600}
+.tr-stage{margin-top:1rem}.tr-ttl{color:var(--sub);font-weight:700;margin-bottom:.4rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tr-now{display:flex;align-items:center;justify-content:space-between;gap:1rem}
+.tr-cn{font:700 5rem/1 'Barlow Condensed',ui-sans-serif,system-ui,sans-serif;color:var(--ink)}.tr-cs{color:var(--sub);font-weight:600;margin-top:.2rem}
+.tr-cd{flex:0 0 46%;max-width:210px}
+.tr-next{display:flex;align-items:center;gap:.6rem;margin:.6rem 0;color:var(--sub);font-weight:600;flex-wrap:wrap}.tr-next b{font-size:1.5rem;color:var(--ink)}.tr-nd{width:54px}
+.tr-tm{text-align:center;color:var(--sub);font-weight:700;margin:.2rem 0}
+.sheet{position:relative;display:flex;flex-wrap:wrap;gap:.45rem;max-height:240px;overflow:auto;padding:.4rem;border:1px solid var(--edge);border-radius:1rem;background:var(--soft)}
+.sc{display:flex;flex-direction:column;align-items:center;min-width:64px;padding:.4rem .6rem;border-radius:.8rem;border:2px solid var(--edge);background:var(--card);color:var(--ink);cursor:pointer}
+.sc b{font-size:1.3rem}.sc small{color:var(--sub);font-weight:600}.sc.on{background:var(--acc);border-color:var(--acc);color:#fff}.sc.on small{color:#fff}.sc.sel{outline:3px solid var(--ok)}
+html[data-theme=dark] .sc.on,html[data-theme=dark] .sc.on small{color:#15100c}
+.legend{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:.8rem}.lg{text-align:center}.lg b{display:block;font-size:1.2rem;color:var(--ink)}.lg svg{max-width:110px}
+.print-only{display:none}
+@media print{
+  body{background:#fff!important;color:#000!important}
+  .noprint,.tt,nav,header,footer,.theme-toggle,#menu-btn,a[aria-label="Chat via WhatsApp"],.t-cta,.rg{display:none!important}
+  .print-only{display:block}main.tuner{padding-top:0!important;max-width:none!important}
+  .tr-stage{display:none}.sheet{max-height:none;overflow:visible;border:0;background:#fff}.sc{border:1px solid #888;background:#fff;color:#000;break-inside:avoid}.sc.on{background:#fff;color:#000;border-color:#888}.sc small,.sc.on small{color:#444}
+  .lg{break-inside:avoid}.lg b{color:#000}.cd-s,.cd-f{stroke:#444}.cd-nut{stroke:#000}.cd-dot,.cd-barre{fill:#000}.cd-dt{fill:#fff}.cd-nm{fill:#333}
+}
