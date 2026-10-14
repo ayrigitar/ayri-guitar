@@ -118,7 +118,12 @@
     <div class="drawer" id="dr-list" hidden><div class="drawer-in">
         <button type="button" class="chip drawer-x" data-close>Tutup</button>
         <label class="chip" for="file" id="swap" style="display:none;justify-content:center;align-items:center;width:100%;margin-bottom:.6rem">Pilih lagu lain</label>
-        <h2>Chord lagu ini</h2><p class="hint">Ketuk chord untuk lompat ke sana. Chord salah? Ketuk lalu ubah.</p>
+        <h2>Chart chord (opsional)</h2>
+        <p class="hint">Tempel chord dari chart gitar. Baris lirik boleh ikut, hanya baris berisi chord yang dibaca. Nama chord diambil dari chart, aplikasi hanya mencocokkan waktunya ke lagu. Bagian berulang tidak perlu diketik ulang (bisa tulis "4x").</p>
+        <textarea id="chart" class="srch" rows="7" style="width:100%;font-family:ui-monospace,Consolas,monospace" placeholder="Intro: D Bm G A 4x&#10;  F#m   G   Bm   C&#10;Di dalam hari-harimu bersama lagi" aria-label="Chart chord"></textarea>
+        <div class="pg-row"><button id="chgo" type="button" class="t-btn" style="min-height:46px;font-size:1rem">Cocokkan ke lagu</button><button id="chclr" type="button" class="chip">Pakai deteksi otomatis</button></div>
+        <p class="hint" id="chmsg"></p>
+        <h2>Chord lagu ini</h2><p class="hint">Ketuk chord untuk lompat ke sana. Chord salah? Ketuk lalu ubah. Tanda * berarti chord dari deteksi otomatis (di luar chart).</p>
         <div class="sheet" id="sheet"></div>
         <div class="t-card" id="edit" hidden style="margin-top:.6rem"><b id="etl"></b><div class="pg-row"><select id="er" class="srch" style="width:auto"></select><select id="et" class="srch" style="width:auto"></select></div><div class="pg-row"><button id="eok" type="button" class="t-btn" style="min-height:46px;font-size:1rem">Terapkan</button><button id="edel" type="button" class="chip">Hapus chord ini</button></div></div>
         <h2>Kamus chord</h2><div class="legend" id="legend"></div>
@@ -148,8 +153,15 @@
     var au = $('au'), segs = [], dur = 0, fname = '', objUrl = null, cur = -2, raf = 0, pending = null, dragging = false, counting = false, ac2 = null, shown = -1;
     var TT = [['maj', [0, 4, 7], [1, 0.85, 0.85], 0], ['m', [0, 3, 7], [1, 0.85, 0.85], 0], ['7', [0, 4, 7, 10], [1, 0.8, 0.8, 0.55], 0.35], ['m7', [0, 3, 7, 10], [1, 0.8, 0.8, 0.55], 0.35], ['maj7', [0, 4, 7, 11], [1, 0.8, 0.8, 0.55], 0.4]];
     var TIDX = TT.map(function (x) { return tIdx(x[0]); });
-    var tempo = 0;
-    function titleUi() { $('ttl').textContent = fname + (akey ? ' \u00b7 kunci perkiraan ' + disp(NM[akey.tonic]) + (akey.minor ? ' minor' : ' mayor') : '') + (tempo ? ' \u00b7 ~' + tempo + ' BPM' : ''); }
+    var tempo = 0, chartText = '', chartOn = false;
+    function titleUi() { $('ttl').textContent = fname + (akey ? ' \u00b7 kunci perkiraan ' + disp(NM[akey.tonic]) + (akey.minor ? ' minor' : ' mayor') : '') + (tempo ? ' \u00b7 ~' + tempo + ' BPM' : '') + (chartOn ? ' \u00b7 pakai chart' : ''); }
+    /* susun ulang chord: dari chart tempelan bila aktif, selain itu deteksi otomatis */
+    function rebuild() {
+        var items = chartOn ? parseChart(chartText) : [];
+        if (items.length >= 2) { var auto = decode(ana, 'sedang'), r = alignChart(ana, items, auto); r.key = auto.key; segs = r; akey = r.key; return; }
+        chartOn = false; segs = decode(ana, st.level); akey = segs.key;
+    }
+    function chartKey() { return 'ayri-chart:' + fname; }
     function fmt(s) { s = Math.max(0, s); return Math.floor(s / 60) + ':' + ('0' + Math.floor(s % 60)).slice(-2); }
     function sroot(s) { return I.kb ? s.r : (s.r - st.capo + 12) % 12; }
     function cname(s, shape) { return disp(NM[shape ? sroot(s) : s.r] + TYPES[s.ti].s); }
@@ -248,8 +260,8 @@
         return { beats: beats, P: Ps, bpm: 60 / Ps, conf: conf };
     }
     /* chroma per ketukan: rata-rata bingkai di dalam tiap ketukan (digeser sedikit setelah serangan) */
-    function beatSync(ana) {
-        var bt = ana.bt, beats = bt.beats.slice(), P = bt.P, fr = ana.fr, hop = ana.hop, N = ana.N, sr = ana.sr, i, f, k, out = { t: [], c: [], b: [], r: [] }, SH = 0.05;
+    function beatSync(ana, bt0) {
+        var bt = bt0 || ana.bt, beats = bt.beats.slice(), P = bt.P, fr = ana.fr, hop = ana.hop, N = ana.N, sr = ana.sr, i, f, k, out = { t: [], c: [], b: [], r: [] }, SH = 0.05;
         var thr = (function () { var s = Array.prototype.slice.call(ana.rms).sort(function (a, b) { return a - b; }); return 0.08 * s[Math.floor(s.length * 0.9)]; })(), t0s = 0;
         while (t0s < fr && ana.rms[t0s] < thr) t0s++; var tSound = (t0s * hop) / sr;
         while (beats[0] - P > tSound - 0.5 * P && beats[0] - P > 0) beats.unshift(beats[0] - P);
@@ -330,6 +342,102 @@
         mergeShort(runs, cfg.minBeats);
         var res = runs.map(function (o, idx) { return { r: Math.floor(o.s / TT.length), ti: TIDX[o.s % TT.length], t0: idx ? Math.max(0, bs.t[o.a] - 0.02) : Math.max(0, bs.t[o.a] - 0.05), t1: 0, bi: o.a }; });
         res.forEach(function (sg, k) { sg.t1 = k + 1 < res.length ? res[k + 1].t0 : (lastA + 1 < n ? bs.t[lastA + 1] : bs.tEnd); });
+        res.path = path;
+        return res;
+    }
+    /* ---------- chart chord tempelan: nama chord dari chart, waktunya dicocokkan ke audio ---------- */
+    var CH_MARK = /^(intro|int|reff|ref|refrain|chorus|verse|bait|bridge|interlude|interlud|outro|coda|solo|instrumen|instrumental|repeat|ulang|pre|prechorus|ending|end|opening)$/i;
+    function chordFromToken(tok) {
+        var m = /^([A-G])([#b♯♭]?)([^\/]*)(?:\/([A-G][#b♯♭]?))?$/.exec(tok), r, rest, k;
+        if (!m) return null;
+        r = { C: 0, D: 2, E: 4, F: 5, G: 7, A: 9, B: 11 }[m[1]] + (/[#♯]/.test(m[2]) ? 1 : (m[2] ? -1 : 0)); r = (r + 12) % 12; rest = m[3];
+        if (rest === '' || /^(maj|M)$/.test(rest)) k = 'maj';
+        else if (/^(m|min|-)$/.test(rest)) k = 'm';
+        else if (rest === '7' || /^(dom7|7sus4|7sus)$/.test(rest)) k = '7';
+        else if (/^(maj7|M7|Δ|Δ7|maj9|M9|maj13)$/.test(rest)) k = 'maj7';
+        else if (/^(m7|min7|-7|m9|m11|m13)$/.test(rest)) k = 'm7';
+        else if (/^sus2$/.test(rest)) k = 'sus2';
+        else if (/^(sus4|sus)$/.test(rest)) k = 'sus4';
+        else if (rest === '5') k = '5';
+        else if (/^(6|maj6|M6)$/.test(rest)) k = '6';
+        else if (/^(add9|add2|2|9sus|add11)$/.test(rest)) k = 'add9';
+        else if (/^(dim|°|o|dim7|m7b5|m7-5|ø)$/.test(rest)) k = 'dim';
+        else if (/^(aug|\+|aug7)$/.test(rest)) k = 'aug';
+        else if (/^(9|11|13)$/.test(rest)) k = '9';
+        else if (/^m/.test(rest) && !/^maj/i.test(rest)) k = 'm';
+        else if (/^[0-9()b#+\-sus]*$/.test(rest)) k = /7|9|11|13/.test(rest) ? '7' : 'maj';
+        else return null;
+        return { r: r, ti: tIdx(k) };
+    }
+    /* baca teks chart: baris yang isinya hanya chord (dan label seperti "Intro:" / "4x") dianggap baris chord; lirik dilewati */
+    function parseChart(text) {
+        var items = [], lines = String(text || '').split(/\r?\n/), li;
+        for (li = 0; li < lines.length; li++) {
+            var toks = lines[li].replace(/[\[\]()|{}]/g, ' ').replace(/[:,;]/g, ' ').replace(/[–—→•]/g, ' ').split(/\s+/).filter(function (t) { return t && !/^[-\/.~*]+$/.test(t); }), seq = [], rep = 1, bad = false, t, c;
+            for (t = 0; t < toks.length; t++) {
+                var tk = toks[t].replace(/[.]+$/, '');
+                if (CH_MARK.test(tk) || /^n\.?c\.?$/i.test(tk)) continue;
+                var rm = /^(\d+)x$|^x(\d+)$/i.exec(tk); if (rm) { rep = Math.max(1, Math.min(8, +(rm[1] || rm[2]))); continue; }
+                c = chordFromToken(tk); if (!c) { bad = true; break; } seq.push(c);
+            }
+            if (bad || !seq.length) continue;
+            for (var q = 0; q < rep; q++) seq.forEach(function (c2, k) { items.push({ r: c2.r, ti: c2.ti, ls: k === 0 }); });
+        }
+        return items;
+    }
+    function chordVecTI(r, ti) { var v = new Float32Array(12), nm = 0, i; TYPES[ti].iv.forEach(function (iv, j2) { var w = j2 === 0 ? 1 : (j2 < 3 ? 0.85 : 0.55); HARM.forEach(function (h) { v[(r + iv + h[0]) % 12] += w * h[1]; }); }); for (i = 0; i < 12; i++) nm += v[i] * v[i]; nm = Math.sqrt(nm) || 1; for (i = 0; i < 12; i++) v[i] /= nm; return v; }
+    function fallbackBeats(ana) { var P = 0.5, beats = [], t = 0.25; while (t < ana.dur) { beats.push(t); t += P; } return { beats: beats, P: P, bpm: 120, conf: 0 }; }
+    /* Viterbi atas urutan chord di chart: tetap di chord yang sama, maju ke chord berikutnya, lompat ke awal baris (bagian berulang), atau
+       keluar ke keadaan "tak ada di chart" (solo dsb.) yang memakai chord hasil deteksi otomatis. Perpindahan hanya di ketukan. */
+    function alignChart(ana, items, auto) {
+        var useMain = ana.bt && ana.bt.conf >= BEAT_CONF, bt = useMain ? ana.bt : (ana._bt2 || (ana._bt2 = fallbackBeats(ana))), bs = useMain ? (ana._bs || (ana._bs = beatSync(ana))) : (ana._bs2 || (ana._bs2 = beatSync(ana, bt)));
+        var n = bs.c.length, S = items.length + 1, NS = S - 1, K = Math.max(2, Math.min(10, bt.P / (ana.hop / ana.sr))), EM = 10, BW = 4, G = bs.bar.g, useBar = useMain && bs.bar.s > 0.15, f, i, k;
+        var vecs = {}, uniq = [], key = items.map(function (it) { var id = it.r * 20 + it.ti; if (!vecs[id]) { vecs[id] = chordVecTI(it.r, it.ti); uniq.push(id); } return id; });
+        var dp = new Float32Array(S), nd = new Float32Array(S), bp = new Int16Array(n * S), silent = new Uint8Array(n), dots = {}, emN = K * (EM * 0.60 + BW * 0.15);
+        for (f = 0; f < n; f++) {
+            silent[f] = bs.r[f] < bs.thr ? 1 : 0;
+            uniq.forEach(function (id) { var v = vecs[id], d = 0; for (k = 0; k < 12; k++) d += bs.c[f][k] * v[k]; dots[id] = K * (EM * d + BW * bs.b[f][Math.floor(id / 20)]); });
+            var mult = useBar ? (((f - bs.bar.p) % G + G) % G === 0 ? 0.75 : 1.3) : 1, A = 2 * mult, SK = 16 * mult, JP = 9 * mult, NP = 8 * mult;
+            var all = 0; if (f) for (i = 1; i < S; i++) if (dp[i] > dp[all]) all = i;
+            for (i = 0; i < S; i++) {
+                var em = silent[f] ? 0 : (i === NS ? emN : dots[key[i]]), best, from;
+                if (!f) { nd[i] = em - (i === NS ? 4 : (i === 0 || items[i].ls ? 0 : 12)); continue; }
+                best = dp[i]; from = i;
+                if (i === NS) { if (dp[all] - NP > best) { best = dp[all] - NP; from = all; } }
+                else {
+                    if (i >= 1 && dp[i - 1] - A > best) { best = dp[i - 1] - A; from = i - 1; }
+                    if (i >= 2 && dp[i - 2] - SK > best) { best = dp[i - 2] - SK; from = i - 2; }
+                    if (items[i].ls && dp[all] - JP > best) { best = dp[all] - JP; from = all; }
+                }
+                nd[i] = best + em; bp[f * S + i] = from;
+            }
+            var mx = -1e9; for (i = 0; i < S; i++) if (nd[i] > mx) mx = nd[i]; for (i = 0; i < S; i++) dp[i] = nd[i] - mx;
+        }
+        var path = new Int16Array(n), cs = 0; for (i = 1; i < S; i++) if (dp[i] > dp[cs]) cs = i;
+        for (f = n - 1; f >= 0; f--) { path[f] = cs; if (f) cs = bp[f * S + cs]; }
+        var first = 0, lastA = n - 1; while (first < n && silent[first]) first++; while (lastA > first && silent[lastA]) lastA--;
+        /* label per ketukan: chord chart, atau hasil deteksi otomatis bila di luar chart */
+        var lab = [], prev = null, nOut = 0, firstChart = null;
+        for (f = first; f <= lastA; f++) if (path[f] !== NS) { firstChart = items[path[f]]; break; }
+        if (!firstChart) firstChart = items[0];
+        for (f = first; f <= lastA; f++) {
+            var s2 = path[f], L;
+            if (s2 !== NS) L = { r: items[s2].r, ti: items[s2].ti, c: 1 };
+            else { nOut++; var ap = auto && useMain && auto.path ? auto.path[f] : -1; L = ap >= 0 ? { r: Math.floor(ap / TT.length), ti: TIDX[ap % TT.length], c: 0 } : (prev ? { r: prev.r, ti: prev.ti, c: 0 } : { r: firstChart.r, ti: firstChart.ti, c: 0 }); }
+            lab.push(L); prev = L;
+        }
+        var runs = [], rs = 0;
+        for (f = 1; f <= lab.length; f++) if (f === lab.length || lab[f].r !== lab[rs].r || lab[f].ti !== lab[rs].ti) { runs.push({ s: lab[rs].r * 20 + lab[rs].ti, r: lab[rs].r, ti: lab[rs].ti, a: first + rs, b: first + f, c: lab[rs].c }); rs = f; }
+        /* chord chart yang hanya dapat 1 ketukan (bukti audio tipis): beri 2 ketukan dari tetangga yang panjang supaya tidak hilang */
+        runs.forEach(function (o, q) {
+            var len = o.b - o.a, need = 2 - len, pv = runs[q - 1], nx = runs[q + 1];
+            if (!o.c || need <= 0) return;
+            if (pv && pv.b - pv.a >= 3 + need) { o.a -= need; pv.b = o.a; } else if (nx && nx.b - nx.a >= 3 + need) { o.b += need; nx.a = o.b; }
+        });
+        mergeShort(runs, 2);
+        var res = runs.map(function (o, idx) { return { r: o.r, ti: o.ti, t0: idx ? Math.max(0, bs.t[o.a] - 0.02) : Math.max(0, bs.t[o.a] - 0.05), t1: 0, src: o.c ? 'chart' : 'auto' }; });
+        res.forEach(function (sg, q) { sg.t1 = q + 1 < res.length ? res[q + 1].t0 : (lastA + 1 < n ? bs.t[lastA + 1] : bs.tEnd); });
+        res.outside = nOut / Math.max(1, lab.length); res.nItems = items.length;
         return res;
     }
     function decodeCore(ana, cfg, kzMajor) {
@@ -371,7 +479,7 @@
         $('nd').innerHTML = nx && voic(nx) ? diagram(voic(nx), { mini: true }) : '';
     }
     function sheet() {
-        $('sheet').innerHTML = segs.map(function (s, i) { return '<button type="button" class="sc" data-i="' + i + '"><b>' + cname(s) + '</b><small>' + fmt(s.t0) + '</small></button>'; }).join('');
+        $('sheet').innerHTML = segs.map(function (s, i) { return '<button type="button" class="sc" data-i="' + i + '"><b>' + cname(s) + '</b><small>' + fmt(s.t0) + (s.src === 'auto' ? ' *' : '') + '</small></button>'; }).join('');
         var cnt = {}, u = []; segs.forEach(function (s) { var k = s.r + '|' + s.ti; if (!cnt[k]) { cnt[k] = 0; u.push(s); } cnt[k]++; });
         u.sort(function (a, b) { return cnt[b.r + '|' + b.ti] - cnt[a.r + '|' + a.ti]; });
         $('legend').innerHTML = u.map(function (s) { var v = voic(s); return '<div class="lg"><b>' + cname(s) + (st.capo ? ' <small>(' + cname(s, true) + ')</small>' : '') + '</b>' + (v ? diagram(v, { alt: cname(s) }) : '<small>-</small>') + '</div>'; }).join('');
@@ -461,8 +569,8 @@
         if (/\.json$/i.test(file.name)) { try { pending = JSON.parse(await file.text()); $('ptxt').textContent = 'Hasil tersimpan dimuat. Sekarang pilih file audio yang sama.'; $('prog').hidden = false; $('bar').style.width = '100%'; } catch (e) { alert('File hasil tidak valid.'); } return; }
         fname = file.name.replace(/\.[^.]+$/, ''); $('app').hidden = true; if (objUrl) URL.revokeObjectURL(objUrl); objUrl = URL.createObjectURL(file); au.src = objUrl;
         try {
-            ana = null; akey = null; tempo = 0; if (pending && pending.segs) { segs = pending.segs.map(function (a) { return { r: a[0], ti: a[1], t0: a[2], t1: a[3] }; }); tempo = pending.bpm || 0; if (tempo) { st.bpm = tempo; save(); } dur = pending.duration || 0; pending = null; await new Promise(function (r) { if (au.readyState > 0) r(); else au.addEventListener('loadedmetadata', r, { once: true }); }); dur = au.duration || dur; }
-            else { ana = await analyze(await file.arrayBuffer()); segs = decode(ana, st.level); akey = segs.key; if (ana.bt && ana.bt.conf >= BEAT_CONF) { tempo = Math.round(ana.bt.bpm); st.bpm = Math.max(40, Math.min(220, tempo)); save(); } }
+            ana = null; akey = null; tempo = 0; chartOn = false; if (pending && pending.segs) { segs = pending.segs.map(function (a) { return { r: a[0], ti: a[1], t0: a[2], t1: a[3] }; }); tempo = pending.bpm || 0; if (tempo) { st.bpm = tempo; save(); } dur = pending.duration || 0; pending = null; await new Promise(function (r) { if (au.readyState > 0) r(); else au.addEventListener('loadedmetadata', r, { once: true }); }); dur = au.duration || dur; }
+            else { ana = await analyze(await file.arrayBuffer()); try { chartText = localStorage.getItem(chartKey()) || ''; } catch (e) { chartText = ''; } chartOn = !!chartText; $('chart').value = chartText; $('chmsg').textContent = ''; rebuild(); if (ana.bt && ana.bt.conf >= BEAT_CONF) { tempo = Math.round(ana.bt.bpm); st.bpm = Math.max(40, Math.min(220, tempo)); save(); } }
         } catch (e) { $('ptxt').textContent = 'Gagal membaca/menganalisis file ini. Coba format lain (MP3, M4A, WAV) atau file yang lebih pendek.'; $('drop').hidden = false; return; }
         $('prog').hidden = true; $('app').hidden = false; $('drop').hidden = true; $('swap').hidden = false; $('swap').style.display = 'flex'; $('listbtn').hidden = false; $('seek').max = dur; $('seek').value = 0; titleUi(); st.a = st.b = null; st.loop = false; st.sel = -1; loopUi(); chips(); sheet(); $('edit').hidden = true;
         window.__tr = { segs: segs, st: st, au: au };
@@ -476,7 +584,7 @@
     $('rs').addEventListener('click', function () { au.currentTime = st.a !== null && st.loop ? st.a : 0; mark(au.currentTime, true); });
     $('seek').addEventListener('input', function () { dragging = true; au.currentTime = +this.value; mark(+this.value, true); }); $('seek').addEventListener('change', function () { dragging = false; });
     $('insts').addEventListener('change', function () { st.inst = this.value; I = INSTS[st.inst]; save(); chips(); sheet(); });
-    $('modes').addEventListener('click', function (e) { var b = e.target.closest('[data-m]'); if (!b || !ana) return; if (b.dataset.m !== st.level) { st.level = b.dataset.m; save(); segs = decode(ana, st.level); akey = segs.key; st.sel = -1; $('edit').hidden = true; st.a = st.b = null; st.loop = false; loopUi(); titleUi(); chips(); sheet(); } });
+    $('modes').addEventListener('click', function (e) { var b = e.target.closest('[data-m]'); if (!b || !ana) return; if (b.dataset.m !== st.level) { st.level = b.dataset.m; save(); rebuild(); st.sel = -1; $('edit').hidden = true; st.a = st.b = null; st.loop = false; loopUi(); titleUi(); chips(); sheet(); } });
     $('rates').addEventListener('change', function () { st.rate = +this.value; save(); chips(); });
     $('cnts').addEventListener('change', function () { st.count = +this.value; save(); chips(); });
     $('capo').addEventListener('change', function () { st.capo = +this.value; save(); chips(); sheet(); });
@@ -494,6 +602,20 @@
     $('et').innerHTML = TYPES.map(function (t, i) { return '<option value="' + i + '">' + (t.s || 'Mayor') + '</option>'; }).join('');
     $('eok').addEventListener('click', function () { var s = segs[st.sel]; if (!s) return; s.r = +$('er').value; s.ti = +$('et').value; sheet(); });
     $('edel').addEventListener('click', function () { var i = st.sel; if (i < 0) return; if (i > 0) segs[i - 1].t1 = segs[i].t1; segs.splice(i, 1); st.sel = -1; $('edit').hidden = true; sheet(); });
+    function afterRebuild() { st.sel = -1; $('edit').hidden = true; st.a = st.b = null; st.loop = false; loopUi(); titleUi(); chips(); sheet(); }
+    $('chgo').addEventListener('click', function () {
+        var msg = $('chmsg');
+        if (!ana) { msg.textContent = 'Chart hanya bisa dicocokkan setelah lagu dianalisis di sesi ini. Pilih file audio langsung (bukan file .json).'; return; }
+        var txt = $('chart').value, items = parseChart(txt);
+        if (items.length < 2) { msg.textContent = 'Belum ada baris chord yang terbaca. Tulis chord dipisah spasi, misalnya "D Bm G A".'; return; }
+        chartText = txt; chartOn = true; try { localStorage.setItem(chartKey(), txt); } catch (e) {}
+        rebuild(); afterRebuild();
+        msg.textContent = items.length + ' chord terbaca dari chart.' + (segs.outside > 0.05 ? ' ' + Math.round(segs.outside * 100) + '% lagu tidak cocok dengan chart dan memakai deteksi otomatis (tanda *).' : '');
+    });
+    $('chclr').addEventListener('click', function () {
+        if (!ana) return; chartOn = false; try { localStorage.removeItem(chartKey()); } catch (e) {}
+        rebuild(); afterRebuild(); $('chmsg').textContent = 'Kembali memakai deteksi otomatis.';
+    });
     $('prn').addEventListener('click', function () {
         $('pinfo') && 0; $('pa').innerHTML = '<h2>' + fname.replace(/</g, '&lt;') + ' \u00b7 ' + I.name + (st.capo && !I.kb ? ' \u00b7 kapo fret ' + st.capo : '') + ' \u00b7 ' + fmt(dur) + '</h2><div class="sheet">' + $('sheet').innerHTML + '</div><h2>Kamus chord</h2><div class="legend">' + $('legend').innerHTML + '</div>';
         window.print();
