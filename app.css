@@ -221,7 +221,7 @@ main.app .selpanel .srch{height:38px;min-height:0;font-size:.95rem;padding:0 .8r
 .selpanel .qh{font-size:.75rem;font-weight:700;color:#b91c1c;margin:0 0 4px}.selpanel .qh:empty{display:none}
 .selsec{border-top:1px solid var(--edge);padding:6px 0}.selsec:last-child{padding-bottom:0}
 .sl{display:none;font-size:.64rem;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--sub);margin-bottom:5px}
-@media (min-width:900px),(min-height:800px){.sl{display:block}}
+@media (min-width:900px),(min-height:900px){.sl{display:block}}
 @media (min-width:900px){.selsec{padding:9px 0}.selpanel{padding:10px 12px}main.app .selpanel .srch{height:42px}}
 
 /* chord: satu baris pratinjau (‹ pratinjau ›), info bentuk di kolom kiri */
@@ -242,3 +242,26 @@ main.app .chbot .navrow .rb{flex:0 0 38px;width:38px;height:50px;font-size:1.7re
 /* layar pendek: kolom kiri kartu chord tidak boleh terpotong */
 @media (max-height:620px){.chleft .ch-name{font-size:2.3rem;line-height:1}.chleft{gap:2px;justify-content:flex-start}.ch-pinfo{font-size:.76rem}.chleft .opts{margin:2px 0 0}}
 @media (max-height:600px) and (max-width:899px){.ch-pinfo{display:none}}
+
+/* ===== ketahanan di HP sungguhan: tinggi nyata, bilah navigasi, teks besar ===== */
+body.app-page{height:var(--app-h,100dvh)}
+main.app{height:var(--app-h,100dvh);overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;padding-bottom:calc(10px + env(safe-area-inset-bottom,0px))}
+html.standalone main.app{padding-bottom:calc(34px + env(safe-area-inset-bottom,0px))}
+@media (display-mode:standalone){main.app{padding-bottom:calc(34px + env(safe-area-inset-bottom,0px))}}
+/* tingkat 1: lebih rapat */
+main.app.fit1{gap:4px}
+main.app.fit1 .sel,main.app.fit1 .numin{height:34px}
+main.app.fit1 .chip{min-height:30px}main.app.fit1 .t-btn{min-height:42px}
+main.app.fit1 .selpanel{padding:4px 8px}main.app.fit1 .selsec{padding:3px 0}main.app.fit1 .srchrow{padding-bottom:3px}
+main.app.fit1 .t-note{font-size:2.4rem}
+main.app.fit1 .mt-bpm .rb{width:40px;height:40px;font-size:1.3rem}main.app.fit1 .mt-num input{font-size:2.3rem}main.app.fit1 .ad{width:32px!important;height:32px!important}
+main.app.fit1 .chbot .navrow .rb{height:38px}main.app.fit1 .chbot .th button{max-width:46px}
+main.app.fit1 canvas.ctab{height:56px}
+/* tingkat 2: sembunyikan keterangan kecil */
+main.app.fit2 .lb{font-size:0;gap:0}
+main.app.fit2 .sl,main.app.fit2 .ch-notes,main.app.fit2 .ch-pinfo,main.app.fit2 .tr-ttl,main.app.fit2 .tr-next,main.app.fit2 .t-hz{display:none}
+main.app.fit2 .mt-num span{display:none}
+/* tingkat 3: paling ringkas */
+main.app.fit3 .chip{min-height:28px}main.app.fit3 .sel,main.app.fit3 .numin{height:32px}
+main.app.fit3 .chleft .ch-type,main.app.fit3 .tr-tm,main.app.fit3 .a4row .t-a4s{display:none}
+main.app.fit3 canvas.ctab{height:44px}
