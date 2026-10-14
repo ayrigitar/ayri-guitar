@@ -127,7 +127,7 @@
         <p class="hint" id="chmsg"></p>
         <h2>Chord lagu ini</h2><p class="hint">Ketuk chord untuk lompat ke sana. Chord salah? Ketuk lalu ubah. Tanda * berarti chord dari deteksi otomatis (di luar chart).</p>
         <div class="sheet" id="sheet"></div>
-        <div class="t-card" id="edit" hidden style="margin-top:.6rem"><b id="etl"></b><div class="pg-row"><select id="er" class="srch" style="width:auto"></select><select id="et" class="srch" style="width:auto"></select></div><div class="pg-row"><button id="eok" type="button" class="t-btn" style="min-height:46px;font-size:1rem">Terapkan</button><button id="edel" type="button" class="chip">Hapus chord ini</button></div></div>
+        <div class="t-card" id="edit" hidden style="margin-top:.6rem"><b id="etl"></b><div class="pg-row"><select id="er" class="srch" style="width:auto"></select><select id="et" class="srch" style="width:auto"></select></div><div class="pg-row"><button id="eok" type="button" class="t-btn" style="min-height:46px;font-size:1rem">Terapkan</button><button id="edel" type="button" class="chip">Hapus chord ini</button></div><p class="hint" style="margin:.5rem 0 .2rem">Waktu mulai chord ini salah? Geser satu ketukan:</p><div class="pg-row"><button id="emvl" type="button" class="chip">&#9664; Lebih awal</button><button id="emvr" type="button" class="chip">Lebih akhir &#9654;</button></div></div>
         <h2>Kamus chord</h2><div class="legend" id="legend"></div>
         <div class="chips" style="margin-top:1rem"><button id="prn" type="button" class="chip">Cetak transkrip</button><button id="sav" type="button" class="chip">Simpan hasil (.json)</button></div>
         <p class="hint">Simpan hasil agar tidak perlu menganalisis ulang: lain kali pilih file .json dulu, lalu file audionya.</p>
@@ -427,7 +427,7 @@
         for (f = 0; f < n; f++) {
             silent[f] = bs.r[f] < bs.thr ? 1 : 0;
             uniq.forEach(function (id) { var v = vecs[id], d = 0; for (k = 0; k < 12; k++) d += bs.c[f][k] * v[k]; dots[id] = K * (EM * d + BW * bs.b[f][Math.floor(id / 20)]); });
-            var mult = useBar ? (((f - bs.bar.p) % G + G) % G === 0 ? 0.75 : 1.3) : 1, A = 2 * mult, SK = 16 * mult, JP = 9 * mult, NP = 8 * mult;
+            var bpos = ((f - bs.bar.p) % G + G) % G, mult = useBar ? (bpos === 0 ? 0.6 : (G === 4 && bpos === 2 ? 0.9 : 2.2)) : 1, A = 2 * mult, SK = 16 * mult, JP = 9 * mult, NP = 8 * mult;
             var all = 0; if (f) for (i = 1; i < S; i++) if (dp[i] > dp[all]) all = i;
             for (i = 0; i < S; i++) {
                 var em = silent[f] ? 0 : (i === NS ? emN : dots[key[i]]), best, from;
@@ -631,6 +631,18 @@
     $('er').innerHTML = NM.map(function (n, i) { return '<option value="' + i + '">' + disp(n) + '</option>'; }).join('');
     $('et').innerHTML = TYPES.map(function (t, i) { return '<option value="' + i + '">' + (t.s || 'Mayor') + '</option>'; }).join('');
     $('eok').addEventListener('click', function () { var s = segs[st.sel]; if (!s) return; s.r = +$('er').value; s.ti = +$('et').value; sheet(); });
+    /* geser awal chord yang dipilih satu ketukan (mengikuti ketukan lagu bila terdeteksi, jika tidak 0,25 detik) */
+    function nudge(dir) {
+        var s = segs[st.sel]; if (!s) return;
+        var bs = ana && (ana._bs || ana._bs2), nt, i;
+        if (bs && bs.t.length) { var bi = 0; for (i = 1; i < bs.t.length; i++) if (Math.abs(bs.t[i] - (s.t0 + 0.02)) < Math.abs(bs.t[bi] - (s.t0 + 0.02))) bi = i; nt = bs.t[Math.max(0, Math.min(bs.t.length - 1, bi + dir))] - 0.02; } else nt = s.t0 + dir * 0.25;
+        nt = Math.max(0, nt); var prev = segs[st.sel - 1];
+        if (prev && nt < prev.t0 + 0.3) return; if (nt > s.t1 - 0.3) return;
+        s.t0 = nt; if (prev) prev.t1 = nt;
+        sheet(); au.currentTime = nt; mark(nt, true); $('etl').textContent = 'Ubah chord di ' + fmt(nt) + ' (sekarang ' + cname(s) + ')';
+    }
+    $('emvl').addEventListener('click', function () { nudge(-1); });
+    $('emvr').addEventListener('click', function () { nudge(1); });
     $('edel').addEventListener('click', function () { var i = st.sel; if (i < 0) return; if (i > 0) segs[i - 1].t1 = segs[i].t1; segs.splice(i, 1); st.sel = -1; $('edit').hidden = true; sheet(); });
     function afterRebuild() { st.sel = -1; $('edit').hidden = true; st.a = st.b = null; st.loop = false; loopUi(); titleUi(); chips(); sheet(); }
     $('chgo').addEventListener('click', function () {
