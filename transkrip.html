@@ -166,16 +166,25 @@
         };
     }
     function progress(p, txt) { $('prog').hidden = false; $('bar').style.width = Math.round(p * 100) + '%'; $('ptxt').textContent = txt + ' ' + Math.round(p * 100) + '%'; }
-    async function analyze(ab) {
+    async function analyze(ab, opts) {
         var AC = window.AudioContext || window.webkitAudioContext, c = new AC(), buf;
         progress(0.02, 'Membaca audio');
         buf = await c.decodeAudioData(ab); if (c.close) c.close();
         var chl = []; for (var q = 0; q < buf.numberOfChannels; q++) chl.push(buf.getChannelData(q));
-        return analyzePCM(chl, buf.sampleRate, buf.length, buf.duration);
+        return analyzePCM(chl, buf.sampleRate, buf.length, buf.duration, opts);
     }
-    async function analyzePCM(chs, sr0, len, duration) {
-        var nch = chs.length, D = Math.max(1, Math.round(sr0 / 11025)), sr = sr0 / D, n = Math.floor(len / D), x = new Float32Array(n), i, j, k, f;
-        for (i = 0; i < n; i++) { var s = 0; for (j = 0; j < D; j++) for (k = 0; k < nch; k++) s += chs[k][i * D + j]; x[i] = s / (D * nch); }
+    /* Rekaman stereo: vokal, bas, dan drum biasanya di tengah, sedangkan gitar (strum) tersebar kiri-kanan.
+       Chord dihitung dari selisih kiri-kanan (side) supaya vokal tidak ikut terbaca; bas tetap dari suara tengah. */
+    var SIDE_MAX = 0.75;
+    async function analyzePCM(chs, sr0, len, duration, opts) {
+        var nch = chs.length, D = Math.max(1, Math.round(sr0 / 11025)), sr = sr0 / D, n = Math.floor(len / D), x = new Float32Array(n), xs = new Float32Array(n), i, j, k, f, sm = 0, ss = 0;
+        for (i = 0; i < n; i++) {
+            var s = 0, d2 = 0;
+            for (j = 0; j < D; j++) { if (nch > 1) { s += chs[0][i * D + j] + chs[1][i * D + j]; d2 += chs[0][i * D + j] - chs[1][i * D + j]; } else s += 2 * chs[0][i * D + j]; }
+            x[i] = s / (2 * D); xs[i] = d2 / (2 * D); sm += x[i] * x[i]; ss += xs[i] * xs[i];
+        }
+        var sideRatio = Math.sqrt(ss / (sm + 1e-12)), aw = nch > 1 ? Math.max(0, Math.min(1, (sideRatio - 0.08) / 0.25)) * SIDE_MAX : 0;
+        if (opts && opts.side !== undefined) aw = nch > 1 ? opts.side : 0;
         dur = duration;
         var N = 4096, hop = 1024, fr = Math.floor((n - N) / hop) + 1; if (fr < 10) throw new Error('pendek');
         var fft = makeFFT(N), re = new Float64Array(N), im = new Float64Array(N), win = new Float64Array(N);
@@ -185,9 +194,13 @@
         var c36 = new Float32Array(fr * 36), b36 = new Float32Array(fr * 36), rms = new Float32Array(fr), kB = Math.floor(220 * N / sr);
         for (f = 0; f < fr; f++) {
             var o = f * hop, e = 0, v;
-            for (i = 0; i < N; i++) { v = x[o + i]; e += v * v; re[i] = v * win[i]; im[i] = 0; }
+            for (i = 0; i < N; i++) { v = x[o + i]; e += v * v; re[i] = v * win[i]; im[i] = xs[o + i] * win[i]; }
             rms[f] = Math.sqrt(e / N); fft(re, im);
-            for (k = kLo; k <= kHi; k++) { var mm = Math.sqrt(Math.hypot(re[k], im[k])); c36[f * 36 + map[k]] += mm; if (k <= kB) { var fk = k * sr / N; b36[f * 36 + map[k]] += mm * (fk <= 120 ? 1 : 1 - 0.75 * (fk - 120) / 100); } }
+            /* satu FFT kompleks untuk dua sinyal: real = tengah (mid), imajiner = selisih (side) */
+            for (k = kLo; k <= kHi; k++) {
+                var aM = Math.hypot(re[k] + re[N - k], im[k] - im[N - k]) / 2, aS = Math.hypot(im[k] + im[N - k], re[N - k] - re[k]) / 2, mm = Math.sqrt((1 - aw) * aM + aw * aS), mb = Math.sqrt(aM);
+                c36[f * 36 + map[k]] += mm; if (k <= kB) { var fk = k * sr / N; b36[f * 36 + map[k]] += mb * (fk <= 120 ? 1 : 1 - 0.75 * (fk - 120) / 100); }
+            }
             if (f % 40 === 0) { progress(0.05 + 0.8 * f / fr, 'Menganalisis chord'); await new Promise(function (r) { setTimeout(r, 0); }); }
         }
         progress(0.9, 'Menyusun chord');
@@ -200,7 +213,7 @@
         fold(c36, c12); fold(b36, b12);
         progress(0.95, 'Mencari ketukan');
         var bt = null; try { bt = trackBeats(x, sr); } catch (e) { bt = null; }
-        return { c12: c12, b12: b12, rms: rms, fr: fr, hop: hop, N: N, sr: sr, dur: dur, bt: bt };
+        return { c12: c12, b12: b12, rms: rms, fr: fr, hop: hop, N: N, sr: sr, dur: dur, bt: bt, side: aw, sideRatio: sideRatio };
     }
     /* ---------- ketukan (tempo + posisi ketukan) ---------- */
     function trackBeats(x, sr) {
@@ -275,7 +288,7 @@
             for (var k = out.length - 1; k > 0; k--) if (out[k].s === out[k - 1].s) { out[k - 1].b = out[k].b; out.splice(k, 1); }
         }
     }
-    var LEVELS = { rinci: { full: true, minDur: 0.5, pen: 0, sw: 3, bpen: 6, minBeats: 1 }, sedang: { full: false, minDur: 0.9, pen: 1.0, sw: 4, bpen: 9, minBeats: 2 }, mudah: { full: false, minDur: 1.5, pen: 2.0, sw: 5, bpen: 14, minBeats: 2 } };
+    var LEVELS = { rinci: { full: true, minDur: 0.5, pen: 0, sw: 3, bpen: 5, minBeats: 1 }, sedang: { full: false, minDur: 0.9, pen: 1.0, sw: 4, bpen: 6, minBeats: 2 }, mudah: { full: false, minDur: 1.5, pen: 2.0, sw: 5, bpen: 7, minBeats: 2 } };
     function keyFromSegs(segs, kz) {
         var best = -1, bk = kz.major, r, sc = [];
         for (r = 0; r < 12; r++) { var s = 0, tonicT = 0, viT = 0; segs.forEach(function (g) { var rel = (g.r - r + 12) % 12, k = TYPES[g.ti].k, d = g.t1 - g.t0, mn = (k === 'm' || k === 'm7'); if (mn ? [2, 4, 9].indexOf(rel) > -1 : [0, 5, 7].indexOf(rel) > -1) s += d; if (!mn && rel === 0) tonicT += d; if (mn && rel === 9) viT += d; }); sc[r] = { s: s + 0.25 * (tonicT + viT), t: tonicT, v: viT }; if (sc[r].s > best + 1e-6 || (Math.abs(sc[r].s - best) <= 1e-6 && r === kz.major)) { best = sc[r].s; bk = r; } }
@@ -383,6 +396,16 @@
             if (shape) { g.font = '600 11px ui-sans-serif,system-ui,sans-serif'; g.fillStyle = on ? 'rgba(255,255,255,.85)' : C.sub; g.fillText('jari ' + cname(sg, true), tx, H / 2 + 12); }
             g.restore(); g.globalAlpha = 1;
         });
+        if (ana && ana._bs && ana.bt && ana.bt.conf >= BEAT_CONF) {
+            /* tanda ketukan di tepi bawah: ketukan 1 lebih panjang, ketukan yang baru lewat menyala */
+            var bs = ana._bs, G = bs.bar.g, i, x;
+            for (i = 0; i < bs.t.length; i++) {
+                x = ph + (bs.t[i] - now) * pps; if (x < 0 || x > W) continue;
+                var down = (((i - bs.bar.p) % G) + G) % G === 0, lit = now >= bs.t[i] && now - bs.t[i] < 0.12;
+                g.fillStyle = lit ? C.acc : C.sub; g.globalAlpha = lit ? 1 : 0.6; g.fillRect(x - 1, H - (down ? 6 : 4), 2, down ? 6 : 4);
+            }
+            g.globalAlpha = 1;
+        }
         g.fillStyle = C.ink; g.globalAlpha = 0.7; g.fillRect(ph - 1, 0, 2, H); g.globalAlpha = 1;
     }
     $('ctab').addEventListener('click', function (e) { var r = this.getBoundingClientRect(); au.currentTime = Math.max(0, au.currentTime + ((e.clientX - r.left) - r.width * 0.22) / 100); mark(au.currentTime, true); });
