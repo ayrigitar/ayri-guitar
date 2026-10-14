@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chord Gitar, Ukulele &amp; Guitalele: Diagram & Suara | Toko Gitar AYRI</title>
-    <meta name="description" content="Perpustakaan chord gratis untuk gitar, ukulele, dan guitalele: diagram jari, suara chord, beberapa bentuk tiap chord, mode kidal, favorit, dan latihan progresi.">
+    <title>Chord Gitar, Ukulele, Guitalele &amp; Piano: Diagram &amp; Suara | Toko Gitar AYRI</title>
+    <meta name="description" content="Perpustakaan chord gratis untuk gitar, ukulele, guitalele, dan piano: diagram, suara chord, beberapa bentuk tiap chord, mode kidal, favorit, dan latihan progresi.">
     <link rel="canonical" href="https://ayrigitar.com/chords.html">
     <meta property="og:type" content="website">
     <meta property="og:locale" content="id_ID">
     <meta property="og:site_name" content="Toko Gitar AYRI">
-    <meta property="og:title" content="Chord Gitar, Ukulele &amp; Guitalele: Diagram & Suara | Toko Gitar AYRI">
-    <meta property="og:description" content="Perpustakaan chord gratis untuk gitar, ukulele, dan guitalele: diagram jari, suara chord, beberapa bentuk tiap chord, mode kidal, favorit, dan latihan progresi.">
+    <meta property="og:title" content="Chord Gitar, Ukulele, Guitalele &amp; Piano: Diagram &amp; Suara | Toko Gitar AYRI">
+    <meta property="og:description" content="Perpustakaan chord gratis untuk gitar, ukulele, guitalele, dan piano: diagram, suara chord, beberapa bentuk tiap chord, mode kidal, favorit, dan latihan progresi.">
     <meta property="og:url" content="https://ayrigitar.com/chords.html">
     <meta name="twitter:card" content="summary">
     <link rel="manifest" href="manifest.webmanifest">
@@ -24,7 +24,7 @@
 {
   "@context": "https://schema.org",
   "@type": "WebApplication",
-  "name": "Perpustakaan Chord Gitar, Ukulele & Guitalele AYRI",
+  "name": "Perpustakaan Chord Gitar, Ukulele, Guitalele & Piano AYRI",
   "url": "https://ayrigitar.com/chords.html",
   "description": "Perpustakaan chord gratis untuk gitar, ukulele, dan guitalele: diagram jari, suara chord, beberapa bentuk tiap chord, mode kidal, favorit, dan latihan progresi.",
   "applicationCategory": "MusicApplication",
@@ -57,7 +57,9 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&display=swap">
     <link rel="stylesheet" href="theme-dark.css">
     <link rel="stylesheet" href="tools.css">
+    <link rel="stylesheet" href="app.css">
     <script src="theme.js"></script>
+    <script src="app.js"></script>
     <script src="pwa.js" defer></script>
 </head>
 <body class="bg-slate-50 text-slate-900 font-sans antialiased">
@@ -86,36 +88,43 @@
     </nav>
 
     <!-- BAGIAN KONTEN ARTIKEL -->
-    <main class="tuner wide">
-<nav class="tt" aria-label="Alat latihan"><a href="tuner.html">Tuner</a><a href="chords.html" aria-current="page">Chord</a><a href="metronom.html">Metronom</a><a href="transkrip.html">Transkrip</a></nav>
-        <h1>Perpustakaan Chord: Gitar, Ukulele &amp; Guitalele</h1>
-        <p class="t-sub">Pilih alat musik, nada dasar, dan jenis chord, lihat beberapa bentuk jarinya, lalu dengarkan suaranya. Gratis, tanpa aplikasi.</p>
-        <span class="lbl" style="margin-top:0">Alat musik</span><div id="insts" class="chips"></div><p class="hint" id="iinfo"></p>
-        <label class="lbl" for="q">Cari chord</label>
-        <input id="q" class="srch" type="text" inputmode="text" autocomplete="off" placeholder="Ketik, misalnya: Am7 atau F#m" aria-describedby="qh">
-        <div class="hint" id="qh"></div>
-        <span class="lbl">Nada dasar</span><div id="roots" class="rootg"></div>
-        <span class="lbl">Jenis chord</span><div id="types" class="scroll-x"></div>
-        <div class="t-card" style="margin-top:1.2rem">
-            <div class="ch-h"><div><div class="ch-name" id="cname">C</div><div class="ch-type" id="ctype"></div></div><button id="fav" type="button" class="star" aria-pressed="false" aria-label="Simpan ke favorit">&#9733;</button></div>
-            <div class="ch-notes" id="cnotes"></div>
-            <div id="dia"></div>
-            <div class="pager"><button id="prev" type="button" class="rb" aria-label="Bentuk sebelumnya">&#9664;</button><b id="pinfo"></b><button id="next" type="button" class="rb" aria-label="Bentuk berikutnya">&#9654;</button></div>
-            <div class="th" id="thumbs"></div>
-            <div class="act2"><button id="sd" type="button" class="t-btn">Strum &darr;</button><button id="su" type="button" class="t-btn alt">Strum &uarr;</button><button id="sa" type="button" class="t-btn alt">Arpeggio</button></div>
-            <div class="opts"><button id="tg-left" type="button" class="chip" aria-pressed="false">Mode tangan kidal</button><button id="tg-note" type="button" class="chip" aria-pressed="false">Tampilkan nama nada</button></div>
-            <p class="hint">Ketuk satu senar pada diagram untuk mendengar nadanya. Nada mengikuti acuan A4 di halaman Tuner.</p>
+    <main class="app chords-app">
+        <div class="apptop"><nav class="tt" aria-label="Alat latihan"><a href="tuner.html">Tuner</a><a href="chords.html" aria-current="page">Chord</a><a href="metronom.html">Metronom</a><a href="transkrip.html">Transkrip</a></nav><span id="themeslot"></span><button type="button" class="ib" data-open="dr-more" aria-label="Cari, favorit, dan latihan progresi">&#9776;</button></div>
+        <h1 class="sr-only">Perpustakaan Chord: Gitar, Ukulele, Guitalele &amp; Piano</h1>
+        <div class="selpanel">
+            <div class="srchrow"><select id="instsel" class="sel instsel" aria-label="Alat musik"></select><input id="q" class="srch" type="search" inputmode="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Cari chord: Am7, F#m, Bbmaj7" aria-label="Cari chord" aria-describedby="qh"></div>
+            <div id="qh" class="qh" role="status"></div>
+            <section class="selsec selinst"><div class="sl">Alat musik</div><div id="insts" class="instg" role="group" aria-label="Alat musik"></div></section>
+            <section class="selsec"><div class="sl">Nada dasar</div><div id="roots" class="rootg" role="group" aria-label="Nada dasar"></div></section>
+            <section class="selsec"><div class="sl">Jenis chord</div><div id="types" class="typeg" role="group" aria-label="Jenis chord"></div></section>
         </div>
+        <div class="t-card chcard">
+            <div class="chleft">
+                <div class="ch-h"><div><div class="ch-name" id="cname">C</div><div class="ch-type" id="ctype"></div></div><button id="fav" type="button" class="star" aria-pressed="false" aria-label="Simpan ke favorit">&#9733;</button></div>
+                <div class="ch-notes" id="cnotes"></div>
+                <div class="ch-pinfo"><b id="pinfo"></b></div>
+                <div class="opts"><button id="tg-left" type="button" class="chip" aria-pressed="false">Kidal</button><button id="tg-note" type="button" class="chip" aria-pressed="false">Nama</button></div>
+            </div>
+            <div class="chright"><div id="dia"></div></div>
+            <div class="chbot">
+                <div class="navrow"><button id="prev" type="button" class="rb" aria-label="Bentuk sebelumnya">&#8249;</button><div class="th" id="thumbs"></div><button id="next" type="button" class="rb" aria-label="Bentuk berikutnya">&#8250;</button></div>
+                <div class="playrow"><div class="seg" id="pmode" role="group" aria-label="Cara memainkan chord"><button type="button" class="chip" data-pm="d">&darr; Strum</button><button type="button" class="chip" data-pm="u">&uarr; Strum</button><button type="button" class="chip" data-pm="a">Arpeggio</button></div><button id="pl" type="button" class="pbtn" aria-pressed="false" aria-label="Putar chord terus-menerus. Ketuk lagi untuk berhenti." title="Putar terus / berhenti (atur tempo di menu)">&#9654; Main</button></div>
+            </div>
+        </div>
+    </main>
+    <div class="drawer" id="dr-more" hidden><div class="drawer-in">
+        <button type="button" class="chip drawer-x" data-close>Tutup</button>
+        <h2>Tentang alat musik ini</h2><p class="hint" id="iinfo"></p>
         <h2>Chord favorit saya</h2><div id="favs" class="chips"></div>
         <h2>Latihan progresi chord</h2>
-        <p class="t-sub" style="font-size:1rem;margin-bottom:.6rem">Memakai nada dasar yang sedang Anda pilih sebagai kunci. Cocok untuk latihan pindah chord.</p>
-        <div id="pgs" class="scroll-x"></div>
+        <p class="t-help">Memakai nada dasar yang sedang Anda pilih sebagai kunci. Cocok untuk latihan pindah chord.</p>
+        <div id="pgs" class="chips" style="margin-top:.5rem"></div>
         <div id="pgc" class="chips" style="margin-top:.6rem"></div>
-        <div class="pg-row"><label for="pgbpm" class="fld" style="flex-direction:row;align-items:center">Tempo <input id="pgbpm" type="number" inputmode="numeric" min="40" max="200" value="80"> BPM</label><button id="pgplay" type="button" class="t-btn" style="min-height:50px;font-size:1rem">Mainkan progresi</button></div>
+        <div class="pg-row"><label for="pgbpm" class="fld" style="flex-direction:row;align-items:center">Tempo (untuk tombol Main) <input id="pgbpm" type="number" inputmode="numeric" min="40" max="200" value="80"> BPM</label><button id="pgplay" type="button" class="t-btn" style="min-height:46px;font-size:1rem">Mainkan progresi</button></div>
         <h2>Cara membaca diagram</h2>
-        <p class="t-sub" style="font-size:1rem">Garis vertikal adalah senar, urutannya sama dengan huruf nama senar di bawah diagram. Bulatan adalah posisi jari dan angkanya nomor jari (1 telunjuk, 2 tengah, 3 manis, 4 kelingking). Tanda &quot;&times;&quot; berarti senar tidak dipetik, lingkaran kosong berarti senar dipetik terbuka, dan tulisan seperti &quot;3fr&quot; berarti diagram mulai dari fret ke-3. Batang panjang adalah barre, yaitu satu jari menekan beberapa senar sekaligus.</p>
+        <p class="t-help">Garis vertikal adalah senar, urutannya sama dengan huruf nama senar di bawah diagram. Bulatan adalah posisi jari dan angkanya nomor jari (1 telunjuk, 2 tengah, 3 manis, 4 kelingking). Tanda &quot;&times;&quot; berarti senar tidak dipetik, lingkaran kosong berarti senar dipetik terbuka, dan tulisan seperti &quot;3fr&quot; berarti diagram mulai dari fret ke-3. Batang panjang adalah barre. Pada piano, angka adalah nomor jari tangan kanan (1 jempol sampai 5 kelingking) dan huruf L berarti nada bass tangan kiri.</p>
         <a class="t-cta" href="index.html#harga"><strong>Gitar susah disetel atau berdengung?</strong><br>Lihat estimasi biaya setup &amp; servis di Toko Gitar AYRI Bogor &rarr;</a>
-    </main>
+    </div></div>
     <script src="chord-engine.js"></script>
     <script>
 (function () {
@@ -141,17 +150,24 @@
         g.gain.setValueAtTime(0.0001, when); g.gain.linearRampToValueAtTime(vol, when + 0.006); g.gain.exponentialRampToValueAtTime(vol * 0.35, when + 0.35); g.gain.exponentialRampToValueAtTime(0.0001, when + 2.6);
         o.connect(lp); lp.connect(g); g.connect(comp); o.start(when); o.stop(when + 2.7);
     }
+    function pnote(m, when, vol) {
+        var c = audio(), f = A4() * Math.pow(2, (m - 69) / 12), g = c.createGain(), lp = c.createBiquadFilter();
+        lp.type = 'lowpass'; lp.frequency.value = Math.min(6000, f * 8); lp.connect(g); g.connect(comp);
+        [[1, 1, 'triangle'], [2, 0.45, 'sine'], [3, 0.2, 'sine']].forEach(function (p) { var o = c.createOscillator(), gg = c.createGain(); o.type = p[2]; o.frequency.value = f * p[0]; gg.gain.value = p[1]; o.connect(gg); gg.connect(lp); o.start(when); o.stop(when + 2.2); });
+        g.gain.setValueAtTime(0.0001, when); g.gain.linearRampToValueAtTime(vol, when + 0.008); g.gain.exponentialRampToValueAtTime(vol * 0.3, when + 0.5); g.gain.exponentialRampToValueAtTime(0.0001, when + 2.1);
+    }
     function strum(v, mode, delay) {
         var c = audio(), t0 = c.currentTime + 0.03 + (delay || 0), idx = [], i;
+        if (v.kb) { var ns = v.notes.slice(); if (mode === 'u') ns.reverse(); var gp = mode === 'a' ? 0.3 : (mode === 'u' ? 0.07 : 0.012); ns.forEach(function (n, k) { pnote(n, t0 + k * gp, mode === 'a' ? 0.3 : 0.22); }); return; }
         for (i = 0; i < v.f.length; i++) if (v.f[i] >= 0) idx.push(i);
         if (mode === 'u') idx.reverse();
         var gap = mode === 'a' ? 0.28 : 0.04;
         idx.forEach(function (s, n) { pluck(I.md[s] + v.f[s], t0 + n * gap, mode === 'a' ? 0.3 : 0.2); });
     }
     /* ---------- state ---------- */
-    var st = { root: 0, ti: 0, vi: 0, left: false, note: false, inst: 'gtr' }, vs = [], favs = [], prog = { i: 0, timer: null, n: 0 };
-    try { var sv = JSON.parse(localStorage.getItem('ayri-chords') || '{}'); st.left = !!sv.left; st.note = !!sv.note; if (INSTS[sv.inst]) { st.inst = sv.inst; I = INSTS[st.inst]; } favs = JSON.parse(localStorage.getItem('ayri-chords-fav') || '[]'); } catch (e) {}
-    function save() { try { localStorage.setItem('ayri-chords', JSON.stringify({ left: st.left, note: st.note, inst: st.inst })); localStorage.setItem('ayri-chords-fav', JSON.stringify(favs)); } catch (e) {} }
+    var st = { root: 0, ti: 0, vi: 0, left: false, note: false, inst: 'gtr', pm: 'd' }, vs = [], favs = [], prog = { i: 0, timer: null, n: 0 };
+    try { var sv = JSON.parse(localStorage.getItem('ayri-chords') || '{}'); st.left = !!sv.left; st.note = !!sv.note; if (INSTS[sv.inst] && sv.inst !== 'bas') { st.inst = sv.inst; I = INSTS[st.inst]; } if (sv.pm === 'd' || sv.pm === 'u' || sv.pm === 'a') st.pm = sv.pm; favs = JSON.parse(localStorage.getItem('ayri-chords-fav') || '[]').filter(function (k) { return k.indexOf('bas|') !== 0; }); } catch (e) {}
+    function save() { try { localStorage.setItem('ayri-chords', JSON.stringify({ left: st.left, note: st.note, inst: st.inst, pm: st.pm })); localStorage.setItem('ayri-chords-fav', JSON.stringify(favs)); } catch (e) {} }
     function name(r, ti) { return NM[r] + TYPES[ti].s; }
     function favKey() { return st.inst + '|' + st.root + '|' + TYPES[st.ti].k + '|' + st.vi; }
     function fparse(k) { var a = k.split('|'); if (a.length === 3) a.unshift('gtr'); return { inst: a[0], root: +a[1], ti: tIdx(a[2]), vi: +a[3] }; }
@@ -162,17 +178,17 @@
         $('cnotes').textContent = 'Nada penyusun: ' + tp.iv.map(function (x) { return disp(NM[(st.root + x) % 12]); }).join(' \u2013 ');
         if (v) {
             $('dia').innerHTML = diagram(v, { left: st.left, note: st.note, alt: 'Diagram chord ' + name(st.root, st.ti) + ' untuk ' + I.name });
-            $('pinfo').textContent = 'Bentuk ' + (st.vi + 1) + ' dari ' + vs.length + (v.open ? ' \u00b7 posisi terbuka' : ' \u00b7 fret ' + minF(v));
+            $('pinfo').textContent = 'Bentuk ' + (st.vi + 1) + '/' + vs.length + ' \u00b7 ' + (v.kb ? v.label : (v.open ? 'terbuka' : 'fret ' + minF(v)));
             $('thumbs').innerHTML = vs.map(function (x, k) { return '<button type="button" data-v="' + k + '" class="' + (k === st.vi ? 'on' : '') + '" aria-label="Bentuk ' + (k + 1) + '">' + diagram(x, { mini: true, left: st.left }) + '</button>'; }).join('');
         } else {
             $('dia').innerHTML = '<p class="hint" style="text-align:center;padding:2rem 0">Bentuk chord ini belum tersedia untuk ' + I.name + '. Coba jenis chord lain.</p>';
             $('pinfo').textContent = '-'; $('thumbs').innerHTML = '';
         }
-        $('iinfo').textContent = I.info;
+        $('iinfo').textContent = I.info; $('tg-left').hidden = !!I.kb; var pb = $('pmode').children; for (i = 0; i < pb.length; i++) pb[i].setAttribute('aria-pressed', pb[i].dataset.pm === st.pm ? 'true' : 'false'); pb[0].textContent = I.kb ? 'Blok' : '\u2193 Strum'; pb[1].textContent = I.kb ? '\u2191 Roll' : '\u2191 Strum';
         $('fav').setAttribute('aria-pressed', favs.indexOf(favKey()) > -1 ? 'true' : 'false');
         var rb = $('roots').children; for (i = 0; i < rb.length; i++) rb[i].setAttribute('aria-pressed', i === st.root ? 'true' : 'false');
         var tb = $('types').children; for (i = 0; i < tb.length; i++) { tb[i].setAttribute('aria-pressed', i === st.ti ? 'true' : 'false'); tb[i].classList.toggle('na', !voicings(st.root, i).length); }
-        var ib = $('insts').children; for (i = 0; i < ib.length; i++) ib[i].setAttribute('aria-pressed', ib[i].dataset.i === st.inst ? 'true' : 'false');
+        $('instsel').value = st.inst; var ib = $('insts').children; for (i = 0; i < ib.length; i++) ib[i].setAttribute('aria-pressed', ib[i].dataset.i === st.inst ? 'true' : 'false');
         $('tg-left').setAttribute('aria-pressed', st.left); $('tg-note').setAttribute('aria-pressed', st.note);
         renderFavs(); renderProg();
     }
@@ -190,6 +206,7 @@
     function stopProg() { clearInterval(prog.timer); prog.timer = null; renderProg(); }
     function playProg() {
         if (prog.timer) { stopProg(); return; }
+        stopRep();
         var bpm = Math.max(40, Math.min(200, +$('pgbpm').value || 90)), beat = 60 / bpm, step = 0, cs = PROGS[prog.i].c;
         function tick() {
             var n = Math.floor(step / 4) % cs.length, b = step % 4, c = cs[n];
@@ -200,7 +217,9 @@
         $('roots').dataset.key = st.root; tick(); prog.timer = setInterval(tick, beat * 1000); renderProg();
     }
     /* ---------- UI wiring ---------- */
-    $('insts').innerHTML = Object.keys(INSTS).map(function (k) { return '<button type="button" class="chip" data-i="' + k + '">' + INSTS[k].name + '</button>'; }).join('');
+    $('insts').innerHTML = Object.keys(INSTS).filter(function (k) { return k !== 'bas'; }).map(function (k) { return '<button type="button" class="chip" data-i="' + k + '">' + INSTS[k].name + '</button>'; }).join('');
+    $('instsel').innerHTML = Object.keys(INSTS).filter(function (k) { return k !== 'bas'; }).map(function (k) { return '<option value="' + k + '">' + INSTS[k].name + '</option>'; }).join('');
+    $('instsel').addEventListener('change', function () { setInst(this.value); });
     $('insts').addEventListener('click', function (e) { var b = e.target.closest('[data-i]'); if (b) setInst(b.dataset.i); });
     $('roots').innerHTML = RB.map(function (n, i) { return '<button type="button" class="chip" data-r="' + i + '">' + disp(n) + '</button>'; }).join('');
     $('types').innerHTML = TYPES.map(function (t, i) { return '<button type="button" class="chip" data-t="' + i + '">' + (t.s ? t.s : 'Mayor') + '</button>'; }).join('');
@@ -209,10 +228,26 @@
     $('thumbs').addEventListener('click', function (e) { var r = e.target.closest('[data-v]'); if (r) { st.vi = +r.dataset.v; render(); strum(vs[st.vi], 'd'); } });
     $('prev').addEventListener('click', function () { st.vi = (st.vi + vs.length - 1) % vs.length; render(); });
     $('next').addEventListener('click', function () { st.vi = (st.vi + 1) % vs.length; render(); });
-    $('sd').addEventListener('click', function () { if (vs[st.vi]) strum(vs[st.vi], 'd'); });
-    $('su').addEventListener('click', function () { if (vs[st.vi]) strum(vs[st.vi], 'u'); });
-    $('sa').addEventListener('click', function () { if (vs[st.vi]) strum(vs[st.vi], 'a'); });
-    $('dia').addEventListener('click', function (e) { var h = e.target.closest('[data-s]'); if (!h) return; var s = +h.dataset.s, v = vs[st.vi]; if (v && v.f[s] >= 0) pluck(I.md[s] + v.f[s], audio().currentTime + 0.02, 0.3); });
+    /* cara bermain: pilih satu, lalu putar sekali atau ulangi terus (ikut berganti saat chord diganti) */
+    var rep = { timer: null, step: 0 };
+    function repBeat() { return 60 / Math.max(40, Math.min(200, +$('pgbpm').value || 80)); }
+    function pattern(v) {
+        var n = [], i; if (v.kb) n = v.notes.slice(); else for (i = 0; i < v.f.length; i++) if (v.f[i] >= 0) n.push(I.md[i] + v.f[i]);
+        return n.concat(n.slice(1, -1).reverse());
+    }
+    function repTick() {
+        var v = vs[st.vi]; if (!v) return;
+        if (st.pm === 'a') { var p = pattern(v); if (!p.length) return; var m = p[rep.step % p.length]; rep.step++; var t0 = audio().currentTime + 0.02; if (v.kb) pnote(m, t0, 0.3); else pluck(m, t0, 0.3); }
+        else strum(v, st.pm);
+    }
+    function repUi() { var on = !!rep.timer; $('pl').setAttribute('aria-pressed', on ? 'true' : 'false'); $('pl').innerHTML = on ? '&#9632; Henti' : '&#9654; Main'; }
+    function stopRep() { if (rep.timer) { clearInterval(rep.timer); rep.timer = null; } repUi(); }
+    function startRep() { stopProg(); stopRep(); rep.step = 0; repTick(); rep.timer = setInterval(repTick, repBeat() * (st.pm === 'a' ? 0.5 : 1) * 1000); repUi(); }
+    $('pl').addEventListener('click', function () { if (rep.timer) stopRep(); else startRep(); });
+    $('pmode').addEventListener('click', function (e) { var b = e.target.closest('[data-pm]'); if (!b) return; st.pm = b.dataset.pm; save(); render(); if (rep.timer) startRep(); else if (vs[st.vi]) strum(vs[st.vi], st.pm); });
+    $('pgbpm').addEventListener('change', function () { if (rep.timer) startRep(); });
+    document.addEventListener('visibilitychange', function () { if (document.hidden) { stopRep(); if (prog.timer) stopProg(); } });
+    $('dia').addEventListener('click', function (e) { var hm = e.target.closest('[data-m]'); if (hm) { pnote(+hm.dataset.m, audio().currentTime + 0.02, 0.3); return; } var h = e.target.closest('[data-s]'); if (!h) return; var s = +h.dataset.s, v = vs[st.vi]; if (v && v.f[s] >= 0) pluck(I.md[s] + v.f[s], audio().currentTime + 0.02, 0.3); });
     $('tg-left').addEventListener('click', function () { st.left = !st.left; save(); render(); });
     $('tg-note').addEventListener('click', function () { st.note = !st.note; save(); render(); });
     $('fav').addEventListener('click', function () { var k = favKey(), i = favs.indexOf(k); if (i > -1) favs.splice(i, 1); else favs.push(k); save(); render(); });
@@ -224,16 +259,17 @@
     $('pgc').addEventListener('click', function (e) { var c = e.target.closest('[data-c]'); if (c) { stopProg(); var x = pc(+c.dataset.c); pick((st.root + x[0]) % 12, tIdx(x[1])); if (vs[0]) strum(vs[0], 'd'); } });
     $('pgplay').addEventListener('click', playProg);
     var SUF = { '': 'maj', maj: 'maj', M: 'maj', m: 'm', min: 'm', '-': 'm', '7': '7', maj7: 'maj7', M7: 'maj7', m7: 'm7', min7: 'm7', sus2: 'sus2', sus4: 'sus4', sus: 'sus4', '5': '5', '6': '6', add9: 'add9', dim: 'dim', aug: 'aug', '+': 'aug', '9': '9' };
+    document.addEventListener('keydown', function (e) { if (e.key === '/' && !/INPUT|SELECT|TEXTAREA/.test(e.target.tagName)) { e.preventDefault(); $('q').focus(); $('q').select(); } });
     $('q').addEventListener('input', function () {
         var q = this.value.trim().replace(/\u266F/g, '#').replace(/\u266D/g, 'b'), m = /^([A-Ga-g])([#b]?)(.*)$/.exec(q);
-        if (!q) { $('qh').textContent = ''; return; }
+        $('q').classList.remove('bad'); if (!q) { $('qh').textContent = ''; return; }
         if (m) {
             var n = m[1].toUpperCase() + m[2], r = NM.indexOf(n);
             if (r < 0) { var al = { 'Db': 1, 'D#': 3, 'Gb': 6, 'G#': 8, 'A#': 10, 'Cb': 11, 'E#': 5, 'B#': 0, 'Fb': 4 }; r = al[n] !== undefined ? al[n] : -1; }
             var sk = SUF[m[3]];
-            if (r > -1 && sk) { stopProg(); pick(r, tIdx(sk)); $('qh').textContent = 'Menampilkan ' + disp(name(r, tIdx(sk))); return; }
+            if (r > -1 && sk) { stopProg(); pick(r, tIdx(sk)); $('qh').textContent = ''; return; }
         }
-        $('qh').textContent = 'Contoh: C, Am, F#m7, Bbmaj7, Dsus4, E7';
+        $('qh').textContent = 'Tidak dikenali. Contoh: C, Am, F#m7, Bbmaj7, Dsus4, E7'; $('q').classList.add('bad');
     });
     render();
     window.__ch = { voicings: voicings, TYPES: TYPES, NM: NM, INSTS: INSTS };

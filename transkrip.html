@@ -57,7 +57,9 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&display=swap">
     <link rel="stylesheet" href="theme-dark.css">
     <link rel="stylesheet" href="tools.css">
+    <link rel="stylesheet" href="app.css">
     <script src="theme.js"></script>
+    <script src="app.js"></script>
     <script src="pwa.js" defer></script>
 </head>
 <body class="bg-slate-50 text-slate-900 font-sans antialiased">
@@ -86,60 +88,70 @@
     </nav>
 
     <!-- BAGIAN KONTEN ARTIKEL -->
-    <main class="tuner wide">
-<nav class="tt noprint" aria-label="Alat latihan"><a href="tuner.html">Tuner</a><a href="chords.html">Chord</a><a href="metronom.html">Metronom</a><a href="transkrip.html" aria-current="page">Transkrip</a></nav>
-        <h1>Transkrip Chord Otomatis</h1>
-        <p class="t-sub noprint">Pilih file lagu (MP3, M4A, WAV, dll). Chord dianalisis langsung di HP atau laptop Anda dan <b>file tidak dikirim ke server</b>. Lalu berlatih mengikuti chord yang berjalan. Gunakan hanya file yang Anda miliki atau berhak pakai.</p>
-        <label class="drop noprint" id="drop" for="file"><b>Pilih file audio</b><span>atau seret file ke sini</span></label>
+    <main class="app trans-app">
+        <div class="apptop"><nav class="tt" aria-label="Alat latihan"><a href="tuner.html">Tuner</a><a href="chords.html">Chord</a><a href="metronom.html">Metronom</a><a href="transkrip.html" aria-current="page">Transkrip</a></nav><span id="themeslot"></span><button type="button" class="ib" id="listbtn" data-open="dr-list" aria-label="Daftar chord, cetak, dan simpan" hidden>&#9776;</button><button type="button" class="ib" data-open="dr-info" aria-label="Bantuan dan info">?</button></div>
+        <h1 class="sr-only">Transkrip Chord Otomatis dari Lagu</h1>
+        <label class="drop" id="drop" for="file"><b>Pilih file lagu</b><span>MP3, M4A, WAV. Dianalisis di perangkat Anda, tidak diunggah.<br>Atau seret file ke sini.</span></label>
         <input type="file" id="file" accept="audio/*,.json,application/json" hidden>
-        <div class="prgb noprint" id="prog" hidden><div class="prgt"><div id="bar"></div></div><span id="ptxt"></span></div>
-        <div id="app" hidden>
+        <div class="prgb" id="prog" hidden><div class="prgt"><div id="bar"></div></div><span id="ptxt"></span></div>
+        <div class="tapp" id="app" hidden>
             <audio id="au" preload="auto"></audio>
-            <div class="print-only"><h2 id="pinfo"></h2></div>
             <div class="t-card tr-stage">
                 <div class="tr-ttl" id="ttl"></div>
                 <div class="tr-now"><div><div class="tr-cn" id="cn">&ndash;</div><div class="tr-cs" id="cs"></div></div><div class="tr-cd" id="cd"></div></div>
                 <div class="tr-next"><span>Berikutnya</span><b id="nx"></b><div class="tr-nd" id="nd"></div><small id="nt"></small></div>
-                <input id="seek" class="rg" type="range" min="0" max="100" step="0.1" value="0" aria-label="Posisi lagu">
-                <div class="tr-tm" id="tm">0:00 / 0:00</div>
-                <div class="mt-act noprint"><button id="go" type="button" class="t-btn">Putar</button><button id="rs" type="button" class="t-btn alt">Ulang</button></div>
+                <canvas id="ctab" class="ctab" aria-label="Garis waktu nama chord. Ketuk untuk lompat."></canvas>
+                <input id="seek" class="rg" type="range" min="0" max="100" step="0.1" value="0" aria-label="Posisi lagu"><div class="tr-tm" id="tm">0:00 / 0:00</div>
+                <div class="mt-act"><button id="go" type="button" class="t-btn">Putar</button><button id="rs" type="button" class="t-btn alt">Ulang</button></div>
             </div>
-            <div class="noprint">
-                <div id="modew"><span class="lbl">Detail chord</span><div id="modes" class="chips"></div></div>
-                <span class="lbl">Instrumen</span><div id="insts" class="chips"></div><p class="hint" id="iinfo"></p>
-                <span class="lbl">Kecepatan (nada tidak berubah)</span><div id="rates" class="scroll-x"></div>
-                <span class="lbl">Loop bagian lagu</span>
-                <div class="chips"><button id="la" type="button" class="chip">Titik A</button><button id="lb" type="button" class="chip">Titik B</button><button id="lp" type="button" class="chip" aria-pressed="false">Loop</button><button id="lc" type="button" class="chip">Hapus</button></div>
-                <p class="hint" id="lab">Loop: - &rarr; -</p>
-                <span class="lbl">Hitung masuk sebelum lagu mulai</span>
-                <div class="pg-row"><div id="cnts" class="chips"></div><label class="fld" style="flex-direction:row;align-items:center">Tempo <input id="bpm" type="number" inputmode="numeric" min="40" max="220" value="90"> BPM</label></div>
-                <label class="lbl" for="capo">Kapo: <span id="capov"></span></label><input id="capo" class="rg" type="range" min="0" max="9" step="1" value="0">
-                <p class="hint">Dengan kapo, bentuk jari digeser ke chord yang lebih mudah, sedangkan suaranya tetap sama dengan lagu.</p>
+            <div class="ctl">
+                <label class="lb">Instrumen<select id="insts" class="sel"></select></label>
+                <label class="lb">Kecepatan (nada tetap)<select id="rates" class="sel"></select></label>
+                <label class="lb">Kapo<select id="capo" class="sel"></select></label>
+                <label class="lb">Hitung masuk<span class="row"><select id="cnts" class="sel"></select><input id="bpm" class="numin" type="number" inputmode="numeric" min="40" max="220" style="max-width:62px" aria-label="Tempo hitung masuk dalam BPM"></span></label>
+                <div class="span2" id="modew"><span class="lb">Tingkat kesulitan chord</span><div class="seg" id="modes"></div></div>
+                <div class="span2 row"><button id="la" type="button" class="chip">Titik A</button><button id="lb" type="button" class="chip">Titik B</button><button id="lp" type="button" class="chip" aria-pressed="false">Loop</button><button id="lc" type="button" class="chip">Hapus</button><span class="hint" id="lab" style="margin:0;min-height:0"></span></div>
+                <div class="span2 tr-key" id="capohint" hidden></div>
             </div>
-            <h2 class="noprint">Chord lagu ini</h2>
-            <p class="hint noprint">Ketuk chord untuk lompat ke sana. Chord salah? Ketuk lalu ubah.</p>
-            <div class="sheet" id="sheet"></div>
-            <div class="t-card noprint" id="edit" hidden><b id="etl"></b><div class="pg-row"><select id="er" class="srch" style="width:auto"></select><select id="et" class="srch" style="width:auto"></select></div><div class="pg-row"><button id="eok" type="button" class="t-btn" style="min-height:48px;font-size:1rem">Terapkan</button><button id="edel" type="button" class="chip">Hapus chord ini</button></div></div>
-            <h2>Kamus chord</h2><div class="legend" id="legend"></div>
-            <div class="chips noprint" style="margin-top:1rem"><button id="prn" type="button" class="chip">Cetak transkrip</button><button id="sav" type="button" class="chip">Simpan hasil (.json)</button></div>
-            <p class="hint noprint">Simpan hasil agar tidak perlu menganalisis ulang: lain kali pilih file .json dulu, lalu file audionya.</p>
         </div>
-        <p class="hint noprint" style="margin-top:1.4rem">Akurasi: paling baik untuk lagu dengan gitar/piano yang jelas dan chord sederhana (mayor, minor, 7, maj7). Lagu dengan banyak instrumen atau chord rumit bisa meleset, jadi anggap hasilnya draf yang bisa Anda koreksi.</p>
-        <a class="t-cta noprint" href="index.html#harga"><strong>Butuh gitar yang enak dimainkan?</strong><br>Lihat estimasi biaya setup &amp; servis di Toko Gitar AYRI Bogor &rarr;</a>
     </main>
+    <div class="drawer" id="dr-list" hidden><div class="drawer-in">
+        <button type="button" class="chip drawer-x" data-close>Tutup</button>
+        <label class="chip" for="file" id="swap" style="display:none;justify-content:center;align-items:center;width:100%;margin-bottom:.6rem">Pilih lagu lain</label>
+        <h2>Chord lagu ini</h2><p class="hint">Ketuk chord untuk lompat ke sana. Chord salah? Ketuk lalu ubah.</p>
+        <div class="sheet" id="sheet"></div>
+        <div class="t-card" id="edit" hidden style="margin-top:.6rem"><b id="etl"></b><div class="pg-row"><select id="er" class="srch" style="width:auto"></select><select id="et" class="srch" style="width:auto"></select></div><div class="pg-row"><button id="eok" type="button" class="t-btn" style="min-height:46px;font-size:1rem">Terapkan</button><button id="edel" type="button" class="chip">Hapus chord ini</button></div></div>
+        <h2>Kamus chord</h2><div class="legend" id="legend"></div>
+        <div class="chips" style="margin-top:1rem"><button id="prn" type="button" class="chip">Cetak transkrip</button><button id="sav" type="button" class="chip">Simpan hasil (.json)</button></div>
+        <p class="hint">Simpan hasil agar tidak perlu menganalisis ulang: lain kali pilih file .json dulu, lalu file audionya.</p>
+    </div></div>
+    <div class="drawer" id="dr-info" hidden><div class="drawer-in">
+        <button type="button" class="chip drawer-x" data-close>Tutup</button>
+        <h2>Cara memakai</h2>
+        <p class="t-help">Pilih file lagu. Chord dianalisis langsung di HP atau laptop Anda dan <b>file tidak dikirim ke server</b>. Gunakan hanya file yang Anda miliki atau berhak pakai.</p>
+        <h2>Tingkat kesulitan chord</h2>
+        <p class="t-help"><b>Mudah</b> (bawaan): hanya chord mayor dan minor yang cocok dengan kunci lagu, perubahan cepat digabung. Paling nyaman untuk ikut bermain. <b>Sedang</b>: mayor dan minor tanpa batasan kunci, perubahan minimal 1 detik. <b>Rinci</b>: termasuk chord 7 dan maj7 serta perubahan cepat, mendekati aslinya tetapi lebih sulit diikuti.</p>
+        <h2>Kapo dan tab chord</h2>
+        <p class="t-help">Kapo menggeser bentuk jari ke chord yang lebih mudah, sedangkan suara tetap sama dengan lagu. Tombol saran kapo muncul bila ada posisi yang membuat lebih banyak chord terbuka. Garis waktu di bawah chord besar menampilkan nama chord yang akan datang. Balok yang menyala adalah chord yang sedang dimainkan, dan ketuk balok untuk lompat ke sana.</p>
+        <p class="t-help">Akurasi paling baik untuk lagu dengan gitar atau piano yang jelas. Anggap hasilnya draf yang bisa dikoreksi. Pintasan: spasi = putar/jeda, panah kiri/kanan = mundur/maju 5 detik.</p>
+        <a class="t-cta" href="index.html#harga"><strong>Butuh gitar yang enak dimainkan?</strong><br>Lihat estimasi biaya setup &amp; servis di Toko Gitar AYRI Bogor &rarr;</a>
+    </div></div>
+    <div class="print-only" id="pa"></div>
     <script src="chord-engine.js"></script>
     <script>
 (function () {
     var $ = function (i) { return document.getElementById(i); };
-    var ana = null, st = { mode: 'simple', inst: 'gtr', capo: 0, rate: 1, count: 0, bpm: 90, a: null, b: null, loop: false, sel: -1 };
-    try { var sv = JSON.parse(localStorage.getItem('ayri-trans') || '{}'); ['inst', 'capo', 'rate', 'count', 'bpm', 'mode'].forEach(function (k) { if (sv[k] !== undefined) st[k] = sv[k]; }); } catch (e) {}
+    var ana = null, akey = null, st = { level: 'mudah', inst: 'gtr', capo: 0, rate: 1, count: 0, bpm: 90, a: null, b: null, loop: false, sel: -1 };
+    try { var sv = JSON.parse(localStorage.getItem('ayri-trans') || '{}'); ['inst', 'capo', 'rate', 'count', 'bpm', 'level'].forEach(function (k) { if (sv[k] !== undefined) st[k] = sv[k]; }); } catch (e) {}
     if (!INSTS[st.inst]) st.inst = 'gtr'; I = INSTS[st.inst];
-    function save() { try { localStorage.setItem('ayri-trans', JSON.stringify({ inst: st.inst, capo: st.capo, rate: st.rate, count: st.count, bpm: st.bpm, mode: st.mode })); } catch (e) {} }
+    function save() { try { localStorage.setItem('ayri-trans', JSON.stringify({ inst: st.inst, capo: st.capo, rate: st.rate, count: st.count, bpm: st.bpm, level: st.level })); } catch (e) {} }
     var au = $('au'), segs = [], dur = 0, fname = '', objUrl = null, cur = -2, raf = 0, pending = null, dragging = false, counting = false, ac2 = null, shown = -1;
     var TT = [['maj', [0, 4, 7], [1, 0.85, 0.85], 0], ['m', [0, 3, 7], [1, 0.85, 0.85], 0], ['7', [0, 4, 7, 10], [1, 0.8, 0.8, 0.55], 0.35], ['m7', [0, 3, 7, 10], [1, 0.8, 0.8, 0.55], 0.35], ['maj7', [0, 4, 7, 11], [1, 0.8, 0.8, 0.55], 0.4]];
     var TIDX = TT.map(function (x) { return tIdx(x[0]); });
+    function titleUi() { $('ttl').textContent = fname + (akey ? ' \u00b7 kunci perkiraan ' + disp(NM[akey.tonic]) + (akey.minor ? ' minor' : ' mayor') : ''); }
     function fmt(s) { s = Math.max(0, s); return Math.floor(s / 60) + ':' + ('0' + Math.floor(s % 60)).slice(-2); }
-    function cname(s, shape) { var r = shape ? (s.r - st.capo + 12) % 12 : s.r; return disp(NM[r] + TYPES[s.ti].s); }
+    function sroot(s) { return I.kb ? s.r : (s.r - st.capo + 12) % 12; }
+    function cname(s, shape) { return disp(NM[shape ? sroot(s) : s.r] + TYPES[s.ti].s); }
     /* ---------- analisis ---------- */
     function makeFFT(N) {
         var rev = new Uint16Array(N), cs = new Float64Array(N / 2), sn = new Float64Array(N / 2), bits = Math.log2(N), i, b, r, x;
@@ -166,12 +178,12 @@
         for (i = 0; i < N; i++) win[i] = 0.5 - 0.5 * Math.cos(2 * Math.PI * i / (N - 1));
         var kLo = Math.ceil(82 * N / sr), kHi = Math.min(N / 2 - 1, Math.floor(2000 * N / sr)), map = new Int8Array(kHi + 1);
         for (k = kLo; k <= kHi; k++) map[k] = ((Math.round(36 * Math.log2(k * sr / N / 261.6256)) % 36) + 36) % 36;
-        var c36 = new Float32Array(fr * 36), b36 = new Float32Array(fr * 36), rms = new Float32Array(fr), kB = Math.floor(150 * N / sr);
+        var c36 = new Float32Array(fr * 36), b36 = new Float32Array(fr * 36), rms = new Float32Array(fr), kB = Math.floor(220 * N / sr);
         for (f = 0; f < fr; f++) {
             var o = f * hop, e = 0, v;
             for (i = 0; i < N; i++) { v = x[o + i]; e += v * v; re[i] = v * win[i]; im[i] = 0; }
             rms[f] = Math.sqrt(e / N); fft(re, im);
-            for (k = kLo; k <= kHi; k++) { var mm = Math.sqrt(Math.hypot(re[k], im[k])); c36[f * 36 + map[k]] += mm; if (k <= kB) b36[f * 36 + map[k]] += mm; }
+            for (k = kLo; k <= kHi; k++) { var mm = Math.sqrt(Math.hypot(re[k], im[k])); c36[f * 36 + map[k]] += mm; if (k <= kB) { var fk = k * sr / N; b36[f * 36 + map[k]] += mm * (fk <= 120 ? 1 : 1 - 0.75 * (fk - 120) / 100); } }
             if (f % 40 === 0) { progress(0.05 + 0.8 * f / fr, 'Menganalisis chord'); await new Promise(function (r) { setTimeout(r, 0); }); }
         }
         progress(0.9, 'Menyusun chord');
@@ -184,17 +196,47 @@
         fold(c36, c12); fold(b36, b12);
         return { c12: c12, b12: b12, rms: rms, fr: fr, hop: hop, N: N, sr: sr, dur: dur };
     }
-    function decode(ana, full) {
-        var c12 = ana.c12, b12 = ana.b12, rms = ana.rms, fr = ana.fr, hop = ana.hop, N = ana.N, sr = ana.sr, f, i, r, t, s2, T = [], bias = [], allow = [];
-        var BIAS = [0, 0, 0.7, 0.7, 0.8], EM = 10, PEN = 3, BW = 4;
-        for (r = 0; r < 12; r++) for (t = 0; t < TT.length; t++) { var vec = new Float32Array(12), nm = 0; TT[t][1].forEach(function (iv, j) { vec[(r + iv) % 12] = TT[t][2][j]; }); for (i = 0; i < 12; i++) nm += vec[i] * vec[i]; nm = Math.sqrt(nm); for (i = 0; i < 12; i++) vec[i] /= nm; T.push(vec); bias.push(BIAS[t]); allow.push(full || t < 2); }
+    var MAJP = [6.35, 2.23, 3.48, 2.33, 4.38, 4.09, 2.52, 5.19, 2.39, 3.66, 2.29, 2.88], MINP = [6.33, 2.68, 3.52, 5.38, 2.60, 3.53, 2.54, 4.75, 3.98, 2.69, 3.34, 3.17];
+    function estKey(ana) {
+        var m = new Float64Array(12), f, i, r, best = -9, res = { tonic: 0, minor: false };
+        for (f = 0; f < ana.fr; f++) for (i = 0; i < 12; i++) m[i] += ana.c12[f * 12 + i] * ana.rms[f];
+        function corr(a, b) { var ma = 0, mb = 0, i, n = 0, da = 0, db = 0; for (i = 0; i < 12; i++) { ma += a[i]; mb += b[i]; } ma /= 12; mb /= 12; for (i = 0; i < 12; i++) { n += (a[i] - ma) * (b[i] - mb); da += (a[i] - ma) * (a[i] - ma); db += (b[i] - mb) * (b[i] - mb); } return n / Math.sqrt(da * db + 1e-12); }
+        [MAJP, MINP].forEach(function (P, mi) { for (r = 0; r < 12; r++) { var p = []; for (i = 0; i < 12; i++) p[i] = P[(i - r + 12) % 12]; var c = corr(m, p); if (c > best) { best = c; res = { tonic: r, minor: mi === 1 }; } } });
+        res.major = res.minor ? (res.tonic + 3) % 12 : res.tonic; return res;
+    }
+    function mergeShort(out, minF) {
+        for (;;) {
+            var mi = -1, ml = 1e9; out.forEach(function (o, i) { var l = o.b - o.a; if (l < minF && l < ml) { ml = l; mi = i; } });
+            if (mi < 0 || out.length < 2) break;
+            var L = out[mi - 1], R = out[mi + 1], tgt = mi === 0 ? 1 : (mi === out.length - 1 ? mi - 1 : ((L.b - L.a) >= (R.b - R.a) ? mi - 1 : mi + 1));
+            if (tgt < mi) out[tgt].b = out[mi].b; else out[tgt].a = out[mi].a;
+            out.splice(mi, 1);
+            for (var k = out.length - 1; k > 0; k--) if (out[k].s === out[k - 1].s) { out[k - 1].b = out[k].b; out.splice(k, 1); }
+        }
+    }
+    var LEVELS = { rinci: { full: true, minDur: 0.5, pen: 0, sw: 3 }, sedang: { full: false, minDur: 0.9, pen: 1.0, sw: 4 }, mudah: { full: false, minDur: 1.5, pen: 2.0, sw: 5 } };
+    function keyFromSegs(segs, kz) {
+        var best = -1, bk = kz.major, r, sc = [];
+        for (r = 0; r < 12; r++) { var s = 0, tonicT = 0, viT = 0; segs.forEach(function (g) { var rel = (g.r - r + 12) % 12, k = TYPES[g.ti].k, d = g.t1 - g.t0, mn = (k === 'm' || k === 'm7'); if (mn ? [2, 4, 9].indexOf(rel) > -1 : [0, 5, 7].indexOf(rel) > -1) s += d; if (!mn && rel === 0) tonicT += d; if (mn && rel === 9) viT += d; }); sc[r] = { s: s + 0.25 * (tonicT + viT), t: tonicT, v: viT }; if (sc[r].s > best + 1e-6 || (Math.abs(sc[r].s - best) <= 1e-6 && r === kz.major)) { best = sc[r].s; bk = r; } }
+        var minor = sc[bk].v > sc[bk].t * 1.2; return { major: bk, minor: minor, tonic: minor ? (bk + 9) % 12 : bk };
+    }
+    function decode(ana, level) {
+        var cfg = LEVELS[level] || LEVELS.mudah, kz = estKey(ana);
+        kz = keyFromSegs(decodeCore(ana, { full: false, minDur: 1.0, pen: 0, sw: 4 }, kz.major), kz);
+        var res = decodeCore(ana, cfg, kz.major); res.key = kz; return res;
+    }
+    function decodeCore(ana, cfg, kzMajor) {
+        var c12 = ana.c12, b12 = ana.b12, rms = ana.rms, fr = ana.fr, hop = ana.hop, N = ana.N, sr = ana.sr, f, i, r, t, s2, T = [], bias = [], allow = [], diat = [];
+        var BIAS = [0, 0, 0.7, 0.7, 0.8], EM = 10, PEN = cfg.sw, BW = 4, dset = {};
+        [[0, 0], [2, 1], [4, 1], [5, 0], [7, 0], [9, 1]].forEach(function (d) { dset[((kzMajor + d[0]) % 12) * TT.length + d[1]] = 1; });
+        for (r = 0; r < 12; r++) for (t = 0; t < TT.length; t++) { var vec = new Float32Array(12), nm = 0; TT[t][1].forEach(function (iv, j) { vec[(r + iv) % 12] = TT[t][2][j]; }); for (i = 0; i < 12; i++) nm += vec[i] * vec[i]; nm = Math.sqrt(nm); for (i = 0; i < 12; i++) vec[i] /= nm; T.push(vec); bias.push(BIAS[t]); allow.push(cfg.full || t < 2); diat.push(!!dset[r * TT.length + t]); }
         var S = T.length, sorted = Array.prototype.slice.call(rms).sort(function (a, b) { return a - b; }), thr = 0.08 * sorted[Math.floor(sorted.length * 0.9)];
         var dp = new Float32Array(S), nd = new Float32Array(S), bp = new Int16Array(fr * S), silent = new Uint8Array(fr);
         for (f = 0; f < fr; f++) {
             silent[f] = rms[f] < thr ? 1 : 0;
             var best = 0; if (f) for (s2 = 1; s2 < S; s2++) if (dp[s2] > dp[best]) best = s2;
             for (s2 = 0; s2 < S; s2++) {
-                var em = 0; if (!allow[s2]) em = -60; else if (!silent[f]) { var d = 0; for (i = 0; i < 12; i++) d += c12[f * 12 + i] * T[s2][i]; em = EM * d - bias[s2] + BW * b12[f * 12 + Math.floor(s2 / TT.length)]; }
+                var em = 0; if (!allow[s2]) em = -60; else if (!silent[f]) { var d = 0; for (i = 0; i < 12; i++) d += c12[f * 12 + i] * T[s2][i]; em = EM * d - bias[s2] + BW * b12[f * 12 + Math.floor(s2 / TT.length)]; if (cfg.pen && !diat[s2]) em -= cfg.pen; }
                 if (!f) { nd[s2] = em; continue; }
                 var stay = dp[s2], sw = dp[best] - PEN;
                 if (stay >= sw) { nd[s2] = stay + em; bp[f * S + s2] = s2; } else { nd[s2] = sw + em; bp[f * S + s2] = best; }
@@ -206,19 +248,17 @@
         var first = 0, lastA = fr - 1; while (first < fr && silent[first]) first++; while (lastA > first && silent[lastA]) lastA--;
         var runs = [], rs = first;
         for (f = first + 1; f <= lastA + 1; f++) if (f > lastA || path[f] !== path[rs]) { runs.push({ s: path[rs], a: rs, b: f }); rs = f; }
-        var minF = Math.ceil(0.5 * sr / hop), out = [];
-        runs.forEach(function (ru) { if (out.length && (ru.b - ru.a < minF || out[out.length - 1].s === ru.s)) out[out.length - 1].b = ru.b; else out.push({ s: ru.s, a: ru.a, b: ru.b }); });
-        var res = out.map(function (o, idx) { return { r: Math.floor(o.s / TT.length), ti: TIDX[o.s % TT.length], t0: idx ? Math.max(0, (o.a * hop + N / 2) / sr - 0.05) : (o.a * hop) / sr, t1: 0 }; });
+        mergeShort(runs, Math.ceil(cfg.minDur * sr / hop));
+        var res = runs.map(function (o, idx) { return { r: Math.floor(o.s / TT.length), ti: TIDX[o.s % TT.length], t0: idx ? Math.max(0, (o.a * hop + N / 2) / sr - 0.05) : (o.a * hop) / sr, t1: 0 }; });
         res.forEach(function (sg, i) { sg.t1 = i + 1 < res.length ? res[i + 1].t0 : Math.min(ana.dur, ((lastA + 1) * hop + N / 2) / sr); });
         return res;
     }
-    /* ---------- tampilan ---------- */
-    function voic(s) { var v = voicings((s.r - st.capo + 12) % 12, s.ti); return v[0]; }
+    function voic(s) { var v = voicings(sroot(s), s.ti); return v[0]; }
     function drawChord(idx) {
         if (idx < 0 || !segs[idx]) { $('cn').textContent = '\u2013'; $('cs').textContent = ''; $('cd').innerHTML = ''; $('nx').textContent = ''; $('nd').innerHTML = ''; return; }
         var s = segs[idx], v = voic(s);
         $('cn').textContent = cname(s);
-        $('cs').textContent = (st.capo ? 'Bentuk jari: ' + cname(s, true) + ' \u00b7 kapo fret ' + st.capo : I.name);
+        $('cs').textContent = (st.capo && !I.kb ? 'Bentuk jari: ' + cname(s, true) + ' \u00b7 kapo fret ' + st.capo : I.name);
         $('cd').innerHTML = v ? diagram(v, { alt: 'Diagram ' + cname(s) }) : '<p class="hint">Bentuk belum tersedia untuk ' + I.name + '.</p>';
         var nx = segs[idx + 1]; $('nx').textContent = nx ? cname(nx) : 'selesai';
         $('nd').innerHTML = nx && voic(nx) ? diagram(voic(nx), { mini: true }) : '';
@@ -228,18 +268,40 @@
         var cnt = {}, u = []; segs.forEach(function (s) { var k = s.r + '|' + s.ti; if (!cnt[k]) { cnt[k] = 0; u.push(s); } cnt[k]++; });
         u.sort(function (a, b) { return cnt[b.r + '|' + b.ti] - cnt[a.r + '|' + a.ti]; });
         $('legend').innerHTML = u.map(function (s) { var v = voic(s); return '<div class="lg"><b>' + cname(s) + (st.capo ? ' <small>(' + cname(s, true) + ')</small>' : '') + '</b>' + (v ? diagram(v, { alt: cname(s) }) : '<small>-</small>') + '</div>'; }).join('');
-        $('pinfo').textContent = fname + ' \u00b7 ' + I.name + (st.capo ? ' \u00b7 kapo fret ' + st.capo : '') + ' \u00b7 ' + fmt(dur);
         cur = -2; shown = -1; mark(au.currentTime || 0, true);
     }
     function idxAt(t) { var lo = 0, hi = segs.length - 1, m, r = -1; while (lo <= hi) { m = (lo + hi) >> 1; if (segs[m].t0 <= t) { r = m; lo = m + 1; } else hi = m - 1; } return r; }
+    var colors = null, colT = 0;
+    function col() { if (!colors || performance.now() - colT > 500) { var cs = getComputedStyle(document.documentElement); colors = { ink: cs.getPropertyValue('--ink').trim() || '#000', sub: cs.getPropertyValue('--sub').trim() || '#666', edge: cs.getPropertyValue('--edge').trim() || '#ccc', acc: cs.getPropertyValue('--acc').trim() || '#d97706', card: cs.getPropertyValue('--card').trim() || '#fff' }; colT = performance.now(); } return colors; }
+    function drawCTab(now) {
+        var cv = $('ctab'), dpr = window.devicePixelRatio || 1, W = cv.clientWidth, H = cv.clientHeight; if (!W || !H) return;
+        if (cv.width !== Math.round(W * dpr) || cv.height !== Math.round(H * dpr)) { cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); }
+        var g = cv.getContext('2d'), C = col(), ph = W * 0.22, pps = 100, pad = 3, shape = st.capo > 0 && !I.kb;
+        g.setTransform(dpr, 0, 0, dpr, 0, 0); g.clearRect(0, 0, W, H); g.textBaseline = 'middle';
+        segs.forEach(function (sg) {
+            var x0 = ph + (sg.t0 - now) * pps, x1 = ph + (sg.t1 - now) * pps; if (x1 < -10 || x0 > W) return;
+            var on = sg.t0 <= now && now < sg.t1, past = sg.t1 <= now, w = Math.max(6, x1 - x0 - 2 * pad), name = cname(sg), fs = Math.min(26, Math.max(11, w / (name.length * 0.62)));
+            g.globalAlpha = past ? 0.45 : 1; g.fillStyle = on ? C.acc : C.card; g.strokeStyle = on ? C.acc : C.edge; g.lineWidth = 2;
+            g.beginPath(); if (g.roundRect) g.roundRect(x0 + pad, 5, w, H - 10, 10); else g.rect(x0 + pad, 5, w, H - 10); g.fill(); g.stroke();
+            if (on) { var pr = Math.min(1, (now - sg.t0) / Math.max(0.1, sg.t1 - sg.t0)); g.fillStyle = 'rgba(255,255,255,.35)'; g.fillRect(x0 + pad + 8, H - 12, Math.max(0, (w - 16) * pr), 3); }
+            g.save(); g.beginPath(); g.rect(x0 + pad, 5, w, H - 10); g.clip();
+            g.textAlign = 'left'; g.fillStyle = on ? '#fff' : C.ink; g.font = '700 ' + fs.toFixed(0) + 'px ui-sans-serif,system-ui,sans-serif'; var tw = g.measureText(name).width, tx = Math.min(Math.max(x0 + pad + 8, 8), x0 + pad + w - tw - 8); if (tx < x0 + pad + 8) tx = x0 + pad + 8; g.fillText(name, tx, shape ? H / 2 - 6 : H / 2);
+            if (shape) { g.font = '600 11px ui-sans-serif,system-ui,sans-serif'; g.fillStyle = on ? 'rgba(255,255,255,.85)' : C.sub; g.fillText('jari ' + cname(sg, true), tx, H / 2 + 12); }
+            g.restore(); g.globalAlpha = 1;
+        });
+        g.fillStyle = C.ink; g.globalAlpha = 0.7; g.fillRect(ph - 1, 0, 2, H); g.globalAlpha = 1;
+    }
+    $('ctab').addEventListener('click', function (e) { var r = this.getBoundingClientRect(); au.currentTime = Math.max(0, au.currentTime + ((e.clientX - r.left) - r.width * 0.22) / 100); mark(au.currentTime, true); });
     function mark(t, force) {
         var i = idxAt(t);
         if (i !== cur || force) {
             cur = i; var ch = $('sheet').children, k; for (k = 0; k < ch.length; k++) ch[k].className = 'sc' + (k === i ? ' on' : '') + (k === st.sel ? ' sel' : '');
             if (i !== shown || force) { shown = i; drawChord(i); }
-            if (ch[i] && !au.paused) $('sheet').scrollTop = ch[i].offsetTop - $('sheet').clientHeight / 2 + 20;
+            if (ch[i] && !au.paused && !$('dr-list').hidden) $('sheet').scrollTop = ch[i].offsetTop - $('sheet').clientHeight / 2 + 20;
         }
         var nx = segs[i + 1]; if (nx && !counting) $('nt').textContent = 'dalam ' + Math.max(0, (nx.t0 - t) / st.rate).toFixed(1) + ' dtk';
+        $('tm').textContent = fmt(t) + ' / ' + fmt(dur); if (!dragging) $('seek').value = t;
+        drawCTab(t);
     }
     function loopTick() {
         var t = au.currentTime;
@@ -247,16 +309,25 @@
         if (!dragging) $('seek').value = t; $('tm').textContent = fmt(t) + ' / ' + fmt(dur); mark(t);
         raf = requestAnimationFrame(loopTick);
     }
-    function loopUi() { $('lab').textContent = 'Loop: ' + (st.a === null ? '-' : fmt(st.a)) + ' \u2192 ' + (st.b === null ? '-' : fmt(st.b)); $('lp').setAttribute('aria-pressed', st.loop); }
-    function chips() {
-        $('insts').innerHTML = ['gtr', 'uke', 'gll', 'bas'].map(function (k) { return '<button type="button" class="chip" data-i="' + k + '" aria-pressed="' + (k === st.inst) + '">' + INSTS[k].name + '</button>'; }).join('');
-        $('rates').innerHTML = [0.5, 0.6, 0.75, 0.9, 1, 1.15, 1.25].map(function (r) { return '<button type="button" class="chip" data-r="' + r + '" aria-pressed="' + (r === st.rate) + '">' + r + 'x</button>'; }).join('');
-        $('cnts').innerHTML = [0, 2, 4].map(function (c) { return '<button type="button" class="chip" data-c="' + c + '" aria-pressed="' + (c === st.count) + '">' + (c ? c + ' ketuk' : 'Mati') + '</button>'; }).join('');
-        $('modes').innerHTML = [['simple', 'Sederhana (mayor/minor)'], ['full', 'Lengkap (+7, maj7)']].map(function (m) { return '<button type="button" class="chip" data-m="' + m[0] + '" aria-pressed="' + (m[0] === st.mode) + '">' + m[1] + '</button>'; }).join(''); $('modew').hidden = !ana;
-        $('capo').value = st.capo; $('capov').textContent = st.capo ? 'Kapo fret ' + st.capo : 'Tanpa kapo'; $('bpm').value = st.bpm; $('iinfo').textContent = I.info;
-        au.playbackRate = st.rate; au.preservesPitch = true; au.webkitPreservesPitch = true; au.mozPreservesPitch = true;
+    function loopUi() { $('la').textContent = st.a === null ? 'Titik A' : 'A ' + fmt(st.a); $('lb').textContent = st.b === null ? 'Titik B' : 'B ' + fmt(st.b); $('lab').textContent = 'Loop: ' + (st.a === null ? '-' : fmt(st.a)) + ' \u2192 ' + (st.b === null ? '-' : fmt(st.b)); $('lp').setAttribute('aria-pressed', st.loop); }
+    function capoSuggest() {
+        if (!segs.length || I.kb || st.inst !== 'gtr') return null;
+        var EASY = { maj: [0, 2, 4, 7, 9], m: [2, 4, 9] }, tot = 0, best = 0, bs = -1, cur = 0, c;
+        segs.forEach(function (s) { tot += s.t1 - s.t0; });
+        function score(c) { var sc = 0; segs.forEach(function (s) { var r = (s.r - c + 12) % 12, k = TYPES[s.ti].k, minor = (k === 'm' || k === 'm7'); if ((minor ? EASY.m : EASY.maj).indexOf(r) > -1) sc += s.t1 - s.t0; }); return sc / tot; }
+        for (c = 0; c <= 7; c++) { var p = score(c); if (p > bs + 0.001) { bs = p; best = c; } }
+        return { c: best, p: bs, now: score(st.capo) };
     }
-    /* ---------- pemutaran ---------- */
+    function chips() {
+        $('insts').innerHTML = ['gtr', 'uke', 'gll', 'bas', 'pno'].map(function (k) { return '<option value="' + k + '"' + (k === st.inst ? ' selected' : '') + '>' + INSTS[k].name + '</option>'; }).join('');
+        $('rates').innerHTML = [0.5, 0.6, 0.75, 0.9, 1, 1.15, 1.25].map(function (r) { return '<option value="' + r + '"' + (r === st.rate ? ' selected' : '') + '>' + r + 'x</option>'; }).join('');
+        $('cnts').innerHTML = [0, 2, 4].map(function (c) { return '<option value="' + c + '"' + (c === st.count ? ' selected' : '') + '>' + (c ? c + ' ketuk' : 'Mati') + '</option>'; }).join('');
+        $('capo').innerHTML = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map(function (c) { return '<option value="' + c + '"' + (c === st.capo ? ' selected' : '') + '>' + (c ? 'Fret ' + c : 'Tanpa kapo') + '</option>'; }).join(''); $('capo').disabled = !!I.kb;
+        $('modes').innerHTML = [['mudah', 'Mudah'], ['sedang', 'Sedang'], ['rinci', 'Rinci']].map(function (m) { return '<button type="button" class="chip" data-m="' + m[0] + '" aria-pressed="' + (m[0] === st.level) + '">' + m[1] + '</button>'; }).join(''); $('modew').hidden = !ana;
+        $('bpm').value = st.bpm; au.playbackRate = st.rate; au.preservesPitch = true; au.webkitPreservesPitch = true; au.mozPreservesPitch = true;
+        var cs = capoSuggest(), h = $('capohint');
+        if (cs && cs.c !== st.capo && cs.p >= 0.8 && cs.p > cs.now + 0.15) { h.hidden = false; h.innerHTML = '<button type="button" class="chip" id="capoapply" style="width:100%">Saran: pasang kapo fret ' + cs.c + ' \u2192 ' + Math.round(cs.p * 100) + '% chord terbuka (sekarang ' + Math.round(cs.now * 100) + '%)</button>'; } else h.hidden = true;
+    }
     function play() {
         if (counting) return;
         if (st.count > 0 && au.paused) {
@@ -273,10 +344,10 @@
         if (/\.json$/i.test(file.name)) { try { pending = JSON.parse(await file.text()); $('ptxt').textContent = 'Hasil tersimpan dimuat. Sekarang pilih file audio yang sama.'; $('prog').hidden = false; $('bar').style.width = '100%'; } catch (e) { alert('File hasil tidak valid.'); } return; }
         fname = file.name.replace(/\.[^.]+$/, ''); $('app').hidden = true; if (objUrl) URL.revokeObjectURL(objUrl); objUrl = URL.createObjectURL(file); au.src = objUrl;
         try {
-            ana = null; if (pending && pending.segs) { segs = pending.segs.map(function (a) { return { r: a[0], ti: a[1], t0: a[2], t1: a[3] }; }); dur = pending.duration || 0; pending = null; await new Promise(function (r) { if (au.readyState > 0) r(); else au.addEventListener('loadedmetadata', r, { once: true }); }); dur = au.duration || dur; }
-            else { ana = await analyze(await file.arrayBuffer()); segs = decode(ana, st.mode === 'full'); }
-        } catch (e) { $('ptxt').textContent = 'Gagal membaca/menganalisis file ini. Coba format lain (MP3, M4A, WAV) atau file yang lebih pendek.'; return; }
-        $('prog').hidden = true; $('app').hidden = false; $('seek').max = dur; $('seek').value = 0; $('ttl').textContent = fname; st.a = st.b = null; st.loop = false; st.sel = -1; loopUi(); chips(); sheet(); $('edit').hidden = true;
+            ana = null; akey = null; if (pending && pending.segs) { segs = pending.segs.map(function (a) { return { r: a[0], ti: a[1], t0: a[2], t1: a[3] }; }); dur = pending.duration || 0; pending = null; await new Promise(function (r) { if (au.readyState > 0) r(); else au.addEventListener('loadedmetadata', r, { once: true }); }); dur = au.duration || dur; }
+            else { ana = await analyze(await file.arrayBuffer()); segs = decode(ana, st.level); akey = segs.key; }
+        } catch (e) { $('ptxt').textContent = 'Gagal membaca/menganalisis file ini. Coba format lain (MP3, M4A, WAV) atau file yang lebih pendek.'; $('drop').hidden = false; return; }
+        $('prog').hidden = true; $('app').hidden = false; $('drop').hidden = true; $('swap').hidden = false; $('swap').style.display = 'flex'; $('listbtn').hidden = false; $('seek').max = dur; $('seek').value = 0; titleUi(); st.a = st.b = null; st.loop = false; st.sel = -1; loopUi(); chips(); sheet(); $('edit').hidden = true;
         window.__tr = { segs: segs, st: st, au: au };
     }
     $('file').addEventListener('change', function () { if (this.files[0]) openFile(this.files[0]); });
@@ -287,11 +358,12 @@
     $('go').addEventListener('click', play);
     $('rs').addEventListener('click', function () { au.currentTime = st.a !== null && st.loop ? st.a : 0; mark(au.currentTime, true); });
     $('seek').addEventListener('input', function () { dragging = true; au.currentTime = +this.value; mark(+this.value, true); }); $('seek').addEventListener('change', function () { dragging = false; });
-    $('insts').addEventListener('click', function (e) { var b = e.target.closest('[data-i]'); if (b) { st.inst = b.dataset.i; I = INSTS[st.inst]; save(); chips(); sheet(); } });
-    $('modes').addEventListener('click', function (e) { var b = e.target.closest('[data-m]'); if (!b || !ana) return; if (b.dataset.m !== st.mode) { st.mode = b.dataset.m; save(); segs = decode(ana, st.mode === 'full'); st.sel = -1; $('edit').hidden = true; st.a = st.b = null; st.loop = false; loopUi(); chips(); sheet(); } });
-    $('rates').addEventListener('click', function (e) { var b = e.target.closest('[data-r]'); if (b) { st.rate = +b.dataset.r; save(); chips(); } });
-    $('cnts').addEventListener('click', function (e) { var b = e.target.closest('[data-c]'); if (b) { st.count = +b.dataset.c; save(); chips(); } });
-    $('capo').addEventListener('input', function () { st.capo = +this.value; save(); chips(); sheet(); });
+    $('insts').addEventListener('change', function () { st.inst = this.value; I = INSTS[st.inst]; save(); chips(); sheet(); });
+    $('modes').addEventListener('click', function (e) { var b = e.target.closest('[data-m]'); if (!b || !ana) return; if (b.dataset.m !== st.level) { st.level = b.dataset.m; save(); segs = decode(ana, st.level); akey = segs.key; st.sel = -1; $('edit').hidden = true; st.a = st.b = null; st.loop = false; loopUi(); titleUi(); chips(); sheet(); } });
+    $('rates').addEventListener('change', function () { st.rate = +this.value; save(); chips(); });
+    $('cnts').addEventListener('change', function () { st.count = +this.value; save(); chips(); });
+    $('capo').addEventListener('change', function () { st.capo = +this.value; save(); chips(); sheet(); });
+    $('capohint').addEventListener('click', function (e) { if (e.target.id === 'capoapply') { var cs = capoSuggest(); if (cs) { st.capo = cs.c; save(); chips(); sheet(); } } });
     $('bpm').addEventListener('change', function () { st.bpm = Math.max(40, Math.min(220, +this.value || 90)); save(); chips(); });
     $('la').addEventListener('click', function () { st.a = au.currentTime; if (st.b !== null && st.b <= st.a) st.b = null; loopUi(); });
     $('lb').addEventListener('click', function () { if (st.a === null) st.a = 0; if (au.currentTime > st.a) { st.b = au.currentTime; st.loop = true; } loopUi(); });
@@ -305,7 +377,10 @@
     $('et').innerHTML = TYPES.map(function (t, i) { return '<option value="' + i + '">' + (t.s || 'Mayor') + '</option>'; }).join('');
     $('eok').addEventListener('click', function () { var s = segs[st.sel]; if (!s) return; s.r = +$('er').value; s.ti = +$('et').value; sheet(); });
     $('edel').addEventListener('click', function () { var i = st.sel; if (i < 0) return; if (i > 0) segs[i - 1].t1 = segs[i].t1; segs.splice(i, 1); st.sel = -1; $('edit').hidden = true; sheet(); });
-    $('prn').addEventListener('click', function () { window.print(); });
+    $('prn').addEventListener('click', function () {
+        $('pinfo') && 0; $('pa').innerHTML = '<h2>' + fname.replace(/</g, '&lt;') + ' \u00b7 ' + I.name + (st.capo && !I.kb ? ' \u00b7 kapo fret ' + st.capo : '') + ' \u00b7 ' + fmt(dur) + '</h2><div class="sheet">' + $('sheet').innerHTML + '</div><h2>Kamus chord</h2><div class="legend">' + $('legend').innerHTML + '</div>';
+        window.print();
+    });
     $('sav').addEventListener('click', function () {
         var blob = new Blob([JSON.stringify({ v: 1, name: fname, duration: dur, segs: segs.map(function (s) { return [s.r, s.ti, +s.t0.toFixed(2), +s.t1.toFixed(2)]; }) })], { type: 'application/json' }), a = document.createElement('a');
         a.href = URL.createObjectURL(blob); a.download = fname + '-chord.json'; a.click(); setTimeout(function () { URL.revokeObjectURL(a.href); }, 2000);

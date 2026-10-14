@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tuner Gitar Online Gratis: Gitar, Bass, Ukulele &amp; Kromatik | Toko Gitar AYRI</title>
-    <meta name="description" content="Tuner online gratis untuk gitar, bass, ukulele, guitalele, dan mode kromatik. Senar dikenali otomatis, acuan A4 bisa diatur (432/440 Hz), bisa dipasang di HP.">
+    <title>Tuner Online Gratis: Gitar, Bass, Ukulele, Piano, Biola, Oud &amp; Kecapi | Toko Gitar AYRI</title>
+    <meta name="description" content="Tuner online gratis untuk gitar, bass, ukulele, piano, biola, viola, cello, mandolin, oud, dan kecapi Sunda. Senar dikenali otomatis, acuan A4 bisa diatur, bisa dipasang di HP.">
     <link rel="canonical" href="https://ayrigitar.com/tuner.html">
     <meta property="og:type" content="website">
     <meta property="og:locale" content="id_ID">
     <meta property="og:site_name" content="Toko Gitar AYRI">
-    <meta property="og:title" content="Tuner Gitar Online Gratis: Gitar, Bass, Ukulele &amp; Kromatik | Toko Gitar AYRI">
-    <meta property="og:description" content="Tuner online gratis untuk gitar, bass, ukulele, guitalele, dan mode kromatik. Senar dikenali otomatis, acuan A4 bisa diatur (432/440 Hz), bisa dipasang di HP.">
+    <meta property="og:title" content="Tuner Online Gratis: Gitar, Bass, Ukulele, Piano, Biola, Oud &amp; Kecapi | Toko Gitar AYRI">
+    <meta property="og:description" content="Tuner online gratis untuk gitar, bass, ukulele, piano, biola, viola, cello, mandolin, oud, dan kecapi Sunda. Senar dikenali otomatis, acuan A4 bisa diatur, bisa dipasang di HP.">
     <meta property="og:url" content="https://ayrigitar.com/tuner.html">
     <meta name="twitter:card" content="summary">
     <link rel="manifest" href="manifest.webmanifest">
@@ -58,7 +58,9 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&display=swap">
     <link rel="stylesheet" href="theme-dark.css">
     <link rel="stylesheet" href="tools.css">
+    <link rel="stylesheet" href="app.css">
     <script src="theme.js"></script>
+    <script src="app.js"></script>
     <script src="pwa.js" defer></script>
 </head>
 <body class="bg-slate-50 text-slate-900 font-sans antialiased">
@@ -87,10 +89,15 @@
     </nav>
 
     <!-- BAGIAN KONTEN ARTIKEL -->
-    <main class="tuner">
-        <nav class="tt" aria-label="Alat latihan"><a href="tuner.html" aria-current="page">Tuner</a><a href="chords.html">Chord</a><a href="metronom.html">Metronom</a><a href="transkrip.html">Transkrip</a></nav>
-                <h1>Tuner Gitar, Bass &amp; Ukulele</h1>
-        <p class="t-sub">Setel senar langsung dari HP atau laptop, gratis dan tanpa aplikasi. Pilih alat musik, tekan Mulai, izinkan mikrofon, lalu petik satu senar.</p>
+    <main class="app tuner-app">
+        <div class="apptop"><nav class="tt" aria-label="Alat latihan"><a href="tuner.html" aria-current="page">Tuner</a><a href="chords.html">Chord</a><a href="metronom.html">Metronom</a><a href="transkrip.html">Transkrip</a></nav><span id="themeslot"></span><button type="button" class="ib" data-open="dr-info" aria-label="Bantuan dan info">?</button></div>
+        <h1 class="sr-only">Tuner Online: Gitar, Bass, Ukulele, Piano, Biola, Oud dan Kecapi</h1>
+        <div class="selrow">
+            <label class="lb">Alat musik<select id="inst" class="sel"></select></label>
+            <label class="lb">Setelan<select id="tuning" class="sel"></select></label>
+            <label class="lb" id="tonicwrap" hidden>Nada dasar (da)<select id="tonic" class="sel"></select></label>
+            <label class="lb">Mikrofon<select id="sens" class="sel"><option value="r">Rendah (ramai)</option><option value="s" selected>Sedang</option><option value="t">Tinggi (sepi)</option></select></label>
+        </div>
         <div class="t-card tm idle" id="tm">
             <div class="bf" role="img" aria-label="Penunjuk ketepatan nada">
                 <span class="bf-s bf-fl">&#9837;</span><span class="bf-s bf-sh">&#9839;</span>
@@ -101,28 +108,32 @@
             <div class="t-note"><span id="note">--</span><sup id="oct"></sup></div>
             <div id="status" class="t-status" aria-live="polite">Tekan tombol Mulai</div>
             <div id="hz" class="t-hz">0 Hz</div>
-            <button id="start" type="button" class="t-btn">Mulai Tuner</button>
         </div>
-        <h2>Alat musik &amp; setelan</h2>
-        <div class="t-row">
-            <label>Alat musik<select id="inst"></select></label>
-            <label>Setelan<select id="tuning"></select></label>
-            <label>Kepekaan mikrofon<select id="sens"><option value="r">Rendah (ruangan ramai)</option><option value="s" selected>Sedang</option><option value="t">Tinggi (ruangan sepi)</option></select></label>
+        <div class="ctl-col">
+        <div class="strrow" id="strrow"><button id="auto" type="button" class="t-btn alt">Auto</button><div id="strings" class="t-strings"></div><button id="edopen" type="button" class="chip" hidden>Atur</button></div>
+        <div class="strrow" id="pianobar" hidden>
+            <button id="pauto" type="button" class="t-btn alt on">Auto</button>
+            <label class="lb">Nada target<select id="pn" class="sel"></select></label>
+            <label class="lb">Oktaf<select id="po" class="sel"></select></label>
+            <button id="pplay" type="button" class="t-btn alt" aria-label="Dengarkan nada acuan">&#9654;</button>
         </div>
-        <div class="t-a4">
-            <span class="t-a4l">Acuan nada A4 (Hz)</span>
-            <div class="t-a4c"><button id="a4m" type="button" aria-label="Turunkan 1 Hz">&minus;</button><input id="a4" type="number" inputmode="decimal" min="400" max="480" step="0.1" value="440" aria-label="Frekuensi nada A4 dalam Hz"><button id="a4p" type="button" aria-label="Naikkan 1 Hz">+</button></div>
-            <div class="t-a4s" id="a4s"></div>
-            <button type="button" id="a4r" class="a4r" style="display:none">Kembali ke standar 440 Hz</button>
+        <div class="a4row"><span>A4</span><button id="a4m" type="button" aria-label="Turunkan 1 Hz">&minus;</button><input id="a4" type="number" inputmode="decimal" min="400" max="480" step="0.1" value="440" aria-label="Frekuensi nada A4 dalam Hz"><button id="a4p" type="button" aria-label="Naikkan 1 Hz">+</button><span>Hz</span><button type="button" id="a4r" class="a4r" style="display:none" title="Kembali ke standar 440 Hz">Reset 440</button><span class="t-a4s" id="a4s"></span></div>
+        <button id="start" type="button" class="t-btn">Mulai Tuner</button>
         </div>
-        <div id="editor" class="t-editor" hidden></div>
-        <div class="t-row"><button id="auto" type="button" class="t-btn alt">Deteksi otomatis</button></div>
-        <div id="strings" class="t-strings"></div>
-        <p class="t-help">Ketuk salah satu senar untuk mendengar nada acuan dan memilihnya sebagai target. Petik satu senar sampai gelembung berada di tengah dan berwarna hijau. Pada mode otomatis, senar yang Anda petik dikenali sendiri dan senar yang sudah pas bercincin hijau. Pilih "Kromatik" untuk mendeteksi nada apa saja. Untuk bass, nada acuan dimainkan lebih tinggi karena speaker HP tidak bisa menyuarakan nada sangat rendah. Gunakan di ruangan tenang dan petik satu senar saja.</p>
+    </main>
+    <div class="drawer" id="dr-editor" hidden><div class="drawer-in"><h2>Atur senar sendiri</h2><div id="editor" class="t-editor"></div><button type="button" class="t-btn" data-close style="width:100%;margin-top:.8rem">Selesai</button></div></div>
+    <div class="drawer" id="dr-info" hidden><div class="drawer-in">
+        <button type="button" class="chip drawer-x" data-close>Tutup</button>
+        <h2>Cara memakai</h2>
+        <p class="t-help">Tekan <b>Mulai Tuner</b>, izinkan mikrofon, lalu petik satu senar. Pada mode <b>Auto</b>, senar yang Anda petik dikenali sendiri. Ketuk tombol senar untuk mendengar nada acuan dan memilihnya sebagai target. Gelembung di tengah dan berwarna hijau berarti nada sudah tepat.</p>
+        <h2>Tips per alat musik</h2>
+        <p class="t-help"><b>Piano:</b> pilih nada dan oktaf yang disetel (atau Auto untuk semua nada). Satu nada piano punya 2 sampai 3 senar, jadi redam senar lain dan setel satu per satu. Tuner ini memakai skala sama rata (equal temperament); penyetel piano profesional memakai penalaan "regang" di nada sangat rendah dan tinggi, jadi anggap ini panduan. Nada acuan untuk nada sangat rendah dimainkan lebih tinggi karena speaker HP tidak mampu menghasilkannya.</p>
+        <p class="t-help"><b>Oud / Gambus:</b> pilih setelan Arab atau Turki. Nada oud sering disetel sedikit lebih rendah dari patokan, jadi ubah acuan A4 bila perlu.</p>
+        <p class="t-help"><b>Kecapi Sunda:</b> pilih laras (Saléndro, Degung, atau Madenda) lalu nada dasar (da) sesuai suling atau penyanyi. Nilai nada di sini pendekatan ke skala Barat dan tiap perangkat gamelan atau kecapi punya penalaannya sendiri, jadi pakai telinga sebagai penentu akhir. Tersedia 2 oktaf; da adalah nada tertinggi di tiap oktaf.</p>
         <button type="button" class="t-btn alt pwa-btn" data-install style="display:none">Pasang Tuner di HP</button>
         <p class="t-help pwa-note" data-install-ios style="display:none">Di iPhone/iPad: ketuk tombol Bagikan di Safari, lalu pilih &quot;Tambah ke Layar Utama&quot; agar tuner ini jadi aplikasi.</p>
-        <a class="t-cta" href="https://wa.me/6285795738637?text=Halo%20AYRI%2C%20saya%20mau%20tanya%20servis%20gitar" target="_blank"><strong>Senar sering fals atau susah disetel?</strong><br>Mungkin alat musik perlu setup. Tanya kami lewat WhatsApp.</a>
-    </main>
+        <a class="t-cta" href="https://wa.me/6285795738637?text=Halo%20AYRI%2C%20saya%20mau%20tanya%20servis%20gitar" target="_blank"><strong>Senar sering fals atau susah disetel?</strong><br>Mungkin alat musik perlu setup. Tanya langsung ke Toko Gitar AYRI lewat WhatsApp.</a>
+    </div></div>
     <script>
     (function () {
         var NAMES = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
@@ -133,6 +144,13 @@
             b5:['Bass 5 senar',{ s:['Standar (B E A D G)',[23,28,33,38,43]], h:['Turun setengah nada',[22,27,32,37,42]] }],
             uk:['Ukulele',{ s:['Standar (G C E A)',[67,60,64,69]], l:['Low G (G rendah)',[55,60,64,69]], b:['Baritone (D G B E)',[50,55,59,64]] }],
             gl:['Guitalele',{ s:['Standar (A D G C E A)',[45,50,55,60,64,69]], h:['Turun setengah nada',[44,49,54,59,63,68]] }],
+            pn:['Piano akustik',null],
+            vl:['Biola / Violin',{ s:['Standar (G D A E)',[55,62,69,76]] }],
+            va:['Viola',{ s:['Standar (C G D A)',[48,55,62,69]] }],
+            ce:['Cello',{ s:['Standar (C G D A)',[36,43,50,57]] }],
+            md:['Mandolin',{ s:['Standar (G D A E)',[55,62,69,76]] }],
+            ou:['Oud / Gambus',{ a:['Arab standar (C F A D G C)',[36,41,45,50,55,60]], b:['Arab (D G A D G C)',[38,43,45,50,55,60]], t:['Turki modern (C# F# B E A D)',[37,42,47,52,57,62]] }],
+            kc:['Kecapi Sunda (pendekatan)',{ sa:['Salendro (5 nada sama rata)',[]], dg:['Degung / Pelog',[]], md:['Madenda / Sorog',[]] }],
             kr:['Kromatik (semua nada)',null],
             cu:['Custom (atur sendiri)',null]
         };
@@ -143,7 +161,23 @@
         var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
         try { var sv = JSON.parse(localStorage.getItem('ayri-tuner-custom')); if (sv && sv.length) cust = sv; } catch (e) {}
         var f = function (m) { return A4 * Math.pow(2, (m - 69) / 12); };
-        var cur = function () { return inst === 'cu' ? cust : (inst === 'kr' ? [] : INST[inst][1][tun][1]); };
+        var pT = null, tonic = 7;
+        var cur = function () { return inst === 'cu' ? cust : (inst === 'kr' ? [] : (inst === 'pn' ? (pT === null ? [] : [pT]) : INST[inst][1][tun][1])); };
+        /* kecapi: da-mi-na-ti-la, da = nada tertinggi tiap oktaf (selisih setengah nada dari skala Barat; salendro 240 sen sama rata) */
+        var KC = { sa: [0, [-9.6, -7.2, -4.8, -2.4, 0, 2.4, 4.8, 7.2, 9.6, 12]], dg: [0, [-8, -7, -5, -1, 0, 4, 5, 7, 11, 12]], md: [0, [-8, -6, -5, -1, 0, 4, 6, 7, 11, 12]] };
+        var KCN = ['la', 'ti', 'na', 'mi', 'da', 'la', 'ti', 'na', 'mi', 'da'], KCD = ['5', '4', '3', '2', '1', "5'", "4'", "3'", "2'", "1'"];
+        function kcFill() { var da = 60 + tonic; Object.keys(KC).forEach(function (k) { INST.kc[1][k][1] = KC[k][1].map(function (o) { return da + o; }); }); }
+        function labs() { return inst === 'kc' ? KCN.map(function (n, i) { return { n: n, o: KCD[i] }; }) : null; }
+        function pOpts() { var s = cur(); if (target === null || s[target] === undefined) return null; var fr = f(s[target]); return { D: fr < 450 ? 4 : (fr < 1200 ? 2 : 1), fmin: fr * 0.6, fmax: fr * 1.8 }; }
+        function pianoAuto(buf, sr, gt) {
+            var sub = buf.subarray(buf.length - 8192), p1 = pitch(sub, sr, gt, { D: 4, fmin: 25, fmax: 400 });
+            if (p1[2] >= gt && (p1[0] <= 0 || p1[0] < 100)) { var pf = pitch(buf, sr, gt, { D: 4, fmin: 25, fmax: 400 }); if (pf[0] > 0) p1 = pf; }
+            var c = [p1, pitch(sub, sr, gt, { D: 2, fmin: 400, fmax: 1800 }), pitch(sub, sr, gt, { D: 1, fmin: 1800, fmax: 4400 })];
+            var ok = c.filter(function (x) { return x[0] > 0 && x[1] >= 0.7; }); if (!ok.length) return p1;
+            var mx = Math.max.apply(null, ok.map(function (x) { return x[1]; })); ok = ok.filter(function (x) { return x[1] >= 0.85 * mx; });
+            ok.sort(function (a, b) { return b[0] - a[0]; }); return ok[0];
+        }
+        kcFill();
 
         /* ---------- penunjuk ---------- */
         var tr = [];
@@ -172,14 +206,15 @@
         function fillTun() {
             var t = INST[inst][1]; $('tuning').parentNode.hidden = !t;
             if (t) { if (!t[tun]) tun = Object.keys(t)[0]; $('tuning').innerHTML = Object.keys(t).map(function (k) { return '<option value="' + k + '"' + (k === tun ? ' selected' : '') + '>' + t[k][0] + '</option>'; }).join(''); }
-            $('editor').hidden = inst !== 'cu'; if (inst === 'cu') drawEditor();
-            $('strings').hidden = $('auto').parentNode.hidden = inst === 'kr';
+            $('dr-editor').hidden = inst !== 'cu'; if (inst === 'cu') drawEditor();
+            $('strrow').hidden = inst === 'kr' || inst === 'pn'; $('pianobar').hidden = inst !== 'pn'; $('tonicwrap').hidden = inst !== 'kc'; $('edopen').hidden = inst !== 'cu';
         }
         function drawStrings() {
             var s = cur(), n = s.length, key = inst + tun + s.join(',');
             if (key !== doneKey) { doneKey = key; done = {}; act = -1; }
             $('strings').innerHTML = s.map(function (m, i) {
-                return '<button type="button" class="t-string" data-i="' + i + '">' + NAMES[m % 12] + '<sub>' + (Math.floor(m / 12) - 1) + '</sub><small>Senar ' + (n - i) + '</small></button>';
+                var L = labs(), nm = L ? L[i].n : NAMES[m % 12], oc = L ? L[i].o : (Math.floor(m / 12) - 1);
+                return '<button type="button" class="t-string" data-i="' + i + '">' + nm + '<sub>' + oc + '</sub><small>Senar ' + (n - i) + '</small></button>';
             }).join('');
             mark();
         }
@@ -199,7 +234,7 @@
             $('editor').innerHTML = h + '<div class="t-row"><button type="button" class="t-btn alt" data-add="1">+ Tambah senar</button><button type="button" class="t-btn alt" data-add="-1">&minus; Kurangi senar</button></div><p class="t-help" style="margin-top:0">Pilih nada dan oktaf tiap senar (contoh gitar: E2 untuk senar 6). Pengaturan ini tersimpan di perangkat Anda.</p>';
         }
         function saveCust() { try { localStorage.setItem('ayri-tuner-custom', JSON.stringify(cust)); } catch (e) {} }
-        function reset() { target = null; lock = null; lockIdx = -1; cs = null; hist = []; drawStrings(); }
+        function reset() { target = (inst === 'pn' && pT !== null) ? 0 : null; lock = null; lockIdx = -1; cs = null; hist = []; drawStrings(); }
         $('inst').addEventListener('change', function () { inst = this.value; tun = 's'; fillTun(); reset(); });
         $('tuning').addEventListener('change', function () { tun = this.value; reset(); });
         $('auto').addEventListener('click', function () { target = null; drawStrings(); });
@@ -215,6 +250,15 @@
             if (d === '-1' && cust.length > 1) cust.pop();
             saveCust(); target = null; drawEditor(); drawStrings();
         });
+        $('tonic').innerHTML = NAMES.map(function (n, i) { return '<option value="' + i + '"' + (i === tonic ? ' selected' : '') + '>' + n + '</option>'; }).join('');
+        $('pn').innerHTML = NAMES.map(function (n, i) { return '<option value="' + i + '"' + (i === 9 ? ' selected' : '') + '>' + n + '</option>'; }).join('');
+        $('po').innerHTML = [0, 1, 2, 3, 4, 5, 6, 7, 8].map(function (o) { return '<option value="' + o + '"' + (o === 4 ? ' selected' : '') + '>' + o + '</option>'; }).join('');
+        function pSet() { pT = Math.max(21, Math.min(108, (+$('po').value + 1) * 12 + (+$('pn').value))); target = 0; cs = null; hist = []; lock = null; $('pauto').classList.remove('on'); drawStrings(); }
+        $('tonic').addEventListener('change', function () { tonic = +this.value; kcFill(); reset(); });
+        $('pn').addEventListener('change', pSet); $('po').addEventListener('change', pSet);
+        $('pauto').addEventListener('click', function () { pT = null; target = null; cs = null; hist = []; lock = null; this.classList.add('on'); drawStrings(); });
+        $('pplay').addEventListener('click', function () { if (pT === null) pSet(); play(f(pT)); });
+        $('edopen').addEventListener('click', function () { $('dr-editor').hidden = false; });
         function audio() { if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)(); if (ctx.state === 'suspended') ctx.resume(); return ctx; }
         function play(freq) {
             while (freq < 98) freq *= 2;
@@ -230,8 +274,8 @@
 
         /* ---------- deteksi nada ---------- */
         /* ENGINE-START */
-        function nsdfCoarse(b, fs) {
-            var n = b.length, maxLag = Math.min(n >> 1, Math.ceil(fs / 25)), minLag = Math.floor(fs / 1400), j, tau, acf, m;
+        function nsdfCoarse(b, fs, fmin, fmax) {
+            var n = b.length, maxLag = Math.min(n >> 1, Math.ceil(fs / fmin)), minLag = Math.max(2, Math.floor(fs / fmax)), j, tau, acf, m;
             var sq = new Float64Array(n + 1); for (j = 0; j < n; j++) sq[j + 1] = sq[j] + b[j] * b[j];
             var nz = new Float32Array(maxLag + 2);
             for (tau = 0; tau <= maxLag; tau++) { acf = 0; for (j = 0; j < n - tau; j++) acf += b[j] * b[j + tau]; m = sq[n - tau] + (sq[n] - sq[tau]); nz[tau] = m > 0 ? 2 * acf / m : 0; }
@@ -240,18 +284,20 @@
                 if (nz[tau] > 0 && nz[tau - 1] <= 0) { seg = true; mx = 0; pos = tau; }
                 if (seg) { if (nz[tau] > mx && nz[tau] >= nz[tau - 1] && nz[tau] >= nz[tau + 1]) { mx = nz[tau]; pos = tau; } if (nz[tau + 1] <= 0) { if (mx > 0 && pos >= minLag) peaks.push(pos); seg = false; } }
             }
+            if (seg && mx > 0 && pos >= minLag) peaks.push(pos);          // puncak terakhir yang belum "menutup" di batas jangkauan
             if (!peaks.length) return null;
             var top = 0; peaks.forEach(function (p) { if (nz[p] > top) top = nz[p]; });
             var p = peaks.filter(function (q) { return nz[q] >= 0.88 * top; })[0];
             var a = nz[p - 1], bb = nz[p], c = nz[p + 1], den = a - 2 * bb + c;
             return { lag: p + (den ? 0.5 * (a - c) / den : 0), clar: top };
         }
-        function pitch(raw, sr, gate) {
-            var D = 4, N = raw.length, n = N >> 2, b = new Float32Array(n), i, j, rms = 0;
+        function pitch(raw, sr, gate, o) {
+            o = o || {};
+            var D = o.D || 4, fmin = o.fmin || 25, fmax = o.fmax || 1400, N = raw.length, n = Math.floor(N / D), b = new Float32Array(n), i, j, rms = 0;
             for (i = 0; i < n; i++) { var s = 0; for (j = 0; j < D; j++) s += raw[i * D + j]; b[i] = s / D; rms += b[i] * b[i]; }
             rms = Math.sqrt(rms / n); if (rms < gate) return [-1, 0, rms];
-            var co = nsdfCoarse(b, sr / D); if (!co || co.clar < 0.6) return [-1, co ? co.clar : 0, rms];
-            var p0 = co.lag * D, m = Math.max(1, Math.floor(0.06 * sr / p0)), target = m * p0, r = 2 * m + 3, lo = Math.floor(target - r), hi = Math.ceil(target + r);
+            var co = nsdfCoarse(b, sr / D, fmin, fmax); if (!co || co.clar < 0.6) return [-1, co ? co.clar : 0, rms];
+            var p0 = co.lag * D, m = Math.max(1, Math.min(24, Math.floor(0.06 * sr / p0), Math.floor((p0 - 8) / 4))), target = m * p0, r = 2 * m + 3, lo = Math.floor(target - r), hi = Math.ceil(target + r);
             if (hi + 64 > N) { m = 1; target = p0; r = 6; lo = Math.floor(target - r); hi = Math.ceil(target + r); }
             var e0 = 0, vals = [], L, k;
             for (L = lo; L <= hi; L++) { var acf = 0, e1 = 0, e2 = 0, cnt = N - L; for (k = 0; k < cnt; k++) { acf += raw[k] * raw[k + L]; e1 += raw[k] * raw[k]; e2 += raw[k + L] * raw[k + L]; } vals.push((e1 + e2) > 0 ? 2 * acf / (e1 + e2) : 0); }
@@ -259,7 +305,7 @@
             var Ls = lo + bi;
             if (bi > 0 && bi < vals.length - 1) { var a = vals[bi - 1], bb = vals[bi], c = vals[bi + 1], den = a - 2 * bb + c; if (den) Ls += 0.5 * (a - c) / den; }
             var per = Ls / m; if (Math.abs(per - p0) > D * 1.5) per = p0;
-            var hz = sr / per; return [(hz > 25 && hz < 1400) ? hz : -1, co.clar, rms];
+            var hz = sr / per; return [(hz > fmin * 0.7 && hz < fmax * 1.3) ? hz : -1, co.clar, rms];
         }
         function makeFilter() {
             var s = null, raw = [], onset = 0, lastT = 0, outl = 0;
@@ -308,8 +354,8 @@
             tuned = Math.abs(cs) <= (tuned ? 7 : 4);
             if (idx !== act) { act = idx; mark(); }
             if (tuned && idx >= 0 && !done[idx]) { done[idx] = true; mark(); }
-            $('note').textContent = NAMES[midi % 12]; $('oct').textContent = Math.floor(midi / 12) - 1;
-            $('hz').textContent = (idx >= 0 ? 'Senar ' + (n - idx) + ' \u00b7 ' : '') + hz.toFixed(1) + ' Hz  (' + (cs > 0 ? '+' : '') + Math.round(cs) + ' sen)';
+            var LB = labs(); if (LB && idx >= 0) { $('note').textContent = LB[idx].n; $('oct').textContent = LB[idx].o; } else { $('note').textContent = NAMES[((Math.round(midi) % 12) + 12) % 12]; $('oct').textContent = Math.floor(Math.round(midi) / 12) - 1; }
+            $('hz').textContent = (idx >= 0 && inst !== 'pn' ? (LB ? LB[idx].n + ' ' + LB[idx].o : 'Senar ' + (n - idx)) + ' \u00b7 ' : '') + hz.toFixed(1) + ' Hz  (' + (cs > 0 ? '+' : '') + Math.round(cs) + ' sen)';
             aim(Math.max(-52, Math.min(52, cs))); lamp(tuned);
             var st = $('status'); st.className = 't-status ' + (tuned ? 'ok' : 'bad');
             st.textContent = tuned ? 'Pas! Nada sudah tepat' : (cs < 0 ? 'Terlalu rendah, kencangkan senar' : 'Terlalu tinggi, kendurkan senar');
@@ -317,8 +363,12 @@
         var filt = makeFilter();
         function tick() {
             analyser.getFloatTimeDomainData(buf);
-            var now = Date.now(), sr = ctx.sampleRate, r = pitch(buf.subarray(buf.length - 8192), sr, GATE[$('sens').value]);
-            if (r[0] > 0 && r[0] < 100) r = pitch(buf, sr, GATE[$('sens').value]);
+            var now = Date.now(), sr = ctx.sampleRate, gt = GATE[$('sens').value], po = pOpts(), r;
+            if (inst === 'pn' && !po) r = pianoAuto(buf, sr, gt);
+            else {
+                r = pitch(buf.subarray(buf.length - 8192), sr, gt, po);
+                if ((r[0] > 0 && r[0] < 100) || (r[0] <= 0 && r[2] >= gt && inst === 'pn')) { var rf = pitch(buf, sr, gt, po); if (rf[0] > 0) r = rf; }
+            }
             var ok = r[0] > 0 && r[1] >= 0.6;
             if (ok) lastHeard = now;
             var sm = filt.feed(ok ? r[0] : -1, now);
@@ -345,7 +395,7 @@
         function setA4(v) {
             v = parseFloat(v); if (!(v >= 400 && v <= 480)) v = 440;
             A4 = Math.round(v * 10) / 10; $('a4').value = A4;
-            var std = A4 === 440; $('a4r').style.display = std ? 'none' : ''; $('a4s').className = 't-a4s' + (std ? '' : ' chg'); $('a4s').textContent = std ? '\u2713 Standar (440 Hz)' : 'Acuan diubah dari standar. Tuner ini tidak lagi memakai 440 Hz.';
+            var std = A4 === 440; $('a4r').style.display = std ? 'none' : ''; $('a4s').className = 't-a4s' + (std ? '' : ' chg'); $('a4s').textContent = std ? '\u2713 Standar' : '\u26A0 Diubah';
             try { localStorage.setItem('ayri-tuner-a4', A4); } catch (e) {}
             cs = null; hist = []; lock = null; lockIdx = -1;
         }

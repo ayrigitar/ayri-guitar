@@ -57,7 +57,9 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&display=swap">
     <link rel="stylesheet" href="theme-dark.css">
     <link rel="stylesheet" href="tools.css">
+    <link rel="stylesheet" href="app.css">
     <script src="theme.js"></script>
+    <script src="app.js"></script>
     <script src="pwa.js" defer></script>
 </head>
 <body class="bg-slate-50 text-slate-900 font-sans antialiased">
@@ -86,13 +88,13 @@
     </nav>
 
     <!-- BAGIAN KONTEN ARTIKEL -->
-    <main class="tuner wide">
-<nav class="tt" aria-label="Alat latihan"><a href="tuner.html">Tuner</a><a href="chords.html">Chord</a><a href="metronom.html" aria-current="page">Metronom</a><a href="transkrip.html">Transkrip</a></nav>
-        <h1>Metronom Online</h1>
-        <p class="t-sub">Pilih tampilan analog, digital, LED, atau layar kedip. Atur tempo, birama, dan suara sesuai gaya latihan Anda.</p>
-        <div class="t-card" id="mt">
-            <div class="mt-tabs" id="tabs" role="group" aria-label="Tampilan metronom"><button type="button" class="chip" data-vis="analog">Analog</button><button type="button" class="chip" data-vis="digital">Digital</button><button type="button" class="chip" data-vis="led">LED</button><button type="button" class="chip" data-vis="flash">Kedip</button></div>
-            <div class="mt-vis" id="vis">
+    <main class="app metro-app">
+        <div class="apptop"><nav class="tt" aria-label="Alat latihan"><a href="tuner.html">Tuner</a><a href="chords.html">Chord</a><a href="metronom.html" aria-current="page">Metronom</a><a href="transkrip.html">Transkrip</a></nav><span id="themeslot"></span><button type="button" class="ib" data-open="dr-info" aria-label="Bantuan dan pintasan">?</button></div>
+        <h1 class="sr-only">Metronom Online: Analog, Digital, LED</h1>
+        <div class="mtgrid">
+            <div class="t-card" id="mt">
+                <div class="mt-tabs" id="tabs" role="group" aria-label="Tampilan metronom"><button type="button" class="chip" data-vis="analog">Analog</button><button type="button" class="chip" data-vis="digital">Digital</button><button type="button" class="chip" data-vis="led">LED</button><button type="button" class="chip" data-vis="flash">Kedip</button></div>
+                <div class="mt-vis" id="vis">
                 <svg id="an" data-v="analog" class="an" viewBox="0 0 200 300" role="img" aria-label="Metronom analog">
                     <path class="an-body" d="M58 288 L142 288 L114 36 Q100 24 86 36 Z"/>
                     <rect x="84" y="120" width="32" height="150" rx="6" fill="#4a2410" opacity=".55"/>
@@ -103,28 +105,39 @@
                 <div class="leds" data-v="led" id="leds"></div>
                 <div class="flash" data-v="flash" id="flash">Layar berkedip tiap ketukan</div>
             </div>
-            <div class="mt-bpm"><button id="bm" type="button" class="rb" aria-label="Kurangi tempo">&minus;</button><div class="mt-num"><input id="bpm" type="number" inputmode="numeric" min="20" max="300" aria-label="Tempo dalam BPM"><span>BPM &middot; <i id="tn" style="font-style:normal"></i></span></div><button id="bp" type="button" class="rb" aria-label="Naikkan tempo">+</button></div>
+                <div class="mt-bpm"><button id="bm" type="button" class="rb" aria-label="Kurangi tempo">&minus;</button><div class="mt-num"><input id="bpm" type="number" inputmode="numeric" min="20" max="300" aria-label="Tempo dalam BPM"><span>BPM &middot; <i id="tn" style="font-style:normal"></i></span></div><button id="bp" type="button" class="rb" aria-label="Naikkan tempo">+</button></div>
             <input id="bs" class="rg" type="range" min="20" max="300" aria-label="Geser tempo">
             <div class="mt-act"><button id="go" type="button" class="t-btn">Mulai</button><button id="tap" type="button" class="t-btn alt">Tap tempo</button></div>
-            <span class="lbl" style="text-align:center">Ketukan &mdash; ketuk bulatan untuk ubah aksen (kuat / biasa / senyap)</span>
-            <div class="accr" id="acc"></div>
+                <div class="accr" id="acc"></div>
+            </div>
+            <div class="mtside">
+                <div class="mtset">
+                    <label class="lb">Birama<select id="sigs" class="sel"></select></label>
+                    <label class="lb">Subdivisi<select id="subs" class="sel"></select></label>
+                    <label class="lb">Suara<select id="snds" class="sel"></select></label>
+                    <label class="lb">Ketukan<input id="nb" class="numin" type="number" inputmode="numeric" min="1" max="16"></label>
+                </div>
+                <div class="mtset2"><label class="lb">Volume<input id="vol" class="rg" type="range" min="0.1" max="1" step="0.05"></label><label class="tgl"><input id="vib" type="checkbox"> Getar</label></div>
+                <div class="mttr">
+                    <label class="tgl"><input id="tron" type="checkbox"> Naik<br>tempo</label>
+                    <label class="lb">+BPM<input id="trs" class="numin" type="number" inputmode="numeric" min="1" max="30"></label>
+                    <label class="lb">per birama<input id="tre" class="numin" type="number" inputmode="numeric" min="1" max="32"></label>
+                    <label class="lb">maks BPM<input id="trm" class="numin" type="number" inputmode="numeric" min="30" max="300"></label>
+                </div>
+                <div class="mtpre"><select id="pre" class="sel" aria-label="Preset tersimpan"></select><button id="prs" type="button" class="chip">Simpan</button><button id="prd" type="button" class="chip">Hapus</button></div>
+            </div>
         </div>
-        <h2>Pengaturan</h2>
-        <span class="lbl" style="margin-top:0">Birama</span><div id="sigs" class="chips"></div>
-        <label class="fld" style="margin-top:.7rem;flex-direction:row;align-items:center;gap:.6rem">Atau jumlah ketukan sendiri <input id="nb" type="number" inputmode="numeric" min="1" max="16" style="width:5rem"></label>
-        <span class="lbl">Subdivisi (pecahan ketukan)</span><div id="subs" class="chips"></div>
-        <span class="lbl">Suara</span><div id="snds" class="chips"></div>
-        <label class="lbl" for="vol">Volume</label><input id="vol" class="rg" type="range" min="0.1" max="1" step="0.05">
-        <label class="tgl"><input id="vib" type="checkbox"> Getar tiap ketukan (khusus HP)</label>
-        <h2>Latihan percepatan</h2>
-        <p class="t-sub" style="font-size:1rem;margin-bottom:.6rem">Tempo naik sendiri secara bertahap, cocok untuk melatih kecepatan jari.</p>
-        <label class="tgl"><input id="tron" type="checkbox"> Aktifkan percepatan otomatis</label>
-        <div class="grid2" style="margin-top:.5rem"><label class="fld">Naik (BPM)<input id="trs" type="number" inputmode="numeric" min="1" max="30"></label><label class="fld">Setiap (birama)<input id="tre" type="number" inputmode="numeric" min="1" max="32"></label><label class="fld">Sampai (BPM)<input id="trm" type="number" inputmode="numeric" min="30" max="300"></label></div>
-        <h2>Preset saya</h2><div id="pre" class="chips"></div><button id="prs" type="button" class="chip" style="margin-top:.7rem">Simpan preset</button>
-        <h2>Pintasan keyboard</h2>
-        <p class="t-sub" style="font-size:1rem">Spasi = mulai/berhenti &middot; panah atas/bawah = tempo (tambah Shift untuk 5 BPM) &middot; T = tap tempo. Pada metronom analog, pemberat bisa digeser langsung. Layar akan tetap menyala selama metronom berjalan.</p>
-        <a class="t-cta" href="index.html#harga"><strong>Gitar susah disetel atau berdengung?</strong><br>Lihat estimasi biaya setup &amp; servis di Toko Gitar AYRI Bogor &rarr;</a>
     </main>
+    <div class="drawer" id="dr-info" hidden><div class="drawer-in">
+        <button type="button" class="chip drawer-x" data-close>Tutup</button>
+        <h2>Pintasan keyboard</h2>
+        <p class="t-help">Spasi = mulai/berhenti. Panah atas/bawah = tempo (tambah Shift untuk 5 BPM). T = tap tempo. Pada metronom analog, pemberat bisa digeser langsung. Ketuk bulatan ketukan untuk mengubah aksen (kuat, biasa, senyap). Layar tetap menyala selama metronom berjalan.</p>
+        <h2>Latihan percepatan</h2>
+        <p class="t-help">Aktifkan &quot;Naik tempo&quot; agar tempo bertambah sendiri sebanyak +BPM setiap beberapa birama sampai batas maksimal. Cocok untuk melatih kecepatan jari.</p>
+        <h2>Preset</h2>
+        <p class="t-help">Atur tempo dan pengaturan lain, tekan Simpan. Pilih preset dari daftar untuk memuatnya. Untuk menghapus, pilih preset lalu tekan Hapus.</p>
+        <a class="t-cta" href="index.html#harga"><strong>Gitar susah disetel atau berdengung?</strong><br>Lihat estimasi biaya setup &amp; servis di Toko Gitar AYRI Bogor &rarr;</a>
+    </div></div>
     <script>
 (function () {
     var $ = function (i) { return document.getElementById(i); };
@@ -237,15 +250,16 @@
         $(id).innerHTML = arr.map(function (a) { return '<button type="button" class="chip" aria-pressed="' + (f(a) === cur) + '" data-v="' + f(a) + '">' + a[a.length === 3 ? 0 : 1] + '</button>'; }).join('');
     }
     function renderChips() {
-        $('sigs').innerHTML = SIGS.map(function (a) { return '<button type="button" class="chip" aria-pressed="' + (a[1] === S.beats && String(S.acc) === String(a[2])) + '" data-s="' + a[0] + '">' + a[0] + '</button>'; }).join('');
-        $('subs').innerHTML = SUBS.map(function (a) { return '<button type="button" class="chip" aria-pressed="' + (a[0] === S.sub) + '" data-v="' + a[0] + '">' + a[1] + '</button>'; }).join('');
-        $('snds').innerHTML = SOUNDS.map(function (a) { return '<button type="button" class="chip" aria-pressed="' + (a[0] === S.sound) + '" data-v="' + a[0] + '">' + a[1] + '</button>'; }).join('');
+        var sigOk = SIGS.some(function (a) { return a[1] === S.beats && String(S.acc) === String(a[2]); });
+        $('sigs').innerHTML = SIGS.map(function (a) { return '<option value="' + a[0] + '"' + (a[1] === S.beats && String(S.acc) === String(a[2]) ? ' selected' : '') + '>' + a[0] + '</option>'; }).join('') + '<option value="custom"' + (sigOk ? '' : ' selected') + '>Kustom</option>';
+        $('subs').innerHTML = SUBS.map(function (a) { return '<option value="' + a[0] + '"' + (a[0] === S.sub ? ' selected' : '') + '>' + a[1] + '</option>'; }).join('');
+        $('snds').innerHTML = SOUNDS.map(function (a) { return '<option value="' + a[0] + '"' + (a[0] === S.sound ? ' selected' : '') + '>' + a[1] + '</option>'; }).join('');
         $('nb').value = S.beats;
         [].forEach.call($('tabs').children, function (b) { b.setAttribute('aria-pressed', b.dataset.vis === S.vis); });
         var views = $('vis').children; [].forEach.call(views, function (v) { v.classList.toggle('show', v.dataset.v === S.vis); });
     }
     function renderPre() {
-        $('pre').innerHTML = presets.length ? presets.map(function (p, i) { return '<span class="pre"><button type="button" class="chip" data-l="' + i + '">' + p.bpm + ' BPM \u00b7 ' + p.beats + ' ketuk</button><button type="button" class="chip fav-x" data-x="' + i + '" aria-label="Hapus preset">\u00d7</button></span>'; }).join('') : '<p class="hint">Belum ada preset. Atur tempo lalu tekan "Simpan preset".</p>';
+        $('pre').innerHTML = '<option value="">Preset (' + presets.length + ')</option>' + presets.map(function (p, i) { return '<option value="' + i + '">' + p.bpm + ' BPM \u00b7 ' + p.beats + ' ketuk</option>'; }).join('');
     }
     function refresh() { buildAcc(); renderChips(); setBpm(S.bpm, true); $('vol').value = S.vol; $('vib').checked = S.vib; $('tron').checked = S.tr.on; $('trs').value = S.tr.step; $('tre').value = S.tr.every; $('trm').value = S.tr.max; renderPre(); }
     $('go').addEventListener('click', toggle);
@@ -260,19 +274,13 @@
     });
     $('tabs').addEventListener('click', function (e) { var b = e.target.closest('[data-vis]'); if (b) { S.vis = b.dataset.vis; save(); renderChips(); } });
     $('acc').addEventListener('click', function (e) { var b = e.target.closest('[data-i]'); if (!b) return; var i = +b.dataset.i; S.acc[i] = (S.acc[i] + 2) % 3; save(); buildAcc(); renderChips(); });
-    $('sigs').addEventListener('click', function (e) { var b = e.target.closest('[data-s]'); if (!b) return; SIGS.forEach(function (a) { if (a[0] === b.dataset.s) { S.beats = a[1]; S.acc = a[2].slice(); } }); save(); buildAcc(); renderChips(); });
+    $('sigs').addEventListener('change', function () { var v = this.value; if (v === 'custom') { $('nb').focus(); return; } SIGS.forEach(function (a) { if (a[0] === v) { S.beats = a[1]; S.acc = a[2].slice(); } }); save(); buildAcc(); renderChips(); });
     $('nb').addEventListener('change', function () { S.beats = clamp(+this.value || 4, 1, 16); save(); buildAcc(); renderChips(); });
-    $('subs').addEventListener('click', function (e) { var b = e.target.closest('[data-v]'); if (b) { S.sub = +b.dataset.v; save(); renderChips(); } });
-    $('snds').addEventListener('click', function (e) { var b = e.target.closest('[data-v]'); if (b) { S.sound = b.dataset.v; save(); renderChips(); if (!playing) { init(); master.gain.value = S.vol; sound(2, false, ctx.currentTime + 0.02); sound(1, false, ctx.currentTime + 0.4); } } });
-    $('vol').addEventListener('input', function () { S.vol = +this.value; if (master) master.gain.value = S.vol; save(); });
-    $('vib').addEventListener('change', function () { S.vib = this.checked; save(); });
-    $('tron').addEventListener('change', function () { S.tr.on = this.checked; save(); });
-    ['trs', 'tre', 'trm'].forEach(function (id) { $(id).addEventListener('change', function () { S.tr.step = clamp(+$('trs').value || 5, 1, 30); S.tr.every = clamp(+$('tre').value || 4, 1, 32); S.tr.max = clamp(+$('trm').value || 140, 30, 300); save(); }); });
+    $('subs').addEventListener('change', function () { S.sub = +this.value; save(); renderChips(); });
+    $('snds').addEventListener('change', function () { S.sound = this.value; save(); renderChips(); if (!playing) { init(); master.gain.value = S.vol; sound(2, false, ctx.currentTime + 0.02); sound(1, false, ctx.currentTime + 0.4); } });
     $('prs').addEventListener('click', function () { presets.push({ bpm: S.bpm, beats: S.beats, sub: S.sub, sound: S.sound, acc: S.acc.slice() }); if (presets.length > 8) presets.shift(); save(); renderPre(); });
-    $('pre').addEventListener('click', function (e) {
-        var x = e.target.closest('[data-x]'); if (x) { presets.splice(+x.dataset.x, 1); save(); renderPre(); return; }
-        var l = e.target.closest('[data-l]'); if (l) { var p = presets[+l.dataset.l]; S.bpm = p.bpm; S.beats = p.beats; S.sub = p.sub; S.sound = p.sound; S.acc = p.acc.slice(); save(); refresh(); }
-    });
+    $('pre').addEventListener('change', function () { if (this.value === '') return; var p = presets[+this.value]; if (!p) return; S.bpm = p.bpm; S.beats = p.beats; S.sub = p.sub; S.sound = p.sound; S.acc = p.acc.slice(); save(); var keep = this.value; refresh(); $('pre').value = keep; });
+    $('prd').addEventListener('click', function () { var v = $('pre').value; if (v === '') return; presets.splice(+v, 1); save(); renderPre(); });
     // seret pemberat pada metronom analog
     var drag = false, svg = $('an');
     function dragTo(e) { var r = svg.getBoundingClientRect(), y = (e.clientY - r.top) / r.height * 300, f = clamp((262 - y) / 215, 0.2, 0.92); setBpm(40 * Math.pow(208 / 40, (0.92 - f) / 0.72)); }

@@ -103,10 +103,12 @@ function genV(inst, root, ti) {
 }
 function voicings(root, ti, inst) {
     inst = inst || I;
+    if (inst.kb) return pianoVoicings(root, ti);
     return inst.base ? genV(INSTS[inst.base], ((root - inst.shift) % 12 + 12) % 12, ti) : genV(inst, root, ti);
 }
 function minF(v) { var m = 99; v.f.forEach(function (x) { if (x > 0 && x < m) m = x; }); return m === 99 ? 0 : m; }
 function diagram(v, o) {
+    if (v.kb) return pianoDiagram(v, o || {});
     o = o || {};
     var n = v.f.length, x0 = 40, sx = 120 / (n - 1), y0 = 58, fh = 34, nF = 5, fr = v.f.filter(function (x) { return x > 0; });
     var mx = fr.length ? Math.max.apply(null, fr) : 0, mn = fr.length ? Math.min.apply(null, fr) : 1, base = mx <= 5 ? 1 : mn, i, s;
@@ -135,5 +137,35 @@ function diagram(v, o) {
         s += '<text x="' + X(i) + '" y="' + (y0 + nF * fh + 26) + '" class="cd-nm">' + I.sn[i] + '</text>';
         s += '<rect class="cd-hit" data-s="' + i + '" x="' + (X(i) - 12) + '" y="' + (y0 - 28) + '" width="24" height="' + (nF * fh + 56) + '"/>';
     }
+    return s + '</svg>';
+}
+
+/* ===== Piano ===== */
+INSTS.pno = { key: 'pno', name: 'Piano', kb: true, n: 0, info: 'Piano: tangan kanan memainkan akor dalam posisi dasar dan inversi. Bentuk "Bass + akor" menambah nada akar di tangan kiri.' };
+function pianoVoicings(root, ti) {
+    var iv = TYPES[ti].iv, base = 48 + root, asc = iv.map(function (x) { return base + ((x === 2 && iv.length > 3) ? 14 : x); }).sort(function (a, b) { return a - b; }), out = [], i, j, c;
+    for (i = 0; i < asc.length; i++) { c = asc.slice(); for (j = 0; j < i; j++) c.push(c.shift() + 12); out.push({ kb: true, notes: c, label: i ? 'Inversi ' + i : 'Posisi dasar', f: null }); }
+    out.push({ kb: true, notes: [base - 12].concat(asc), label: 'Bass + akor', bass: true, f: null });
+    return out.slice(0, 6);
+}
+function pianoDiagram(v, o) {
+    var ns = v.notes, lo = Math.floor(Math.min.apply(null, ns) / 12) * 12, hi = (Math.floor(Math.max.apply(null, ns) / 12) + 1) * 12 - 1;
+    if (hi - lo < 23) hi = lo + 23;
+    var WK = [0, 2, 4, 5, 7, 9, 11], BK = [1, 3, 6, 8, 10], kw = 26, bw = 16, h = 120, bh = 72, wx = {}, x = 0, m, s, on = {}, fing = {};
+    for (m = lo; m <= hi; m++) if (WK.indexOf(m % 12) > -1) { wx[m] = x; x += kw; }
+    var asc = ns.slice().sort(function (a, b) { return a - b; }), body = v.bass ? asc.slice(1) : asc, FN = { 1: [1], 2: [1, 5], 3: [1, 3, 5], 4: [1, 2, 3, 5], 5: [1, 2, 3, 4, 5] };
+    asc.forEach(function (n) { on[n] = 1; });
+    body.forEach(function (n, i) { fing[n] = (FN[body.length] || [1, 2, 3, 4, 5])[i]; }); if (v.bass) fing[asc[0]] = 'L';
+    s = '<svg viewBox="0 0 ' + x + ' ' + (o.mini ? h : h + 16) + '" class="cd pk" role="img" aria-label="' + (o.alt || 'Diagram piano') + '">';
+    for (m = lo; m <= hi; m++) if (wx[m] !== undefined) {
+        s += '<rect class="pk-w' + (on[m] ? ' on' : '') + '" x="' + wx[m] + '" y="0" width="' + kw + '" height="' + h + '" rx="3"/>';
+        if (!o.mini && m % 12 === 0) s += '<text class="pk-o" x="' + (wx[m] + kw / 2) + '" y="' + (h + 12) + '">C' + (Math.floor(m / 12) - 1) + '</text>';
+    }
+    for (m = lo; m <= hi; m++) if (BK.indexOf(m % 12) > -1 && wx[m - 1] !== undefined) s += '<rect class="pk-b' + (on[m] ? ' on' : '') + '" x="' + (wx[m - 1] + kw - bw / 2) + '" y="0" width="' + bw + '" height="' + bh + '" rx="2"/>';
+    if (!o.mini) asc.forEach(function (n) {
+        var blk = BK.indexOf(n % 12) > -1, cx = blk ? wx[n - 1] + kw : wx[n] + kw / 2, cy = blk ? bh - 12 : h - 14, txt = o.note ? disp(NM[n % 12]) : fing[n];
+        s += '<text class="pk-t' + (blk ? ' pk-tb' : '') + '" x="' + cx + '" y="' + (cy + 4) + '">' + txt + '</text>';
+    });
+    if (!o.mini) for (m = lo; m <= hi; m++) { if (wx[m] !== undefined) s += '<rect class="cd-hit" data-m="' + m + '" x="' + wx[m] + '" y="' + bh + '" width="' + kw + '" height="' + (h - bh) + '"/>'; else if (wx[m - 1] !== undefined) s += '<rect class="cd-hit" data-m="' + m + '" x="' + (wx[m - 1] + kw - bw / 2) + '" y="0" width="' + bw + '" height="' + bh + '"/>'; }
     return s + '</svg>';
 }
