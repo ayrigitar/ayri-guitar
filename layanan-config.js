@@ -2,16 +2,19 @@
    Pengaturan layanan servis Toko Gitar AYRI (admin, cek status, nota, artikel).
    File ini boleh diubah sendiri lewat GitHub; simpan, tunggu ±1 menit, situs ikut berubah.
 
-   supabaseUrl dan supabaseAnonKey diambil dari Supabase > Project Settings > API.
-   Anon key MEMANG publik (aman ditaruh di sini): keamanan data dijaga aturan RLS di database.
-   JANGAN PERNAH menaruh "service_role" key di file ini.
+   Tidak ada server: data lengkap servis disimpan di repo GitHub PRIVAT (repoData),
+   data untuk pelanggan disimpan terenkripsi di situs ini (repoSitus).
+   JANGAN PERNAH menaruh token GitHub di file ini; token dimasukkan langsung di halaman admin.
    ===================================================================== */
 var AYRI_LAYANAN = {
-    supabaseUrl: 'GANTI_DENGAN_PROJECT_URL',
-    supabaseAnonKey: 'GANTI_DENGAN_ANON_PUBLIC_KEY',
-
     situsUrl: 'https://ayrigitar.com/',
-    githubRepo: 'ayrigitar/ayri-guitar',   /* untuk tombol "terbitkan sekarang" di editor artikel */
+
+    github: {
+        pemilik: 'ayrigitar',
+        repoSitus: 'ayri-guitar',        /* repo situs ini (publik) */
+        repoData: 'ayri-servis-data',    /* repo PRIVAT berisi data pelanggan */
+        cabang: 'main'
+    },
 
     toko: {
         nama: 'Toko Gitar AYRI',

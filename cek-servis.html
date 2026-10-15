@@ -27,7 +27,6 @@
     <script src="theme.js"></script>
     <script src="pwa.js" defer></script>
     <script src="site.js" defer></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js" defer></script>
     <script src="layanan-config.js" defer></script>
     <script src="layanan.js" defer></script>
 </head>
@@ -136,7 +135,6 @@ document.addEventListener('DOMContentLoaded', function () {
     function cek(k, h) {
         k = k.trim().toUpperCase(); h = h.replace(/\D/g, '');
         if (!/^\d{4}$/.test(h)) { out.innerHTML = '<p class="cek-err">Isi 4 digit terakhir nomor HP (angka saja).</p>'; return; }
-        if (!L.siap) { out.innerHTML = '<p class="cek-err">Layanan cek status sedang disiapkan. Silakan tanya lewat WhatsApp dulu.</p>'; return; }
         var b = f.querySelector('button'); b.disabled = true; b.textContent = 'Mencari…';
         L.api.cekPublik(k, h).then(function (s) {
             b.disabled = false; b.textContent = 'Cek status';
@@ -169,9 +167,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
         var foto = s.foto || [];
         ['sesudah', 'kerusakan', 'sebelum'].forEach(function (t) {
-            var fs = foto.filter(function (x) { return x.tahap === t; });
-            if (fs.length) html += '<section class="ly-card"><h2>' + L.TAHAP[t] + '</h2><div class="ly-foto cek-foto">' + fs.map(function (x) {
-                return '<figure><button type="button" data-besar="' + E(x.url) + '" data-ket="' + E(x.keterangan) + '"><img src="' + E(x.thumb_url || x.url) + '" alt="' + E(L.TAHAP[t] + (x.keterangan ? ': ' + x.keterangan : '')) + '" loading="lazy"></button>' + (x.keterangan ? '<figcaption>' + E(x.keterangan) + '</figcaption>' : '') + '</figure>';
+            var fs = []; foto.forEach(function (x, i) { if (x.tahap === t) fs.push([x, i]); });
+            if (fs.length) html += '<section class="ly-card"><h2>' + L.TAHAP[t] + '</h2><div class="ly-foto cek-foto">' + fs.map(function (p) {
+                var x = p[0];
+                return '<figure><button type="button" data-besar="' + p[1] + '"><img data-foto="' + p[1] + '" alt="' + E(L.TAHAP[t] + (x.keterangan ? ': ' + x.keterangan : '')) + '"></button>' + (x.keterangan ? '<figcaption>' + E(x.keterangan) + '</figcaption>' : '') + '</figure>';
             }).join('') + '</div></section>';
         });
 
@@ -199,16 +198,20 @@ document.addEventListener('DOMContentLoaded', function () {
 
         html += '<div class="ly-btns"><a class="ly-btn ly-btn--pri" href="nota.html?k=' + encodeURIComponent(s.kode) + '">Lihat nota</a>' +
             '<a class="ly-btn ly-btn--wa" target="_blank" rel="noopener" href="' + E(waToko('Halo AYRI, saya mau tanya servis dengan kode ' + s.kode)) + '">Chat WhatsApp</a></div>';
-        out.innerHTML = html;
+        out.innerHTML = html; aktif = s;
+        L.isiFoto(out, s); /* foto dibuka (didekripsi) di HP pelanggan */
         out.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 
     /* foto diperbesar */
+    var aktif = null;
     out.addEventListener('click', function (e) {
-        var b = e.target.closest('[data-besar]'); if (!b) return;
+        var b = e.target.closest('[data-besar]'); if (!b || !aktif) return;
+        var x = aktif.foto[+b.dataset.besar]; if (!x) return;
         var lb = document.createElement('div'); lb.className = 'cek-lb'; lb.setAttribute('role', 'dialog');
-        lb.innerHTML = '<div><img src="' + E(b.dataset.besar) + '" alt="">' + (b.dataset.ket ? '<p>' + E(b.dataset.ket) + '</p>' : '') + '<p>Ketuk untuk menutup</p></div>';
+        lb.innerHTML = '<div><img alt="" src="' + E(b.querySelector('img').src) + '">' + (x.keterangan ? '<p>' + E(x.keterangan) + '</p>' : '') + '<p>Ketuk untuk menutup</p></div>';
         lb.addEventListener('click', function () { lb.remove(); }); document.body.appendChild(lb);
+        L.api.fotoPublik(aktif, x, true).then(function (u) { var im = lb.querySelector('img'); if (im) im.src = u; });
     });
     f.addEventListener('submit', function (e) { e.preventDefault(); cek(f.k.value, f.h.value); });
 
