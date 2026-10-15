@@ -91,7 +91,7 @@
     L.titip = function (s, hariIni) {
         if (!s.tgl_selesai || !L.beres(s)) return null;
         var akhir = s.status === 'diambil' && s.tgl_diambil ? s.tgl_diambil : hariIni || L.hariIni(), lama = Math.max(0, hariAntara(s.tgl_selesai, akhir));
-        var gratis = L.gratisHari(), hangus = C.garansiHangusHari || 30, lepas = C.lepasTanggungJawabHari || 90, hariBiaya = Math.max(0, lama - gratis);
+        var gratis = L.gratisHari(), hangus = C.garansiHangusHari || 30, lepas = C.penyimpananLamaHari || 90, hariBiaya = Math.max(0, lama - gratis);
         return {
             lama: lama, sisaGratis: Math.max(0, gratis - lama), hariBiaya: hariBiaya, biaya: hariBiaya * L.biayaTitip(),
             batasGratis: tambahHari(s.tgl_selesai, gratis), batasGaransi: tambahHari(s.tgl_selesai, hangus), batasLepas: tambahHari(s.tgl_selesai, lepas),
@@ -112,7 +112,7 @@
     L.ketentuan = function () {
         return (C.ketentuan || []).map(function (k) {
             return k.replace('{dp}', L.dpPersen()).replace('{gratis}', L.gratisHari()).replace('{biaya}', L.biayaTitipTeks())
-                .replace('{hangus}', C.garansiHangusHari || 30).replace('{lepas}', C.lepasTanggungJawabHari || 90);
+                .replace('{hangus}', C.garansiHangusHari || 30).replace('{lepas}', C.penyimpananLamaHari || 90);
         });
     };
 
@@ -133,6 +133,7 @@
                 if (h.kurangAwal) t += 'Transfer ke ' + L.rekeningTeks() + '\n';
             }
             t += '\nCek status & nota: ' + L.urlCek(s.kode) + '\n(masukkan 4 digit terakhir no. HP Kakak)';
+            t += '\n\nKetentuan servis (DP, garansi, penitipan) tercantum di nota pada tautan di atas. Silakan tanyakan kalau ada yang kurang jelas.';
             return t;
         },
         update: function (s) {
@@ -158,7 +159,7 @@
             else m += 'Masa gratis penitipan sudah lewat sejak ' + L.tgl(t.batasGratis) + '. Biaya penitipan sampai hari ini: ' + t.hariBiaya + ' hari × ' + L.rupiah(L.biayaTitip()) + ' = *' + L.rupiah(t.biaya) + '*.\n';
             m += t.garansiHangus ? 'Garansi servis sudah hangus karena gitar belum diambil lebih dari ' + (C.garansiHangusHari || 30) + ' hari.\n'
                 : 'Garansi servis tetap berlaku bila gitar diambil paling lambat ' + L.tgl(t.batasGaransi) + '.\n';
-            if (t.lama >= (C.garansiHangusHari || 30)) m += 'Mohon diambil sebelum ' + L.tgl(t.batasLepas) + '; setelah itu gitar berada di luar tanggung jawab toko.\n';
+            if (t.lama >= (C.garansiHangusHari || 30)) m += 'Mohon gitar diambil secepatnya; biaya penitipan terus bertambah setiap hari.\n';
             if (h.sisa) m += '\nSisa pembayaran servis: ' + L.rupiah(h.sisa) + '\n';
             if (C.toko && C.toko.jam) m += '\nJam buka: ' + C.toko.jam + '\n';
             return m + '\nDetail & nota: ' + L.urlCek(s.kode);

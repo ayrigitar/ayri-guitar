@@ -169,7 +169,7 @@
         var t = L.titip(s, hari); if (!t) return '';
         var teks = t.hariBiaya ? '<span class="ly-telat">Biaya titip ' + t.hariBiaya + ' hari = ' + L.rupiah(t.biaya) + '</span>' : '<span>Gratis titip s/d ' + L.tgl(t.batasGratis) + ' (' + t.sisaGratis + ' hari lagi)</span>';
         if (t.garansiHangus) teks += '<span class="ly-telat">Garansi hangus</span>';
-        if (t.lepas) teks += '<span class="ly-telat">Lewat ' + (C.lepasTanggungJawabHari || 90) + ' hari</span>';
+        if (t.lepas) teks += '<span class="ly-telat">Lewat ' + (C.penyimpananLamaHari || 90) + ' hari</span>';
         var akhir = (s.pengingat || []).slice(-1)[0];
         return '<span class="ly-item__m"><span>Selesai ' + t.lama + ' hari lalu</span>' + teks + (akhir ? '<span>Diingatkan ' + L.tgl(akhir) + '</span>' : '') + '</span>' +
             '<span class="ly-item__b"><button type="button" class="ly-btn ly-btn--sm ' + (L.perluIngat(s, hari) ? 'ly-btn--wa' : '') + '" data-ingat="' + s.id + '">' + (L.perluIngat(s, hari) ? 'Ingatkan via WA' : 'Kirim pengingat') + '</button></span>';
