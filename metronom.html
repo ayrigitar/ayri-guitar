@@ -179,7 +179,7 @@
     <div class="drawer" id="dr-info" hidden><div class="drawer-in">
         <button type="button" class="chip drawer-x" data-close>Tutup</button>
         <h2>Pintasan keyboard</h2>
-        <p class="t-help">Spasi = mulai/berhenti. Panah atas/bawah = tempo (tambah Shift untuk 5 BPM). T = tap tempo. Pada metronom analog, pemberat bisa digeser langsung. Ketuk bulatan ketukan untuk mengubah aksen (kuat, biasa, senyap). Layar tetap menyala selama metronom berjalan.</p>
+        <p class="t-help">Spasi = mulai/berhenti. Panah atas/bawah = tempo (tambah Shift untuk 5 BPM). T = tap tempo. Pada metronom analog, pemberat bisa digeser langsung. Ketuk bulatan ketukan untuk mengubah aksen (kuat, biasa, senyap). Suara &quot;Hitung&quot; menyebut ketukan dalam bahasa Inggris (one, two, three, four; subdivisi: and, e-and-a, trip-let). Layar tetap menyala selama metronom berjalan.</p>
         <h2>Latihan percepatan</h2>
         <p class="t-help">Pilih Latihan &quot;Naik&quot; agar tempo bertambah sendiri sebanyak +BPM setiap beberapa birama sampai batas maksimal, atau &quot;Turun&quot; agar tempo berkurang sampai batas minimal. Cocok untuk melatih kecepatan jari dan pendinginan.</p>
         <h2>Preset</h2>
@@ -195,7 +195,7 @@
     function save() { try { localStorage.setItem('ayri-metro', JSON.stringify(S)); localStorage.setItem('ayri-metro-pre', JSON.stringify(presets)); } catch (e) {} }
     var SIGS = [['2/4', 2, [2, 1]], ['3/4', 3, [2, 1, 1]], ['4/4', 4, [2, 1, 1, 1]], ['5/4', 5, [2, 1, 1, 2, 1]], ['6/8', 6, [2, 0, 0, 1, 0, 0]], ['7/8', 7, [2, 0, 1, 0, 1, 0, 0]], ['12/8', 12, [2, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0]]];
     var SUBS = [[1, 'Ketukan'], [2, '\u00bd (2)'], [3, 'Triol (3)'], [4, '\u00bc (4)']];
-    var SOUNDS = [['klik', 'Klik'], ['kayu', 'Kayu'], ['beep', 'Beep'], ['hat', 'Hi-hat'], ['drum', 'Drum']];
+    var SOUNDS = [['klik', 'Klik'], ['kayu', 'Kayu'], ['beep', 'Beep'], ['hat', 'Hi-hat'], ['drum', 'Drum'], ['suara', 'Hitung']];
     var NAMES = [[40, 'Largo'], [60, 'Larghetto'], [76, 'Adagio'], [108, 'Andante'], [120, 'Moderato'], [156, 'Allegro'], [176, 'Vivace'], [999, 'Presto']];
     var ctx = null, master, noiseBuf, playing = false, timer = null, raf = 0, next = 0, beat = 0, subi = 0, bar = 0, count = 0, queue = [], last = { t: 0, n: 0 }, wl = null;
     function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
@@ -211,6 +211,7 @@
             noiseBuf = ctx.createBuffer(1, ctx.sampleRate * 0.3, ctx.sampleRate); var d = noiseBuf.getChannelData(0); for (var i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
         }
         if (ctx.state === 'suspended') ctx.resume();
+        if (S.sound === 'suara') decodeVox();
     }
     function tone(type, f, t, dur, vol, f2) {
         var o = ctx.createOscillator(), g = ctx.createGain(); o.type = type; o.frequency.setValueAtTime(f, t); if (f2) o.frequency.exponentialRampToValueAtTime(f2, t + dur);
@@ -220,13 +221,34 @@
         var s = ctx.createBufferSource(), g = ctx.createGain(), f = ctx.createBiquadFilter(); s.buffer = noiseBuf; f.type = bp ? 'bandpass' : 'highpass'; f.frequency.value = hp;
         g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(0.001, t + dur); s.connect(f); f.connect(g); g.connect(master); s.start(t); s.stop(t + dur + 0.02);
     }
-    function sound(lv, isSub, t) {
+    /* hitungan suara manusia (bahasa Inggris): angka di ketukan, "and" / "e-and-a" / "trip-let" di subdivisi */
+    var VOXN = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', 'and', 'e', 'a', 'trip', 'let'], voxRaw = null, VOX = {}, voxG = null, voxAll = null, voxReady = false;
+    function decodeVox() {
+        if (!voxRaw) { voxRaw = {}; VOXN.forEach(function (n) { voxRaw[n] = fetch('audio/hitung/' + n + '.wav').then(function (r) { return r.ok ? r.arrayBuffer() : null; }).catch(function () { return null; }); }); }
+        if (voxAll) return voxAll;
+        return (voxAll = Promise.all(VOXN.map(function (n) {
+            if (VOX[n] !== undefined) return VOX[n]; /* sudah atau sedang didekode */
+            return (VOX[n] = voxRaw[n].then(function (b) { return b ? new Promise(function (ok) { ctx.decodeAudioData(b, function (buf) { VOX[n] = buf; ok(buf); }, function () { ok(null); }); }) : null; }));
+        })).then(function (r) { voxReady = true; return r; }));
+    }
+    function voxWord(b, si) {
+        if (!si) return String((b || 0) + 1);
+        return S.sub === 3 ? ['trip', 'let'][si - 1] : S.sub === 4 ? ['e', 'and', 'a'][si - 1] : 'and';
+    }
+    function vox(w, t, v) {
+        var buf = VOX[w]; if (!buf || !buf.getChannelData) return false;
+        var s = ctx.createBufferSource(), g = ctx.createGain(); s.buffer = buf; g.gain.value = v; s.connect(g); g.connect(master); s.start(t);
+        if (voxG) voxG.gain.setTargetAtTime(0, t, 0.012); /* kata sebelumnya dihentikan halus agar tidak bertumpuk di tempo cepat */
+        voxG = g; return true;
+    }
+    function sound(lv, isSub, t, b, si) {
         if (lv === 0 && !isSub) return;
         var v = isSub ? 0.35 : (lv === 2 ? 1 : 0.7), hi = lv === 2 && !isSub;
         switch (S.sound) {
             case 'kayu': tone('sine', hi ? 1400 : 950, t, 0.07, v, hi ? 900 : 650); noise(t, 0.03, v * 0.3, hi ? 2200 : 1600, true); break;
             case 'beep': tone('square', hi ? 1320 : 880, t, 0.06, v * 0.25); break;
             case 'hat': noise(t, hi ? 0.09 : 0.04, v * 0.7, 7000); break;
+            case 'suara': if (vox(voxWord(b, si), t, isSub ? 0.55 : (lv === 2 ? 1 : 0.8))) break; tone('sine', hi ? 1900 : 1250, t, 0.035, v); break;
             case 'drum': if (isSub) noise(t, 0.03, v * 0.5, 7000); else if (hi) tone('sine', 160, t, 0.18, 1.1, 45); else { noise(t, 0.12, v * 0.55, 1800, true); tone('triangle', 200, t, 0.08, v * 0.4); } break;
             default: tone('sine', hi ? 1900 : 1250, t, 0.035, v); tone('square', hi ? 1900 : 1250, t, 0.012, v * 0.25);
         }
@@ -248,7 +270,7 @@
     function sched() {
         while (next < ctx.currentTime + 0.12) {
             var lv = S.acc[beat] === undefined ? 1 : S.acc[beat];
-            sound(lv, subi > 0, next); queue.push({ t: next, b: beat, s: subi, lv: lv, n: count });
+            sound(lv, subi > 0, next, beat, subi); queue.push({ t: next, b: beat, s: subi, lv: lv, n: count });
             if (subi === 0) count++;
             advance();
         }
@@ -274,7 +296,10 @@
         }
         raf = requestAnimationFrame(frame);
     }
+    var voxWait = false;
     function start() {
+        /* suara hitungan harus siap dulu, supaya ketukan pertama sudah "one", bukan klik */
+        if (S.sound === 'suara' && !voxReady) { init(); if (voxWait) return; voxWait = true; $('go').textContent = 'Memuat suara…'; decodeVox().then(function () { voxWait = false; if (!playing) start(); }); return; }
         init(); playing = true; beat = 0; subi = 0; bar = 0; count = 0; queue = []; next = ctx.currentTime + 0.08; last = { t: next, n: 0 };
         master.gain.value = S.vol; timer = setInterval(sched, 25); sched(); raf = requestAnimationFrame(frame);
         try { if (navigator.wakeLock) navigator.wakeLock.request('screen').then(function (l) { wl = l; }).catch(function () {}); } catch (e) {}
@@ -297,6 +322,17 @@
         var y = 262 - 215 * wFrac(b); $('wt').setAttribute('transform', 'translate(0 ' + (y - 100).toFixed(1) + ')');
         if (!noSave) save();
     }
+    /* angka digital diperkecil bila kotak hitamnya pendek (tinggi layar HP berbeda-beda), supaya tidak terpotong di atas/bawah */
+    function fitLcd() {
+        var l = document.querySelector('.lcd'), n = $('lcdn'); if (!l || !l.classList.contains('show')) return;
+        n.style.fontSize = '';
+        var cs = getComputedStyle(l), room = l.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom) - 10, used = 0, k = 0;
+        [].forEach.call(l.children, function (c) { if (c.offsetHeight) { used += c.offsetHeight + (parseFloat(getComputedStyle(c).marginTop) || 0); k++; } });
+        var over = used + Math.max(0, k - 1) * (parseFloat(cs.rowGap) || 0) - room;
+        if (over > 0) n.style.fontSize = Math.max(20, parseFloat(getComputedStyle(n).fontSize) - over / 0.9) + 'px';
+    }
+    if (window.ResizeObserver) new ResizeObserver(function () { fitLcd(); }).observe($('vis'));
+    window.addEventListener('resize', fitLcd);
     function buildAcc() {
         while (S.acc.length < S.beats) S.acc.push(1); S.acc.length = S.beats;
         $('acc').innerHTML = S.acc.map(function (l, i) { return '<button type="button" class="ad l' + l + '" data-i="' + i + '" aria-label="Ketukan ' + (i + 1) + '">' + (i + 1) + '</button>'; }).join('');
@@ -314,6 +350,7 @@
         $('nb').value = S.beats;
         [].forEach.call($('tabs').children, function (b) { b.setAttribute('aria-pressed', b.dataset.vis === S.vis); });
         var views = $('vis').children; [].forEach.call(views, function (v) { v.classList.toggle('show', v.dataset.v === S.vis); });
+        fitLcd();
     }
     function renderPre() {
         $('pre').innerHTML = '<option value="">Preset (' + presets.length + ')</option>' + presets.map(function (p, i) { return '<option value="' + i + '">' + p.bpm + ' BPM \u00b7 ' + p.beats + ' ketuk</option>'; }).join('');
@@ -339,7 +376,10 @@
     $('sigs').addEventListener('change', function () { var v = this.value; if (v === 'custom') { $('nb').focus(); return; } SIGS.forEach(function (a) { if (a[0] === v) { S.beats = a[1]; S.acc = a[2].slice(); } }); save(); buildAcc(); renderChips(); });
     $('nb').addEventListener('change', function () { S.beats = clamp(+this.value || 4, 1, 16); save(); buildAcc(); renderChips(); });
     $('subs').addEventListener('change', function () { S.sub = +this.value; save(); renderChips(); });
-    $('snds').addEventListener('change', function () { S.sound = this.value; save(); renderChips(); if (!playing) { init(); master.gain.value = S.vol; sound(2, false, ctx.currentTime + 0.02); sound(1, false, ctx.currentTime + 0.4); } });
+    $('snds').addEventListener('change', function () {
+        S.sound = this.value; save(); renderChips(); init();
+        if (!playing) (S.sound === 'suara' ? decodeVox() : Promise.resolve()).then(function () { master.gain.value = S.vol; sound(2, false, ctx.currentTime + 0.02, 0, 0); sound(1, false, ctx.currentTime + 0.5, 1, 0); });
+    });
     $('vol').addEventListener('input', function () { S.vol = +this.value; if (master) master.gain.value = S.vol; save(); });
     $('vib').addEventListener('change', function () { S.vib = this.checked; save(); });
     $('trd').addEventListener('change', function () { S.tr.on = this.value !== 'off'; if (S.tr.on) S.tr.dir = this.value; save(); renderTr(); });
@@ -361,7 +401,7 @@
         else if (e.key === 't' || e.key === 'T') $('tap').click();
     });
     refresh();
-    window.__mt = { S: S, isPlaying: function () { return playing; } };
+    window.__mt = { S: S, isPlaying: function () { return playing; }, voxLoaded: function () { return VOXN.filter(function (n) { return VOX[n] && VOX[n].getChannelData; }).length; } };
 })();
 
     </script>
