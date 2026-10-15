@@ -186,7 +186,9 @@
         <h2>Cara memakai</h2>
         <p class="t-help">Pilih file lagu. Chord dianalisis langsung di HP atau laptop Anda dan <b>file tidak dikirim ke server</b>. Gunakan hanya file yang Anda miliki atau berhak pakai.</p>
         <h2>Tingkat kesulitan chord</h2>
-        <p class="t-help"><b>Mudah</b> (bawaan): hanya chord mayor dan minor yang cocok dengan kunci lagu, perubahan cepat digabung. Paling nyaman untuk ikut bermain. <b>Sedang</b>: mayor dan minor tanpa batasan kunci, perubahan minimal 1 detik. <b>Rinci</b>: termasuk chord 7 dan maj7 serta perubahan cepat, mendekati aslinya tetapi lebih sulit diikuti.</p>
+        <p class="t-help">Tingkat hanya menyederhanakan <b>nama</b> chord; jumlah dan waktu chord tetap sama, tidak ada yang dihilangkan. <b>Asli</b> (bawaan): seperti tertulis di chart (mis. Fmaj9, D7b9, Bbdim7, A/C#) atau seperti terdeteksi. <b>Sedang</b>: paling rumit sampai chord 7 (Fmaj9 jadi Fmaj7, D7b9 jadi D7, Bbdim7 jadi Bbdim). <b>Mudah</b>: hanya mayor dan minor (Fmaj9 jadi F, D7b9 jadi D, Bbdim7 jadi Bbm).</p>
+        <h2>Chart dengan kapo</h2>
+        <p class="t-help">Tulisan seperti "Capo 3" di chart dibaca otomatis: chord dicocokkan 3 semitone lebih tinggi (sesuai bunyi lagu) dan kapo di aplikasi diset ke fret 3, jadi bentuk jari sama dengan chart. Tanpa tulisan kapo, aplikasi mencoba semua transposisi dan hanya menggeser bila jelas lebih cocok.</p>
         <h2>Kapo dan tab chord</h2>
         <p class="t-help">Kapo menggeser bentuk jari ke chord yang lebih mudah, sedangkan suara tetap sama dengan lagu. Tombol saran kapo muncul bila ada posisi yang membuat lebih banyak chord terbuka. Garis waktu di bawah chord besar menampilkan nama chord yang akan datang. Balok yang menyala adalah chord yang sedang dimainkan, dan ketuk balok untuk lompat ke sana.</p>
         <p class="t-help">Akurasi paling baik untuk lagu dengan gitar atau piano yang jelas. Anggap hasilnya draf yang bisa dikoreksi. Pintasan: spasi = putar/jeda, panah kiri/kanan = mundur/maju 5 detik.</p>
@@ -197,8 +199,9 @@
     <script>
 (function () {
     var $ = function (i) { return document.getElementById(i); };
-    var ana = null, akey = null, st = { level: 'mudah', inst: 'gtr', capo: 0, rate: 1, count: 0, bpm: 90, a: null, b: null, loop: false, sel: -1 };
+    var ana = null, akey = null, st = { level: 'asli', inst: 'gtr', capo: 0, rate: 1, count: 0, bpm: 90, a: null, b: null, loop: false, sel: -1 };
     try { var sv = JSON.parse(localStorage.getItem('ayri-trans') || '{}'); ['inst', 'capo', 'rate', 'count', 'bpm', 'level'].forEach(function (k) { if (sv[k] !== undefined) st[k] = sv[k]; }); } catch (e) {}
+    if (st.level === 'rinci' || ['asli', 'sedang', 'mudah'].indexOf(st.level) < 0) st.level = 'asli';
     if (!INSTS[st.inst]) st.inst = 'gtr'; I = INSTS[st.inst];
     function save() { try { localStorage.setItem('ayri-trans', JSON.stringify({ inst: st.inst, capo: st.capo, rate: st.rate, count: st.count, bpm: st.bpm, level: st.level })); } catch (e) {} }
     var au = $('au'), segs = [], dur = 0, fname = '', objUrl = null, cur = -2, raf = 0, pending = null, dragging = false, counting = false, ac2 = null, shown = -1;
@@ -207,16 +210,30 @@
     var tempo = 0, chartText = '', chartOn = false;
     function titleUi() { $('ttl').textContent = fname + (akey ? ' \u00b7 kunci perkiraan ' + disp(NM[akey.tonic]) + (akey.minor ? ' minor' : ' mayor') : '') + (tempo ? ' \u00b7 ~' + tempo + ' BPM' : '') + (chartOn ? ' \u00b7 pakai chart' : ''); }
     /* susun ulang chord: dari chart tempelan bila aktif, selain itu deteksi otomatis */
+    /* Level hanya menyederhanakan NAMA chord; jumlah dan waktu chord tidak berubah. */
+    var chartShift = null;
     function rebuild() {
         var items = chartOn ? parseChart(chartText) : [];
-        if (items.length >= 2) { var auto = decode(ana, 'sedang'), r = alignChart(ana, items, auto); r.key = auto.key; segs = r; akey = r.key; heard = decode(ana, 'rinci'); return; }
-        chartOn = false; heard = null; segs = decode(ana, st.level); akey = segs.key;
+        if (items.length >= 2) {
+            var auto = decode(ana, 'auto');
+            chartShift = chooseShift(ana, items, auto);
+            if (chartShift.k) items = shiftItems(items, chartShift.k);
+            if (chartShift.k >= 1 && chartShift.k <= 9 && !I.kb) { st.capo = chartShift.k; save(); } else if (chartShift.src !== 'none' && !I.kb) { st.capo = 0; save(); }
+            var r = alignChart(ana, items, auto); r.key = auto.key; segs = r; akey = r.key; heard = decode(ana, 'rinci'); return;
+        }
+        chartOn = false; chartShift = null; heard = null; segs = decode(ana, 'auto'); akey = segs.key;
+    }
+    function lvTi(s) {
+        var k = TYPES[s.ti].k;
+        if (st.level === 'mudah') return tIdx(k === 'm' || k === 'm7' || k === 'dim' ? 'm' : 'maj');
+        if (st.level === 'sedang') return tIdx(k === '9' ? '7' : (k === 'add9' ? 'maj' : k));
+        return s.ti;
     }
     /* "bedah": chord yang terdeteksi di audio (level Rinci) ditampilkan kecil bila berbeda dari chord chart */
     var heard = null;
     function idxIn(list, t) { var lo = 0, hi = list.length - 1, m, r = -1; while (lo <= hi) { m = (lo + hi) >> 1; if (list[m].t0 <= t) { r = m; lo = m + 1; } else hi = m - 1; } return r; }
     function heardDiff(cs, h) {
-        if (!cs || !h || h.t1 - h.t0 < 0.8) return '';
+        if (!cs || !h || h.t1 - h.t0 < 0.8 || cname(h) === cname(cs)) return '';
         if (h.r !== cs.r) return cname(h);
         var ck = TYPES[cs.ti].k, hk = TYPES[h.ti].k, cm = ck === 'm' || ck === 'm7', hm = hk === 'm' || hk === 'm7';
         if (ck === hk) return '';
@@ -227,7 +244,13 @@
     function chartKey() { return 'ayri-chart:' + fname; }
     function fmt(s) { s = Math.max(0, s); return Math.floor(s / 60) + ':' + ('0' + Math.floor(s % 60)).slice(-2); }
     function sroot(s) { return I.kb ? s.r : (s.r - st.capo + 12) % 12; }
-    function cname(s, shape) { return disp(NM[shape ? sroot(s) : s.r] + TYPES[s.ti].s); }
+    /* Dengan kapo, nama utama = bentuk jari yang dimainkan; cname(s, true) = nama bunyi lagu (tanpa kapo). */
+    function capoOn() { return st.capo > 0 && !I.kb; }
+    function cname(s, bunyi) {
+        var sh = !bunyi && capoOn() ? st.capo : 0, r = (s.r - sh + 12) % 12;
+        if (st.level === 'asli' && typeof s.q === 'string') return disp(NM[r] + s.q + (s.bass >= 0 ? '/' + NM[(s.bass - sh + 12) % 12] : ''));
+        return disp(NM[r] + TYPES[lvTi(s)].s);
+    }
     /* ---------- analisis ---------- */
     function makeFFT(N) {
         var rev = new Uint16Array(N), cs = new Float64Array(N / 2), sn = new Float64Array(N / 2), bits = Math.log2(N), i, b, r, x;
@@ -363,7 +386,7 @@
             for (var k = out.length - 1; k > 0; k--) if (out[k].s === out[k - 1].s) { out[k - 1].b = out[k].b; out.splice(k, 1); }
         }
     }
-    var LEVELS = { rinci: { full: true, minDur: 0.5, pen: 0, sw: 3, bpen: 5, minBeats: 1 }, sedang: { full: false, minDur: 0.9, pen: 1.0, sw: 4, bpen: 6, minBeats: 2 }, mudah: { full: false, minDur: 1.5, pen: 2.0, sw: 5, bpen: 7, minBeats: 2 } };
+    var LEVELS = { auto: { full: true, minDur: 0.9, pen: 0, sw: 4, bpen: 6, minBeats: 2 }, rinci: { full: true, minDur: 0.5, pen: 0, sw: 3, bpen: 5, minBeats: 1 }, sedang: { full: false, minDur: 0.9, pen: 1.0, sw: 4, bpen: 6, minBeats: 2 }, mudah: { full: false, minDur: 1.5, pen: 2.0, sw: 5, bpen: 7, minBeats: 2 } };
     function keyFromSegs(segs, kz) {
         var best = -1, bk = kz.major, r, sc = [];
         for (r = 0; r < 12; r++) { var s = 0, tonicT = 0, viT = 0; segs.forEach(function (g) { var rel = (g.r - r + 12) % 12, k = TYPES[g.ti].k, d = g.t1 - g.t0, mn = (k === 'm' || k === 'm7'); if (mn ? [2, 4, 9].indexOf(rel) > -1 : [0, 5, 7].indexOf(rel) > -1) s += d; if (!mn && rel === 0) tonicT += d; if (mn && rel === 9) viT += d; }); sc[r] = { s: s + 0.25 * (tonicT + viT), t: tonicT, v: viT }; if (sc[r].s > best + 1e-6 || (Math.abs(sc[r].s - best) <= 1e-6 && r === kz.major)) { best = sc[r].s; bk = r; } }
@@ -416,40 +439,82 @@
         r = { C: 0, D: 2, E: 4, F: 5, G: 7, A: 9, B: 11 }[m[1]] + (/[#♯]/.test(m[2]) ? 1 : (m[2] ? -1 : 0)); r = (r + 12) % 12; rest = m[3];
         if (rest === '' || /^(maj|M)$/.test(rest)) k = 'maj';
         else if (/^(m|min|-)$/.test(rest)) k = 'm';
-        else if (rest === '7' || /^(dom7|7sus4|7sus)$/.test(rest)) k = '7';
+        else if (rest === '7' || rest === 'dom7') k = '7';
+        else if (/^(7sus4|7sus|9sus|9sus4|11)$/.test(rest)) k = 'sus4';
         else if (/^(maj7|M7|Δ|Δ7|maj9|M9|maj13)$/.test(rest)) k = 'maj7';
         else if (/^(m7|min7|-7|m9|m11|m13)$/.test(rest)) k = 'm7';
         else if (/^sus2$/.test(rest)) k = 'sus2';
         else if (/^(sus4|sus)$/.test(rest)) k = 'sus4';
         else if (rest === '5') k = '5';
         else if (/^(6|maj6|M6)$/.test(rest)) k = '6';
-        else if (/^(add9|add2|2|9sus|add11)$/.test(rest)) k = 'add9';
+        else if (/^(add9|add2|2|add11)$/.test(rest)) k = 'add9';
         else if (/^(dim|°|o|dim7|m7b5|m7-5|ø)$/.test(rest)) k = 'dim';
         else if (/^(aug|\+|aug7)$/.test(rest)) k = 'aug';
         else if (/^(9|11|13)$/.test(rest)) k = '9';
         else if (/^m/.test(rest) && !/^maj/i.test(rest)) k = 'm';
         else if (/^[0-9()b#+\-sus]*$/.test(rest)) k = /7|9|11|13/.test(rest) ? '7' : 'maj';
         else return null;
-        return { r: r, ti: tIdx(k) };
+        var bass = -1; if (m[4]) { bass = { C: 0, D: 2, E: 4, F: 5, G: 7, A: 9, B: 11 }[m[4][0]] + (/[#♯]/.test(m[4].slice(1)) ? 1 : (m[4].length > 1 ? -1 : 0)); bass = (bass + 12) % 12; }
+        /* q = tulisan kualitas asli (maj9, 7b9, dim7 ...) untuk level Asli; iv = semua nada chord untuk pencocokan */
+        return { r: r, ti: tIdx(k), q: rest.replace(/♯/g, '#').replace(/♭/g, 'b'), bass: bass === r ? -1 : bass, iv: qualIv(rest) };
     }
+    /* interval semua nada chord dari tulisan kualitasnya: terts, kuin, septim, lalu tambahan (9, b9, #9, 11, #11, 13, add, 6) */
+    function qualIv(rest) {
+        var s = String(rest).replace(/♯/g, '#').replace(/♭/g, 'b'), th = 4, fi = 7, se = -1, ex = [], iv = [0];
+        if (/^(m(?!aj)|min|-)/.test(s)) th = 3;
+        if (/sus2/.test(s)) th = 2; else if (/sus/.test(s)) th = 5;
+        if (/dim|°|^o/.test(s)) { th = 3; fi = 6; if (/7/.test(s)) se = 9; }
+        if (/ø|m7b5|m7-5/.test(s)) { th = 3; fi = 6; se = 10; }
+        if (/aug|\+(?!\d)|#5/.test(s)) fi = 8;
+        var plain = s.replace(/add\d+/g, '').replace(/sus\d?/g, '').replace(/[#b+\-]\d+/g, '').match(/\d+/g) || [], top = 0;
+        plain.forEach(function (x) { x = +x; if (x !== 5 && x > top) top = x; });
+        if (se < 0 && (top >= 7 || (/[#b]\d/.test(s) && top >= 7))) se = /maj|M7|M9|M11|M13|Δ/.test(s) ? 11 : 10;
+        if (top === 6) ex.push(9);
+        if (top === 2) ex.push(2);
+        if (top >= 9) ex.push(2);
+        if (top >= 11 && th !== 4) ex.push(5);
+        if (top >= 13) ex.push(9);
+        (s.match(/add\d+|[#b]\d+/g) || []).forEach(function (a) {
+            var n = +a.replace(/\D/g, ''), d = { 2: 2, 4: 5, 9: 2, 11: 5, 13: 9, 5: 7, 6: 9 }[n]; if (d === undefined) return;
+            if (a.charAt(0) === 'b') d -= 1; else if (a.charAt(0) === '#') d += 1;
+            if (n === 5) { fi = d; return; } ex.push((d + 12) % 12);
+        });
+        if (s === '5') th = -1;
+        if (th >= 0) iv.push(th); iv.push(fi); if (se >= 0) iv.push(se);
+        ex.forEach(function (e) { if (iv.indexOf(e) < 0) iv.push(e); });
+        return iv;
+    }
+    /* pencocokan memakai nada sampai septim saja (tambahan 9/11/13 terlalu mudah "ditemukan" di vokal & melodi) */
+    var EXT_W = 0;
+    function chordVecIv(r, iv) { var v = new Float32Array(12), nm = 0, i; iv.forEach(function (x, j) { var w = j === 0 ? 1 : (j <= 2 ? 0.85 : (j === 3 ? 0.55 : EXT_W)); if (!w) return; HARM.forEach(function (h) { v[(r + x + h[0]) % 12] += w * h[1]; }); }); for (i = 0; i < 12; i++) nm += v[i] * v[i]; nm = Math.sqrt(nm) || 1; for (i = 0; i < 12; i++) v[i] /= nm; return v; }
+    /* geser semua chord chart k semitone (chart ditulis untuk kapo / kunci lain) */
+    function shiftItems(items, k) { var o = items.map(function (it) { var c = {}; for (var p in it) c[p] = it[p]; c.r = (it.r + k) % 12; if (it.bass >= 0) c.bass = (it.bass + k) % 12; return c; }); o.capo = items.capo; o.useSect = items.useSect; return o; }
     /* baca teks chart: baris yang isinya hanya chord (dan label seperti "Intro:" / "4x") dianggap baris chord; lirik dilewati */
     /* Posisi kolom chord di atas baris lirik dipakai sebagai petunjuk durasi: jarak (dalam huruf) ke chord berikutnya = g.
        g = 0 bila tidak ada lirik di bawahnya atau spasinya tampak runtuh (semua dipisah satu spasi, biasanya akibat salin dari web). */
     function parseChart(text) {
-        var items = [], lines = String(text || '').replace(/\t/g, '    ').split(/\r?\n/), li, parsed = [];
+        var items = [], lines = String(text || '').replace(/\t/g, '    ').split(/\r?\n/), li, parsed = [], hdr = [];
         for (li = 0; li < lines.length; li++) {
-            var clean = lines[li].replace(/[\[\]()|{}]/g, ' ').replace(/[:,;]/g, ' ').replace(/[–—→•]/g, ' '), re = /\S+/g, m, seq = [], rep = 1, bad = false, c;
+            var clean = lines[li].replace(/[\[\]()|{}]/g, ' ').replace(/[:,;]/g, ' ').replace(/[–—→•]/g, ' '), re = /\S+/g, m, seq = [], rep = 1, bad = false, lab = false, c;
             while ((m = re.exec(clean))) {
                 if (/^[-\/.~*]+$/.test(m[0])) continue;
                 var tk = m[0].replace(/[.]+$/, '');
-                if (CH_MARK.test(tk) || /^n\.?c\.?$/i.test(tk)) continue;
+                if (CH_MARK.test(tk)) { lab = true; continue; }
+                if (/^n\.?c\.?$/i.test(tk)) continue;
                 var rm = /^(\d+)x$|^x(\d+)$/i.exec(tk); if (rm) { rep = Math.max(1, Math.min(8, +(rm[1] || rm[2]))); continue; }
                 c = chordFromToken(tk); if (!c) { bad = true; break; } c.col = m.index; c.len = tk.length; seq.push(c);
             }
-            parsed.push(bad || !seq.length ? null : { seq: seq, rep: rep });
+            parsed.push(bad || !seq.length ? null : { seq: seq, rep: rep, lab: lab });
+            hdr.push(/^\s*[\[(]?\s*(intro|int|verse|bait|chorus|reff?|refrain|bridge|interlude|outro|coda|solo|pre-?chorus|ending|instrumen\w*)\b/i.test(lines[li]));
         }
+        /* awal bagian ([Intro], [Verse 1], "Reff:" ...): bila chart punya >= 2 bagian, lompatan hanya ke awal bagian,
+           supaya chart satu-chord-per-baris (di atas lirik) tetap mengikat urutannya; tanpa label, tiap baris = awal */
+        var sect = [], pend = true, nSect = 0;
+        for (li = 0; li < lines.length; li++) { if (!parsed[li]) { if (hdr[li]) pend = true; continue; } sect[li] = pend || parsed[li].lab; if (sect[li]) nSect++; pend = false; }
+        var useSect = nSect >= 2; items.useSect = useSect;
         for (li = 0; li < lines.length; li++) {
             var p = parsed[li]; if (!p) continue;
+            var lsFirst = useSect ? sect[li] : true;
             var nx = lines[li + 1], lyr = (nx !== undefined && !parsed[li + 1] && nx.trim()) ? nx.replace(/\s+$/, '').length : 0, sq = p.seq, spaced = false, j, gaps = [];
             for (j = 0; j + 1 < sq.length; j++) if (sq[j + 1].col - sq[j].col > sq[j].len + 2) spaced = true;
             if (sq.length === 1) spaced = true;
@@ -457,7 +522,12 @@
             for (j = 0; j < sq.length; j++) gaps.push(!spaced ? 0 : (j + 1 < sq.length ? sq[j + 1].col - sq[j].col : Math.max(sq[j].len + 1, lyr - sq[j].col)));
             /* "4x" di chart sering tidak tepat: akhir tiap putaran boleh langsung lanjut ke baris sesudah blok (rx) */
             var b0 = items.length, after = b0 + p.rep * sq.length;
-            for (var q = 0; q < p.rep; q++) sq.forEach(function (c2, k) { items.push({ r: c2.r, ti: c2.ti, ls: k === 0, g: gaps[k], rx: q < p.rep - 1 && k === sq.length - 1 ? after : -1 }); });
+            for (var q = 0; q < p.rep; q++) sq.forEach(function (c2, k) { items.push({ r: c2.r, ti: c2.ti, q: c2.q, bass: c2.bass, iv: c2.iv, ls: k === 0 && (q > 0 || lsFirst), g: gaps[k], rx: q < p.rep - 1 && k === sq.length - 1 ? after : -1 }); });
+        }
+        /* tulisan kapo di chart ("Capo 3", "capo fret 2", "kapo 1", "no capo") */
+        for (li = 0; li < lines.length; li++) {
+            if (/\b(no|tanpa)\s+(capo|kapo)\b|\b(capo|kapo)\s*:?\s*(none|tidak|0)\b/i.test(lines[li])) { items.capo = 0; break; }
+            var cm = /\b(?:capo|kapo)\b\D{0,15}?(\d{1,2})/i.exec(lines[li]); if (cm && +cm[1] >= 1 && +cm[1] <= 11) { items.capo = +cm[1]; break; }
         }
         return items;
     }
@@ -494,7 +564,7 @@
     /* Viterbi atas urutan chord di chart. Tiap chord chart = rantai sub-keadaan per ketukan, sehingga bisa diberi durasi minimum dan
        durasi perkiraan (dari spasi chart). Langkah: tetap, maju ke chord berikutnya, lompat ke awal baris (bagian berulang), atau keluar
        ke "tak ada di chart" (solo dsb.) yang memakai chord hasil deteksi otomatis. Perpindahan hanya di ketukan. */
-    var CH_SPACE = true, CH_STAY = 1.5;
+    var CH_SPACE = true, CH_STAY = 1.5, CH_JPS = 20;
     function alignCore(ana, items, auto, dur) {
         var useMain = ana.bt && ana.bt.conf >= BEAT_CONF, bt = useMain ? ana.bt : (ana._bt2 || (ana._bt2 = fallbackBeats(ana))), bs = useMain ? (ana._bs || (ana._bs = beatSync(ana))) : (ana._bs2 || (ana._bs2 = beatSync(ana, bt)));
         var n = bs.c.length, NI = items.length, K = Math.max(2, Math.min(10, bt.P / (ana.hop / ana.sr))), EM = 10, BW = 4, G = bs.bar.g, useBar = useMain && bs.bar.s > 0.15, f, i, j, k, s;
@@ -503,12 +573,12 @@
         var NS = S; S += 1;
         var itemOf = new Int16Array(S), subOf = new Int16Array(S); for (i = 0; i < NI; i++) for (j = 0; j < L[i]; j++) { itemOf[base[i] + j] = i; subOf[base[i] + j] = j; } itemOf[NS] = -1;
         var repIn = items.map(function () { return []; }); items.forEach(function (it, q) { if (it.rx >= 0 && it.rx < NI) repIn[it.rx].push(q); });
-        var vecs = {}, uniq = [], key = items.map(function (it) { var id = it.r * 20 + it.ti; if (!vecs[id]) { vecs[id] = chordVecTI(it.r, it.ti); uniq.push(id); } return id; });
+        var vecs = {}, uniq = [], rootOf = {}, key = items.map(function (it) { var ivs = it.iv || TYPES[it.ti].iv, id = it.r + ":" + ivs.join(","); if (!vecs[id]) { vecs[id] = chordVecIv(it.r, ivs); rootOf[id] = it.r; uniq.push(id); } return id; }), tot = 0;
         var dp = new Float32Array(S), nd = new Float32Array(S), bp = new Int16Array(n * S), silent = new Uint8Array(n), dots = {}, emN = K * (EM * 0.60 + BW * 0.15), NEG = -1e9, ex = new Float32Array(NI), exFrom = new Int32Array(NI);
         for (f = 0; f < n; f++) {
             silent[f] = bs.r[f] < bs.thr ? 1 : 0;
-            uniq.forEach(function (id) { var v = vecs[id], d = 0; for (k = 0; k < 12; k++) d += bs.c[f][k] * v[k]; dots[id] = K * (EM * d + BW * bs.b[f][Math.floor(id / 20)]); });
-            var bpos = ((f - bs.bar.p) % G + G) % G, mult = useBar ? (bpos === 0 ? 0.6 : (G === 4 && bpos === 2 ? 0.9 : 2.2)) : 1, A = 2 * mult, SK = 16 * Math.max(1, mult), JP = 9 * mult, NP = 8 * mult;
+            uniq.forEach(function (id) { var v = vecs[id], d = 0; for (k = 0; k < 12; k++) d += bs.c[f][k] * v[k]; dots[id] = K * (EM * d + BW * bs.b[f][rootOf[id]]); });
+            var bpos = ((f - bs.bar.p) % G + G) % G, mult = useBar ? (bpos === 0 ? 0.6 : (G === 4 && bpos === 2 ? 0.9 : 2.2)) : 1, A = 2 * mult, SK = 16 * Math.max(1, mult), JP = (items.useSect ? CH_JPS : 9) * mult, NP = 8 * mult;
             if (!f) {
                 for (s = 0; s < S; s++) { i = itemOf[s]; var e0 = silent[0] ? 0 : (s === NS ? emN : dots[key[i]]); nd[s] = s === NS ? e0 - 4 : (subOf[s] !== 0 ? NEG : e0 - (i === 0 || items[i].ls ? 0 : 12)); }
             } else {
@@ -532,7 +602,7 @@
                     nd[s] = best + (silent[f] ? 0 : (s === NS ? emN : dots[key[itemOf[s]]])); bp[f * S + s] = from;
                 }
             }
-            var mx = -1e9; for (s = 0; s < S; s++) if (nd[s] > mx) mx = nd[s]; for (s = 0; s < S; s++) dp[s] = nd[s] - mx;
+            var mx = -1e9; for (s = 0; s < S; s++) if (nd[s] > mx) mx = nd[s]; tot += mx; for (s = 0; s < S; s++) dp[s] = nd[s] - mx;
         }
         var path = new Int16Array(n), cs = 0; for (s = 1; s < S; s++) if (dp[s] > dp[cs]) cs = s;
         for (f = n - 1; f >= 0; f--) { path[f] = cs; if (f) cs = bp[f * S + cs]; }
@@ -544,12 +614,13 @@
         if (!firstChart) firstChart = items[0];
         for (f = first; f <= lastA; f++) {
             var it2 = itemPath[f], Lb;
-            if (it2 >= 0) Lb = { r: items[it2].r, ti: items[it2].ti, c: 1 };
+            if (it2 >= 0) Lb = { r: items[it2].r, ti: items[it2].ti, q: items[it2].q, bass: items[it2].bass, c: 1 };
             else { nOut++; var ap = auto && useMain && auto.path ? auto.path[f] : -1; Lb = ap >= 0 ? { r: Math.floor(ap / TT.length), ti: TIDX[ap % TT.length], c: 0 } : (prev ? { r: prev.r, ti: prev.ti, c: 0 } : { r: firstChart.r, ti: firstChart.ti, c: 0 }); }
             lab.push(Lb); prev = Lb;
         }
         var runs = [], rs = 0;
-        for (f = 1; f <= lab.length; f++) if (f === lab.length || lab[f].r !== lab[rs].r || lab[f].ti !== lab[rs].ti) { runs.push({ s: lab[rs].r * 20 + lab[rs].ti, r: lab[rs].r, ti: lab[rs].ti, a: first + rs, b: first + f, c: lab[rs].c }); rs = f; }
+        var labKey = function (L) { return L.r + '|' + L.ti + '|' + (L.q === undefined ? '' : L.q) + '|' + (L.bass === undefined ? -1 : L.bass); };
+        for (f = 1; f <= lab.length; f++) if (f === lab.length || labKey(lab[f]) !== labKey(lab[rs])) { runs.push({ s: labKey(lab[rs]), r: lab[rs].r, ti: lab[rs].ti, q: lab[rs].q, bass: lab[rs].bass, a: first + rs, b: first + f, c: lab[rs].c }); rs = f; }
         /* chord chart yang hanya dapat 1 ketukan (bukti audio tipis): beri 2 ketukan dari tetangga yang panjang supaya tidak hilang */
         runs.forEach(function (o, q) {
             var len = o.b - o.a, need = 2 - len, pv = runs[q - 1], nx = runs[q + 1];
@@ -557,9 +628,21 @@
             if (pv && pv.b - pv.a >= 3 + need) { o.a -= need; pv.b = o.a; } else if (nx && nx.b - nx.a >= 3 + need) { o.b += need; nx.a = o.b; }
         });
         mergeShort(runs, 2);
-        var res = runs.map(function (o, idx) { return { r: o.r, ti: o.ti, t0: idx ? Math.max(0, bs.t[o.a] - 0.02) : Math.max(0, bs.t[o.a] - 0.05), t1: 0, src: o.c ? 'chart' : 'auto' }; });
+        var res = runs.map(function (o, idx) { var g2 = { r: o.r, ti: o.ti, t0: idx ? Math.max(0, bs.t[o.a] - 0.02) : Math.max(0, bs.t[o.a] - 0.05), t1: 0, src: o.c ? 'chart' : 'auto' }; if (o.q !== undefined) { g2.q = o.q; g2.bass = o.bass; } return g2; });
         res.forEach(function (sg2, q) { sg2.t1 = q + 1 < res.length ? res[q + 1].t0 : (lastA + 1 < n ? bs.t[lastA + 1] : bs.tEnd); });
-        res.outside = nOut / Math.max(1, lab.length); res.nItems = items.length; res.itemPath = itemPath;
+        res.outside = nOut / Math.max(1, lab.length); res.nItems = items.length; res.itemPath = itemPath; res.score = tot / Math.max(1, n);
+        return res;
+    }
+    /* Transposisi chart: tulisan "Capo N" dipakai langsung. Tanpa tulisan kapo, ke-12 geseran dicocokkan penuh (urutan chart ikut
+       dinilai) dan geseran lain hanya dipakai bila jelas lebih cocok daripada chart apa adanya. */
+    var SHIFT_MARGIN = 1.2;
+    function chooseShift(ana, items, auto) {
+        if (items.capo !== undefined) return { k: items.capo, src: items.capo ? 'capo' : 'none', margin: 0 };
+        var sc = [], k, best = 0;
+        for (k = 0; k < 12; k++) { sc.push(alignCore(ana, k ? shiftItems(items, k) : items, auto, null).score); if (sc[k] > sc[best]) best = k; }
+        var second = -1e9; for (k = 0; k < 12; k++) if (k !== best && sc[k] > second) second = sc[k];
+        var res = { k: 0, src: 'none', margin: sc[best] - sc[0], scores: sc };
+        if (best !== 0 && sc[best] - sc[0] > SHIFT_MARGIN) { res.k = best; res.src = 'auto'; }
         return res;
     }
     /* Dua tahap: cocokkan tanpa petunjuk durasi, ukur berapa ketukan per huruf spasi chart (median), lalu cocokkan ulang
@@ -603,21 +686,23 @@
         res.forEach(function (sg, i) { sg.t1 = i + 1 < res.length ? res[i + 1].t0 : Math.min(ana.dur, ((lastA + 1) * hop + N / 2) / sr); });
         return res;
     }
-    function voic(s) { var v = voicings(sroot(s), s.ti); return v[0]; }
+    function voic(s) { var v = voicings(sroot(s), lvTi(s)); return v[0]; }
+    /* nama diagram bila beda dari nama chord (mis. Fmaj9 digambar sebagai Fmaj7) */
+    function diagNote(s) { var full = cname(s), simple = disp(NM[sroot(s)] + TYPES[lvTi(s)].s); return full !== simple ? ' · diagram: ' + simple : ''; }
     function drawChord(idx) {
         if (idx < 0 || !segs[idx]) { $('cn').textContent = '\u2013'; $('cs').textContent = ''; $('cd').innerHTML = ''; $('nx').textContent = ''; $('nd').innerHTML = ''; return; }
         var s = segs[idx], v = voic(s);
         $('cn').textContent = cname(s);
-        $('cs').textContent = (st.capo && !I.kb ? 'Bentuk jari: ' + cname(s, true) + ' \u00b7 kapo fret ' + st.capo : I.name);
+        $('cs').textContent = (capoOn() ? 'Bunyi lagu: ' + cname(s, true) + ' \u00b7 kapo fret ' + st.capo : I.name) + diagNote(s);
         $('cd').innerHTML = v ? diagram(v, { alt: 'Diagram ' + cname(s) }) : '<p class="hint">Bentuk belum tersedia untuk ' + I.name + '.</p>';
         var nx = segs[idx + 1]; $('nx').textContent = nx ? cname(nx) : 'selesai';
         $('nd').innerHTML = nx && voic(nx) ? diagram(voic(nx), { mini: true }) : '';
     }
     function sheet() {
         $('sheet').innerHTML = segs.map(function (s, i) { return '<button type="button" class="sc" data-i="' + i + '"><b>' + cname(s) + '</b><small>' + fmt(s.t0) + (s.src === 'auto' ? ' *' : '') + '</small></button>'; }).join('');
-        var cnt = {}, u = []; segs.forEach(function (s) { var k = s.r + '|' + s.ti; if (!cnt[k]) { cnt[k] = 0; u.push(s); } cnt[k]++; });
-        u.sort(function (a, b) { return cnt[b.r + '|' + b.ti] - cnt[a.r + '|' + a.ti]; });
-        $('legend').innerHTML = u.map(function (s) { var v = voic(s); return '<div class="lg"><b>' + cname(s) + (st.capo ? ' <small>(' + cname(s, true) + ')</small>' : '') + '</b>' + (v ? diagram(v, { alt: cname(s) }) : '<small>-</small>') + '</div>'; }).join('');
+        var cnt = {}, u = []; segs.forEach(function (s) { var k = cname(s); if (!cnt[k]) { cnt[k] = 0; u.push(s); } cnt[k]++; });
+        u.sort(function (a, b) { return cnt[cname(b)] - cnt[cname(a)]; });
+        $('legend').innerHTML = u.map(function (s) { var v = voic(s); return '<div class="lg"><b>' + cname(s) + (capoOn() ? ' <small>(bunyi ' + cname(s, true) + ')</small>' : '') + '</b>' + (v ? diagram(v, { alt: cname(s) }) : '<small>-</small>') + '</div>'; }).join('');
         cur = -2; shown = -1; mark(au.currentTime || 0, true);
     }
     function idxAt(t) { var lo = 0, hi = segs.length - 1, m, r = -1; while (lo <= hi) { m = (lo + hi) >> 1; if (segs[m].t0 <= t) { r = m; lo = m + 1; } else hi = m - 1; } return r; }
@@ -636,7 +721,7 @@
             if (on) { var pr = Math.min(1, (now - sg.t0) / Math.max(0.1, sg.t1 - sg.t0)); g.fillStyle = 'rgba(255,255,255,.35)'; g.fillRect(x0 + pad + 8, H - 12, Math.max(0, (w - 16) * pr), 3); }
             g.save(); g.beginPath(); g.rect(x0 + pad, 5, w, H - 10); g.clip();
             g.textAlign = 'left'; g.fillStyle = on ? '#fff' : C.ink; g.font = '700 ' + fs.toFixed(0) + 'px ui-sans-serif,system-ui,sans-serif'; var tw = g.measureText(name).width, tx = Math.min(Math.max(x0 + pad + 8, 8), x0 + pad + w - tw - 8); if (tx < x0 + pad + 8) tx = x0 + pad + 8; g.fillText(name, tx, shape ? H / 2 - 6 : H / 2);
-            if (shape) { g.font = '600 11px ui-sans-serif,system-ui,sans-serif'; g.fillStyle = on ? 'rgba(255,255,255,.85)' : C.sub; g.fillText('jari ' + cname(sg, true), tx, H / 2 + 12); }
+            if (shape) { g.font = '600 11px ui-sans-serif,system-ui,sans-serif'; g.fillStyle = on ? 'rgba(255,255,255,.85)' : C.sub; g.fillText('bunyi ' + cname(sg, true), tx, H / 2 + 12); }
             g.restore(); g.globalAlpha = 1;
         });
         if (chartOn && heard) {
@@ -696,7 +781,7 @@
         $('rates').innerHTML = [0.5, 0.6, 0.75, 0.9, 1, 1.15, 1.25].map(function (r) { return '<option value="' + r + '"' + (r === st.rate ? ' selected' : '') + '>' + r + 'x</option>'; }).join('');
         $('cnts').innerHTML = [0, 2, 4].map(function (c) { return '<option value="' + c + '"' + (c === st.count ? ' selected' : '') + '>' + (c ? c + ' ketuk' : 'Mati') + '</option>'; }).join('');
         $('capo').innerHTML = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map(function (c) { return '<option value="' + c + '"' + (c === st.capo ? ' selected' : '') + '>' + (c ? 'Fret ' + c : 'Tanpa kapo') + '</option>'; }).join(''); $('capo').disabled = !!I.kb;
-        $('modes').innerHTML = [['mudah', 'Mudah'], ['sedang', 'Sedang'], ['rinci', 'Rinci']].map(function (m) { return '<button type="button" class="chip" data-m="' + m[0] + '" aria-pressed="' + (m[0] === st.level) + '">' + m[1] + '</button>'; }).join(''); $('modew').hidden = !ana;
+        $('modes').innerHTML = [['asli', 'Asli'], ['sedang', 'Sedang'], ['mudah', 'Mudah']].map(function (m) { return '<button type="button" class="chip" data-m="' + m[0] + '" aria-pressed="' + (m[0] === st.level) + '">' + m[1] + '</button>'; }).join(''); $('modew').hidden = !segs.length;
         $('bpm').value = st.bpm; au.playbackRate = st.rate; au.preservesPitch = true; au.webkitPreservesPitch = true; au.mozPreservesPitch = true;
         var cs = capoSuggest(), h = $('capohint');
         if (cs && cs.c !== st.capo && cs.p >= 0.8 && cs.p > cs.now + 0.15) { h.hidden = false; h.innerHTML = '<button type="button" class="chip" id="capoapply" style="width:100%">Saran: pasang kapo fret ' + cs.c + ' \u2192 ' + Math.round(cs.p * 100) + '% chord terbuka (sekarang ' + Math.round(cs.now * 100) + '%)</button>'; } else h.hidden = true;
@@ -717,7 +802,7 @@
         if (/\.json$/i.test(file.name)) { try { pending = JSON.parse(await file.text()); $('ptxt').textContent = 'Hasil tersimpan dimuat. Sekarang pilih file audio yang sama.'; $('prog').hidden = false; $('bar').style.width = '100%'; } catch (e) { alert('File hasil tidak valid.'); } return; }
         fname = file.name.replace(/\.[^.]+$/, ''); $('app').hidden = true; if (objUrl) URL.revokeObjectURL(objUrl); objUrl = URL.createObjectURL(file); au.src = objUrl;
         try {
-            ana = null; akey = null; tempo = 0; chartOn = false; if (pending && pending.segs) { segs = pending.segs.map(function (a) { return { r: a[0], ti: a[1], t0: a[2], t1: a[3] }; }); tempo = pending.bpm || 0; if (tempo) { st.bpm = tempo; save(); } dur = pending.duration || 0; pending = null; await new Promise(function (r) { if (au.readyState > 0) r(); else au.addEventListener('loadedmetadata', r, { once: true }); }); dur = au.duration || dur; }
+            ana = null; akey = null; tempo = 0; chartOn = false; if (pending && pending.segs) { segs = pending.segs.map(function (a) { var g = { r: a[0], ti: a[1], t0: a[2], t1: a[3] }; if (typeof a[4] === 'string') { g.q = a[4]; g.bass = a[5] === undefined ? -1 : a[5]; } return g; }); tempo = pending.bpm || 0; if (tempo) { st.bpm = tempo; save(); } dur = pending.duration || 0; pending = null; await new Promise(function (r) { if (au.readyState > 0) r(); else au.addEventListener('loadedmetadata', r, { once: true }); }); dur = au.duration || dur; }
             else { var abuf = await file.arrayBuffer(), gt = guessTitle(file.name, abuf); $('chq').value = gt; if (gt) fname = gt; ana = await analyze(abuf); try { chartText = localStorage.getItem(chartKey()) || ''; } catch (e) { chartText = ''; } chartOn = !!chartText; $('chart').value = chartText; $('chmsg').textContent = ''; rebuild(); if (ana.bt && ana.bt.conf >= BEAT_CONF) { tempo = Math.round(ana.bt.bpm); st.bpm = Math.max(40, Math.min(220, tempo)); save(); } }
         } catch (e) { $('ptxt').textContent = 'Gagal membaca/menganalisis file ini. Coba format lain (MP3, M4A, WAV) atau file yang lebih pendek.'; $('drop').hidden = false; return; }
         $('prog').hidden = true; $('app').hidden = false; $('drop').hidden = true; $('swap').hidden = false; $('swap').style.display = 'flex'; $('listbtn').hidden = false; $('seek').max = dur; $('seek').value = 0; titleUi(); st.a = st.b = null; st.loop = false; st.sel = -1; loopUi(); chips(); sheet(); $('edit').hidden = true;
@@ -732,7 +817,8 @@
     $('rs').addEventListener('click', function () { au.currentTime = st.a !== null && st.loop ? st.a : 0; mark(au.currentTime, true); });
     $('seek').addEventListener('input', function () { dragging = true; au.currentTime = +this.value; mark(+this.value, true); }); $('seek').addEventListener('change', function () { dragging = false; });
     $('insts').addEventListener('change', function () { st.inst = this.value; I = INSTS[st.inst]; save(); chips(); sheet(); });
-    $('modes').addEventListener('click', function (e) { var b = e.target.closest('[data-m]'); if (!b || !ana) return; if (b.dataset.m !== st.level) { st.level = b.dataset.m; save(); rebuild(); st.sel = -1; $('edit').hidden = true; st.a = st.b = null; st.loop = false; loopUi(); titleUi(); chips(); sheet(); } });
+    /* ganti tingkat: hanya nama chord yang berubah, waktu dan suntingan tetap */
+    $('modes').addEventListener('click', function (e) { var b = e.target.closest('[data-m]'); if (!b || !segs.length) return; if (b.dataset.m !== st.level) { st.level = b.dataset.m; save(); chips(); sheet(); } });
     $('rates').addEventListener('change', function () { st.rate = +this.value; save(); chips(); });
     $('cnts').addEventListener('change', function () { st.count = +this.value; save(); chips(); });
     $('capo').addEventListener('change', function () { st.capo = +this.value; save(); chips(); sheet(); });
@@ -744,11 +830,11 @@
     $('lc').addEventListener('click', function () { st.a = st.b = null; st.loop = false; loopUi(); });
     $('sheet').addEventListener('click', function (e) {
         var b = e.target.closest('[data-i]'); if (!b) return; var i = +b.dataset.i, s = segs[i]; st.sel = i; au.currentTime = s.t0; mark(s.t0, true);
-        $('edit').hidden = false; $('er').value = s.r; $('et').value = s.ti; $('etl').textContent = 'Ubah chord di ' + fmt(s.t0) + ' (sekarang ' + cname(s) + ')';
+        $('edit').hidden = false; $('er').value = sroot(s); $('et').value = s.ti; $('etl').textContent = 'Ubah chord di ' + fmt(s.t0) + ' (sekarang ' + cname(s) + ')';
     });
     $('er').innerHTML = NM.map(function (n, i) { return '<option value="' + i + '">' + disp(n) + '</option>'; }).join('');
     $('et').innerHTML = TYPES.map(function (t, i) { return '<option value="' + i + '">' + (t.s || 'Mayor') + '</option>'; }).join('');
-    $('eok').addEventListener('click', function () { var s = segs[st.sel]; if (!s) return; s.r = +$('er').value; s.ti = +$('et').value; sheet(); });
+    $('eok').addEventListener('click', function () { var s = segs[st.sel]; if (!s) return; s.r = (+$('er').value + (capoOn() ? st.capo : 0)) % 12; s.ti = +$('et').value; delete s.q; delete s.bass; sheet(); });
     /* geser awal chord yang dipilih satu ketukan (mengikuti ketukan lagu bila terdeteksi, jika tidak 0,25 detik) */
     function nudge(dir) {
         var s = segs[st.sel]; if (!s) return;
@@ -770,7 +856,11 @@
         if (items.length < 2) { msg.textContent = 'Belum ada baris chord yang terbaca. Tulis chord dipisah spasi, misalnya "D Bm G A".'; return; }
         chartText = txt; chartOn = true; try { localStorage.setItem(chartKey(), txt); } catch (e) {}
         rebuild(); afterRebuild();
-        msg.textContent = items.length + ' chord terbaca dari chart.' + (segs.outside > 0.05 ? ' ' + Math.round(segs.outside * 100) + '% lagu tidak cocok dengan chart dan memakai deteksi otomatis (tanda *).' : '');
+        var sk = chartShift || { k: 0, src: 'none' }, kmsg = '';
+        if (sk.src === 'capo') kmsg = ' Chart ditulis untuk kapo ' + sk.k + ': chord dicocokkan ' + sk.k + ' semitone lebih tinggi dan kapo diset ke fret ' + sk.k + ' (bentuk jari sama dengan chart).';
+        else if (sk.src === 'auto' && sk.k <= 9) kmsg = ' Chart tampaknya ditulis di kunci lain: digeser +' + sk.k + ' semitone dan kapo diset ke fret ' + sk.k + ' (bentuk jari sama dengan chart). Salah? Tulis "capo 0" di chart.';
+        else if (sk.src === 'auto') kmsg = ' Lagu tampaknya ' + (12 - sk.k) + ' semitone lebih rendah dari chart (mis. disetel turun ' + (sk.k === 11 ? 'setengah nada' : 'satu nada') + '): nama chord ditampilkan sesuai bunyi lagu. Salah? Tulis "capo 0" di chart.';
+        msg.textContent = items.length + ' chord terbaca dari chart.' + kmsg + (segs.outside > 0.05 ? ' ' + Math.round(segs.outside * 100) + '% lagu tidak cocok dengan chart dan memakai deteksi otomatis (tanda *).' : '');
     });
     $('chfind').addEventListener('click', function () {
         var q = ($('chq').value || '').trim(), msg = $('chmsg');
@@ -793,7 +883,7 @@
         window.print();
     });
     $('sav').addEventListener('click', function () {
-        var blob = new Blob([JSON.stringify({ v: 1, name: fname, duration: dur, bpm: tempo || undefined, segs: segs.map(function (s) { return [s.r, s.ti, +s.t0.toFixed(2), +s.t1.toFixed(2)]; }) })], { type: 'application/json' }), a = document.createElement('a');
+        var blob = new Blob([JSON.stringify({ v: 1, name: fname, duration: dur, bpm: tempo || undefined, segs: segs.map(function (s) { var a = [s.r, s.ti, +s.t0.toFixed(2), +s.t1.toFixed(2)]; if (typeof s.q === 'string') a.push(s.q, s.bass); return a; }) })], { type: 'application/json' }), a = document.createElement('a');
         a.href = URL.createObjectURL(blob); a.download = fname + '-chord.json'; a.click(); setTimeout(function () { URL.revokeObjectURL(a.href); }, 2000);
     });
     document.addEventListener('keydown', function (e) {
