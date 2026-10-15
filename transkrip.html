@@ -404,9 +404,35 @@
     /* template chord memperhitungkan harmonik: tiap nada chord juga menyumbang energi di oktaf (x2,x4,x8), kuint (x3,x6), terts (x5), dan septim kecil (x7) */
     var HARM = [[0, 1], [0, 0.71], [7, 0.58], [0, 0.5], [4, 0.45], [7, 0.41], [10, 0.38], [0, 0.35]];
     function chordVec(r, t, vec) { TT[t][1].forEach(function (iv, j) { HARM.forEach(function (h) { vec[(r + iv + h[0]) % 12] += TT[t][2][j] * h[1]; }); }); }
+    /* Pemulusan berbasis pengulangan: lagu genjrengan mengulang progresi yang sama (bait, reff), sedangkan vokal dan melodi
+       berubah tiap pengulangan. Tiap birama digabung dengan birama lain yang paling mirip (ketukan ke-j dengan ketukan ke-j),
+       sehingga bukti chord menguat dan gangguan vokal saling meredam. */
+    var REP_L = 2, REP_K = 8, REP_T = 0.4, REP_D = 0.15, REP_TAU = 0.2, REP_W = [-1, 0, 1, 2];
+    function repSmooth(bs) {
+        var n = bs.c.length, G = bs.bar.g, p = ((bs.bar.p % G) + G) % G, nb = Math.floor((n - p) / G), m, q, j, k;
+        if (REP_L <= 0 || nb < 4) return null;
+        /* chroma dikurangi rata-rata seluruh lagu dulu: dengung, harmonik, dan instrumen latar membuat semua birama tampak mirip (median 0,98) */
+        var mu = new Float64Array(12); bs.c.forEach(function (c) { for (k = 0; k < 12; k++) mu[k] += c[k] / n; });
+        var nv = bs.c.map(function (c) { var s = 0, o = new Float32Array(12); for (k = 0; k < 12; k++) { o[k] = c[k] - mu[k]; s += o[k] * o[k]; } s = Math.sqrt(s) || 1; for (k = 0; k < 12; k++) o[k] /= s; return o; });
+        /* kemiripan FRASA: birama di sekitarnya (jendela REP_W) ikut dibandingkan, karena satu birama G mirip birama Em */
+        function sim1(a, b) { var s = 0; for (j = 0; j < G; j++) { var x = nv[p + a * G + j], y = nv[p + b * G + j], d = 0; for (k = 0; k < 12; k++) d += x[k] * y[k]; s += d; } return s / G; }
+        function sim(a, b) { var s = 0, c = 0; REP_W.forEach(function (o) { if (a + o < 0 || b + o < 0 || a + o >= nb || b + o >= nb) return; s += sim1(a + o, b + o); c++; }); return c >= 3 ? s / c : 0; }
+        var oc = bs.c.map(function (c) { return Float32Array.from(c); }), ob = bs.b.map(function (c) { return Float32Array.from(c); });
+        for (m = 0; m < nb; m++) {
+            var cand = []; for (q = 0; q < nb; q++) if (q !== m) { var s0 = sim(m, q); if (s0 >= REP_T) cand.push([s0, q]); }
+            if (!cand.length) continue;
+            cand.sort(function (x, y) { return y[0] - x[0]; }); cand = cand.filter(function (c2) { return c2[0] >= cand[0][0] - REP_D; }).slice(0, REP_K); // hanya pengulangan sejati (dekat dengan yang paling mirip)
+            var wsum = 1;
+            cand.forEach(function (cq) { var w = REP_L * Math.exp((cq[0] - 1) / REP_TAU); wsum += w; for (j = 0; j < G; j++) { var src = p + cq[1] * G + j, dst = p + m * G + j; for (k = 0; k < 12; k++) { oc[dst][k] += w * bs.c[src][k]; ob[dst][k] += w * bs.b[src][k]; } } });
+            for (j = 0; j < G; j++) for (k = 0; k < 12; k++) { oc[p + m * G + j][k] /= wsum; ob[p + m * G + j][k] /= wsum; }
+        }
+        return { c: oc, b: ob };
+    }
     /* decode per ketukan: perubahan chord hanya jatuh di ketukan, jadi stabil dan enak diikuti */
     function decodeBeats(ana, cfg, kzMajor) {
         var bs = ana._bs || (ana._bs = beatSync(ana)), n = bs.c.length, K = Math.max(2, Math.min(10, ana.bt.P / (ana.hop / ana.sr))), i, r, t, s2, T = [], bias = [], allow = [], diat = [];
+        if (bs._rsL !== REP_L) { bs._rs = repSmooth(bs); bs._rsL = REP_L; }
+        var CC = bs._rs ? bs._rs.c : bs.c, BB = bs._rs ? bs._rs.b : bs.b;
         var BIAS = [0, 0, 0.7, 0.7, 0.8, 1.0, 1.6], EM = 10, BW = 4, dset = {}, G = bs.bar.g, useBar = bs.bar.s > 0.15;
         [[0, 0], [2, 1], [4, 1], [5, 0], [7, 0], [9, 1]].forEach(function (d) { dset[((kzMajor + d[0]) % 12) * TT.length + d[1]] = 1; });
         for (r = 0; r < 12; r++) for (t = 0; t < TT.length; t++) { var vec = new Float32Array(12), nm = 0; chordVec(r, t, vec); for (i = 0; i < 12; i++) nm += vec[i] * vec[i]; nm = Math.sqrt(nm); for (i = 0; i < 12; i++) vec[i] /= nm; T.push(vec); bias.push(BIAS[t]); allow.push(cfg.full || t < 2); diat.push(!!dset[r * TT.length + t]); }
@@ -416,7 +442,7 @@
             var best = 0; if (f) for (s2 = 1; s2 < S; s2++) if (dp[s2] > dp[best]) best = s2;
             var PEN = cfg.bpen * (useBar ? (((f - bs.bar.p) % G + G) % G === 0 ? 0.75 : 1.3) : 1);
             for (s2 = 0; s2 < S; s2++) {
-                var em = 0; if (!allow[s2]) em = -60 * K; else if (!silent[f]) { var d = 0; for (i = 0; i < 12; i++) d += bs.c[f][i] * T[s2][i]; em = K * (EM * d - bias[s2] + BW * bs.b[f][Math.floor(s2 / TT.length)] - (cfg.pen && !diat[s2] ? cfg.pen : 0)); }
+                var em = 0; if (!allow[s2]) em = -60 * K; else if (!silent[f]) { var d = 0; for (i = 0; i < 12; i++) d += CC[f][i] * T[s2][i]; em = K * (EM * d - bias[s2] + BW * BB[f][Math.floor(s2 / TT.length)] - (cfg.pen && !diat[s2] ? cfg.pen : 0)); }
                 if (!f) { nd[s2] = em; continue; }
                 var stay = dp[s2], sw = dp[best] - PEN;
                 if (stay >= sw) { nd[s2] = stay + em; bp[f * S + s2] = s2; } else { nd[s2] = sw + em; bp[f * S + s2] = best; }
