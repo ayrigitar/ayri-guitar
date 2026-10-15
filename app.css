@@ -265,3 +265,6 @@ main.app.fit2 .mt-num span{display:none}
 main.app.fit3 .chip{min-height:28px}main.app.fit3 .sel,main.app.fit3 .numin{height:32px}
 main.app.fit3 .chleft .ch-type,main.app.fit3 .tr-tm,main.app.fit3 .a4row .t-a4s{display:none}
 main.app.fit3 canvas.ctab{height:44px}
+/* transkrip: chord yang terdengar di audio bila beda dari chart */
+.trans-app .tr-hd{font-size:.85rem;font-weight:700;color:var(--acc);line-height:1.2;margin-top:2px}.trans-app .tr-hd:empty{display:none}
+main.app.fit2 .tr-hd{font-size:.72rem}
