@@ -98,7 +98,7 @@
             <audio id="au" preload="auto"></audio>
             <div class="t-card tr-stage">
                 <div class="tr-ttl" id="ttl"></div>
-                <div class="tr-now"><div><div class="tr-cn" id="cn">&ndash;</div><div class="tr-cs" id="cs"></div></div><div class="tr-cd" id="cd"></div></div>
+                <div class="tr-now"><div><div class="tr-cn" id="cn">&ndash;</div><div class="tr-cs" id="cs"></div><div class="tr-hd" id="hd"></div></div><div class="tr-cd" id="cd"></div></div>
                 <div class="tr-next"><span>Berikutnya</span><b id="nx"></b><div class="tr-nd" id="nd"></div><small id="nt"></small></div>
                 <canvas id="ctab" class="ctab" aria-label="Garis waktu nama chord. Ketuk untuk lompat."></canvas>
                 <input id="seek" class="rg" type="range" min="0" max="100" step="0.1" value="0" aria-label="Posisi lagu"><div class="tr-tm" id="tm">0:00 / 0:00</div>
@@ -123,9 +123,9 @@
         <div class="pg-row"><input id="chq" class="srch" type="text" style="flex:1;min-width:0" placeholder="Judul lagu" aria-label="Judul lagu untuk mencari chart"><button id="chfind" type="button" class="chip">Cari chart di internet</button></div>
         <p class="hint">Cari membuka Google di tab baru, hanya dengan judul di atas (boleh diubah). Pilih chart yang menurut Anda benar, salin, lalu tekan "Tempel dari clipboard".</p>
         <textarea id="chart" class="srch" rows="7" style="width:100%;font-family:ui-monospace,Consolas,monospace" placeholder="Intro: D Bm G A 4x&#10;  F#m   G   Bm   C&#10;Di dalam hari-harimu bersama lagi" aria-label="Chart chord"></textarea>
-        <div class="pg-row"><button id="chpaste" type="button" class="chip">Tempel dari clipboard</button><button id="chgo" type="button" class="t-btn" style="min-height:46px;font-size:1rem">Cocokkan ke lagu</button><button id="chclr" type="button" class="chip">Pakai deteksi otomatis</button></div>
+        <div class="pg-row"><button id="chpaste" type="button" class="chip">Tempel dari clipboard</button><button id="chgo" type="button" class="t-btn" style="min-height:46px;font-size:1rem">Sinkronkan ke lagu</button><button id="chclr" type="button" class="chip">Pakai deteksi otomatis</button></div>
         <p class="hint" id="chmsg"></p>
-        <h2>Chord lagu ini</h2><p class="hint">Ketuk chord untuk lompat ke sana. Chord salah? Ketuk lalu ubah. Tanda * berarti chord dari deteksi otomatis (di luar chart).</p>
+        <h2>Chord lagu ini</h2><p class="hint">Ketuk chord untuk lompat ke sana. Chord salah? Ketuk lalu ubah. Tanda * berarti chord dari deteksi otomatis (di luar chart). Saat chart dipakai, tulisan kecil "terdengar: ..." di bawah chord besar dan tanda &ne; di garis waktu menunjukkan chord yang terdeteksi di audio bila berbeda dari chart (untuk membedah lagu).</p>
         <div class="sheet" id="sheet"></div>
         <div class="t-card" id="edit" hidden style="margin-top:.6rem"><b id="etl"></b><div class="pg-row"><select id="er" class="srch" style="width:auto"></select><select id="et" class="srch" style="width:auto"></select></div><div class="pg-row"><button id="eok" type="button" class="t-btn" style="min-height:46px;font-size:1rem">Terapkan</button><button id="edel" type="button" class="chip">Hapus chord ini</button></div><p class="hint" style="margin:.5rem 0 .2rem">Waktu mulai chord ini salah? Geser satu ketukan:</p><div class="pg-row"><button id="emvl" type="button" class="chip">&#9664; Lebih awal</button><button id="emvr" type="button" class="chip">Lebih akhir &#9654;</button></div></div>
         <h2>Kamus chord</h2><div class="legend" id="legend"></div>
@@ -160,8 +160,20 @@
     /* susun ulang chord: dari chart tempelan bila aktif, selain itu deteksi otomatis */
     function rebuild() {
         var items = chartOn ? parseChart(chartText) : [];
-        if (items.length >= 2) { var auto = decode(ana, 'sedang'), r = alignChart(ana, items, auto); r.key = auto.key; segs = r; akey = r.key; return; }
-        chartOn = false; segs = decode(ana, st.level); akey = segs.key;
+        if (items.length >= 2) { var auto = decode(ana, 'sedang'), r = alignChart(ana, items, auto); r.key = auto.key; segs = r; akey = r.key; heard = decode(ana, 'rinci'); return; }
+        chartOn = false; heard = null; segs = decode(ana, st.level); akey = segs.key;
+    }
+    /* "bedah": chord yang terdeteksi di audio (level Rinci) ditampilkan kecil bila berbeda dari chord chart */
+    var heard = null;
+    function idxIn(list, t) { var lo = 0, hi = list.length - 1, m, r = -1; while (lo <= hi) { m = (lo + hi) >> 1; if (list[m].t0 <= t) { r = m; lo = m + 1; } else hi = m - 1; } return r; }
+    function heardDiff(cs, h) {
+        if (!cs || !h || h.t1 - h.t0 < 0.8) return '';
+        if (h.r !== cs.r) return cname(h);
+        var ck = TYPES[cs.ti].k, hk = TYPES[h.ti].k, cm = ck === 'm' || ck === 'm7', hm = hk === 'm' || hk === 'm7';
+        if (ck === hk) return '';
+        if (cm !== hm && (ck === 'maj' || ck === 'm' || ck === '7' || ck === 'maj7' || ck === 'm7')) return cname(h);
+        if ((ck === 'maj' && (hk === '7' || hk === 'maj7')) || (ck === 'm' && hk === 'm7')) return cname(h);
+        return '';
     }
     function chartKey() { return 'ayri-chart:' + fname; }
     function fmt(s) { s = Math.max(0, s); return Math.floor(s / 60) + ':' + ('0' + Math.floor(s % 60)).slice(-2); }
@@ -578,6 +590,18 @@
             if (shape) { g.font = '600 11px ui-sans-serif,system-ui,sans-serif'; g.fillStyle = on ? 'rgba(255,255,255,.85)' : C.sub; g.fillText('jari ' + cname(sg, true), tx, H / 2 + 12); }
             g.restore(); g.globalAlpha = 1;
         });
+        if (chartOn && heard) {
+            /* tanda beda dari audio: garis tipis di tepi atas + "≠chord" bila muat */
+            g.font = '700 10px ui-sans-serif,system-ui,sans-serif'; g.textAlign = 'left';
+            heard.forEach(function (h) {
+                var x0 = ph + (h.t0 - now) * pps, x1 = ph + (h.t1 - now) * pps; if (x1 < 0 || x0 > W) return;
+                var mid = (h.t0 + h.t1) / 2, cs = segs[idxAt(mid)], lab = heardDiff(cs, h); if (!lab) return;
+                var on = cs.t0 <= now && now < cs.t1;
+                g.globalAlpha = h.t1 <= now ? 0.45 : 0.9; g.fillStyle = on ? '#fff' : C.sub; g.fillRect(Math.max(x0 + pad + 4, 0), 8, Math.max(4, x1 - x0 - 2 * pad - 8), 2);
+                if (H >= 56 && !(st.capo > 0 && !I.kb) && x1 - x0 >= 34) g.fillText('≠' + lab, x0 + pad + 6, 17);
+            });
+            g.globalAlpha = 1;
+        }
         if (ana && ana._bs && ana.bt && ana.bt.conf >= BEAT_CONF) {
             /* tanda ketukan di tepi bawah: ketukan 1 lebih panjang, ketukan yang baru lewat menyala */
             var bs = ana._bs, G = bs.bar.g, i, x;
@@ -598,6 +622,7 @@
             if (i !== shown || force) { shown = i; drawChord(i); }
             if (ch[i] && !au.paused && !$('dr-list').hidden) $('sheet').scrollTop = ch[i].offsetTop - $('sheet').clientHeight / 2 + 20;
         }
+        var hl = chartOn && heard ? heardDiff(segs[i], heard[idxIn(heard, t)]) : '', ht = hl ? 'terdengar: ' + hl : ''; if ($('hd').textContent !== ht) $('hd').textContent = ht;
         var nx = segs[i + 1]; if (nx && !counting) $('nt').textContent = 'dalam ' + Math.max(0, (nx.t0 - t) / st.rate).toFixed(1) + ' dtk';
         $('tm').textContent = fmt(t) + ' / ' + fmt(dur); if (!dragging) $('seek').value = t;
         drawCTab(t);
@@ -706,7 +731,7 @@
     });
     $('chpaste').addEventListener('click', async function () {
         var msg = $('chmsg'), txt = '';
-        try { txt = await navigator.clipboard.readText(); } catch (e) { msg.textContent = 'Browser tidak mengizinkan membaca clipboard. Klik kolom chart lalu tempel manual (Ctrl+V, atau tahan lama di HP), kemudian tekan "Cocokkan ke lagu".'; $('chart').focus(); return; }
+        try { txt = await navigator.clipboard.readText(); } catch (e) { msg.textContent = 'Browser tidak mengizinkan membaca clipboard. Klik kolom chart lalu tempel manual (Ctrl+V, atau tahan lama di HP), kemudian tekan "Sinkronkan ke lagu".'; $('chart').focus(); return; }
         if (!txt || parseChart(txt).length < 2) { msg.textContent = 'Isi clipboard belum berisi baris chord yang terbaca. Salin chart-nya dulu (baris chord dan liriknya boleh ikut).'; return; }
         $('chart').value = txt; $('chgo').click();
     });
