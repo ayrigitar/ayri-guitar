@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Keunggulan Custom Nut & Saddle Gitar - Toko Gitar AYRI</title>
     <meta name="description" content="Mengapa suku cadang gitar beli jadi sering tidak pas? Pahami pentingnya custom nut dan saddle gitar presisi dari bahan tulang, brass, dan tanduk.">
     <link rel="canonical" href="https://ayrigitar.com/artikel-custom-nut.html">
@@ -41,166 +41,249 @@
   }
 }
     </script>
-    <link rel="stylesheet" href="style-artikel.css">
-    <style>
-        .text-brand { color: #d97706; } 
-        .bg-brand { background-color: #d97706; }
-        /* Hover warna brand (kelas khusus, bukan bawaan Tailwind) */
-        .hover\:text-brand:hover { color: #d97706; }
-        .group:hover .group-hover\:bg-brand { background-color: #d97706; }
-    </style>
     <meta name="theme-color" content="#15100c">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500..700&family=Plus+Jakarta+Sans:ital,wght@0,400..800;1,400..600&display=swap">
     <link rel="stylesheet" href="theme-dark.css">
+    <link rel="stylesheet" href="style-artikel.css">
+    <script>document.documentElement.classList.add('js');</script>
     <script src="theme.js"></script>
     <script src="pwa.js" defer></script>
+    <script src="site.js" defer></script>
 </head>
-<body class="bg-slate-50 text-slate-900 font-sans antialiased">
-    
-    <!-- Navbar (Link kembali ke index.html) -->
-    <nav class="bg-white shadow-sm fixed w-full z-50">
-        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-16">
-                <div class="flex items-center">
-                    <a href="index.html" class="text-xl sm:text-2xl font-bold text-slate-900">Toko Gitar <span class="text-brand">AYRI</span></a>
-                </div>
-                <div class="hidden md:flex items-center space-x-8">
-                    <!-- Kembali ke Halaman Utama -->
-                    <a href="index.html" class="text-slate-600 hover:text-brand transition font-medium"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="1em" height="1em" fill="currentColor" aria-hidden="true" focusable="false" style="display:inline-block;vertical-align:-.125em"><path d="M277.8 8.6c-12.3-11.4-31.3-11.4-43.5 0l-224 208c-9.6 9-12.8 22.9-8 35.1S18.8 272 32 272h16v176c0 35.3 28.7 64 64 64h288c35.3 0 64-28.7 64-64V272h16c13.2 0 25-8.1 29.8-20.3s1.6-26.2-8-35.1zM240 320h32c26.5 0 48 21.5 48 48v96H192v-96c0-26.5 21.5-48 48-48"/></svg> Beranda</a>
-                    <a href="index.html#layanan" class="text-slate-600 hover:text-brand transition font-medium">Layanan</a>
-                    <a href="index.html#harga" class="text-slate-600 hover:text-brand transition font-medium">Harga Servis</a>
-                    <a href="tuner.html" class="text-slate-600 hover:text-brand transition font-medium">Tuner</a>
-                    <a href="https://wa.me/6285795738637" target="_blank" class="bg-[#0B8043] hover:bg-[#086B38] text-white px-4 py-2 rounded-full font-semibold text-sm transition">Chat WhatsApp</a>
-                </div>
-                <!-- Tombol Kembali untuk Mobile -->
-                <div class="flex items-center md:hidden">
-                    <a href="index.html" class="text-slate-700 hover:text-brand font-bold text-sm"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="1em" height="1em" fill="currentColor" aria-hidden="true" focusable="false" style="display:inline-block;vertical-align:-.125em"><path d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 288H480c17.7 0 32-14.3 32-32s-14.3-32-32-32H109.3l105.4-105.4c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg> Kembali</a>
-                </div>
+<body>
+    <a class="skip-link" href="#konten">Langsung ke konten</a>
+
+    <!-- Sprite ikon & gradien material (disembunyikan, dipakai lewat <use>) -->
+    <svg class="sprite" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+        <defs>
+            <linearGradient id="g-pick" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#E9B567"/><stop offset="1" stop-color="#9E5A0C"/></linearGradient>
+            <linearGradient id="g-bone" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FCF8EF"/><stop offset=".55" stop-color="#EDE2CE"/><stop offset="1" stop-color="#CDBB9E"/></linearGradient>
+            <linearGradient id="g-brass" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FBE3A0"/><stop offset=".35" stop-color="#E2B055"/><stop offset=".72" stop-color="#B7832E"/><stop offset="1" stop-color="#7F5719"/></linearGradient>
+            <linearGradient id="g-horn" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#655850"/><stop offset=".4" stop-color="#2E2621"/><stop offset="1" stop-color="#120E0B"/></linearGradient>
+        </defs>
+        <symbol id="nut" viewBox="0 0 240 64"><path d="M6 58V26q0-10 10-10h15l2 8h4l2-8h26.4l1.8 8h3.6l1.8-8h27.2l1.6 8h3.2l1.6-8h28l1.4 8h2.8l1.4-8h28.8l1.2 8h2.4l1.2-8H203l1 8h2l1-8h17q10 0 10 10v32q0 4-4 4H10q-4 0-4-4z"/></symbol>
+        <symbol id="i-wrench" viewBox="0 0 24 24"><path d="M14.5 3.5a4.5 4.5 0 0 0-4.2 6.1l-6.1 6.1a1.9 1.9 0 0 0 2.7 2.7l6.1-6.1a4.5 4.5 0 0 0 6.1-5.5l-2.6 2.6-2.6-.7-.7-2.6 2.6-2.6a4.5 4.5 0 0 0-1.3-.2z"/></symbol>
+        <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></symbol>
+        <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.4"/></symbol>
+        <symbol id="i-arrow-up" viewBox="0 0 24 24"><path d="M12 19V5"/><path d="m6 11 6-6 6 6"/></symbol>
+        <symbol id="i-chevron" viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></symbol>
+        <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h10"/></symbol>
+        <symbol id="i-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+        <symbol id="i-tag" viewBox="0 0 24 24"><path d="M3.5 12.6V4.5a1 1 0 0 1 1-1h8.1l8 8a1.5 1.5 0 0 1 0 2.1l-6.9 6.9a1.5 1.5 0 0 1-2.1 0z"/><circle cx="8" cy="8" r="1.5"/></symbol>
+        <symbol id="i-chat" viewBox="0 0 24 24"><path d="M20 11.5a7.5 7.5 0 0 1-11.2 6.5L4 19.5l1.5-4.6A7.5 7.5 0 1 1 20 11.5z"/></symbol>
+        <symbol id="i-gauge" viewBox="0 0 24 24"><path d="M4.5 17a8 8 0 1 1 15 0"/><path d="m12 14 3.6-4.4"/><circle cx="12" cy="14" r="1.4"/></symbol>
+        <symbol id="i-wa" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52s.198-.298.298-.497c.099-.198.05-.371-.025-.52s-.669-1.612-.916-2.207c-.242-.579-.487-.5-.669-.51a13 13 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074s2.096 3.2 5.077 4.487c.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413s.248-1.289.173-1.413c-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.82 9.82 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.82 11.82 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.9 11.9 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.82 11.82 0 0 0-3.48-8.413"/></symbol>
+        <symbol id="i-ig" viewBox="0 0 24 24"><path d="M7.03.084c-1.277.06-2.149.264-2.91.563a5.9 5.9 0 0 0-2.124 1.388 5.9 5.9 0 0 0-1.38 2.127C.321 4.926.12 5.8.064 7.076s-.069 1.688-.063 4.947.021 3.667.083 4.947c.061 1.277.264 2.149.563 2.911.308.789.72 1.457 1.388 2.123a5.9 5.9 0 0 0 2.129 1.38c.763.295 1.636.496 2.913.552 1.278.056 1.689.069 4.947.063s3.668-.021 4.947-.082c1.28-.06 2.147-.265 2.91-.563a5.9 5.9 0 0 0 2.123-1.388 5.9 5.9 0 0 0 1.38-2.129c.295-.763.496-1.636.551-2.912.056-1.28.07-1.69.063-4.948-.006-3.258-.02-3.667-.081-4.947-.06-1.28-.264-2.148-.564-2.911a5.9 5.9 0 0 0-1.387-2.123 5.86 5.86 0 0 0-2.128-1.38C19.074.322 18.202.12 16.924.066 15.647.009 15.236-.006 11.977 0S8.31.021 7.03.084m.14 21.693c-1.17-.05-1.805-.245-2.228-.408a3.7 3.7 0 0 1-1.382-.895 3.7 3.7 0 0 1-.9-1.378c-.165-.423-.363-1.058-.417-2.228-.06-1.264-.072-1.644-.08-4.848-.006-3.204.006-3.583.061-4.848.05-1.169.246-1.805.408-2.228.216-.561.477-.96.895-1.382a3.7 3.7 0 0 1 1.379-.9c.423-.165 1.057-.361 2.227-.417 1.265-.06 1.644-.072 4.848-.08 3.203-.006 3.583.006 4.85.062 1.168.05 1.804.244 2.227.408.56.216.96.475 1.382.895s.681.817.9 1.378c.165.422.362 1.056.417 2.227.06 1.265.074 1.645.08 4.848.005 3.203-.006 3.583-.061 4.848-.051 1.17-.245 1.805-.408 2.23-.216.56-.477.96-.896 1.38a3.7 3.7 0 0 1-1.378.9c-.422.165-1.058.362-2.226.418-1.266.06-1.645.072-4.85.079s-3.582-.006-4.848-.06m9.783-16.192a1.44 1.44 0 1 0 1.437-1.442 1.44 1.44 0 0 0-1.437 1.442M5.839 12.012a6.161 6.161 0 1 0 12.323-.024 6.162 6.162 0 0 0-12.323.024M8 12.008A4 4 0 1 1 12.008 16 4 4 0 0 1 8 12.008"/></symbol>
+        <symbol id="i-shopee" viewBox="0 0 24 24"><path d="M15.941 17.963c.23-1.879-.98-3.077-4.175-4.097-1.548-.528-2.277-1.22-2.26-2.171.065-1.056 1.048-1.825 2.352-1.85a5.3 5.3 0 0 1 2.883.89c.116.072.197.06.263-.04.09-.144.315-.493.39-.62.051-.08.061-.186-.068-.28-.185-.137-.704-.415-.983-.532a6.5 6.5 0 0 0-2.511-.514c-1.91.008-3.413 1.215-3.54 2.826q-.122 1.746 1.73 2.827c.263.152 1.68.716 2.244.892 1.774.552 2.695 1.542 2.478 2.697-.197 1.047-1.299 1.724-2.818 1.744-1.203-.046-2.287-.537-3.127-1.19l-.141-.11c-.104-.08-.218-.075-.287.03-.05.077-.376.547-.458.67-.077.108-.035.168.045.234.35.293.817.613 1.134.775a6.7 6.7 0 0 0 2.829.727 4.9 4.9 0 0 0 2.075-.354c1.095-.465 1.803-1.394 1.945-2.554M12 1.401c-2.068 0-3.754 1.95-3.833 4.39h7.665C15.751 3.35 14.066 1.4 12 1.4m7.851 22.598-.08.001-15.784-.002c-1.074-.04-1.863-.91-1.971-1.991l-.01-.195-.707-15.526a.46.46 0 0 1 .45-.494h4.975C6.845 2.568 9.16 0 12 0s5.153 2.569 5.275 5.79h4.968a.46.46 0 0 1 .458.483l-.773 15.588-.007.131c-.094 1.094-.979 1.977-2.07 2.006z"/></symbol>
+        <symbol id="i-tokopedia" viewBox="0 0 448 512"><path d="M160 80c0-35.3 28.7-64 64-64s64 28.7 64 64v48H160zm-48 48H48c-26.5 0-48 21.5-48 48v208c0 53 43 96 96 96h256c53 0 96-43 96-96V176c0-26.5-21.5-48-48-48h-64V80c0-61.9-50.1-112-112-112S112 18.1 112 80zm24 48a24 24 0 1 1 0 48 24 24 0 1 1 0-48m152 24a24 24 0 1 1 48 0 24 24 0 1 1-48 0"/></symbol>
+        <symbol id="i-home" viewBox="0 0 24 24"><path d="M4 10.5 12 4l8 6.5V19a1 1 0 0 1-1 1h-4.5v-5h-5v5H5a1 1 0 0 1-1-1z"/></symbol>
+        <symbol id="i-pen" viewBox="0 0 24 24"><path d="M4 20h4L19 9a2.1 2.1 0 0 0-3-3L5 17z"/><path d="m14 7 3 3"/></symbol>
+        <symbol id="i-calendar" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M8 3v4M16 3v4M4 10h16"/></symbol>
+        <symbol id="i-share" viewBox="0 0 24 24"><path d="M12 15V4"/><path d="m8 8 4-4 4 4"/><path d="M7 11H6a1.5 1.5 0 0 0-1.5 1.5v6A1.5 1.5 0 0 0 6 20h12a1.5 1.5 0 0 0 1.5-1.5v-6A1.5 1.5 0 0 0 18 11h-1"/></symbol>
+        <symbol id="i-star" viewBox="0 0 24 24"><path d="m12 3.5 2.6 5.3 5.9.9-4.2 4.1 1 5.8-5.3-2.8-5.3 2.8 1-5.8-4.2-4.1 5.9-.9z"/></symbol>
+    </svg>
+
+    <!-- Header / Navbar (link kembali ke index.html) -->
+    <header class="site-header">
+        <nav class="nav container" aria-label="Navigasi utama">
+            <a href="index.html" class="brand" aria-label="Toko Gitar AYRI, ke beranda">
+                <svg class="brand__mark" viewBox="0 0 32 32" aria-hidden="true"><path fill="url(#g-pick)" d="M16 30.5c-4.3-4.6-11.3-13-11.3-19.4 0-3 1.6-5.2 4.4-6.1C11.3 4.3 13.6 4 16 4s4.7.3 6.9 1c2.8.9 4.4 3.1 4.4 6.1 0 6.4-7 14.8-11.3 19.4z"/><text x="16" y="17.6" text-anchor="middle">A</text></svg>
+                <span class="brand__name">Toko Gitar <span class="text-accent">AYRI</span></span>
+            </a>
+
+            <!-- Menu Desktop -->
+            <ul class="nav__links">
+                <li><a href="index.html" class="nav__link"><svg class="ic nav__home" aria-hidden="true"><use href="#i-home"/></svg> Beranda</a></li>
+                <li><a href="index.html#layanan" class="nav__link">Layanan</a></li>
+                <li><a href="index.html#harga" class="nav__link">Harga Servis</a></li>
+                <li><a href="tuner.html" class="nav__link">Tuner</a></li>
+            </ul>
+
+            <div class="nav__actions">
+                <span id="themeslot" class="theme-slot"></span>
+                <a href="https://wa.me/6285795738637" target="_blank" rel="noopener" class="btn btn--wa btn--sm nav__cta">
+                    <svg class="ic ic--fill" aria-hidden="true"><use href="#i-wa"/></svg> <span class="nav__cta-label">Chat WhatsApp</span>
+                </a>
+                <button id="menu-btn" type="button" class="icon-btn nav__toggle" aria-label="Buka menu" aria-expanded="false" aria-controls="mobile-menu">
+                    <svg class="ic ic--menu" aria-hidden="true"><use href="#i-menu"/></svg>
+                    <svg class="ic ic--close" aria-hidden="true"><use href="#i-close"/></svg>
+                </button>
             </div>
+        </nav>
+
+        <!-- Menu Mobile -->
+        <div id="mobile-menu" class="mobile-menu">
+            <ul class="mobile-menu__list container">
+                <li style="--i:0"><a href="index.html" class="mobile-link"><span class="mobile-link__icon"><svg class="ic" aria-hidden="true"><use href="#i-home"/></svg></span>Beranda<svg class="ic mobile-link__chev" aria-hidden="true"><use href="#i-chevron"/></svg></a></li>
+                <li style="--i:1"><a href="index.html#layanan" class="mobile-link"><span class="mobile-link__icon"><svg class="ic" aria-hidden="true"><use href="#i-wrench"/></svg></span>Layanan<svg class="ic mobile-link__chev" aria-hidden="true"><use href="#i-chevron"/></svg></a></li>
+                <li style="--i:2"><a href="index.html#harga" class="mobile-link"><span class="mobile-link__icon"><svg class="ic" aria-hidden="true"><use href="#i-tag"/></svg></span>Harga Servis<svg class="ic mobile-link__chev" aria-hidden="true"><use href="#i-chevron"/></svg></a></li>
+                <li style="--i:3"><a href="tuner.html" class="mobile-link"><span class="mobile-link__icon"><svg class="ic" aria-hidden="true"><use href="#i-gauge"/></svg></span>Tuner<svg class="ic mobile-link__chev" aria-hidden="true"><use href="#i-chevron"/></svg></a></li>
+                <li style="--i:4"><a href="#kontak" class="mobile-link"><span class="mobile-link__icon"><svg class="ic" aria-hidden="true"><use href="#i-chat"/></svg></span>Kontak<svg class="ic mobile-link__chev" aria-hidden="true"><use href="#i-chevron"/></svg></a></li>
+            </ul>
         </div>
-    </nav>
+
+        <!-- Progres baca -->
+        <span class="read-progress" aria-hidden="true"></span>
+    </header>
 
     <!-- BAGIAN KONTEN ARTIKEL -->
-    <main class="pt-28 pb-20">
-        <article class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 bg-white p-6 sm:p-10 rounded-2xl shadow-sm border border-slate-100">
-            
+    <main id="konten" class="article-page">
+        <article class="article">
+
             <!-- Header Artikel -->
-            <div class="mb-8 border-b border-slate-100 pb-6">
-                <span class="bg-amber-100 text-amber-800 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide">Tips Servis Gitar</span>
-                <h1 class="text-3xl sm:text-4xl font-extrabold text-slate-900 mt-4 leading-tight">Keunggulan Custom Nut dan Saddle: Mengapa Suku Cadang "Beli Jadi" Sering Tidak Pas?</h1>
-                <div class="flex items-center gap-4 mt-6 text-slate-500 text-sm font-medium">
-                    <div class="flex items-center gap-2"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512" width="1em" height="1em" fill="currentColor" aria-hidden="true" focusable="false" style="display:inline-block;vertical-align:-.125em" class="text-slate-400"><path d="M256.1 248a120 120 0 1 0 0-240 120 120 0 1 0 0 240m-29.7 56c-98.5 0-178.3 79.8-178.3 178.3 0 16.4 13.3 29.7 29.7 29.7h196.5l10.9-54.5c4.3-21.7 15-41.6 30.6-57.2l67.3-67.3c-28-18.3-61.4-28.9-97.4-28.9h-59.4zm105.9 162.9-11.9 59.6c-.2.9-.3 1.9-.3 2.9 0 8 6.5 14.6 14.6 14.6 1 0 1.9-.1 2.9-.3l59.6-11.9c12.4-2.5 23.8-8.6 32.7-17.5l118.9-118.9-80-80-118.9 118.9c-8.9 8.9-15 20.3-17.5 32.7zm267.8-123c22.1-22.1 22.1-57.9 0-80s-57.9-22.1-80 0l-28.8 28.8 80 80z"/></svg> AYRI Gitar Bogor</div>
-                    <div class="flex items-center gap-2"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" width="1em" height="1em" fill="currentColor" aria-hidden="true" focusable="false" style="display:inline-block;vertical-align:-.125em" class="text-slate-400"><path d="M120 0c13.3 0 24 10.7 24 24v40h160V24c0-13.3 10.7-24 24-24s24 10.7 24 24v40h32c35.3 0 64 28.7 64 64v288c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64V128c0-35.3 28.7-64 64-64h32V24c0-13.3 10.7-24 24-24m264 432c8.8 0 16-7.2 16-16v-64h-88v80zm16-128v-80h-88v80zm-136 0v-80h-80v80zm-128 0v-80H48v80zm-88 48v64c0 8.8 7.2 16 16 16h72v-80zm136 0v80h80v-80zm-64-240H64c-8.8 0-16 7.2-16 16v48h352v-48c0-8.8-7.2-16-16-16z"/></svg> Oktober 2026</div>
+            <header class="article-hero container container--article">
+                <nav class="breadcrumb" aria-label="Breadcrumb">
+                    <ol>
+                        <li><a href="index.html">Beranda</a></li>
+                        <li><a href="index.html#artikel">Artikel</a></li>
+                        <li aria-current="page">Custom Nut &amp; Saddle</li>
+                    </ol>
+                </nav>
+                <span class="tag">Tips Servis Gitar</span>
+                <h1 class="article-title">Keunggulan Custom Nut dan Saddle: Mengapa Suku Cadang "Beli Jadi" Sering Tidak Pas?</h1>
+                <div class="article-meta">
+                    <span class="article-meta__item"><svg class="ic" aria-hidden="true"><use href="#i-pen"/></svg> AYRI Gitar Bogor</span>
+                    <span class="article-meta__item"><svg class="ic" aria-hidden="true"><use href="#i-calendar"/></svg> Oktober 2026</span>
+                    <span class="article-meta__item" hidden><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg> <span data-readtime></span></span>
+                    <button type="button" class="article-share" data-share hidden><svg class="ic" aria-hidden="true"><use href="#i-share"/></svg> <span data-share-label>Bagikan</span></button>
+                </div>
+            </header>
+
+            <!-- Sampul: tiga material nut (dekoratif) -->
+            <div class="article-cover" aria-hidden="true">
+                <div class="cover">
+                    <div class="cover__item" style="--i:0"><svg class="nut" viewBox="0 0 240 64"><use href="#nut" fill="url(#g-bone)"/></svg><span class="cover__label">Tulang</span></div>
+                    <div class="cover__item" style="--i:1"><svg class="nut" viewBox="0 0 240 64"><use href="#nut" fill="url(#g-brass)"/></svg><span class="cover__label">Brass</span></div>
+                    <div class="cover__item" style="--i:2"><svg class="nut nut--horn" viewBox="0 0 240 64"><use href="#nut" fill="url(#g-horn)"/></svg><span class="cover__label">Tanduk</span></div>
                 </div>
             </div>
 
             <!-- Isi Artikel Utama -->
-            <div class="prose prose-slate prose-lg max-w-none text-slate-700 leading-relaxed [&>p]:mb-5">
+            <div class="article-body container container--article prose" data-read-body>
                 <p>Bagi sebagian besar pemain gitar, peningkatan (<em>upgrade</em>) komponen kecil seperti <strong>nut</strong> (ganjalan senar di dekat headstock) dan <strong>saddle</strong> (ganjalan di bridge) seringkali dianggap sepele. Padahal, kedua komponen ini memegang peranan krusial terhadap intonasi, sustain, dan kenyamanan bermain (<em>playability</em>).</p>
-                
+
                 <p>Banyak gitaris yang tergiur membeli nut atau saddle siap pakai (<em>drop-in replacement</em>) secara online demi menghemat waktu. Namun, kenyataannya di lapangan sering tidak sesuai harapan.</p>
 
-                <h2 class="text-2xl font-bold text-slate-900 mt-10 mb-4">Masalah Klasik: Beli Jadi, Tapi Tidak Pas</h2>
-                <ul class="list-disc pl-5 mb-8 space-y-3">
-                    <li><strong>Ketebalan dan Panjang Tidak Akurat:</strong> Slot alur di gitar Anda memiliki toleransi ukuran yang sangat ketat. Komponen pabrikan massal seringkali terlalu longgar (bikin goyang dan suara fals) atau terlalu tebal sehingga harus dipangkas sendiri.</li>
-                    <li><strong>Ketinggian (Action) yang Salah:</strong> Saddle bawaan pabrik biasanya dibuat rata secara umum. Saat dipasang, senar bisa menjadi terlalu tinggi (bikin jari pegal) atau malah terlalu rendah sehingga terjadi <em>fret buzzing</em>.</li>
-                    <li><strong>Radius Fretboard Berbeda:</strong> Lengkungan saddle harus selaras dengan lengkungan fretboard gitar. Komponen jadi sering tidak presisi.</li>
+                <h2>Masalah Klasik: Beli Jadi, Tapi Tidak Pas</h2>
+                <ul class="issue-list">
+                    <li data-reveal style="--i:0"><strong>Ketebalan dan Panjang Tidak Akurat:</strong> Slot alur di gitar Anda memiliki toleransi ukuran yang sangat ketat. Komponen pabrikan massal seringkali terlalu longgar (bikin goyang dan suara fals) atau terlalu tebal sehingga harus dipangkas sendiri.</li>
+                    <li data-reveal style="--i:1"><strong>Ketinggian (Action) yang Salah:</strong> Saddle bawaan pabrik biasanya dibuat rata secara umum. Saat dipasang, senar bisa menjadi terlalu tinggi (bikin jari pegal) atau malah terlalu rendah sehingga terjadi <em>fret buzzing</em>.</li>
+                    <li data-reveal style="--i:2"><strong>Radius Fretboard Berbeda:</strong> Lengkungan saddle harus selaras dengan lengkungan fretboard gitar. Komponen jadi sering tidak presisi.</li>
                 </ul>
 
-                <h2 class="text-2xl font-bold text-slate-900 mt-10 mb-4">Perbandingan Material: Tulang, Brass, dan Tanduk</h2>
-                
-                <div class="space-y-4 mb-10">
-                    <p><strong class="text-slate-900">1. Tulang Hewan (Bone):</strong> Material legendaris yang sangat padat. Menghasilkan sustain yang panjang, suara yang jernih, hangat, dan seimbang di semua frekuensi.</p>
-                    <p><strong class="text-slate-900">2. Brass (Kuningan):</strong> Suara treble sangat crisp dan memiliki sustain paling panjang. Sangat kokoh seumur hidup, memberikan tampilan mewah, serta disukai untuk suara yang lebih <em>punchy</em>.</p>
-                    <p><strong class="text-slate-900">3. Tanduk Hewan (Horn):</strong> Pilihan eksotis dengan corak organik yang unik. Memiliki kepadatan untuk menahan tekanan senar tinggi, memberikan resonansi khas.</p>
+                <h2>Perbandingan Material: Tulang, Brass, dan Tanduk</h2>
+                <div class="material-compare">
+                    <div class="mat-card" data-reveal style="--i:0">
+                        <span class="mat-card__swatch swatch" aria-hidden="true"><svg class="nut" viewBox="0 0 240 64"><use href="#nut" fill="url(#g-bone)"/></svg></span>
+                        <p><strong>1. Tulang Hewan (Bone):</strong> Material legendaris yang sangat padat. Menghasilkan sustain yang panjang, suara yang jernih, hangat, dan seimbang di semua frekuensi.</p>
+                    </div>
+                    <div class="mat-card" data-reveal style="--i:1">
+                        <span class="mat-card__swatch swatch" aria-hidden="true"><svg class="nut" viewBox="0 0 240 64"><use href="#nut" fill="url(#g-brass)"/></svg></span>
+                        <p><strong>2. Brass (Kuningan):</strong> Suara treble sangat crisp dan memiliki sustain paling panjang. Sangat kokoh seumur hidup, memberikan tampilan mewah, serta disukai untuk suara yang lebih <em>punchy</em>.</p>
+                    </div>
+                    <div class="mat-card" data-reveal style="--i:2">
+                        <span class="mat-card__swatch swatch" aria-hidden="true"><svg class="nut nut--horn" viewBox="0 0 240 64"><use href="#nut" fill="url(#g-horn)"/></svg></span>
+                        <p><strong>3. Tanduk Hewan (Horn):</strong> Pilihan eksotis dengan corak organik yang unik. Memiliki kepadatan untuk menahan tekanan senar tinggi, memberikan resonansi khas.</p>
+                    </div>
                 </div>
 
-                <!-- Banner Promo Pembuatan Custom (UPDATED) -->
-                <div class="bg-amber-50 p-6 sm:p-8 rounded-2xl border border-amber-200 not-prose mt-12">
-                    <h2 class="text-2xl font-bold text-amber-900 mb-3">Solusi Fitting Presisi di Toko Gitar AYRI</h2>
-                    <p class="mb-6 text-amber-800 leading-relaxed">Karena setiap gitar memiliki keunikan, <strong>tidak ada suku cadang "beli jadi" yang 100% pas</strong>. Bawa gitar Anda ke bengkel kami untuk diukur dan dipasang secara akurat.</p>
-                    
+                <!-- Banner Promo Pembuatan Custom -->
+                <div class="offer" data-reveal>
+                    <h2 class="offer__title">Solusi Fitting Presisi di Toko Gitar AYRI</h2>
+                    <p class="offer__text">Karena setiap gitar memiliki keunikan, <strong>tidak ada suku cadang "beli jadi" yang 100% pas</strong>. Bawa gitar Anda ke bengkel kami untuk diukur dan dipasang secara akurat.</p>
+
                     <!-- Grid Harga -->
-                    <div class="grid sm:grid-cols-2 gap-4 mb-4">
-                        <!-- Akustik -->
-                        <div class="bg-white p-5 rounded-xl border border-amber-100 shadow-sm flex flex-col justify-center">
-                            <div class="font-bold text-slate-800 text-lg">Gitar Akustik</div>
-                            <div class="text-sm text-slate-500 mb-3 line-clamp-2">Custom Nut & Saddle + Basic Setup (Bebas pilih material)</div>
-                            <div class="text-2xl font-black text-slate-900 mt-auto">Rp 400.000</div>
+                    <div class="offer__grid">
+                        <div class="offer-price">
+                            <span class="offer-price__name">Gitar Akustik</span>
+                            <span class="offer-price__desc">Custom Nut &amp; Saddle + Basic Setup (Bebas pilih material)</span>
+                            <data class="offer-price__amount" value="400000"><span class="offer-price__cur">Rp</span> 400.000</data>
                         </div>
-                        <!-- Elektrik -->
-                        <div class="bg-white p-5 rounded-xl border border-amber-100 shadow-sm flex flex-col justify-center">
-                            <div class="font-bold text-slate-800 text-lg">Gitar Elektrik</div>
-                            <div class="text-sm text-slate-500 mb-3 line-clamp-2">Custom Nut Saja + Basic Setup (Bebas pilih material)</div>
-                            <div class="text-2xl font-black text-slate-900 mt-auto">Rp 300.000</div>
+                        <div class="offer-price">
+                            <span class="offer-price__name">Gitar Elektrik</span>
+                            <span class="offer-price__desc">Custom Nut Saja + Basic Setup (Bebas pilih material)</span>
+                            <data class="offer-price__amount" value="300000"><span class="offer-price__cur">Rp</span> 300.000</data>
                         </div>
                     </div>
 
-                    <!-- Upsell Box -->
-                    <div class="bg-gradient-to-r from-amber-200 to-amber-100 p-4 rounded-xl border border-amber-300 shadow-sm mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-                        <div>
-                            <div class="font-bold text-amber-900 text-lg flex items-center gap-2">
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" width="1em" height="1em" fill="currentColor" aria-hidden="true" focusable="false" style="display:inline-block;vertical-align:-.125em" class="text-brand"><path d="M309.5-18.9c-4.1-8-12.4-13.1-21.4-13.1s-17.3 5.1-21.4 13.1l-73.6 144.2-159.9 25.4c-8.9 1.4-16.3 7.7-19.1 16.3s-.5 18 5.8 24.4l114.4 114.5-25.2 159.9c-1.4 8.9 2.3 17.9 9.6 23.2s16.9 6.1 25 2l144.4-73.4L432.4 491c8 4.1 17.7 3.3 25-2s11-14.2 9.6-23.2l-25.3-159.9 114.4-114.5c6.4-6.4 8.6-15.8 5.8-24.4s-10.1-14.9-19.1-16.3L383 125.3z"/></svg> Tambah Full Setup (Harga Spesial)
-                            </div>
-                            <div class="text-sm text-amber-800">Khusus pelanggan custom nut &amp; saddle. Meliputi fretboard cleaning, fret crowning &amp; polishing, plus vacuum bodi (akustik) atau setting intonasi saddle (elektrik).</div>
+                    <!-- Upsell -->
+                    <div class="upsell">
+                        <span class="upsell__icon"><svg class="ic" aria-hidden="true"><use href="#i-star"/></svg></span>
+                        <div class="upsell__body">
+                            <p class="upsell__title">Tambah Full Setup (Harga Spesial)</p>
+                            <p class="upsell__text">Khusus pelanggan custom nut &amp; saddle. Meliputi fretboard cleaning, fret crowning &amp; polishing, plus vacuum bodi (akustik) atau setting intonasi saddle (elektrik).</p>
                         </div>
-                        <div class="bg-amber-900 text-white font-black px-4 py-2 rounded-lg whitespace-nowrap">
-                            + Rp 200.000
-                        </div>
+                        <data class="upsell__price" value="200000">+ Rp 200.000</data>
                     </div>
-                    
-                    <a href="https://wa.me/6285795738637?text=Halo%20AYRI%2C%20saya%20mau%20konsultasi%20pembuatan%20custom%20nut%2F%20saddle%20untuk%20gitar%20saya" target="_blank" class="inline-flex items-center gap-2 bg-[#0B8043] hover:bg-[#086B38] text-white px-6 py-3 rounded-xl font-bold transition shadow-md w-full sm:w-auto justify-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" width="1em" height="1em" fill="currentColor" aria-hidden="true" focusable="false" style="display:inline-block;vertical-align:-.125em" class="text-xl"><path d="M380.9 97.1C339 55.1 283.2 32 223.9 32c-122.4 0-222 99.6-222 222 0 39.1 10.2 77.3 29.6 111L0 480l117.7-30.9c32.4 17.7 68.9 27 106.1 27h.1c122.3 0 224.1-99.6 224.1-222 0-59.3-25.2-115-67.1-157m-157 341.6c-33.2 0-65.7-8.9-94-25.7l-6.7-4-69.8 18.3L72 359.2l-4.4-7c-18.5-29.4-28.2-63.3-28.2-98.2 0-101.7 82.8-184.5 184.6-184.5 49.3 0 95.6 19.2 130.4 54.1s56.2 81.2 56.1 130.5c0 101.8-84.9 184.6-186.6 184.6m101.2-138.2c-5.5-2.8-32.8-16.2-37.9-18-5.1-1.9-8.8-2.8-12.5 2.8s-14.3 18-17.6 21.8c-3.2 3.7-6.5 4.2-12 1.4-32.6-16.3-54-29.1-75.5-66-5.7-9.8 5.7-9.1 16.3-30.3 1.8-3.7.9-6.9-.5-9.7s-12.5-30.1-17.1-41.2c-4.5-10.8-9.1-9.3-12.5-9.5-3.2-.2-6.9-.2-10.6-.2s-9.7 1.4-14.8 6.9c-5.1 5.6-19.4 19-19.4 46.3s19.9 53.7 22.6 57.4c2.8 3.7 39.1 59.7 94.8 83.8 35.2 15.2 49 16.5 66.6 13.9 10.7-1.6 32.8-13.4 37.4-26.4s4.6-24.1 3.2-26.4c-1.3-2.5-5-3.9-10.5-6.6"/></svg> Konsultasi via WhatsApp
+
+                    <a href="https://wa.me/6285795738637?text=Halo%20AYRI%2C%20saya%20mau%20konsultasi%20pembuatan%20custom%20nut%2F%20saddle%20untuk%20gitar%20saya" target="_blank" rel="noopener" class="btn btn--wa btn--lg offer__cta">
+                        <svg class="ic ic--fill" aria-hidden="true"><use href="#i-wa"/></svg> Konsultasi via WhatsApp
                     </a>
                 </div>
+
+                <p class="article-outro">Sesudah setup selesai, cek hasilnya dengan <a href="tuner.html">tuner gitar gratis</a> kami, atau lihat <a href="index.html#harga">estimasi biaya servis</a> lengkap.</p>
             </div>
-                    <p class="text-slate-600 leading-relaxed" style="margin-top:2rem">Sesudah setup selesai, cek hasilnya dengan <a href="tuner.html" class="text-brand font-semibold underline">tuner gitar gratis</a> kami, atau lihat <a href="index.html#harga" class="text-brand font-semibold underline">estimasi biaya servis</a> lengkap.</p>
         </article>
     </main>
 
-    <footer id="kontak" class="bg-slate-900 text-slate-400 py-12">
-        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center md:items-start gap-8">
-            <div class="text-center md:text-left mb-6 md:mb-0">
-                <a href="index.html" class="text-2xl font-bold text-white mb-2 block">Toko Gitar <span class="text-brand">AYRI</span></a>
-                <p class="text-sm max-w-xs">Bengkel & Toko Gitar Terpercaya di Bogor. Jual beli, servis, dan perlengkapan.</p>
+    <!-- Footer -->
+    <footer id="kontak" class="site-footer">
+        <div class="container footer__grid">
+            <div class="footer__brand">
+                <a href="index.html" class="brand">
+                    <svg class="brand__mark" viewBox="0 0 32 32" aria-hidden="true"><path fill="url(#g-pick)" d="M16 30.5c-4.3-4.6-11.3-13-11.3-19.4 0-3 1.6-5.2 4.4-6.1C11.3 4.3 13.6 4 16 4s4.7.3 6.9 1c2.8.9 4.4 3.1 4.4 6.1 0 6.4-7 14.8-11.3 19.4z"/><text x="16" y="17.6" text-anchor="middle">A</text></svg>
+                    <span class="brand__name">Toko Gitar <span class="text-accent">AYRI</span></span>
+                </a>
+                <p class="footer__desc">Bengkel &amp; Toko Gitar Terpercaya di Bogor. Jual beli, servis, dan perlengkapan.</p>
             </div>
-            <div class="flex flex-col md:flex-row gap-12 w-full md:w-auto">
-                <div class="text-center md:text-left">
-                    <h4 class="text-white font-semibold mb-4">Hubungi Kami</h4>
-                    <div class="flex flex-col gap-3">
-                        <a href="https://wa.me/6285795738637" target="_blank" class="hover:text-brand transition flex items-center justify-center md:justify-start gap-2">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#25D366" role="img" aria-label="WhatsApp" class="w-6 h-6"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52s.198-.298.298-.497c.099-.198.05-.371-.025-.52s-.669-1.612-.916-2.207c-.242-.579-.487-.5-.669-.51a13 13 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074s2.096 3.2 5.077 4.487c.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413s.248-1.289.173-1.413c-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.82 9.82 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.82 11.82 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.9 11.9 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.82 11.82 0 0 0-3.48-8.413"/></svg> +6285795738637
-                        </a>
-                        <a href="https://instagram.com/ayrigitar" target="_blank" class="hover:text-brand transition flex items-center justify-center md:justify-start gap-2">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#E4405F" role="img" aria-label="Instagram" class="w-6 h-6"><path d="M7.03.084c-1.277.06-2.149.264-2.91.563a5.9 5.9 0 0 0-2.124 1.388 5.9 5.9 0 0 0-1.38 2.127C.321 4.926.12 5.8.064 7.076s-.069 1.688-.063 4.947.021 3.667.083 4.947c.061 1.277.264 2.149.563 2.911.308.789.72 1.457 1.388 2.123a5.9 5.9 0 0 0 2.129 1.38c.763.295 1.636.496 2.913.552 1.278.056 1.689.069 4.947.063s3.668-.021 4.947-.082c1.28-.06 2.147-.265 2.91-.563a5.9 5.9 0 0 0 2.123-1.388 5.9 5.9 0 0 0 1.38-2.129c.295-.763.496-1.636.551-2.912.056-1.28.07-1.69.063-4.948-.006-3.258-.02-3.667-.081-4.947-.06-1.28-.264-2.148-.564-2.911a5.9 5.9 0 0 0-1.387-2.123 5.86 5.86 0 0 0-2.128-1.38C19.074.322 18.202.12 16.924.066 15.647.009 15.236-.006 11.977 0S8.31.021 7.03.084m.14 21.693c-1.17-.05-1.805-.245-2.228-.408a3.7 3.7 0 0 1-1.382-.895 3.7 3.7 0 0 1-.9-1.378c-.165-.423-.363-1.058-.417-2.228-.06-1.264-.072-1.644-.08-4.848-.006-3.204.006-3.583.061-4.848.05-1.169.246-1.805.408-2.228.216-.561.477-.96.895-1.382a3.7 3.7 0 0 1 1.379-.9c.423-.165 1.057-.361 2.227-.417 1.265-.06 1.644-.072 4.848-.08 3.203-.006 3.583.006 4.85.062 1.168.05 1.804.244 2.227.408.56.216.96.475 1.382.895s.681.817.9 1.378c.165.422.362 1.056.417 2.227.06 1.265.074 1.645.08 4.848.005 3.203-.006 3.583-.061 4.848-.051 1.17-.245 1.805-.408 2.23-.216.56-.477.96-.896 1.38a3.7 3.7 0 0 1-1.378.9c-.422.165-1.058.362-2.226.418-1.266.06-1.645.072-4.85.079s-3.582-.006-4.848-.06m9.783-16.192a1.44 1.44 0 1 0 1.437-1.442 1.44 1.44 0 0 0-1.437 1.442M5.839 12.012a6.161 6.161 0 1 0 12.323-.024 6.162 6.162 0 0 0-12.323.024M8 12.008A4 4 0 1 1 12.008 16 4 4 0 0 1 8 12.008"/></svg> @ayrigitar
-                        </a>
-                    </div>
-                </div>
-                <div class="text-center md:text-left">
-                    <h4 class="text-white font-semibold mb-4">Marketplace</h4>
-                    <div class="flex flex-col gap-3">
-                        <a href="https://shopee.co.id/gitarbekasbogor" target="_blank" class="hover:text-white transition flex items-center justify-center md:justify-start gap-2 group">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#EE4D2D" role="img" aria-label="Shopee Logo" class="w-5 h-5 group-hover:scale-110 transition-transform"><path d="M15.941 17.963c.23-1.879-.98-3.077-4.175-4.097-1.548-.528-2.277-1.22-2.26-2.171.065-1.056 1.048-1.825 2.352-1.85a5.3 5.3 0 0 1 2.883.89c.116.072.197.06.263-.04.09-.144.315-.493.39-.62.051-.08.061-.186-.068-.28-.185-.137-.704-.415-.983-.532a6.5 6.5 0 0 0-2.511-.514c-1.91.008-3.413 1.215-3.54 2.826q-.122 1.746 1.73 2.827c.263.152 1.68.716 2.244.892 1.774.552 2.695 1.542 2.478 2.697-.197 1.047-1.299 1.724-2.818 1.744-1.203-.046-2.287-.537-3.127-1.19l-.141-.11c-.104-.08-.218-.075-.287.03-.05.077-.376.547-.458.67-.077.108-.035.168.045.234.35.293.817.613 1.134.775a6.7 6.7 0 0 0 2.829.727 4.9 4.9 0 0 0 2.075-.354c1.095-.465 1.803-1.394 1.945-2.554M12 1.401c-2.068 0-3.754 1.95-3.833 4.39h7.665C15.751 3.35 14.066 1.4 12 1.4m7.851 22.598-.08.001-15.784-.002c-1.074-.04-1.863-.91-1.971-1.991l-.01-.195-.707-15.526a.46.46 0 0 1 .45-.494h4.975C6.845 2.568 9.16 0 12 0s5.153 2.569 5.275 5.79h4.968a.46.46 0 0 1 .458.483l-.773 15.588-.007.131c-.094 1.094-.979 1.977-2.07 2.006z"/></svg>
-                            Shopee
-                        </a>
-                        <a href="https://tokopedia.com/rioalamnur" target="_blank" class="hover:text-white transition flex items-center justify-center md:justify-start gap-2 group mt-2">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" fill="#42B549" role="img" aria-label="Tokopedia" class="w-6 h-6 group-hover:scale-110 transition-transform"><path d="M160 80c0-35.3 28.7-64 64-64s64 28.7 64 64v48H160zm-48 48H48c-26.5 0-48 21.5-48 48v208c0 53 43 96 96 96h256c53 0 96-43 96-96V176c0-26.5-21.5-48-48-48h-64V80c0-61.9-50.1-112-112-112S112 18.1 112 80zm24 48a24 24 0 1 1 0 48 24 24 0 1 1 0-48m152 24a24 24 0 1 1 48 0 24 24 0 1 1-48 0"/></svg>
-                            <span>Tokopedia</span>
-                        </a>
-                    </div>
-                </div>
+            <div class="footer__col">
+                <h3 class="footer__title">Hubungi Kami</h3>
+                <ul class="footer__list">
+                    <li><a href="https://wa.me/6285795738637" target="_blank" rel="noopener" class="footer__link"><span class="footer__icon footer__icon--wa"><svg class="ic ic--fill" role="img" aria-label="WhatsApp"><use href="#i-wa"/></svg></span>+6285795738637</a></li>
+                    <li><a href="https://instagram.com/ayrigitar" target="_blank" rel="noopener" class="footer__link"><span class="footer__icon footer__icon--ig"><svg class="ic ic--fill" role="img" aria-label="Instagram"><use href="#i-ig"/></svg></span>@ayrigitar</a></li>
+                </ul>
+            </div>
+            <div class="footer__col">
+                <h3 class="footer__title">Marketplace</h3>
+                <ul class="footer__list">
+                    <li><a href="https://shopee.co.id/gitarbekasbogor" target="_blank" rel="noopener" class="footer__link"><span class="footer__icon footer__icon--shopee"><svg class="ic ic--fill" role="img" aria-label="Shopee Logo"><use href="#i-shopee"/></svg></span>Shopee</a></li>
+                    <li><a href="https://tokopedia.com/rioalamnur" target="_blank" rel="noopener" class="footer__link"><span class="footer__icon footer__icon--tokopedia"><svg class="ic ic--fill" role="img" aria-label="Tokopedia"><use href="#i-tokopedia"/></svg></span>Tokopedia</a></li>
+                </ul>
+            </div>
+            <div class="footer__col">
+                <h3 class="footer__title">Jelajahi</h3>
+                <ul class="footer__list footer__list--plain">
+                    <li><a href="index.html" class="footer__link">Beranda</a></li>
+                    <li><a href="index.html#harga" class="footer__link">Harga Servis</a></li>
+                    <li><a href="tuner.html" class="footer__link">Tuner Gitar</a></li>
+                    <li><a href="chords.html" class="footer__link">Chord Gitar</a></li>
+                    <li><a href="metronom.html" class="footer__link">Metronom</a></li>
+                    <li><a href="transkrip.html" class="footer__link">Transkrip Chord</a></li>
+                </ul>
             </div>
         </div>
-        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 mt-10 pt-8 border-t border-slate-800 text-sm text-center">
-            &copy; 2026 Toko Gitar AYRI. All rights reserved.
+        <div class="container footer__bottom">
+            <p>&copy; 2026 Toko Gitar AYRI. All rights reserved.</p>
+            <a href="#" class="footer__top">Kembali ke atas <svg class="ic" aria-hidden="true"><use href="#i-arrow-up"/></svg></a>
         </div>
     </footer>
-    <!-- Tombol WhatsApp melayang -->
-    <a href="https://wa.me/6285795738637?text=Halo%20AYRI%2C%20saya%20mau%20konsultasi%20pembuatan%20custom%20nut%2F%20saddle%20untuk%20gitar%20saya" target="_blank" aria-label="Chat via WhatsApp"
-       class="fixed bottom-5 right-5 z-50 w-14 h-14 rounded-full bg-[#0B8043] hover:bg-[#086B38] text-white flex items-center justify-center shadow-xl transition">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" width="1em" height="1em" fill="currentColor" aria-hidden="true" focusable="false" style="display:inline-block;vertical-align:-.125em" class="text-3xl"><path d="M380.9 97.1C339 55.1 283.2 32 223.9 32c-122.4 0-222 99.6-222 222 0 39.1 10.2 77.3 29.6 111L0 480l117.7-30.9c32.4 17.7 68.9 27 106.1 27h.1c122.3 0 224.1-99.6 224.1-222 0-59.3-25.2-115-67.1-157m-157 341.6c-33.2 0-65.7-8.9-94-25.7l-6.7-4-69.8 18.3L72 359.2l-4.4-7c-18.5-29.4-28.2-63.3-28.2-98.2 0-101.7 82.8-184.5 184.6-184.5 49.3 0 95.6 19.2 130.4 54.1s56.2 81.2 56.1 130.5c0 101.8-84.9 184.6-186.6 184.6m101.2-138.2c-5.5-2.8-32.8-16.2-37.9-18-5.1-1.9-8.8-2.8-12.5 2.8s-14.3 18-17.6 21.8c-3.2 3.7-6.5 4.2-12 1.4-32.6-16.3-54-29.1-75.5-66-5.7-9.8 5.7-9.1 16.3-30.3 1.8-3.7.9-6.9-.5-9.7s-12.5-30.1-17.1-41.2c-4.5-10.8-9.1-9.3-12.5-9.5-3.2-.2-6.9-.2-10.6-.2s-9.7 1.4-14.8 6.9c-5.1 5.6-19.4 19-19.4 46.3s19.9 53.7 22.6 57.4c2.8 3.7 39.1 59.7 94.8 83.8 35.2 15.2 49 16.5 66.6 13.9 10.7-1.6 32.8-13.4 37.4-26.4s4.6-24.1 3.2-26.4c-1.3-2.5-5-3.9-10.5-6.6"/></svg>
+
+    <!-- Tombol WhatsApp melayang (tablet & desktop) -->
+    <a href="https://wa.me/6285795738637?text=Halo%20AYRI%2C%20saya%20mau%20konsultasi%20pembuatan%20custom%20nut%2F%20saddle%20untuk%20gitar%20saya" target="_blank" rel="noopener" aria-label="Chat via WhatsApp" class="fab-wa">
+        <svg class="ic ic--fill" aria-hidden="true"><use href="#i-wa"/></svg>
     </a>
+
+    <!-- Tab bar bawah ala aplikasi (mobile) -->
+    <nav class="tabbar" aria-label="Navigasi cepat">
+        <a href="index.html" class="tabbar__item"><svg class="ic" aria-hidden="true"><use href="#i-home"/></svg><span>Beranda</span></a>
+        <a href="index.html#harga" class="tabbar__item"><svg class="ic" aria-hidden="true"><use href="#i-tag"/></svg><span>Harga</span></a>
+        <a href="https://wa.me/6285795738637?text=Halo%20AYRI%2C%20saya%20mau%20konsultasi%20pembuatan%20custom%20nut%2F%20saddle%20untuk%20gitar%20saya" target="_blank" rel="noopener" class="tabbar__wa">
+            <span class="tabbar__wa-btn"><svg class="ic ic--fill" aria-hidden="true"><use href="#i-wa"/></svg></span><span>WhatsApp</span>
+        </a>
+        <a href="tuner.html" class="tabbar__item"><svg class="ic" aria-hidden="true"><use href="#i-gauge"/></svg><span>Tuner</span></a>
+        <a href="index.html#lokasi" class="tabbar__item"><svg class="ic" aria-hidden="true"><use href="#i-pin"/></svg><span>Lokasi</span></a>
+    </nav>
 </body>
 </html>
