@@ -149,7 +149,7 @@
                         <g id="rod"><line class="an-rod" x1="100" y1="262" x2="100" y2="40"/><g id="wt"><path class="an-w" d="M86 100 h28 l-4 -22 h-20 z"/></g></g>
                         <circle class="an-p" cx="100" cy="262" r="8"/>
                     </svg>
-                    <div class="lcd" data-v="digital"><div class="lcd-n" id="lcdn">100</div><div class="lcd-t" id="lcdt">Allegro</div><div class="boxes" id="boxes"></div></div>
+                    <div class="lcd" data-v="digital"><div class="lcd-row"><div class="lcd-s" id="lcdp" aria-hidden="true"></div><div class="lcd-n" id="lcdn">100</div><div class="lcd-s" id="lcdx" aria-hidden="true"></div></div><div class="lcd-t" id="lcdt">Allegro</div><div class="boxes" id="boxes"></div></div>
                     <div class="leds" data-v="led" id="leds"></div>
                     <div class="flash" data-v="flash" id="flash">Layar berkedip tiap ketukan</div>
                 </div>
@@ -167,10 +167,10 @@
                 </div>
                 <div class="mtset2"><label class="lb">Volume<input id="vol" class="rg" type="range" min="0.1" max="1" step="0.05"></label><label class="tgl"><input id="vib" type="checkbox"> Getar</label></div>
                 <div class="mttr">
-                    <label class="tgl"><input id="tron" type="checkbox"> Naik<br>tempo</label>
-                    <label class="lb">+BPM<input id="trs" class="numin" type="number" inputmode="numeric" min="1" max="30"></label>
+                    <label class="lb">Latihan<select id="trd" class="sel"><option value="off">Mati</option><option value="up">Naik</option><option value="down">Turun</option></select></label>
+                    <label class="lb"><span id="trsl">+BPM</span><input id="trs" class="numin" type="number" inputmode="numeric" min="1" max="30"></label>
                     <label class="lb">per birama<input id="tre" class="numin" type="number" inputmode="numeric" min="1" max="32"></label>
-                    <label class="lb">maks BPM<input id="trm" class="numin" type="number" inputmode="numeric" min="30" max="300"></label>
+                    <label class="lb"><span id="trml">maks BPM</span><input id="trm" class="numin" type="number" inputmode="numeric" min="20" max="300"></label>
                 </div>
                 <div class="mtpre"><select id="pre" class="sel" aria-label="Preset tersimpan"></select><button id="prs" type="button" class="chip">Simpan</button><button id="prd" type="button" class="chip">Hapus</button></div>
             </div>
@@ -181,7 +181,7 @@
         <h2>Pintasan keyboard</h2>
         <p class="t-help">Spasi = mulai/berhenti. Panah atas/bawah = tempo (tambah Shift untuk 5 BPM). T = tap tempo. Pada metronom analog, pemberat bisa digeser langsung. Ketuk bulatan ketukan untuk mengubah aksen (kuat, biasa, senyap). Layar tetap menyala selama metronom berjalan.</p>
         <h2>Latihan percepatan</h2>
-        <p class="t-help">Aktifkan &quot;Naik tempo&quot; agar tempo bertambah sendiri sebanyak +BPM setiap beberapa birama sampai batas maksimal. Cocok untuk melatih kecepatan jari.</p>
+        <p class="t-help">Pilih Latihan &quot;Naik&quot; agar tempo bertambah sendiri sebanyak +BPM setiap beberapa birama sampai batas maksimal, atau &quot;Turun&quot; agar tempo berkurang sampai batas minimal. Cocok untuk melatih kecepatan jari dan pendinginan.</p>
         <h2>Preset</h2>
         <p class="t-help">Atur tempo dan pengaturan lain, tekan Simpan. Pilih preset dari daftar untuk memuatnya. Untuk menghapus, pilih preset lalu tekan Hapus.</p>
         <a class="t-cta" href="index.html#harga"><strong>Gitar susah disetel atau berdengung?</strong><br>Lihat estimasi biaya setup &amp; servis di Toko Gitar AYRI Bogor &rarr;</a>
@@ -189,9 +189,9 @@
     <script>
 (function () {
     var $ = function (i) { return document.getElementById(i); };
-    var S = { bpm: 100, beats: 4, sub: 1, sound: 'klik', vol: 0.8, vis: 'analog', acc: [2, 1, 1, 1], vib: false, tr: { on: false, step: 5, every: 4, max: 140 } };
+    var S = { bpm: 100, beats: 4, sub: 1, sound: 'klik', vol: 0.8, vis: 'analog', acc: [2, 1, 1, 1], vib: false, tr: { on: false, dir: 'up', step: 5, every: 4, max: 140, min: 80 } };
     var presets = [];
-    try { var sv = JSON.parse(localStorage.getItem('ayri-metro') || 'null'); if (sv) for (var k in sv) S[k] = sv[k]; presets = JSON.parse(localStorage.getItem('ayri-metro-pre') || '[]'); } catch (e) {}
+    try { var sv = JSON.parse(localStorage.getItem('ayri-metro') || 'null'); if (sv) for (var k in sv) S[k] = k === 'tr' ? Object.assign(S.tr, sv.tr) : sv[k]; presets = JSON.parse(localStorage.getItem('ayri-metro-pre') || '[]'); } catch (e) {}
     function save() { try { localStorage.setItem('ayri-metro', JSON.stringify(S)); localStorage.setItem('ayri-metro-pre', JSON.stringify(presets)); } catch (e) {} }
     var SIGS = [['2/4', 2, [2, 1]], ['3/4', 3, [2, 1, 1]], ['4/4', 4, [2, 1, 1, 1]], ['5/4', 5, [2, 1, 1, 2, 1]], ['6/8', 6, [2, 0, 0, 1, 0, 0]], ['7/8', 7, [2, 0, 1, 0, 1, 0, 0]], ['12/8', 12, [2, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0]]];
     var SUBS = [[1, 'Ketukan'], [2, '\u00bd (2)'], [3, 'Triol (3)'], [4, '\u00bc (4)']];
@@ -200,6 +200,11 @@
     var ctx = null, master, noiseBuf, playing = false, timer = null, raf = 0, next = 0, beat = 0, subi = 0, bar = 0, count = 0, queue = [], last = { t: 0, n: 0 }, wl = null;
     function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
     function tname(b) { for (var i = 0; i < NAMES.length; i++) if (b < NAMES[i][0]) return NAMES[i][1]; return 'Presto'; }
+    /* nama tempo sebelum/sesudah + BPM tempat namanya berganti, untuk sisi kiri/kanan layar digital */
+    function tnear(b) {
+        var i = 0; while (i < NAMES.length - 1 && b >= NAMES[i][0]) i++;
+        return { prev: i ? [NAMES[i - 1][1], NAMES[i - 1][0] - 1] : null, next: i < NAMES.length - 1 ? [NAMES[i + 1][1], NAMES[i][0]] : null };
+    }
     function init() {
         if (!ctx) {
             var AC = window.AudioContext || window.webkitAudioContext; ctx = new AC(); master = ctx.createGain(); master.connect(ctx.destination);
@@ -232,7 +237,10 @@
             subi = 0; beat++;
             if (beat >= S.beats) {
                 beat = 0; bar++;
-                if (S.tr.on && bar % S.tr.every === 0 && S.bpm < S.tr.max) { S.bpm = Math.min(S.tr.max, S.bpm + S.tr.step); setBpm(S.bpm, true); }
+                if (S.tr.on && bar % S.tr.every === 0) {
+                    if (S.tr.dir === 'down') { if (S.bpm > S.tr.min) setBpm(Math.max(S.tr.min, S.bpm - S.tr.step), true); }
+                    else if (S.bpm < S.tr.max) setBpm(Math.min(S.tr.max, S.bpm + S.tr.step), true);
+                }
             }
         }
         next += 60 / S.bpm / S.sub;
@@ -285,6 +293,7 @@
     function setBpm(b, noSave) {
         b = Math.round(clamp(+b || 100, 20, 300)); S.bpm = b;
         $('bpm').value = b; $('bs').value = b; $('tn').textContent = tname(b); $('lcdn').textContent = b; $('lcdt').textContent = tname(b);
+        var nr = tnear(b); $('lcdp').innerHTML = nr.prev ? '&lsaquo; ' + nr.prev[0] + '<b>' + nr.prev[1] + '</b>' : ''; $('lcdx').innerHTML = nr.next ? nr.next[0] + ' &rsaquo;<b>' + nr.next[1] + '</b>' : '';
         var y = 262 - 215 * wFrac(b); $('wt').setAttribute('transform', 'translate(0 ' + (y - 100).toFixed(1) + ')');
         if (!noSave) save();
     }
@@ -309,7 +318,12 @@
     function renderPre() {
         $('pre').innerHTML = '<option value="">Preset (' + presets.length + ')</option>' + presets.map(function (p, i) { return '<option value="' + i + '">' + p.bpm + ' BPM \u00b7 ' + p.beats + ' ketuk</option>'; }).join('');
     }
-    function refresh() { buildAcc(); renderChips(); setBpm(S.bpm, true); $('vol').value = S.vol; $('vib').checked = S.vib; $('tron').checked = S.tr.on; $('trs').value = S.tr.step; $('tre').value = S.tr.every; $('trm').value = S.tr.max; renderPre(); }
+    function refresh() { buildAcc(); renderChips(); setBpm(S.bpm, true); $('vol').value = S.vol; $('vib').checked = S.vib; renderTr(); renderPre(); }
+    function renderTr() {
+        var dn = S.tr.dir === 'down'; $('trd').value = S.tr.on ? (dn ? 'down' : 'up') : 'off';
+        $('trsl').textContent = dn ? '−BPM' : '+BPM'; $('trml').textContent = dn ? 'min BPM' : 'maks BPM';
+        $('trs').value = S.tr.step; $('tre').value = S.tr.every; $('trm').value = dn ? S.tr.min : S.tr.max;
+    }
     $('go').addEventListener('click', toggle);
     $('bm').addEventListener('click', function () { setBpm(S.bpm - 1); });
     $('bp').addEventListener('click', function () { setBpm(S.bpm + 1); });
@@ -326,6 +340,10 @@
     $('nb').addEventListener('change', function () { S.beats = clamp(+this.value || 4, 1, 16); save(); buildAcc(); renderChips(); });
     $('subs').addEventListener('change', function () { S.sub = +this.value; save(); renderChips(); });
     $('snds').addEventListener('change', function () { S.sound = this.value; save(); renderChips(); if (!playing) { init(); master.gain.value = S.vol; sound(2, false, ctx.currentTime + 0.02); sound(1, false, ctx.currentTime + 0.4); } });
+    $('vol').addEventListener('input', function () { S.vol = +this.value; if (master) master.gain.value = S.vol; save(); });
+    $('vib').addEventListener('change', function () { S.vib = this.checked; save(); });
+    $('trd').addEventListener('change', function () { S.tr.on = this.value !== 'off'; if (S.tr.on) S.tr.dir = this.value; save(); renderTr(); });
+    ['trs', 'tre', 'trm'].forEach(function (id) { $(id).addEventListener('change', function () { S.tr.step = clamp(+$('trs').value || 5, 1, 30); S.tr.every = clamp(+$('tre').value || 4, 1, 32); if (S.tr.dir === 'down') S.tr.min = clamp(+$('trm').value || 80, 20, 300); else S.tr.max = clamp(+$('trm').value || 140, 20, 300); save(); renderTr(); }); });
     $('prs').addEventListener('click', function () { presets.push({ bpm: S.bpm, beats: S.beats, sub: S.sub, sound: S.sound, acc: S.acc.slice() }); if (presets.length > 8) presets.shift(); save(); renderPre(); });
     $('pre').addEventListener('change', function () { if (this.value === '') return; var p = presets[+this.value]; if (!p) return; S.bpm = p.bpm; S.beats = p.beats; S.sub = p.sub; S.sound = p.sound; S.acc = p.acc.slice(); save(); var keep = this.value; refresh(); $('pre').value = keep; });
     $('prd').addEventListener('click', function () { var v = $('pre').value; if (v === '') return; presets.splice(+v, 1); save(); renderPre(); });
