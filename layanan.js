@@ -80,12 +80,39 @@
     L.urlCek = function (kode) { return L.situs() + 'cek-servis.html?k=' + encodeURIComponent(kode); };
     L.urlNota = function (kode) { return L.situs() + 'nota.html?k=' + encodeURIComponent(kode); };
     L.rekeningTeks = function () { return (C.toko && C.toko.rekening || []).map(function (r) { return r.bank + ' ' + r.nomor + ' a.n. ' + r.atasNama; }).join(' / '); };
-    /* penitipan gratis sampai tanggal ini (dihitung dari tanggal status Selesai) */
+    /* ---------- penitipan gitar yang sudah selesai (dihitung dari tanggal status Selesai) ---------- */
     L.gratisHari = function () { return C.gratisTitipHari == null ? 14 : C.gratisTitipHari; };
-    L.batasGratis = function (s) { var d = L.tglObj(s.tgl_selesai); if (!d || s.status !== 'selesai') return null; d.setDate(d.getDate() + L.gratisHari()); return L.tglStr(d); };
+    L.biayaTitip = function () { return C.biayaTitipPerHari == null ? 5000 : C.biayaTitipPerHari; };
+    L.biayaTitipTeks = function () { return L.rupiah(L.biayaTitip()) + ' per hari'; };
+    function hariAntara(a, b) { return Math.round((L.tglObj(b) - L.tglObj(a)) / 864e5); }
+    function tambahHari(s, n) { var d = L.tglObj(s); d.setDate(d.getDate() + n); return L.tglStr(d); }
+    L.hariAntara = hariAntara;
+    /* keadaan penitipan: null bila belum selesai. lama = hari sejak selesai (sampai diambil atau hari ini) */
+    L.titip = function (s, hariIni) {
+        if (!s.tgl_selesai || !L.beres(s)) return null;
+        var akhir = s.status === 'diambil' && s.tgl_diambil ? s.tgl_diambil : hariIni || L.hariIni(), lama = Math.max(0, hariAntara(s.tgl_selesai, akhir));
+        var gratis = L.gratisHari(), hangus = C.garansiHangusHari || 30, lepas = C.lepasTanggungJawabHari || 90, hariBiaya = Math.max(0, lama - gratis);
+        return {
+            lama: lama, sisaGratis: Math.max(0, gratis - lama), hariBiaya: hariBiaya, biaya: hariBiaya * L.biayaTitip(),
+            batasGratis: tambahHari(s.tgl_selesai, gratis), batasGaransi: tambahHari(s.tgl_selesai, hangus), batasLepas: tambahHari(s.tgl_selesai, lepas),
+            garansiHangus: lama > hangus, lepas: lama > lepas
+        };
+    };
+    L.batasGratis = function (s) { var t = s.status === 'selesai' && L.titip(s); return t ? t.batasGratis : null; };
+    L.garansiHangus = function (s) { var t = L.titip(s); return !!(t && t.garansiHangus); };
+    /* perlu dikirim pengingat ambil? hari ke-7 dan ke-12 (pengingatHari), lalu seminggu sekali setelah biaya berjalan */
+    L.perluIngat = function (s, hariIni) {
+        if (s.status !== 'selesai') return false;
+        var t = L.titip(s, hariIni); if (!t) return false;
+        var kini = hariIni || L.hariIni(), terakhir = (s.pengingat || []).slice(-1)[0] || '';
+        var titik = (C.pengingatHari || [7, 12]).filter(function (d) { return t.lama >= d; });
+        if (titik.length && terakhir < tambahHari(s.tgl_selesai, titik[titik.length - 1])) return true;
+        return t.hariBiaya > 0 && (!terakhir || hariAntara(terakhir, kini) >= 7);
+    };
     L.ketentuan = function () {
         return (C.ketentuan || []).map(function (k) {
-            return k.replace('{dp}', L.dpPersen()).replace('{gratis}', L.gratisHari()).replace('{biaya}', C.biayaPenitipan || 'sesuai ketentuan toko').replace('{hangus}', C.garansiHangusHari || 30);
+            return k.replace('{dp}', L.dpPersen()).replace('{gratis}', L.gratisHari()).replace('{biaya}', L.biayaTitipTeks())
+                .replace('{hangus}', C.garansiHangusHari || 30).replace('{lepas}', C.lepasTanggungJawabHari || 90);
         });
     };
 
@@ -119,9 +146,22 @@
             var h = L.hitung(s, s.items, s.bayar), t = 'Halo Kak ' + s.nama + ', kabar baik! Gitar ' + gitarTeks(s) + ' (kode *' + s.kode + '*) sudah selesai dan bisa diambil ✅\n\n';
             t += h.sisa ? 'Sisa pembayaran: *' + L.rupiah(h.sisa) + '*\n(bisa tunai saat ambil atau transfer ke ' + L.rekeningTeks() + ')\n' : 'Pembayaran sudah lunas. Terima kasih!\n';
             var bg = L.batasGratis(s);
-            if (bg) t += '\nGratis dititipkan sampai ' + L.tgl(bg) + '; setelah itu biaya penitipan ' + (C.biayaPenitipan || 'berlaku') + '.\n';
+            if (bg) t += '\nGratis dititipkan sampai ' + L.tgl(bg) + '; setelah itu biaya penitipan ' + L.biayaTitipTeks() + '.\n';
             if (C.toko && C.toko.jam) t += '\nJam buka: ' + C.toko.jam + '\n';
             return t + '\nFoto hasil servis, saran dari kami, dan nota: ' + L.urlCek(s.kode);
+        },
+        /* pengingat gitar yang sudah selesai tapi belum diambil */
+        pengingat: function (s) {
+            var t = L.titip(s), h = L.hitung(s, s.items, s.bayar);
+            var m = 'Halo Kak ' + s.nama + ', kami mengingatkan gitar ' + gitarTeks(s) + ' (kode *' + s.kode + '*) sudah selesai sejak ' + L.tgl(s.tgl_selesai) + ' dan bisa diambil di toko 🙏\n\n';
+            if (!t.hariBiaya) m += 'Gratis dititipkan sampai *' + L.tgl(t.batasGratis) + '*' + (t.sisaGratis ? ' (' + t.sisaGratis + ' hari lagi)' : ' (hari ini terakhir)') + '. Setelah itu biaya penitipan ' + L.biayaTitipTeks() + '.\n';
+            else m += 'Masa gratis penitipan sudah lewat sejak ' + L.tgl(t.batasGratis) + '. Biaya penitipan sampai hari ini: ' + t.hariBiaya + ' hari × ' + L.rupiah(L.biayaTitip()) + ' = *' + L.rupiah(t.biaya) + '*.\n';
+            m += t.garansiHangus ? 'Garansi servis sudah hangus karena gitar belum diambil lebih dari ' + (C.garansiHangusHari || 30) + ' hari.\n'
+                : 'Garansi servis tetap berlaku bila gitar diambil paling lambat ' + L.tgl(t.batasGaransi) + '.\n';
+            if (t.lama >= (C.garansiHangusHari || 30)) m += 'Mohon diambil sebelum ' + L.tgl(t.batasLepas) + '; setelah itu gitar berada di luar tanggung jawab toko.\n';
+            if (h.sisa) m += '\nSisa pembayaran servis: ' + L.rupiah(h.sisa) + '\n';
+            if (C.toko && C.toko.jam) m += '\nJam buka: ' + C.toko.jam + '\n';
+            return m + '\nDetail & nota: ' + L.urlCek(s.kode);
         },
         nota: function (s) {
             return 'Halo Kak ' + s.nama + ', berikut nota servis gitar ' + gitarTeks(s) + ' (kode *' + s.kode + '*):\n' + L.urlNota(s.kode) + '\n(masukkan 4 digit terakhir no. HP Kakak)\n\nTerima kasih sudah servis di ' + (C.toko && C.toko.nama || 'Toko Gitar AYRI') + ' 🎸';

@@ -124,11 +124,13 @@
     function daftarServis() {
         app.innerHTML = '<section><div class="ly-head"><h1>Servis</h1><a class="ly-btn ly-btn--pri" href="#servis/baru">+ Gitar masuk</a></div>' +
             '<div class="ly-cari"><input class="ly-in" id="cari" type="search" placeholder="Cari kode, nama, no. HP, merk…" autocomplete="off"></div>' +
-            '<div class="ly-filter" id="filter"></div><div class="ly-list" id="list"></div>' +
+            '<div id="ingat"></div><div class="ly-filter" id="filter"></div><div class="ly-list" id="list"></div>' +
             '<div class="ly-btns" style="margin-top:18px"><button type="button" class="ly-btn ly-btn--sm" id="b-muat">Muat ulang data</button><button type="button" class="ly-btn ly-btn--sm" id="b-cadang">Unduh cadangan</button><button type="button" class="ly-btn ly-btn--sm ly-btn--del" id="b-lupa">Hapus token dari perangkat ini</button></div></section>';
         $('#cari').value = cari;
         $('#cari').addEventListener('input', function () { cari = this.value; gambarDaftar(); });
         $('#filter').addEventListener('click', function (e) { var b = e.target.closest('[data-f]'); if (b) { filter = b.dataset.f; gambarDaftar(); } });
+        $('#ingat').addEventListener('click', function (e) { if (e.target.closest('[data-lihat]')) { filter = 'selesai'; cari = ''; $('#cari').value = ''; gambarDaftar(); } });
+        $('#list').addEventListener('click', function (e) { var b = e.target.closest('[data-ingat]'); if (b) { e.preventDefault(); ingatkan(b.dataset.ingat, b); } });
         $('#b-muat').addEventListener('click', function () { var b = this; sibuk(b, true, 'Memuat…'); A.muat().then(function (d) { cache = d; sibuk(b, false); gambarDaftar(); toast('Data terbaru dimuat.'); }).catch(function (e) { sibuk(b, false); gagal(e); }); });
         $('#b-cadang').addEventListener('click', function () {
             var a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify(A.cadangan(), null, 1)], { type: 'application/json' }));
@@ -149,13 +151,40 @@
             if (filter === 'aktif' ? AKTIF.indexOf(s.status) < 0 : filter !== 'semua' && s.status !== filter) return false;
             return !c || [s.kode, s.nama, s.hp, s.gitar_jenis, s.gitar_merk, s.keluhan].join(' ').toLowerCase().indexOf(c) > -1;
         });
+        /* gitar yang belum diambil: paling lama di atas */
+        if (filter === 'selesai') hasil.sort(function (a, b) { return (a.tgl_selesai || '') < (b.tgl_selesai || '') ? -1 : 1; });
+        var perlu = rows.filter(function (s) { return L.perluIngat(s, hari); }).length;
+        $('#ingat').innerHTML = perlu ? '<div class="ly-ingat"><span>🔔 <b>' + perlu + ' gitar</b> sudah selesai tapi belum diambil dan perlu diingatkan.</span><button type="button" class="ly-btn ly-btn--sm" data-lihat>Lihat</button></div>' : '';
         $('#list').innerHTML = hasil.length ? hasil.map(function (s) {
             var h = L.hitung(s, s.items, s.bayar), telat = s.estimasi && s.estimasi < hari && ['menunggu_dp', 'antri', 'dikerjakan'].indexOf(s.status) > -1;
-            var bayar = !h.total ? 'Biaya belum diisi' : h.lunas ? 'Lunas' : h.kurangAwal ? '<span class="ly-warn">Bayar awal kurang ' + L.rupiah(h.kurangAwal) + '</span>' : 'Sisa ' + L.rupiah(h.sisa);
-            return '<a class="ly-item" href="#servis/' + s.id + '"><span class="ly-item__k">' + E(s.kode) + '</span><span class="st-chip st-' + s.status + '">' + E(L.STATUS[s.status].label) + '</span>' +
+            var bayar = !h.total ? 'Biaya belum diisi' : h.lunas ? 'Lunas' : h.kurangAwal && !L.beres(s) ? '<span class="ly-warn">Bayar awal kurang ' + L.rupiah(h.kurangAwal) + '</span>' : 'Sisa ' + L.rupiah(h.sisa);
+            return '<div class="ly-item"><a class="ly-item__a" href="#servis/' + s.id + '"><span class="ly-item__k">' + E(s.kode) + '</span></a><span class="st-chip st-' + s.status + '">' + E(L.STATUS[s.status].label) + '</span>' +
                 '<span class="ly-item__t">' + E(gitarNama(s)) + ' · ' + E(s.nama) + '</span>' +
-                '<span class="ly-item__m"><span>Masuk ' + L.tgl(s.tgl_masuk) + '</span>' + (s.estimasi ? '<span' + (telat ? ' class="ly-telat"' : '') + '>Estimasi ' + L.tgl(s.estimasi) + (telat ? ' (lewat)' : '') + '</span>' : '') + '<span>' + bayar + '</span></span></a>';
+                '<span class="ly-item__m"><span>Masuk ' + L.tgl(s.tgl_masuk) + '</span>' + (s.estimasi && !L.beres(s) ? '<span' + (telat ? ' class="ly-telat"' : '') + '>Estimasi ' + L.tgl(s.estimasi) + (telat ? ' (lewat)' : '') + '</span>' : '') + '<span>' + bayar + '</span></span>' +
+                (s.status === 'selesai' ? infoTitip(s, hari) : '') + '</div>';
         }).join('') : '<p class="ly-kosong">' + (rows.length ? 'Tidak ada yang cocok.' : 'Belum ada data servis. Tekan “+ Gitar masuk”.') + '</p>';
+    }
+    /* baris penitipan + tombol pengingat untuk gitar yang sudah selesai */
+    function infoTitip(s, hari) {
+        var t = L.titip(s, hari); if (!t) return '';
+        var teks = t.hariBiaya ? '<span class="ly-telat">Biaya titip ' + t.hariBiaya + ' hari = ' + L.rupiah(t.biaya) + '</span>' : '<span>Gratis titip s/d ' + L.tgl(t.batasGratis) + ' (' + t.sisaGratis + ' hari lagi)</span>';
+        if (t.garansiHangus) teks += '<span class="ly-telat">Garansi hangus</span>';
+        if (t.lepas) teks += '<span class="ly-telat">Lewat ' + (C.lepasTanggungJawabHari || 90) + ' hari</span>';
+        var akhir = (s.pengingat || []).slice(-1)[0];
+        return '<span class="ly-item__m"><span>Selesai ' + t.lama + ' hari lalu</span>' + teks + (akhir ? '<span>Diingatkan ' + L.tgl(akhir) + '</span>' : '') + '</span>' +
+            '<span class="ly-item__b"><button type="button" class="ly-btn ly-btn--sm ' + (L.perluIngat(s, hari) ? 'ly-btn--wa' : '') + '" data-ingat="' + s.id + '">' + (L.perluIngat(s, hari) ? 'Ingatkan via WA' : 'Kirim pengingat') + '</button></span>';
+    }
+    /* buka WA dulu (harus langsung dari ketukan), lalu catat tanggal pengingat di data */
+    function ingatkan(id, btn) {
+        var s = cache.servis.filter(function (x) { return x.id === id; })[0]; if (!s) return;
+        bukaWa(s.hp, L.pesan.pengingat(s));
+        var rec = salin(s); rec.pengingat = (rec.pengingat || []).concat(L.hariIni());
+        if (btn) sibuk(btn, true, 'Mencatat…');
+        A.simpanServis(rec).then(function (row) {
+            cache.servis = cache.servis.map(function (x) { return x.id === row.id ? row : x; });
+            if (ed && ed.s.id === row.id && $('#sv-titip')) { ed.s.pengingat = row.pengingat; ed.s.updated_at = row.updated_at; gambarStatus(); }
+            toast('Pengingat dicatat (' + L.tgl(L.hariIni()) + ').'); gambarDaftar();
+        }).catch(function (e) { if (btn) sibuk(btn, false); gagal(e); });
     }
 
     /* ================= form servis (semua perubahan baru dikirim ke GitHub saat Simpan) ================= */
@@ -202,7 +231,7 @@
             '<div class="ly-row2"><label>Metode<select id="by-metode">' + opsi([['tunai', 'Tunai'], ['transfer', 'Transfer'], ['qris', 'QRIS']], 'tunai') + '</select></label><label>Tanggal<input type="date" id="by-tgl"></label></div>' +
             '<button type="button" class="ly-btn" id="by-tambah">Catat pembayaran</button></div></fieldset>' +
 
-            '<fieldset class="ly-card"><legend>Status</legend><div class="ly-status" id="sv-status"></div><p class="ly-hint" style="margin-top:8px">Aturan toko: gitar dikerjakan setelah DP ' + L.dpPersen() + '% jasa + part lunas. Status otomatis pindah ke <b>Antri</b> saat pembayaran awal terpenuhi.</p></fieldset>' +
+            '<fieldset class="ly-card"><legend>Status</legend><div class="ly-status" id="sv-status"></div><div id="sv-titip"></div><p class="ly-hint" style="margin-top:8px">Aturan toko: gitar dikerjakan setelah DP ' + L.dpPersen() + '% jasa + part lunas. Status otomatis pindah ke <b>Antri</b> saat pembayaran awal terpenuhi.</p></fieldset>' +
 
             '<fieldset class="ly-card"><legend>Foto</legend><div id="sv-foto"></div><p class="ly-hint" style="margin-top:10px">Foto dikecilkan otomatis (WebP ±150 KB) dan dikunci sebelum diunggah. Label <b>Tampil</b> = terlihat pelanggan; ketuk untuk menyembunyikan. Foto sesudah servis baru terlihat pelanggan saat status Selesai.</p></fieldset>' +
 
@@ -216,7 +245,7 @@
                 '<button type="button" class="ly-btn ly-btn--wa" data-wa="tandaTerima">WA: Tanda terima</button>' +
                 '<button type="button" class="ly-btn ly-btn--wa" data-wa="update">WA: Update status</button>' +
                 '<button type="button" class="ly-btn ly-btn--wa" data-wa="selesai">WA: Kabari selesai</button>' +
-                '<button type="button" class="ly-btn ly-btn--wa" data-wa="nota">WA: Kirim nota</button></div>' +
+                '<button type="button" class="ly-btn ly-btn--wa" data-wa="nota">WA: Kirim nota</button>' + (s.status === 'selesai' ? '<button type="button" class="ly-btn ly-btn--wa" data-wa="pengingat">WA: Ingatkan ambil</button>' : '') + '</div>' +
                 '<div class="ly-btns" style="margin-top:8px"><a class="ly-btn" target="_blank" href="cek-servis.html?k=' + encodeURIComponent(s.kode) + '&amp;h=' + encodeURIComponent(L.hp4(s.hp)) + '">Lihat halaman pelanggan</a>' +
                 '<a class="ly-btn" target="_blank" href="nota.html?k=' + encodeURIComponent(s.kode) + '&amp;h=' + encodeURIComponent(L.hp4(s.hp)) + '">Buka / cetak nota</a>' +
                 '<button type="button" class="ly-btn" id="sv-artikel">Jadikan artikel</button><button type="button" class="ly-btn ly-btn--del" id="sv-hapus">Hapus servis</button></div>' +
@@ -277,9 +306,10 @@
         $('#sv-sum').innerHTML = '<div><span>Jasa</span><span>' + L.rupiah(h.jasa) + '</span></div>' + (h.part ? '<div><span>Part</span><span>' + L.rupiah(h.part) + '</span></div>' : '') +
             (h.diskon ? '<div><span>Diskon</span><span>' + L.rupiah(-h.diskon) + '</span></div>' : '') +
             '<div class="ly-total"><span>Total</span><span>' + L.rupiah(h.total) + '</span></div>' +
-            '<div><span>Bayar awal sebelum dikerjakan<br><small class="ly-muted">DP ' + L.dpPersen() + '% jasa + part lunas</small></span><span>' + L.rupiah(h.wajibAwal) + '</span></div>' +
+            /* aturan DP hanya relevan sebelum gitar selesai dikerjakan */
+            (L.beres(ed.s) ? '' : '<div><span>Bayar awal sebelum dikerjakan<br><small class="ly-muted">DP ' + L.dpPersen() + '% jasa + part lunas</small></span><span>' + L.rupiah(h.wajibAwal) + '</span></div>') +
             '<div><span>Sudah dibayar</span><span>' + L.rupiah(h.dibayar) + '</span></div>' +
-            (h.total ? (h.kurangAwal ? '<div class="ly-warn"><span>Bayar awal masih kurang</span><span>' + L.rupiah(h.kurangAwal) + '</span></div>' : '<div class="ly-ok"><span>Bayar awal terpenuhi ✓</span><span></span></div>') : '') +
+            (h.total && !L.beres(ed.s) ? (h.kurangAwal ? '<div class="ly-warn"><span>Bayar awal masih kurang</span><span>' + L.rupiah(h.kurangAwal) + '</span></div>' : '<div class="ly-ok"><span>Bayar awal terpenuhi ✓</span><span></span></div>') : '') +
             '<div class="ly-total"><span>Sisa' + (h.lebih ? ' (kelebihan bayar ' + L.rupiah(h.lebih) + ')' : '') + '</span><span>' + L.rupiah(h.sisa) + '</span></div>';
         var j = $('#by-jml'); if (j && !j.dataset.manual) j.value = h.kurangAwal || h.sisa || '';
         var bj = $('#by-jenis'); if (bj && !bj.dataset.manual) bj.value = h.kurangAwal ? 'dp' : h.sisa ? 'pelunasan' : 'tambahan';
@@ -292,6 +322,15 @@
     }
     function gambarStatus() {
         $('#sv-status').innerHTML = L.URUT_STATUS.concat('batal').map(function (k) { return '<button type="button" data-status="' + k + '" aria-pressed="' + (ed.s.status === k) + '">' + E(L.STATUS[k].label) + '</button>'; }).join('');
+        /* penitipan: hanya untuk data yang sudah tersimpan sebagai Selesai/Diambil */
+        var el = $('#sv-titip'), t = !ed.baru && ed.s.tgl_selesai && L.titip(ed.s); if (!el) return;
+        if (!t) { el.innerHTML = ''; return; }
+        var sudah = ed.items.some(function (i) { return /^Biaya penitipan/i.test(i.nama); });
+        el.innerHTML = '<div class="ly-ingat ly-ingat--info"><span>Selesai ' + L.tgl(ed.s.tgl_selesai) + ' (' + t.lama + ' hari' + (ed.s.status === 'diambil' ? ' sampai diambil' : ' lalu') + '). ' +
+            (t.hariBiaya ? '<b>Biaya penitipan ' + t.hariBiaya + ' hari × ' + L.rupiah(L.biayaTitip()) + ' = ' + L.rupiah(t.biaya) + '</b>.' : 'Gratis titip s/d ' + L.tgl(t.batasGratis) + '.') +
+            (t.garansiHangus ? ' <b class="ly-telat">Garansi hangus</b> (lewat ' + (C.garansiHangusHari || 30) + ' hari).' : '') +
+            ((ed.s.pengingat || []).length ? ' Diingatkan: ' + ed.s.pengingat.map(L.tgl).join(', ') + '.' : '') + '</span>' +
+            (t.hariBiaya && !sudah ? '<button type="button" class="ly-btn ly-btn--sm" data-titip>+ Tambah biaya penitipan</button>' : '') + '</div>';
     }
     function gambarFoto() {
         $('#sv-foto').innerHTML = ['sebelum', 'kerusakan', 'sesudah'].map(function (t) {
@@ -319,6 +358,11 @@
         else if (d.tampilq) { ed.antri.forEach(function (f) { if (f.qid === d.tampilq) f.tampil = !f.tampil; }); gambarFoto(); }
         else if (d.hapusq) { ed.antri = ed.antri.filter(function (f) { return f.qid !== d.hapusq; }); gambarFoto(); setDirty(ed.antri.length > 0 || dirty); }
         else if (d.wa) kirimWa(d.wa);
+        else if (t.hasAttribute('data-titip')) {
+            var tt = L.titip(ed.s);
+            ed.items.push({ jenis: 'jasa', nama: 'Biaya penitipan (' + tt.hariBiaya + ' hari)', harga: tt.biaya, qty: 1, garansi: '', garansi_syarat: '' });
+            gambarItems(); gambarRingkas(); gambarStatus(); setDirty(true); toast('Biaya penitipan ditambahkan ke rincian. Tekan Simpan.');
+        }
     }
     function ubahStatus(st) {
         var h = L.hitung(ed.s, ed.items, ed.bayar);
@@ -326,7 +370,7 @@
         if ((st === 'dikerjakan' || st === 'antri') && h.kurangAwal > 0 && !confirm('Pembayaran awal masih kurang ' + L.rupiah(h.kurangAwal) + '. Aturan toko: dikerjakan setelah DP dan part lunas.\n\nTetap ubah status?')) return;
         if (st === 'diambil' && h.sisa > 0 && !confirm('Masih ada sisa pembayaran ' + L.rupiah(h.sisa) + '. Tandai sudah diambil?')) return;
         if (st === 'batal' && !confirm('Tandai servis ini dibatalkan? Pelanggan tidak bisa lagi membuka status dan notanya.')) return;
-        ed.s.status = st; gambarStatus(); setDirty(true);
+        ed.s.status = st; gambarStatus(); gambarRingkas(); setDirty(true);
         if (st === 'selesai' && !ed.foto.concat(ed.antri).some(function (f) { return f.tahap === 'sesudah'; })) toast('Jangan lupa tambahkan foto sesudah servis dan saran untuk pelanggan.');
     }
     function tambahBayar() {
@@ -391,6 +435,10 @@
     /* ---------- kirim WA, artikel, hapus ---------- */
     function kirimWa(jenis) {
         if (dirty) return toast('Simpan perubahan dulu, supaya yang dilihat pelanggan sudah terbaru.', true);
+        if (jenis === 'pengingat') {
+            if (ed.s.status !== 'selesai') return toast('Pengingat ambil hanya untuk status Selesai.', true);
+            return ingatkan(ed.s.id, null);
+        }
         bukaWa(ed.s.hp, L.pesan[jenis](ed.s));
     }
     function jadikanArtikel() {

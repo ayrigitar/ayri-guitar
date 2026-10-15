@@ -58,7 +58,8 @@ Setelah terpasang, token tidak perlu disimpan di tempat lain. Kalau suatu saat l
 | Mulai dikerjakan | Status **Sedang dikerjakan** → Simpan → (opsional) **WA: Update status** |
 | Ada kerusakan tambahan | Tambah jasa/part, foto di **Kerusakan tambahan**, ubah estimasi, tulis **Pesan untuk pelanggan** → Simpan → **WA: Update status** |
 | Selesai | Status **Selesai**, tambah foto *sesudah*, tulis **Saran** (upgrade/perbaikan lain) → Simpan → **WA: Kabari selesai** |
-| Diambil | Catat pelunasan → status **Sudah diambil** → Simpan → **WA: Kirim nota**. Garansi mulai dihitung hari ini |
+| Belum diambil | Daftar servis menampilkan **🔔 … gitar perlu diingatkan** pada hari ke-7 dan ke-12 setelah selesai (lalu seminggu sekali bila biaya titip sudah berjalan). Ketuk **Lihat** → **Ingatkan via WA**; tanggal pengingat tercatat otomatis |
+| Diambil | Kalau lewat masa gratis: bagian Status → **+ Tambah biaya penitipan**. Catat pelunasan → status **Sudah diambil** → Simpan → **WA: Kirim nota**. Garansi mulai dihitung hari ini |
 | Mau dijadikan artikel | **Jadikan artikel** → rapikan tulisan & keterangan foto → status **Terbit** → Simpan |
 
 Catatan:
@@ -87,7 +88,8 @@ Catatan:
 
 Semua ada di [`layanan-config.js`](layanan-config.js): alamat, jam buka, nomor WA, rekening, persen DP, daftar jasa + harga + garansi, dan ketentuan nota.
 Aturan penitipan saat ini:
-- `gratisTitipHari` (**14 hari**), `biayaPenitipan` (**Rp5.000 per hari**), `garansiHangusHari` (**30 hari**): aturan gitar yang sudah selesai tapi belum diambil. Dihitung dari tanggal status **Selesai**; tanggal batas gratisnya tampil di pesan WA, halaman cek status, dan nota.
+- `gratisTitipHari` (**14 hari**), `biayaTitipPerHari` (**5000**), `garansiHangusHari` (**30 hari**), `lepasTanggungJawabHari` (**90 hari**): aturan gitar yang sudah selesai tapi belum diambil. Dihitung dari tanggal status **Selesai**; batas gratis, biaya yang berjalan, dan garansi hangus tampil di pesan WA, halaman cek status, dan nota.
+- `pengingatHari` (**[7, 12]**): hari ke- berapa setelah selesai admin diberi tanda untuk mengirim pengingat.
 
 ## Bantuan dari Claude
 
