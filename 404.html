@@ -2,27 +2,105 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="robots" content="noindex">
     <title>Halaman tidak ditemukan | Toko Gitar AYRI</title>
     <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48.png">
+    <meta name="theme-color" content="#15100c">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500..700&family=Plus+Jakarta+Sans:wght@400..800&display=swap">
+    <!-- Alamat absolut: halaman ini bisa tampil di URL mana pun -->
+    <link rel="stylesheet" href="/theme-dark.css">
     <style>
-        :root{color-scheme:light dark;--bg:#f8fafc;--ink:#0f172a;--sub:#475569;--brand:#0B8043}
-        @media (prefers-color-scheme:dark){:root{--bg:#15100c;--ink:#f1e8da;--sub:#c4b8a6}}
-        *{box-sizing:border-box}body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:1.5rem;background:var(--bg);color:var(--ink);font-family:ui-sans-serif,system-ui,sans-serif;text-align:center}
-        h1{font-size:2rem;margin:.5rem 0}p{color:var(--sub);font-size:1.1rem;line-height:1.6}
-        .code{font-size:5rem;font-weight:800;color:#d97706;line-height:1}
-        .row{display:flex;gap:.8rem;justify-content:center;flex-wrap:wrap;margin-top:1.5rem}
-        a{display:inline-flex;align-items:center;min-height:48px;padding:0 1.5rem;border-radius:999px;font-weight:700;text-decoration:none;background:var(--brand);color:#fff}
-        a.alt{background:transparent;color:var(--ink);border:2px solid var(--sub)}
+        /* Khusus halaman 404 (token & komponen dari theme-dark.css) */
+        body.page-404 { display: flex; flex-direction: column; min-height: 100vh; min-height: 100dvh; padding-bottom: 0; }
+        .page-404 .site-header::before { opacity: 1; }
+        .page-404 .site-header { border-bottom-color: var(--line); }
+        .nf {
+            position: relative; isolation: isolate; overflow: hidden;
+            display: flex; flex: 1; align-items: center; justify-content: center;
+            padding: calc(var(--header-h) + env(safe-area-inset-top) + 2rem) var(--gutter) calc(2.5rem + env(safe-area-inset-bottom));
+            text-align: center;
+        }
+        .nf::before {
+            content: ""; position: absolute; inset: 0; z-index: -1;
+            background:
+                radial-gradient(50% 45% at 50% 30%, rgba(208, 138, 46, .18), transparent 70%),
+                radial-gradient(40% 40% at 10% 90%, rgba(18, 128, 77, .06), transparent 70%);
+        }
+        .nf__inner { max-width: 34rem; }
+        .nf__code {
+            display: inline-flex; align-items: center; gap: .04em;
+            font: 600 clamp(6rem, 4rem + 12vw, 10rem)/1 var(--font-display); letter-spacing: -.04em;
+            color: var(--ink);
+            animation: rise .9s var(--ease-out) backwards;
+        }
+        .nf__hole { width: .74em; height: .9em; margin: 0 .02em; overflow: visible; }
+        .nf__hole .ring { fill: none; stroke: var(--accent); stroke-width: 5; }
+        .nf__hole .ring2 { fill: none; stroke: var(--accent); stroke-width: 1.5; stroke-dasharray: 3 4; opacity: .7; }
+        .nf__hole .well { fill: #1A120C; }
+        .nf__hole .str { stroke: #D9D4CC; stroke-linecap: round; }
+        .nf__hole .snap { fill: none; stroke: #D9D4CC; stroke-linecap: round; transform-box: fill-box; animation: sway 2.8s var(--ease) infinite; }
+        .nf__hole .snap--b { transform-origin: 50% 100%; animation-delay: -1.4s; }
+        .nf__hole .snap--t { transform-origin: 50% 0%; }
+        .nf h1 {
+            margin-top: .75rem;
+            font: 600 clamp(1.75rem, 1.4rem + 1.6vw, 2.5rem)/1.15 var(--font-display); letter-spacing: -.02em;
+            animation: rise .9s var(--ease-out) .08s backwards;
+        }
+        .nf__text { margin-top: .75rem; font-size: 1.0625rem; line-height: 1.6; color: var(--ink-2); animation: rise .9s var(--ease-out) .14s backwards; }
+        .nf__actions { display: flex; flex-direction: column; gap: 10px; margin-top: 1.75rem; animation: rise .9s var(--ease-out) .2s backwards; }
+        .nf__more { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 1.75rem; animation: rise .9s var(--ease-out) .26s backwards; }
+        .nf__more-label { width: 100%; font-size: .75rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); }
+        @media (min-width: 480px) { .nf__actions { flex-direction: row; justify-content: center; } }
+        @keyframes sway { 0%, 100% { rotate: 0deg; } 50% { rotate: 6deg; } }
     </style>
+    <script>document.documentElement.classList.add('js');</script>
+    <script src="/theme.js"></script>
+    <script src="/site.js" defer></script>
 </head>
-<body>
-    <main>
-        <div class="code">404</div>
-        <h1>Halaman tidak ditemukan</h1>
-        <p>Alamat yang Anda buka tidak ada atau sudah dipindahkan.</p>
-        <div class="row"><a href="/">Ke Beranda</a><a class="alt" href="/tuner.html">Buka Tuner Gitar</a></div>
+<body class="page-404">
+    <svg class="sprite" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+        <defs>
+            <linearGradient id="g-pick" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#E9B567"/><stop offset="1" stop-color="#9E5A0C"/></linearGradient>
+        </defs>
+        <symbol id="i-home" viewBox="0 0 24 24"><path d="M4 10.5 12 4l8 6.5V19a1 1 0 0 1-1 1h-4.5v-5h-5v5H5a1 1 0 0 1-1-1z"/></symbol>
+        <symbol id="i-gauge" viewBox="0 0 24 24"><path d="M4.5 17a8 8 0 1 1 15 0"/><path d="m12 14 3.6-4.4"/><circle cx="12" cy="14" r="1.4"/></symbol>
+    </svg>
+
+    <header class="site-header">
+        <nav class="nav container" aria-label="Navigasi utama">
+            <a href="/" class="brand" aria-label="Toko Gitar AYRI, ke beranda">
+                <svg class="brand__mark" viewBox="0 0 32 32" aria-hidden="true"><path fill="url(#g-pick)" d="M16 30.5c-4.3-4.6-11.3-13-11.3-19.4 0-3 1.6-5.2 4.4-6.1C11.3 4.3 13.6 4 16 4s4.7.3 6.9 1c2.8.9 4.4 3.1 4.4 6.1 0 6.4-7 14.8-11.3 19.4z"/><text x="16" y="17.6" text-anchor="middle">A</text></svg>
+                <span class="brand__name">Toko Gitar <span class="text-accent">AYRI</span></span>
+            </a>
+            <div class="nav__actions"><span id="themeslot" class="theme-slot"></span></div>
+        </nav>
+    </header>
+
+    <main class="nf">
+        <div class="nf__inner">
+            <p class="nf__code"><span class="sr-only">404</span><span aria-hidden="true">4</span><svg class="nf__hole" viewBox="0 0 100 120" aria-hidden="true">
+                <circle class="ring" cx="50" cy="60" r="44"/><circle class="ring2" cx="50" cy="60" r="38"/><circle class="well" cx="50" cy="60" r="33"/>
+                <line class="str" x1="28" y1="0" x2="28" y2="120" stroke-width="3"/><line class="str" x1="37" y1="0" x2="37" y2="120" stroke-width="2.6"/><line class="str" x1="46" y1="0" x2="46" y2="120" stroke-width="2.2"/>
+                <path class="snap snap--t" d="M55 0V46q0 7-6 9" stroke-width="1.8"/><path class="snap snap--b" d="M55 120V76q0-6 5-8" stroke-width="1.8"/>
+                <line class="str" x1="64" y1="0" x2="64" y2="120" stroke-width="1.4"/><line class="str" x1="73" y1="0" x2="73" y2="120" stroke-width="1.1"/>
+            </svg><span aria-hidden="true">4</span></p>
+            <h1>Halaman tidak ditemukan</h1>
+            <p class="nf__text">Alamat yang Anda buka tidak ada atau sudah dipindahkan.</p>
+            <div class="nf__actions">
+                <a class="btn btn--wa btn--lg" href="/"><svg class="ic" aria-hidden="true"><use href="#i-home"/></svg> Ke Beranda</a>
+                <a class="btn btn--ghost btn--lg" href="/tuner.html"><svg class="ic" aria-hidden="true"><use href="#i-gauge"/></svg> Buka Tuner Gitar</a>
+            </div>
+            <nav class="nf__more" aria-label="Halaman lain">
+                <span class="nf__more-label">Atau buka</span>
+                <a class="chip" href="/#harga">Harga Servis</a>
+                <a class="chip" href="/chords.html">Chord Gitar</a>
+                <a class="chip" href="/metronom.html">Metronom</a>
+                <a class="chip" href="/artikel-custom-nut.html">Artikel</a>
+            </nav>
+        </div>
     </main>
 </body>
 </html>
