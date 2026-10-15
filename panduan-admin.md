@@ -26,7 +26,7 @@ Buat token **langsung di HP yang akan dipakai**, supaya token tidak perlu dikiri
 
 1. Buka **https://github.com/settings/personal-access-tokens/new** (token *fine-grained*). Kalau GitHub meminta kata sandi atau kode verifikasi, isi seperti biasa.
 2. **Token name**: `Admin servis AYRI - HP` (di laptop: `Admin servis AYRI - Laptop`)
-3. **Expiration**: pilih **Custom**, lalu tanggal **1 tahun** dari hari ini. Catat tanggalnya di kalender HP sebagai pengingat untuk membuat token baru.
+3. **Expiration**: pilih **No expiration** (tidak perlu diperbarui tiap tahun). Konsekuensinya: kalau HP hilang, rusak, dijual, atau diganti, **token HP itu wajib dicabut** (lihat *Keamanan & perawatan*). Kalau lebih suka token mati sendiri, pilih masa berlaku 1 tahun; GitHub mengirim email pengingat sebelum habis.
 4. **Repository access**: **Only select repositories**, lalu pilih **ayri-guitar** dan **ayri-servis-data**.
 5. **Permissions** → **Repository permissions** (atau tombol **Add permissions**) → **Contents**: pilih **Read and write**. Biarkan yang lain apa adanya; *Metadata: Read-only* terisi otomatis.
 6. Klik **Generate token**, lalu **salin token** (diawali `github_pat_…`). Token hanya ditampilkan sekali; langsung lanjut ke langkah 3.
@@ -78,7 +78,8 @@ Catatan:
 
 - **HP hilang?** Buka https://github.com/settings/personal-access-tokens → token **Admin servis AYRI** → **Revoke**. Buat token baru (langkah 2) dan pasang di HP baru. Data tidak hilang karena tersimpan di GitHub.
 - **Lupa PIN?** Di layar PIN tekan **Pasang ulang token**, lalu tempel token baru.
-- **Token kedaluwarsa** (setahun sekali): admin menampilkan peringatan sebulan sebelumnya. Buat token baru (langkah 2), lalu di admin tekan **Hapus token dari perangkat ini** dan pasang yang baru.
+- **Ganti HP**: cabut token HP lama (cara sama seperti HP hilang), lalu buat token baru di HP baru.
+- **Token kedaluwarsa** (kalau memilih masa berlaku): admin menampilkan pesan "Token GitHub ditolak". Buat token baru (langkah 2), lalu di admin tekan **Hapus token dari perangkat ini** dan pasang yang baru.
 - **Cadangan**: semua riwayat perubahan tersimpan otomatis di repo `ayri-servis-data`. Tombol **Unduh cadangan** di daftar servis menyimpan salinan JSON, misalnya ke Google Drive sebulan sekali.
 - **Kapasitas**: situs GitHub Pages maksimal 1 GB. Foto servis dikecilkan ke ±150 KB, jadi cukup untuk ribuan foto. Kalau suatu saat mendekati batas, minta Claude membuat fitur arsip yang menghapus foto servis lama yang garansinya sudah habis.
 

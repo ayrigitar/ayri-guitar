@@ -122,9 +122,7 @@
 
     /* ================= daftar servis ================= */
     function daftarServis() {
-        var dibuat = A.tokenDibuat(), tua = dibuat && (Date.now() - L.tglObj(dibuat).getTime()) / 864e5 > 330;
         app.innerHTML = '<section><div class="ly-head"><h1>Servis</h1><a class="ly-btn ly-btn--pri" href="#servis/baru">+ Gitar masuk</a></div>' +
-            (tua ? '<p class="cek-err">Token GitHub dipasang ' + L.tgl(dibuat) + ' dan akan segera kedaluwarsa. Buat token baru (panduan langkah 2), lalu pasang ulang.</p>' : '') +
             '<div class="ly-cari"><input class="ly-in" id="cari" type="search" placeholder="Cari kode, nama, no. HP, merk…" autocomplete="off"></div>' +
             '<div class="ly-filter" id="filter"></div><div class="ly-list" id="list"></div>' +
             '<div class="ly-btns" style="margin-top:18px"><button type="button" class="ly-btn ly-btn--sm" id="b-muat">Muat ulang data</button><button type="button" class="ly-btn ly-btn--sm" id="b-cadang">Unduh cadangan</button><button type="button" class="ly-btn ly-btn--sm ly-btn--del" id="b-lupa">Hapus token dari perangkat ini</button></div></section>';
