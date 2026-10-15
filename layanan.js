@@ -216,7 +216,7 @@
     L.siapAdmin = !!(G.pemilik && G.repoSitus && G.repoData);
 
     function pesanGh(status, teks) {
-        if (status === 401) return 'Token GitHub ditolak (salah atau sudah kedaluwarsa). Buat token baru, lalu pasang ulang di admin.';
+        if (status === 401) return 'Token GitHub ditolak (salah atau sudah kedaluwarsa). Buat token baru (panduan langkah 2), lalu pasang ulang di admin.';
         if (status === 403 && /rate limit/i.test(teks)) return 'Batas akses GitHub tercapai. Tunggu beberapa menit.';
         if (status === 403) return 'Token tidak punya izin menulis. Pastikan izin Contents: Read and write untuk kedua repo.';
         if (status === 404) return 'Repo tidak ditemukan, atau token tidak diberi akses ke repo itu.';

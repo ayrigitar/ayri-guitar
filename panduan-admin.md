@@ -20,23 +20,25 @@ Admin servis berjalan **tanpa server dan tanpa biaya**:
 4. Centang **Add a README file**.
 5. Klik **Create repository**.
 
-## Langkah 2: Buat token admin
+## Langkah 2: Buat token admin (lakukan di Chrome HP)
 
-1. Buka **https://github.com/settings/personal-access-tokens/new** (token *fine-grained*).
-2. **Token name**: `Admin servis AYRI`
+Buat token **langsung di HP yang akan dipakai**, supaya token tidak perlu dikirim lewat WhatsApp atau catatan. Untuk laptop, buat token kedua di laptop (langkah 2–3 diulang), sehingga kalau satu perangkat hilang cukup token perangkat itu yang dicabut.
+
+1. Buka **https://github.com/settings/personal-access-tokens/new** (token *fine-grained*). Kalau GitHub meminta kata sandi atau kode verifikasi, isi seperti biasa.
+2. **Token name**: `Admin servis AYRI - HP` (di laptop: `Admin servis AYRI - Laptop`)
 3. **Expiration**: pilih **Custom**, lalu tanggal **1 tahun** dari hari ini. Catat tanggalnya di kalender HP sebagai pengingat untuk membuat token baru.
 4. **Repository access**: **Only select repositories**, lalu pilih **ayri-guitar** dan **ayri-servis-data**.
-5. **Permissions** → **Repository permissions** → **Contents**: pilih **Read and write**. Biarkan yang lain apa adanya; *Metadata: Read-only* terisi otomatis.
-6. Klik **Generate token**, lalu **salin token** (diawali `github_pat_…`). Token hanya ditampilkan sekali.
+5. **Permissions** → **Repository permissions** (atau tombol **Add permissions**) → **Contents**: pilih **Read and write**. Biarkan yang lain apa adanya; *Metadata: Read-only* terisi otomatis.
+6. Klik **Generate token**, lalu **salin token** (diawali `github_pat_…`). Token hanya ditampilkan sekali; langsung lanjut ke langkah 3.
 
 ## Langkah 3: Pasang admin di HP
 
-1. Buka **https://ayrigitar.com/admin.html** di Chrome HP.
+1. Buka **https://ayrigitar.com/admin.html** di Chrome HP (tab baru).
 2. Tempel token ke kolom **Token GitHub**.
 3. Buat **PIN** 4–8 angka (bukan tanggal lahir), ketik ulang, lalu tekan **Pasang**.
 4. Menu ⋮ Chrome → **Tambahkan ke layar utama**, supaya admin bisa dibuka seperti aplikasi.
 
-Ulangi langkah 3 di laptop kalau ingin mengisi data dari laptop juga (token yang sama boleh dipakai). Setelah terpasang di semua perangkat, **hapus salinan token** dari catatan atau clipboard.
+Setelah terpasang, token tidak perlu disimpan di tempat lain. Kalau suatu saat lupa PIN, cukup buat token baru.
 
 ## Langkah 4: Uji coba
 
