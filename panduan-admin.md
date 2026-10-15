@@ -88,7 +88,7 @@ Catatan:
 
 Semua ada di [`layanan-config.js`](layanan-config.js): alamat, jam buka, nomor WA, rekening, persen DP, daftar jasa + harga + garansi, dan ketentuan nota.
 Aturan penitipan saat ini:
-- `gratisTitipHari` (**14 hari**), `biayaTitipPerHari` (**5000**), `garansiHangusHari` (**30 hari**), `lepasTanggungJawabHari` (**90 hari**): aturan gitar yang sudah selesai tapi belum diambil. Dihitung dari tanggal status **Selesai**; batas gratis, biaya yang berjalan, dan garansi hangus tampil di pesan WA, halaman cek status, dan nota.
+- `gratisTitipHari` (**14 hari**), `biayaTitipPerHari` (**5000**), `garansiHangusHari` (**30 hari**), `penyimpananLamaHari` (**90 hari**): aturan gitar yang sudah selesai tapi belum diambil. Dihitung dari tanggal status **Selesai**; batas gratis, biaya yang berjalan, dan garansi hangus tampil di pesan WA, halaman cek status, dan nota.
 - `pengingatHari` (**[7, 12]**): hari ke- berapa setelah selesai admin diberi tanda untuk mengirim pengingat.
 
 ## Bantuan dari Claude

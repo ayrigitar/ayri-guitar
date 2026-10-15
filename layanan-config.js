@@ -34,7 +34,7 @@ var AYRI_LAYANAN = {
     gratisTitipHari: 14,                   /* gratis dititipkan sampai sekian hari */
     biayaTitipPerHari: 5000,               /* biaya penitipan per hari setelah masa gratis (Rp) */
     garansiHangusHari: 30,                 /* garansi hangus bila belum diambil lewat sekian hari */
-    lepasTanggungJawabHari: 90,            /* setelah sekian hari, gitar di luar tanggung jawab toko */
+    penyimpananLamaHari: 90,               /* setelah sekian hari: pemilik dihubungi tertulis, gitar tetap disimpan */
     pengingatHari: [7, 12],                /* admin diingatkan mengirim WA pengingat pada hari ke- ini */
 
     /* garansi: '7h' = 7 hari, '1b' = 1 bulan, '6b' = 6 bulan */
@@ -66,7 +66,7 @@ var AYRI_LAYANAN = {
         'Garansi dihitung sejak gitar diambil dan hanya berlaku untuk pekerjaan yang tercantum di nota ini.',
         'Garansi tidak berlaku bila gitar dibongkar atau diperbaiki pihak lain.',
         'Gitar yang sudah selesai gratis dititipkan sampai {gratis} hari sejak kami kabari. Setelah itu dikenakan biaya penitipan {biaya}. Bila tidak diambil lebih dari {hangus} hari, garansi servis hangus.',
-        'Gitar yang tidak diambil lebih dari {lepas} hari sejak dinyatakan selesai berada di luar tanggung jawab toko atas kerusakan maupun kehilangan.',
+        'Bila gitar belum diambil lebih dari {lepas} hari sejak dinyatakan selesai, kami akan menghubungi pemilik secara tertulis (WhatsApp). Gitar tetap kami simpan dengan baik dan biaya penitipan tetap berjalan. Perubahan kondisi karena penyimpanan lama (misalnya senar berkarat atau setelan neck bergeser) tidak termasuk garansi servis.',
         'Klaim garansi wajib menyebutkan kode servis atau menunjukkan nota ini.'
     ]
 };
