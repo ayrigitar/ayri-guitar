@@ -1,4 +1,4 @@
-﻿/* Service worker Toko Gitar AYRI.
+/* Service worker Toko Gitar AYRI.
    Naikkan angka VERSION setiap kali Anda mengubah daftar file di bawah. */
 var VERSION = 'ayri-v8';
 var CORE = ['./', 'index.html', 'tuner.html', 'chords.html', 'metronom.html', 'transkrip.html', 'chord-engine.js', 'artikel-custom-nut.html', 'style-index.css', 'style-artikel.css',
