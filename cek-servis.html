@@ -158,6 +158,7 @@ document.addEventListener('DOMContentLoaded', function () {
             '<dl class="cek-kv"><dt>Tanggal masuk</dt><dd>' + L.tglPanjang(s.tgl_masuk) + '</dd>' +
             (s.status === 'selesai' || s.status === 'diambil' ? '<dt>Selesai</dt><dd>' + L.tglPanjang(s.tgl_selesai) + '</dd>' : s.estimasi ? '<dt>Estimasi selesai</dt><dd>' + L.tglPanjang(s.estimasi) + '</dd>' : '') +
             (s.tgl_diambil ? '<dt>Diambil</dt><dd>' + L.tglPanjang(s.tgl_diambil) + '</dd>' : '') +
+            (L.batasGratis(s) ? '<dt>Ambil sebelum</dt><dd>' + L.tglPanjang(L.batasGratis(s)) + ' <span class="ly-muted">(gratis penitipan; setelahnya ' + E(C.biayaPenitipan || 'dikenakan biaya') + ')</span></dd>' : '') +
             (s.keluhan ? '<dt>Keluhan</dt><dd>' + E(s.keluhan) + '</dd>' : '') + '</dl></section>';
 
         if (s.catatan_publik) html += '<section class="ly-card"><h2>Pesan dari bengkel</h2><p class="cek-pesan">' + E(s.catatan_publik) + '</p></section>';

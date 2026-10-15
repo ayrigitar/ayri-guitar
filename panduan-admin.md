@@ -86,9 +86,8 @@ Catatan:
 ## Mengubah pengaturan toko
 
 Semua ada di [`layanan-config.js`](layanan-config.js): alamat, jam buka, nomor WA, rekening, persen DP, daftar jasa + harga + garansi, dan ketentuan nota.
-Yang **perlu Anda pastikan**:
-- `batasAmbilHari` (sekarang **30 hari**): batas gitar tidak diambil sebelum garansi hangus dan kena biaya penitipan.
-- `biayaPenitipan` (sekarang kosong): isi misalnya `'Rp5.000 per hari'` kalau ingin nominalnya tercetak di nota.
+Aturan penitipan saat ini:
+- `gratisTitipHari` (**14 hari**), `biayaPenitipan` (**Rp5.000 per hari**), `garansiHangusHari` (**30 hari**): aturan gitar yang sudah selesai tapi belum diambil. Dihitung dari tanggal status **Selesai**; tanggal batas gratisnya tampil di pesan WA, halaman cek status, dan nota.
 
 ## Bantuan dari Claude
 
