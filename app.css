@@ -365,3 +365,58 @@ main.app.fit1 .trans-app .chip.bpmh, main.app.fit1 .chip.bpmh { height: 36px; }
 /* baris tombol waktu/edit selebar kartu; di HP tanpa label supaya muat satu baris */
 .trans-app .tr-adj { margin-top: 2px; flex: 0 0 auto; }
 @media (max-width: 520px) { .trans-app .tr-adjl { display: none; } .trans-app .tr-adj { gap: 5px; } .trans-app .tr-adj .chip { flex: 1 1 auto; padding: 0 6px; font-size: .74rem; } }
+/* urungkan / ulangi; teks tombol dipersingkat di HP */
+.trans-app .tr-adj .chip.ic { min-width: 36px; padding: 0 8px; font-size: 1rem; }
+.trans-app .tr-adj .chip:disabled, .chip.xreset:disabled { opacity: .4; cursor: default; }
+@media (max-width: 520px) { .trans-app .tr-adj .lw { display: none; } .trans-app .tr-adj .chip.ic { flex: 0 0 34px; min-width: 34px; padding: 0; } }
+/* transkrip: area chord tidak boleh lebih kecil dari isinya (sebelumnya isi meluber dan tertimpa kartu kontrol);
+   bila tidak muat, app.js merapatkan tampilan (fit1-fit3) dan sebagai jalan terakhir halaman bisa digulir */
+.trans-app .tapp, .trans-app .tr-stage { min-height: auto; }
+.trans-app #cnts { flex: 1 1 auto; min-width: 74px; }
+.trans-app #bpm { max-width: 48px; padding: 0 2px; }
+.trans-app .chip.bpmh { min-width: 30px; padding: 0 2px; }
+
+/* HP miring (landscape): header & dock lebih pendek, chord di kiri dan kontrol di kanan */
+@media (orientation: landscape) and (max-height: 560px) and (min-width: 560px) {
+  .app-page { --header-h: 48px; }
+  main.app { --dock-h: calc(48px + env(safe-area-inset-bottom)); gap: 8px; padding-top: calc(var(--header-h) + env(safe-area-inset-top) + 6px); padding-bottom: calc(var(--dock-h) + 6px); }
+  .apptop .tt a, .apptop .ib { gap: 1px; font-size: .625rem; }
+  .trans-app .tapp { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 8px 12px; align-items: start; }
+  .trans-app .tr-now { min-height: 96px; }
+  .trans-app .ctl { gap: 6px; }
+}
+/* baris tombol di kolom kiri (samping diagram): boleh 2 baris di HP tanpa menambah tinggi kartu */
+.trans-app .tr-now > div:first-child { min-width: 0; }
+.trans-app .tr-adj { margin-top: 6px; }
+/* layar sempit: pratinjau chord berikutnya lebih penting untuk play along daripada kotak saran kapo */
+main.app.trans-app.fit2 .tr-next { display: flex; }
+main.app.trans-app.fit1 #capohint { display: none; }
+@media (orientation: landscape) and (max-height: 560px) and (min-width: 560px) {
+  .trans-app .tr-cn { font-size: 2.6rem; line-height: 1; }
+  .trans-app .tr-cd { max-height: 120px; }
+  main.app.trans-app .tr-next .tr-nd { display: none; }
+}
+/* blok chord juga tidak boleh lebih kecil dari isinya; baris tombol selebar kartu di bawahnya */
+.trans-app .tr-stage > .tr-adj { margin-top: 0; flex-wrap: nowrap; }
+.trans-app .tr-stage > .tr-adj .tr-adjm { position: absolute; left: 0; right: 0; bottom: 100%; text-align: center; }
+.trans-app .tr-stage > .tr-adj { position: relative; }
+/* landscape ringkas: tombol Putar harus terlihat tanpa menggulir */
+@media (orientation: landscape) and (max-height: 560px) and (min-width: 560px) {
+  .trans-app .tr-stage { padding: 10px 12px; gap: 6px; }
+  .trans-app .tr-now { min-height: 64px; }
+  .trans-app .tr-cn { font-size: 2.2rem; }
+  .trans-app .tr-cs { margin-top: 0; font-size: .72rem; }
+  .trans-app .tr-cd { max-height: 86px; }
+  .trans-app canvas.ctab, main.app.fit1 canvas.ctab, main.app.fit3 canvas.ctab { height: 42px; }
+  .trans-app .tr-next { font-size: .75rem; } .trans-app .tr-next b { font-size: 1rem; }
+  .trans-app .tr-tm { display: none; }
+  .trans-app .mt-act .t-btn, main.app.fit1 .trans-app .t-btn { min-height: 38px; height: 38px; }
+  .trans-app .tr-adj .chip { height: 28px; min-height: 28px; }
+}
+@media (orientation: landscape) and (max-height: 560px) and (min-width: 560px) {
+  .app-page { --header-h: 44px; }
+  main.app { --dock-h: calc(44px + env(safe-area-inset-bottom)); }
+  .apptop .tt a span, .apptop .ib span { font-size: .6rem; }
+  .trans-app .tr-cs { display: none; }
+  .trans-app canvas.ctab, main.app.fit1 canvas.ctab, main.app.fit3 canvas.ctab { height: 38px; }
+}

@@ -148,7 +148,8 @@
             <div class="t-card tr-stage">
                 <div class="tr-ttl" id="ttl"></div>
                 <div class="tr-now"><div><div class="tr-cn" id="cn">&ndash;</div><div class="tr-cs" id="cs"></div><div class="tr-hd" id="hd"></div></div><div class="tr-cd" id="cd"></div></div>
-                <div class="tr-adj" role="group" aria-label="Waktu dan edit chord"><span class="tr-adjl">Waktu</span><button type="button" class="chip" id="adjE" title="Pergantian ke chord berikutnya dimajukan 1 ketukan (tampilan terlambat dari lagu)">&#9664; lebih awal</button><button type="button" class="chip" id="adjL" title="Pergantian ke chord ini dimundurkan 1 ketukan (tampilan terlalu cepat)">lebih akhir &#9654;</button><button type="button" class="chip tr-edb" id="adjX" title="Ganti, tambah, atau hapus chord yang sedang tampil">&#9998; Edit chord</button><span class="tr-adjm" id="adjm" role="status"></span></div>
+                <div class="tr-adj" role="group" aria-label="Waktu dan edit chord"><span class="tr-adjl">Waktu</span><button type="button" class="chip" id="adjE" title="Pergantian ke chord berikutnya dimajukan 1 ketukan (tampilan terlambat dari lagu)" aria-label="Waktu ganti chord lebih awal">&#9664;&nbsp;<span class="lw">lebih&nbsp;</span>awal</button><button type="button" class="chip" id="adjL" title="Pergantian ke chord ini dimundurkan 1 ketukan (tampilan terlalu cepat)" aria-label="Waktu ganti chord lebih akhir"><span class="lw">lebih&nbsp;</span>akhir&nbsp;&#9654;</button><button type="button" class="chip tr-edb" id="adjX" title="Ganti, tambah, atau hapus chord yang sedang tampil" aria-label="Edit chord">&#9998;&nbsp;Edit<span class="lw">&nbsp;chord</span></button><button type="button" class="chip ic" id="undo" title="Urungkan (Ctrl+Z)" aria-label="Urungkan" disabled>&#8630;</button><button type="button" class="chip ic" id="redo" title="Ulangi (Ctrl+Y)" aria-label="Ulangi" disabled>&#8631;</button><span class="tr-adjm" id="adjm" role="status"></span></div>
+                
                 <div class="tr-next"><span>Berikutnya</span><b id="nx"></b><div class="tr-nd" id="nd"></div><small id="nt"></small></div>
                 <canvas id="ctab" class="ctab" aria-label="Garis waktu nama chord. Ketuk untuk lompat."></canvas>
                 <input id="seek" class="rg" type="range" min="0" max="100" step="0.1" value="0" aria-label="Posisi lagu"><div class="tr-tm" id="tm">0:00 / 0:00</div>
@@ -158,7 +159,7 @@
                 <label class="lb">Instrumen<select id="insts" class="sel"></select></label>
                 <label class="lb">Kecepatan (nada tetap)<select id="rates" class="sel"></select></label>
                 <label class="lb">Kapo<select id="capo" class="sel"></select></label>
-                <label class="lb">Klik sebelum mulai &middot; tempo (BPM)<span class="row"><select id="cnts" class="sel" aria-label="Jumlah klik metronom sebelum lagu mulai"></select><input id="bpm" class="numin" type="number" inputmode="numeric" min="40" max="220" style="max-width:62px" aria-label="Tempo lagu dalam BPM (ketukan per menit), untuk kecepatan klik" title="Tempo lagu (ketukan per menit)"><button type="button" class="chip bpmh" id="bpmhalf" title="Bagi dua tempo (bila terbaca dua kali lipat)" aria-label="Bagi dua tempo">&frac12;</button></span></label>
+                <label class="lb">Klik sebelum mulai &middot; tempo (BPM)<span class="row"><select id="cnts" class="sel" aria-label="Jumlah klik metronom sebelum lagu mulai"></select><input id="bpm" class="numin" type="number" inputmode="numeric" min="40" max="220" aria-label="Tempo lagu dalam BPM (ketukan per menit), untuk kecepatan klik" title="Tempo lagu (ketukan per menit)"><button type="button" class="chip bpmh" id="bpmhalf" title="Bagi dua tempo (bila terbaca dua kali lipat)" aria-label="Bagi dua tempo">&frac12;</button></span></label>
                 <div class="span2" id="modew"><span class="lb">Tingkat kesulitan chord</span><div class="seg" id="modes"></div></div>
                 <div class="span2 row"><button id="la" type="button" class="chip">Titik A</button><button id="lb" type="button" class="chip">Titik B</button><button id="lp" type="button" class="chip" aria-pressed="false">Loop</button><button id="lc" type="button" class="chip">Hapus</button><span class="hint" id="lab" style="margin:0;min-height:0"></span></div>
                 <div class="span2 tr-key" id="capohint" hidden></div>
@@ -175,7 +176,7 @@
         <textarea id="chart" class="srch" rows="7" style="width:100%;font-family:ui-monospace,Consolas,monospace" placeholder="Intro: D Bm G A 4x&#10;  F#m   G   Bm   C&#10;Di dalam hari-harimu bersama lagi" aria-label="Chart chord"></textarea>
         <div class="pg-row"><button id="chpaste" type="button" class="chip">Tempel dari clipboard</button><button id="chgo" type="button" class="t-btn" style="min-height:46px;font-size:1rem">Sinkronkan ke lagu</button><button id="chclr" type="button" class="chip">Pakai deteksi otomatis</button></div>
         <p class="hint" id="chmsg"></p>
-        <h2>Chord lagu ini</h2><p class="hint">Ketuk chord untuk lompat ke sana. Chord salah? Ketuk lalu ubah. Tanda * berarti chord dari deteksi otomatis (di luar chart). Saat chart dipakai, tulisan kecil "terdengar: ..." di bawah chord besar dan tanda &ne; di garis waktu menunjukkan chord yang terdeteksi di audio bila berbeda dari chart (untuk membedah lagu).</p>
+        <h2>Chord lagu ini</h2><p class="hint">Hasil edit tersimpan otomatis untuk lagu ini di browser. <button type="button" class="chip xreset" disabled>Kembalikan semua ke awal</button></p><p class="hint">Ketuk chord untuk lompat ke sana. Chord salah? Ketuk lalu ubah. Tanda * berarti chord dari deteksi otomatis (di luar chart). Saat chart dipakai, tulisan kecil "terdengar: ..." di bawah chord besar dan tanda &ne; di garis waktu menunjukkan chord yang terdeteksi di audio bila berbeda dari chart (untuk membedah lagu).</p>
         <div class="sheet" id="sheet"></div>
         <div class="t-card" id="edit" hidden style="margin-top:.6rem"><b id="etl"></b><div class="pg-row"><select id="er" class="srch" style="width:auto"></select><select id="et" class="srch" style="width:auto"></select></div><div class="pg-row"><button id="eok" type="button" class="t-btn" style="min-height:46px;font-size:1rem">Terapkan</button><button id="edel" type="button" class="chip">Hapus chord ini</button></div><p class="hint" style="margin:.5rem 0 .2rem">Waktu mulai chord ini salah? Geser satu ketukan:</p><div class="pg-row"><button id="emvl" type="button" class="chip">&#9664; Lebih awal</button><button id="emvr" type="button" class="chip">Lebih akhir &#9654;</button></div></div>
         <h2>Kamus chord</h2><div class="legend" id="legend"></div>
@@ -188,6 +189,7 @@
         <p class="hint" id="xsub"></p>
         <div class="pg-row"><select id="xr" class="srch" style="width:auto" aria-label="Nada dasar chord"></select><select id="xt" class="srch" style="width:auto" aria-label="Jenis chord"></select></div>
         <div class="pg-row"><button id="xok" type="button" class="t-btn" style="min-height:46px;font-size:1rem">Ganti chord ini</button><button id="xadd" type="button" class="chip">Tambah chord mulai di sini</button><button id="xdel" type="button" class="chip">Hapus chord ini</button></div>
+        <div class="pg-row"><button type="button" class="chip xreset" disabled>Kembalikan semua ke awal</button></div>
         <p class="hint" id="xmsg"></p>
         <p class="hint"><b>Ganti</b>: chord yang sedang tampil diganti dengan pilihan di atas. <b>Tambah</b>: chord pilihan disisipkan mulai dari posisi lagu sekarang (dipaskan ke ketukan terdekat). <b>Hapus</b>: waktunya digabung ke chord sebelumnya.</p>
     </div></div>
@@ -206,6 +208,7 @@
         <p class="t-help">Di bawah chord besar ada tombol <b>Waktu: &#9664; lebih awal / lebih akhir &#9654;</b>. Bila tampilan <b>terlambat</b> dari lagu, tekan <b>&#9664; lebih awal</b>: pergantian ke chord berikutnya dimajukan satu ketukan. Bila tampilan <b>terlalu cepat</b>, tekan <b>lebih akhir &#9654;</b>: pergantian ke chord yang sedang tampil dimundurkan satu ketukan. Bisa ditekan sambil lagu berjalan.</p>
         <h2>Chord-nya salah?</h2>
         <p class="t-help">Tekan <b>&#9998; Edit chord</b> di bawah chord besar. Untuk chord yang sedang tampil Anda bisa <b>Ganti</b> (pilih nada dan jenis lain), <b>Tambah</b> chord baru mulai dari posisi lagu sekarang, atau <b>Hapus</b> (waktunya digabung ke chord sebelumnya). Tip: jeda lagu tepat di tempat chord seharusnya berganti, lalu pakai Tambah.</p>
+        <p class="t-help">Semua edit <b>tersimpan otomatis</b> untuk lagu itu di browser ini, dan dipakai lagi saat lagu yang sama dibuka. Salah edit? Tekan <b>&#8630;</b> (urungkan) atau <b>&#8631;</b> (ulangi), atau Ctrl+Z / Ctrl+Y. <b>Kembalikan semua ke awal</b> (di panel Edit chord dan di daftar chord) menghapus semua edit lagu itu, dengan peringatan dulu.</p>
         <h2>Klik sebelum mulai dan tempo</h2>
         <p class="t-help"><b>Klik sebelum mulai</b>: saat menekan Putar, metronom berbunyi 2 atau 4 kali dulu supaya Anda siap di ketukan pertama. Angka di sebelahnya adalah <b>tempo lagu dalam BPM</b> (ketukan per menit), terisi otomatis dari lagu dan menentukan kecepatan klik. Bila kliknya terasa dua kali terlalu cepat, tekan <b>&frac12;</b>.</p>
         <a class="t-cta" href="index.html#harga"><strong>Butuh gitar yang enak dimainkan?</strong><br>Lihat estimasi biaya setup &amp; servis di Toko Gitar AYRI Bogor &rarr;</a>
@@ -852,7 +855,7 @@
             ana = null; akey = null; tempo = 0; chartOn = false; if (pending && pending.segs) { segs = pending.segs.map(function (a) { var g = { r: a[0], ti: a[1], t0: a[2], t1: a[3] }; if (typeof a[4] === 'string') { g.q = a[4]; g.bass = a[5] === undefined ? -1 : a[5]; } return g; }); tempo = pending.bpm || 0; if (tempo) { st.bpm = tempo; save(); } dur = pending.duration || 0; pending = null; await new Promise(function (r) { if (au.readyState > 0) r(); else au.addEventListener('loadedmetadata', r, { once: true }); }); dur = au.duration || dur; }
             else { var abuf = await file.arrayBuffer(), gt = guessTitle(file.name, abuf); $('chq').value = gt; if (gt) fname = gt; ana = await analyze(abuf); try { chartText = localStorage.getItem(chartKey()) || ''; } catch (e) { chartText = ''; } chartOn = !!chartText; $('chart').value = chartText; $('chmsg').textContent = ''; rebuild(); if (ana.bt && ana.bt.conf >= BEAT_CONF) { tempo = Math.round(ana.bt.bpm); st.bpm = Math.max(40, Math.min(220, tempo)); save(); } }
         } catch (e) { $('ptxt').textContent = 'Gagal membaca/menganalisis file ini. Coba format lain (MP3, M4A, WAV) atau file yang lebih pendek.'; $('drop').hidden = false; return; }
-        $('prog').hidden = true; $('app').hidden = false; $('drop').hidden = true; $('swap').hidden = false; $('swap').style.display = 'flex'; $('listbtn').hidden = false; $('seek').max = dur; $('seek').value = 0; titleUi(); st.a = st.b = null; st.loop = false; st.sel = -1; loopUi(); chips(); sheet(); $('edit').hidden = true;
+        $('prog').hidden = true; $('app').hidden = false; $('drop').hidden = true; $('swap').hidden = false; $('swap').style.display = 'flex'; $('listbtn').hidden = false; $('seek').max = dur; $('seek').value = 0; titleUi(); st.a = st.b = null; st.loop = false; st.sel = -1; loopUi(); chips(); sheet(); $('edit').hidden = true; startHistory(true);
         window.__tr = { segs: segs, st: st, au: au };
     }
     $('file').addEventListener('change', function () { if (this.files[0]) openFile(this.files[0]); });
@@ -881,9 +884,40 @@
         var b = e.target.closest('[data-i]'); if (!b) return; var i = +b.dataset.i, s = segs[i]; st.sel = i; au.currentTime = s.t0; mark(s.t0, true);
         $('edit').hidden = false; $('er').value = sroot(s); $('et').value = s.ti; $('etl').textContent = 'Ubah chord di ' + fmt(s.t0) + ' (sekarang ' + cname(s) + ')';
     });
+    /* ---------- riwayat edit: simpan otomatis per lagu, urungkan/ulangi, kembalikan ke awal ---------- */
+    var hist = [], fut = [], baseSnap = '', HMAX = 50;
+    function snap() { return JSON.stringify(segs.map(function (s) { return [s.r, s.ti, s.t0, s.t1, typeof s.q === 'string' ? s.q : null, s.bass === undefined ? -1 : s.bass, s.src || '']; })); }
+    function restore(str) { segs = JSON.parse(str).map(function (a) { var g = { r: a[0], ti: a[1], t0: a[2], t1: a[3] }; if (typeof a[4] === 'string') { g.q = a[4]; g.bass = a[5]; } if (a[6]) g.src = a[6]; return g; }); st.sel = -1; $('edit').hidden = true; }
+    function hashStr(t) { var h = 0, i; t = String(t || ''); for (i = 0; i < t.length; i++) h = (h * 31 + t.charCodeAt(i)) | 0; return (h >>> 0).toString(36); }
+    function editKey() { return 'ayri-edit:' + fname + '|' + Math.round(dur || 0); }
+    function editBase() { return chartOn ? 'chart:' + hashStr(chartText) : 'auto'; }
+    function hasSaved() { try { return !!localStorage.getItem(editKey()); } catch (e) { return false; } }
+    function persist() { try { if (snap() === baseSnap) localStorage.removeItem(editKey()); else localStorage.setItem(editKey(), JSON.stringify({ v: 1, base: editBase(), segs: snap() })); } catch (e) {} }
+    function undoUi() { $('undo').disabled = !hist.length; $('redo').disabled = !fut.length; var dirty = snap() !== baseSnap; [].forEach.call(document.querySelectorAll('.xreset'), function (b) { b.disabled = !dirty; }); }
+    function note(msg, ms) { var m = $('adjm'); m.textContent = msg; clearTimeout(adjT); adjT = setTimeout(function () { m.textContent = ''; }, ms || 1800); }
+    /* jalankan satu aksi edit; bila chord berubah, catat di riwayat dan simpan */
+    function editOp(fn) { var before = snap(); fn(); if (snap() !== before) { hist.push(before); if (hist.length > HMAX) hist.shift(); fut = []; persist(); } undoUi(); }
+    /* setelah lagu dimuat / chart disinkronkan: hasil itu menjadi "awal"; pakai edit tersimpan bila dasarnya sama */
+    function startHistory(useSaved) {
+        hist = []; fut = []; baseSnap = snap();
+        if (useSaved) { try { var sv = JSON.parse(localStorage.getItem(editKey()) || 'null'); if (sv && sv.base === editBase() && sv.segs) { restore(sv.segs); sheet(); note('Memakai chord hasil edit tersimpan untuk lagu ini.', 5000); } } catch (e) {} }
+        undoUi();
+    }
+    function undo() { if (!hist.length) return; fut.push(snap()); restore(hist.pop()); persist(); sheet(); undoUi(); note('diurungkan'); }
+    function redo() { if (!fut.length) return; hist.push(snap()); restore(fut.pop()); persist(); sheet(); undoUi(); note('diulangi'); }
+    function resetAll() {
+        if (snap() === baseSnap) return;
+        if (!window.confirm('Kembalikan semua chord lagu ini ke hasil awal?\n\nSemua edit (ganti, tambah, hapus, geser waktu) akan hilang dan tidak bisa diurungkan.')) return;
+        restore(baseSnap); hist = []; fut = []; try { localStorage.removeItem(editKey()); } catch (e) {}
+        sheet(); $('dr-edit').hidden = true; undoUi(); note('Semua chord dikembalikan ke hasil awal.', 3000);
+    }
+    /* sinkron chart / deteksi otomatis menggantikan hasil edit: tanya dulu */
+    function confirmReplaceEdits() { return !(hasSaved() || snap() !== baseSnap) || window.confirm('Lagu ini punya chord hasil edit.\n\nHasil baru akan menggantikan semua edit tersebut. Lanjutkan?'); }
+    $('undo').addEventListener('click', undo); $('redo').addEventListener('click', redo);
+    [].forEach.call(document.querySelectorAll('.xreset'), function (b) { b.addEventListener('click', resetAll); });
     $('er').innerHTML = NM.map(function (n, i) { return '<option value="' + i + '">' + disp(n) + '</option>'; }).join('');
     $('et').innerHTML = TYPES.map(function (t, i) { return '<option value="' + i + '">' + (t.s || 'Mayor') + '</option>'; }).join('');
-    $('eok').addEventListener('click', function () { var s = segs[st.sel]; if (!s) return; s.r = (+$('er').value + (capoOn() ? st.capo : 0)) % 12; s.ti = +$('et').value; delete s.q; delete s.bass; sheet(); });
+    $('eok').addEventListener('click', function () { editOp(function () { var s = segs[st.sel]; if (!s) return; s.r = (+$('er').value + (capoOn() ? st.capo : 0)) % 12; s.ti = +$('et').value; delete s.q; delete s.bass; sheet(); }); });
     /* geser awal chord yang dipilih satu ketukan (mengikuti ketukan lagu bila terdeteksi, jika tidak 0,25 detik) */
     function shiftStart(idx, dir) {
         var s = segs[idx]; if (!s) return null;
@@ -895,18 +929,21 @@
         return nt;
     }
     function nudge(dir) {
-        var nt = shiftStart(st.sel, dir), s = segs[st.sel]; if (nt === null) return;
-        sheet(); au.currentTime = nt; mark(nt, true); $('etl').textContent = 'Ubah chord di ' + fmt(nt) + ' (sekarang ' + cname(s) + ')';
+        editOp(function () {
+            var nt = shiftStart(st.sel, dir), s = segs[st.sel]; if (nt === null) return;
+            var keep = st.sel; sheet(); st.sel = keep; au.currentTime = nt; mark(nt, true); $('etl').textContent = 'Ubah chord di ' + fmt(nt) + ' (sekarang ' + cname(s) + ')';
+        });
     }
     /* tombol geser di layar utama (tanpa membuka laci, lagu tidak dilompatkan):
        "lebih awal" = pergantian ke chord berikutnya dimajukan (tampilan terlambat dari lagu);
        "lebih akhir" = pergantian ke chord yang sedang tampil dimundurkan (tampilan terlalu cepat) */
     var adjT = 0;
     function adjust(early) {
-        var i = idxAt(au.currentTime || 0), nt = early ? shiftStart(i + 1, -1) : shiftStart(i, 1), msg = $('adjm');
-        msg.textContent = nt === null ? 'tidak bisa digeser lagi' : (early ? 'chord berikutnya dimajukan 1 ketukan' : 'chord ini dimundurkan 1 ketukan');
-        clearTimeout(adjT); adjT = setTimeout(function () { msg.textContent = ''; }, 1800);
-        if (nt !== null) sheet();
+        editOp(function () {
+            var i = idxAt(au.currentTime || 0), nt = early ? shiftStart(i + 1, -1) : shiftStart(i, 1);
+            note(nt === null ? 'tidak bisa digeser lagi' : (early ? 'chord berikutnya dimajukan 1 ketukan' : 'chord ini dimundurkan 1 ketukan'));
+            if (nt !== null) sheet();
+        });
     }
     $('adjE').addEventListener('click', function () { adjust(true); });
     $('adjL').addEventListener('click', function () { adjust(false); });
@@ -925,28 +962,33 @@
         $('xsub').textContent = 'Chord ini berbunyi ' + fmt(s.t0) + ' sampai ' + fmt(s.t1) + '. Posisi lagu sekarang ' + fmt(t) + '.';
         $('xadd').textContent = 'Tambah chord mulai di ' + fmt(snapBeat(t)); $('xmsg').textContent = ''; $('dr-edit').hidden = false;
     });
-    $('xok').addEventListener('click', function () { var s = segs[xIdx], c = xPick(); if (!s) return; s.r = c.r; s.ti = c.ti; delete s.q; delete s.bass; xDone('chord diganti menjadi ' + cname(s)); });
+    $('xok').addEventListener('click', function () { editOp(function () { var s = segs[xIdx], c = xPick(); if (!s) return; s.r = c.r; s.ti = c.ti; delete s.q; delete s.bass; xDone('chord diganti menjadi ' + cname(s)); }); });
     $('xadd').addEventListener('click', function () {
-        var s = segs[xIdx], c = xPick(), tn = snapBeat(xT); if (!s) return;
-        if (tn - s.t0 < 0.3 || s.t1 - tn < 0.3) { $('xmsg').textContent = 'Posisi lagu terlalu dekat dengan awal/akhir chord ini. Geser posisi lagu sedikit, atau pakai "Ganti chord ini".'; return; }
-        var ns = { r: c.r, ti: c.ti, t0: tn, t1: s.t1 }; s.t1 = tn; segs.splice(xIdx + 1, 0, ns); xDone('chord ' + cname(ns) + ' ditambahkan di ' + fmt(tn));
+        editOp(function () {
+            var s = segs[xIdx], c = xPick(), tn = snapBeat(xT); if (!s) return;
+            if (tn - s.t0 < 0.3 || s.t1 - tn < 0.3) { $('xmsg').textContent = 'Posisi lagu terlalu dekat dengan awal/akhir chord ini. Geser posisi lagu sedikit, atau pakai "Ganti chord ini".'; return; }
+            var ns = { r: c.r, ti: c.ti, t0: tn, t1: s.t1 }; s.t1 = tn; segs.splice(xIdx + 1, 0, ns); xDone('chord ' + cname(ns) + ' ditambahkan di ' + fmt(tn));
+        });
     });
     $('xdel').addEventListener('click', function () {
-        var s = segs[xIdx]; if (!s) return; if (segs.length < 2) { $('xmsg').textContent = 'Ini satu-satunya chord.'; return; }
-        if (xIdx > 0) segs[xIdx - 1].t1 = s.t1; else segs[1].t0 = s.t0;
-        segs.splice(xIdx, 1); xDone('chord ' + cname(s) + ' dihapus');
+        editOp(function () {
+            var s = segs[xIdx]; if (!s) return; if (segs.length < 2) { $('xmsg').textContent = 'Ini satu-satunya chord.'; return; }
+            if (xIdx > 0) segs[xIdx - 1].t1 = s.t1; else segs[1].t0 = s.t0;
+            segs.splice(xIdx, 1); xDone('chord ' + cname(s) + ' dihapus');
+        });
     });
     $('emvl').addEventListener('click', function () { nudge(-1); });
     $('emvr').addEventListener('click', function () { nudge(1); });
-    $('edel').addEventListener('click', function () { var i = st.sel; if (i < 0) return; if (i > 0) segs[i - 1].t1 = segs[i].t1; segs.splice(i, 1); st.sel = -1; $('edit').hidden = true; sheet(); });
+    $('edel').addEventListener('click', function () { editOp(function () { var i = st.sel; if (i < 0 || segs.length < 2) return; if (i > 0) segs[i - 1].t1 = segs[i].t1; else segs[1].t0 = segs[0].t0; segs.splice(i, 1); st.sel = -1; $('edit').hidden = true; sheet(); }); });
     function afterRebuild() { st.sel = -1; $('edit').hidden = true; st.a = st.b = null; st.loop = false; loopUi(); titleUi(); chips(); sheet(); }
     $('chgo').addEventListener('click', function () {
         var msg = $('chmsg');
         if (!ana) { msg.textContent = 'Chart hanya bisa dicocokkan setelah lagu dianalisis di sesi ini. Pilih file audio langsung (bukan file .json).'; return; }
         var txt = $('chart').value, items = parseChart(txt);
         if (items.length < 2) { msg.textContent = 'Belum ada baris chord yang terbaca. Tulis chord dipisah spasi, misalnya "D Bm G A".'; return; }
+        if (!confirmReplaceEdits()) return;
         chartText = txt; chartOn = true; try { localStorage.setItem(chartKey(), txt); } catch (e) {}
-        rebuild(); afterRebuild();
+        rebuild(); afterRebuild(); try { localStorage.removeItem(editKey()); } catch (e) {} startHistory(false);
         var sk = chartShift || { k: 0, src: 'none' }, kmsg = '';
         if (sk.src === 'capo') kmsg = ' Chart ditulis untuk kapo ' + sk.k + ': chord dicocokkan ' + sk.k + ' semitone lebih tinggi dan kapo diset ke fret ' + sk.k + ' (bentuk jari sama dengan chart).';
         else if (sk.src === 'auto' && sk.k <= 9) kmsg = ' Chart tampaknya ditulis di kunci lain: digeser +' + sk.k + ' semitone dan kapo diset ke fret ' + sk.k + ' (bentuk jari sama dengan chart). Salah? Tulis "capo 0" di chart.';
@@ -966,8 +1008,8 @@
         $('chart').value = txt; $('chgo').click();
     });
     $('chclr').addEventListener('click', function () {
-        if (!ana) return; chartOn = false; try { localStorage.removeItem(chartKey()); } catch (e) {}
-        rebuild(); afterRebuild(); $('chmsg').textContent = 'Kembali memakai deteksi otomatis.';
+        if (!ana) return; if (!confirmReplaceEdits()) return; chartOn = false; try { localStorage.removeItem(chartKey()); } catch (e) {}
+        rebuild(); afterRebuild(); try { localStorage.removeItem(editKey()); } catch (e) {} startHistory(false); $('chmsg').textContent = 'Kembali memakai deteksi otomatis.';
     });
     $('prn').addEventListener('click', function () {
         $('pinfo') && 0; $('pa').innerHTML = '<h2>' + fname.replace(/</g, '&lt;') + ' \u00b7 ' + I.name + (st.capo && !I.kb ? ' \u00b7 kapo fret ' + st.capo : '') + ' \u00b7 ' + fmt(dur) + '</h2><div class="sheet">' + $('sheet').innerHTML + '</div><h2>Kamus chord</h2><div class="legend">' + $('legend').innerHTML + '</div>';
@@ -979,6 +1021,8 @@
     });
     document.addEventListener('keydown', function (e) {
         if (/INPUT|SELECT|TEXTAREA/.test(e.target.tagName) || $('app').hidden) return;
+        if ((e.ctrlKey || e.metaKey) && (e.key === 'z' || e.key === 'Z')) { e.preventDefault(); if (e.shiftKey) redo(); else undo(); return; }
+        if ((e.ctrlKey || e.metaKey) && (e.key === 'y' || e.key === 'Y')) { e.preventDefault(); redo(); return; }
         if (e.code === 'Space') { e.preventDefault(); play(); } else if (e.key === 'ArrowLeft') au.currentTime = Math.max(0, au.currentTime - 5); else if (e.key === 'ArrowRight') au.currentTime = Math.min(dur, au.currentTime + 5);
     });
     chips();
