@@ -744,6 +744,7 @@
         var s = segs[idx], v = voic(s);
         $('cn').textContent = cname(s);
         $('cs').textContent = (capoOn() ? 'Bunyi lagu: ' + cname(s, true) + ' \u00b7 kapo fret ' + st.capo : I.name) + diagNote(s);
+        $('cd').classList.toggle('kb', !!(v && v.kb));
         $('cd').innerHTML = v ? diagram(v, { alt: 'Diagram ' + cname(s) }) : '<p class="hint">Bentuk belum tersedia untuk ' + I.name + '.</p>';
         var nx = segs[idx + 1]; $('nx').textContent = nx ? cname(nx) : 'selesai';
         $('nd').innerHTML = nx && voic(nx) ? diagram(voic(nx), { mini: true }) : '';

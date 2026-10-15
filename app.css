@@ -469,3 +469,21 @@ main.app.trans-app.fit1 #capohint { display: none; }
   .tuner-app .ctl-col { grid-area: ctl; display: flex; flex-direction: column; gap: 8px; }
   .tuner-app #start { margin-top: auto; min-height: 46px; }
 }
+/* piano jauh lebih lebar dari diagram gitar: jangan sampai mendesak (dan menutupi) nama chord */
+.trans-app .tr-cd { min-width: 0; }
+.trans-app .tr-cd .cd { max-width: 100%; }
+.trans-app .tr-now > div:first-child { flex: 1 1 auto; }
+.trans-app .tr-cd.kb { flex: 0 1 56%; height: auto; align-self: center; }
+.trans-app .tr-cd.kb .cd { width: 100%; height: auto; }
+/* Metronom digital: angka tetap di dalam kotak hitam; kiri/kanan = nama tempo sebelum dan sesudahnya */
+.metro-app .lcd { overflow: hidden; gap: 4px; padding: 8px 10px; }
+.metro-app .lcd-row { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: 8px; width: 100%; }
+.metro-app .lcd-n { font-size: clamp(2.2rem, min(9dvh, 17vw), 4.6rem); line-height: .95; }
+.metro-app .lcd-s {
+  overflow: hidden; font: 700 .625rem/1.2 ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  letter-spacing: .08em; text-transform: uppercase; white-space: nowrap; text-overflow: ellipsis; color: rgba(242, 201, 138, .5);
+}
+.metro-app .lcd-s b { display: block; font-size: 1rem; letter-spacing: .02em; color: rgba(242, 201, 138, .62); font-variant-numeric: tabular-nums; }
+.metro-app #lcdp { text-align: left; }
+.metro-app #lcdx { text-align: right; }
+.metro-app .lcd .boxes { margin-top: 2px; }
