@@ -8,7 +8,7 @@
   "start_url": "/tuner.html?source=pwa",
   "scope": "/",
   "display": "standalone",
-  "orientation": "portrait",
+  "orientation": "any",
   "background_color": "#15100c",
   "theme_color": "#15100c",
   "categories": [
