@@ -14,8 +14,25 @@ var TYPES = [
     { k: 'sus4', s: 'sus4', n: 'Sus 4', iv: [0, 5, 7] }, { k: '5', s: '5', n: 'Power chord', iv: [0, 7] },
     { k: '6', s: '6', n: 'Mayor 6', iv: [0, 4, 7, 9] }, { k: 'add9', s: 'add9', n: 'Add 9', iv: [0, 4, 7, 2] },
     { k: 'dim', s: 'dim', n: 'Diminished', iv: [0, 3, 6] }, { k: 'aug', s: 'aug', n: 'Augmented', iv: [0, 4, 8] },
-    { k: '9', s: '9', n: 'Dominan 9', iv: [0, 4, 7, 10, 2] }
+    { k: '9', s: '9', n: 'Dominan 9', iv: [0, 4, 7, 10, 2] },
+    // jenis lanjutan (ditambah di akhir supaya nomor jenis lama tidak bergeser)
+    { k: 'dim7', s: 'dim7', n: 'Diminished 7', iv: [0, 3, 6, 9] }, { k: 'm7b5', s: 'm7b5', n: 'Half-diminished', iv: [0, 3, 6, 10] },
+    { k: '7sus4', s: '7sus4', n: 'Dominan 7 sus4', iv: [0, 5, 7, 10] }, { k: '9sus4', s: '9sus4', n: 'Dominan 9 sus4', iv: [0, 5, 7, 10, 2] },
+    { k: 'maj9', s: 'maj9', n: 'Mayor 9', iv: [0, 4, 7, 11, 2] }, { k: 'm9', s: 'm9', n: 'Minor 9', iv: [0, 3, 7, 10, 2] },
+    { k: 'm6', s: 'm6', n: 'Minor 6', iv: [0, 3, 7, 9] }, { k: '69', s: '6/9', n: '6/9', iv: [0, 4, 7, 9, 2] },
+    { k: 'madd9', s: 'madd9', n: 'Minor add 9', iv: [0, 3, 7, 2] }, { k: 'mmaj7', s: 'mMaj7', n: 'Minor-mayor 7', iv: [0, 3, 7, 11] },
+    { k: '7b9', s: '7b9', n: 'Dominan 7 b9', iv: [0, 4, 7, 10, 1] }, { k: '7#9', s: '7#9', n: 'Dominan 7 #9', iv: [0, 4, 7, 10, 3] },
+    { k: '7b5', s: '7b5', n: 'Dominan 7 b5', iv: [0, 4, 6, 10] }, { k: '7#5', s: '7#5', n: 'Dominan 7 #5', iv: [0, 4, 8, 10] },
+    { k: '11', s: '11', n: 'Dominan 11', iv: [0, 7, 10, 2, 5] }, { k: '13', s: '13', n: 'Dominan 13', iv: [0, 4, 7, 10, 2, 9] }
 ];
+var NBASE = 13; // jenis dasar (tampil langsung); sisanya jenis lanjutan
+/* tulisan akhiran chord -> jenis (dipakai pencarian chord & pembaca chart) */
+var SUFK = { '': 'maj', maj: 'maj', M: 'maj', m: 'm', min: 'm', '-': 'm', '7': '7', dom7: '7', maj7: 'maj7', M7: 'maj7', 'Δ': 'maj7', 'Δ7': 'maj7', m7: 'm7', min7: 'm7', '-7': 'm7',
+    sus2: 'sus2', sus4: 'sus4', sus: 'sus4', '5': '5', '6': '6', maj6: '6', M6: '6', add9: 'add9', add2: 'add9', '2': 'add9', dim: 'dim', '°': 'dim', o: 'dim', aug: 'aug', '+': 'aug', '9': '9',
+    dim7: 'dim7', '°7': 'dim7', o7: 'dim7', m7b5: 'm7b5', 'm7-5': 'm7b5', 'ø': 'm7b5', 'ø7': 'm7b5', '7sus4': '7sus4', '7sus': '7sus4', '9sus4': '9sus4', '9sus': '9sus4',
+    maj9: 'maj9', M9: 'maj9', 'Δ9': 'maj9', m9: 'm9', min9: 'm9', '-9': 'm9', m6: 'm6', min6: 'm6', '69': '69', '6/9': '69', '6add9': '69', madd9: 'madd9', 'm(add9)': 'madd9', madd2: 'madd9',
+    mmaj7: 'mmaj7', mMaj7: 'mmaj7', mM7: 'mmaj7', 'm(maj7)': 'mmaj7', '7b9': '7b9', '7(b9)': '7b9', '7#9': '7#9', '7(#9)': '7#9', '7b5': '7b5', '7-5': '7b5', '7(b5)': '7b5',
+    '7#5': '7#5', '7+5': '7#5', '7(#5)': '7#5', aug7: '7#5', '+7': '7#5', '11': '11', '9sus4add11': '11', '13': '13' };
 // bentuk bergeser: r = senar akar (6/5/4), f = fret relatif (-1 = mati), g = jari
 var TPL = {
     maj: [{ r: 6, f: [0, 2, 2, 1, 0, 0], g: [1, 3, 4, 2, 1, 1] }, { r: 5, f: [-9, 0, 2, 2, 2, 0], g: [0, 1, 2, 3, 4, 1] }, { r: 4, f: [-9, -9, 0, 2, 3, 2], g: [0, 0, 1, 3, 4, 2] }],
@@ -56,7 +73,7 @@ INSTS.uke.tpl = {
     dim: [{ ri: 3, f: [-9, 0, -1, 0] }],
     aug: [{ ri: 1, f: [1, 0, 0, 3] }, { ri: 0, f: [0, 3, 3, 2] }]
 };
-INSTS.uke.open = [];
+INSTS.uke.open = []; INSTS.uke.reentrant = true; // senar G tinggi: bass tidak harus nada dasar
 function autoF(f, barre) {
     var idx = [], g = f.map(function () { return 0; }), n = 0;
     f.forEach(function (x, i) { if (x > 0) idx.push(i); });
@@ -98,13 +115,61 @@ function genV(inst, root, ti) {
         else g = g.map(function (x, i) { return f[i] <= 0 ? 0 : x; });
         add({ f: f, g: g, open: base === 0 });
     });
+    /* lengkapi dengan bentuk hasil generator (beda posisi / beda senar bass) sampai VMAX bentuk */
+    if (inst.n && !inst.loose) genAuto(inst, root, t, VMAX - out.length, out).forEach(function (v) { var k = v.f.join(','); if (seen[k]) return; seen[k] = 1; out.push({ f: v.f, g: autoF(v.f, true), open: v.f.indexOf(0) >= 0 && minF(v) <= 3, gen: true }); });
     out.sort(function (a, b) { return minF(a) - minF(b); });
-    return out.slice(0, 6);
+    return out.slice(0, VMAX);
 }
+var VMAX = 8;
+/* Generator bentuk jari: telusuri jendela 4 fret di sepanjang leher, pilih kombinasi senar yang memuat nada wajib chord,
+   bass = nada dasar (kecuali ukulele), maks. 4 jari (atau barre), lalu ambil yang paling enak dimainkan dan beragam posisinya.
+   Nada wajib: semua nada chord, kecuali kuin murni (dan 9 pada chord 11/13) boleh dibuang bila chord punya >= 4 nada. */
+function genAuto(inst, root, t, limit, pre) {
+    if (limit <= 0) return [];
+    var n = inst.n, pcs = {}, req = [], opt = [], big = t.iv.length >= 4, found = [], seen = {}, b, s;
+    t.iv.forEach(function (x) { var p = (root + x) % 12; pcs[p] = 1; if ((x === 7 && big) || (x === 2 && (t.k === '13' || t.k === '11'))) opt.push(p); else req.push(p); });
+    var minS = n >= 6 ? 4 : 3, cand = [], cur = [];
+    function test(b0) {
+        var f = cur, i, first = -1, last = -1, inner = 0, ns = 0, have = {}, fr = [];
+        for (i = 0; i < n; i++) if (f[i] >= 0) { if (first < 0) first = i; last = i; ns++; have[(inst.pc[i] + f[i]) % 12] = 1; if (f[i] > 0) fr.push(f[i]); }
+        if (ns < minS) return;
+        for (i = first; i <= last; i++) if (f[i] < 0) inner++;
+        if (inner > (big ? 1 : 0)) return;
+        if (!inst.reentrant && (inst.pc[first] + f[first]) % 12 !== root) return;
+        for (i = 0; i < req.length; i++) if (!have[req[i]]) return;
+        var mn = fr.length ? Math.min.apply(null, fr) : 0, mx = fr.length ? Math.max.apply(null, fr) : 0;
+        if (mx - mn > 3 || (fr.length && mn !== Math.max(1, b0) && b0 > 0)) return; // satu jendela = satu posisi (hindari duplikat)
+        var atMin = fr.filter(function (x) { return x === mn; }).length, fingers = fr.length;
+        if (fingers > 4) {
+            if (atMin < 2) return;
+            fingers = fr.length - atMin + 1; if (fingers > 4) return;
+            var bs = f.indexOf(mn); for (i = bs; i < n; i++) if (f[i] === 0) return; // senar terbuka di bawah barre tidak bisa
+        }
+        var k = f.join(','); if (seen[k]) return; seen[k] = 1;
+        var opens = 0; for (i = 0; i < n; i++) if (f[i] === 0) opens++;
+        var sc = ns * 4 - inner * 6 - fingers * 1.5 - mn * 0.25 + (mn <= 3 ? opens * 1.5 : 0);
+        opt.forEach(function (p) { if (have[p]) sc += 1; });
+        found.push({ f: f.slice(), sc: sc, mn: mn, bs: first });
+    }
+    function rec(i, b0) { if (i === n) { test(b0); return; } for (var j = 0; j < cand[i].length; j++) { cur[i] = cand[i][j]; rec(i + 1, b0); } }
+    for (b = 0; b <= inst.max - 3; b++) {
+        cand = [];
+        for (s = 0; s < n; s++) { var o = [-1], f0; if (pcs[inst.pc[s]] && b <= 3) o.push(0); for (f0 = Math.max(1, b); f0 <= b + 3; f0++) if (pcs[(inst.pc[s] + f0) % 12]) o.push(f0); cand.push(o); }
+        rec(0, b);
+    }
+    found.sort(function (a, c) { return c.sc - a.sc; });
+    /* beragam: lewati bentuk yang posisinya (fret terendah +-1) dan senar bass-nya sama dengan yang sudah dipilih */
+    var picked = (pre || []).map(function (v) { var fs = -1; for (var i = 0; i < n; i++) if (v.f[i] >= 0) { fs = i; break; } return { mn: minF(v), bs: fs }; }), out = [];
+    found.forEach(function (v) { if (out.length >= limit) return; if (picked.some(function (p) { return Math.abs(p.mn - v.mn) <= 1 && p.bs === v.bs; })) return; picked.push(v); out.push(v); });
+    return out;
+}
+var VCACHE = {};
 function voicings(root, ti, inst) {
     inst = inst || I;
     if (inst.kb) return pianoVoicings(root, ti);
-    return inst.base ? genV(INSTS[inst.base], ((root - inst.shift) % 12 + 12) % 12, ti) : genV(inst, root, ti);
+    var key = inst.key + '|' + root + '|' + ti;
+    if (!VCACHE[key]) VCACHE[key] = inst.base ? genV(INSTS[inst.base], ((root - inst.shift) % 12 + 12) % 12, ti) : genV(inst, root, ti);
+    return VCACHE[key];
 }
 function minF(v) { var m = 99; v.f.forEach(function (x) { if (x > 0 && x < m) m = x; }); return m === 99 ? 0 : m; }
 function diagram(v, o) {

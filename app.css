@@ -349,3 +349,6 @@ main.app.fit3 .a4row .t-a4s { display: none; }
 .trans-app .tr-hd { font-size: .85rem; font-weight: 700; color: var(--accent, var(--acc)); line-height: 1.2; margin-top: 2px; }
 .trans-app .tr-hd:empty { display: none; }
 main.app.fit2 .tr-hd { font-size: .72rem; }
+/* chord: jenis lanjutan di balik tombol "lainnya" */
+.typeg:not(.show-ext) .chip.ext { display: none; }
+.typeg .chip.more { font-weight: 700; border-style: dashed; }
