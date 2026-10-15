@@ -101,6 +101,14 @@
         if (i.lewat) return true; /* lewat batas: admin perlu memutuskan (jadikan milik toko / perpanjang) */
         return (TB.pengingatHari || [7, 1]).some(function (d) { var tgl = L.tglObj(t.batas_tebus); tgl.setDate(tgl.getDate() - d); tgl = L.tglStr(tgl); return i.sisa <= d && terakhir < tgl; });
     };
+    /* foto KTP: disarankan untuk harga besar; boleh dihapus setelah ditebus sekian hari, atau bila dibatalkan.
+       Untuk gitar yang menjadi milik toko, KTP tetap disimpan sebagai bukti asal-usul barang. */
+    L.adaKtp = function (t) { return (t.foto || []).some(function (f) { return f.tahap === 'ktp'; }); };
+    L.ktpBisaDihapus = function (t, hariIni) {
+        if (!L.adaKtp(t)) return false;
+        if (t.status === 'batal') return true;
+        return t.status === 'ditebus' && !!t.tgl_tebus && L.hariAntara(t.tgl_tebus, hariIni || L.hariIni()) >= (TB.hapusKtpHari || 90);
+    };
     L.ketentuanTebus = function (t) {
         return (TB.ketentuan || []).map(function (k) {
             return k.split('{batas}').join(L.tglPanjang(t.batas_tebus)).split('{tebus}').join(L.rupiah(L.hargaTebus(t)) + (+t.biaya_admin ? ' (harga beli ' + L.rupiah(t.harga_beli) + ' + biaya administrasi ' + L.rupiah(t.biaya_admin) + ')' : ' (sama dengan harga beli)'));

@@ -82,7 +82,9 @@ toko **membeli** gitar, dan penjual boleh **membeli kembali** sampai batas tebus
 | Penjual menebus | Terima pembayaran → status **Sudah dibeli kembali** → Simpan → **WA: Terima kasih** |
 | Lewat batas, tidak ditebus | Status **Milik toko** → Simpan → **WA: Masa tebus berakhir**. Gitar boleh dijual sebagai stok toko |
 
-- Foto gitar dan **KTP hanya disimpan di repo privat** (terkunci); tidak pernah ada di situs.
+- **KTP:** selalu lihat KTP asli dan catat nama sesuai KTP (NIK opsional). **Foto KTP** disarankan untuk penjual yang belum dikenal atau harga beli di atas Rp1 juta (admin memberi saran). Foto gitar dan KTP **hanya disimpan di repo privat** (terkunci) dan tidak pernah ada di situs.
+- **Hapus foto KTP** setelah tidak diperlukan: daftar tebus menandai 🪪 data yang sudah dibeli kembali lebih dari 3 bulan (atau dibatalkan); tekan **Hapus foto KTP**. Untuk gitar yang menjadi **milik toko**, foto KTP tetap disimpan sebagai bukti asal-usul barang.
+- Kalimat untuk penjual: *"Untuk keamanan bersama, kami catat KTP-nya ya Kak. Fotonya disimpan terkunci, tidak dibagikan ke siapa pun, dan dihapus setelah transaksi selesai."*
 - Penjual bisa membuka **surat perjanjian** di `ayrigitar.com/perjanjian.html` dengan kode `TBS-…` + 4 digit terakhir HP. NIK dan HP tampil disamarkan.
 - Ketentuan surat perjanjian bisa diubah di `layanan-config.js` bagian `tebus`.
 

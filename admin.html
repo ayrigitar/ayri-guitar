@@ -496,8 +496,14 @@
             '<p class="ly-muted">Toko <b>membeli</b> gitar; penjual boleh membeli kembali sampai batas tebus dengan harga yang <b>sama dengan harga beli</b> (plus biaya administrasi kecil bila ada). Jangan menambah bunga per bulan.</p>' +
             '<div id="ingat"></div><div class="ly-filter" id="filter"></div><div class="ly-list" id="list"></div></section>';
         $('#filter').addEventListener('click', function (e) { var b = e.target.closest('[data-f]'); if (b) { filterTb = b.dataset.f; gambarDaftarTebus(); } });
-        $('#ingat').addEventListener('click', function (e) { if (e.target.closest('[data-lihat]')) { filterTb = 'aktif'; gambarDaftarTebus(); } });
-        $('#list').addEventListener('click', function (e) { var b = e.target.closest('[data-ingat]'); if (b) { e.preventDefault(); ingatkanTebus(b.dataset.ingat, b); } });
+        $('#ingat').addEventListener('click', function (e) {
+            if (e.target.closest('[data-lihat]')) { filterTb = 'aktif'; gambarDaftarTebus(); }
+            else if (e.target.closest('[data-lihatktp]')) { filterTb = 'semua'; gambarDaftarTebus(); }
+        });
+        $('#list').addEventListener('click', function (e) {
+            var b = e.target.closest('[data-ingat]'); if (b) { e.preventDefault(); ingatkanTebus(b.dataset.ingat, b); return; }
+            var k = e.target.closest('[data-hapusktp]'); if (k) { e.preventDefault(); var t = cache.tebus.filter(function (x) { return x.id === k.dataset.hapusktp; })[0]; if (t) hapusKtp(t, k, gambarDaftarTebus); }
+        });
         gambarDaftarTebus();
     }
     function gambarDaftarTebus() {
@@ -507,8 +513,9 @@
         $('#filter').innerHTML = [['aktif', 'Masa tebus'], ['ditebus', 'Dibeli kembali'], ['milik_toko', 'Milik toko'], ['batal', 'Batal'], ['semua', 'Semua']].map(function (x) {
             return '<button type="button" data-f="' + x[0] + '" aria-pressed="' + (filterTb === x[0]) + '">' + x[1] + '<b>' + (x[0] === 'semua' ? rows.length : n[x[0]] || 0) + '</b></button>';
         }).join('');
-        var perlu = rows.filter(function (t) { return L.perluIngatTebus(t, hari); }).length;
-        $('#ingat').innerHTML = perlu ? '<div class="ly-ingat"><span>🔔 <b>' + perlu + ' gitar</b> mendekati atau melewati batas tebus.</span><button type="button" class="ly-btn ly-btn--sm" data-lihat>Lihat</button></div>' : '';
+        var perlu = rows.filter(function (t) { return L.perluIngatTebus(t, hari); }).length, ktp = rows.filter(function (t) { return L.ktpBisaDihapus(t, hari); });
+        $('#ingat').innerHTML = (perlu ? '<div class="ly-ingat"><span>🔔 <b>' + perlu + ' gitar</b> mendekati atau melewati batas tebus.</span><button type="button" class="ly-btn ly-btn--sm" data-lihat>Lihat</button></div>' : '') +
+            (ktp.length ? '<div class="ly-ingat ly-ingat--info" style="margin-top:8px"><span>🪪 <b>' + ktp.length + ' foto KTP</b> sudah tidak diperlukan (transaksi selesai atau batal) dan sebaiknya dihapus.</span><button type="button" class="ly-btn ly-btn--sm" data-lihatktp>Lihat</button></div>' : '');
         var hasil = rows.filter(function (t) { return filterTb === 'semua' || t.status === filterTb; });
         if (filterTb === 'aktif') hasil.sort(function (a, b) { return a.batas_tebus < b.batas_tebus ? -1 : 1; });
         $('#list').innerHTML = hasil.length ? hasil.map(function (t) {
@@ -518,7 +525,8 @@
                 '<span class="ly-item__t">' + E(gitarNama(t)) + ' · ' + E(t.nama) + '</span>' +
                 '<span class="ly-item__m"><span>Beli ' + L.tgl(t.tgl_beli) + ' ' + L.rupiah(t.harga_beli) + '</span><span>Tebus ' + L.rupiah(i.harga) + '</span>' + batas +
                 (t.disetujui ? '' : '<span class="ly-warn">Belum ada balasan SETUJU</span>') + (akhir ? '<span>Diingatkan ' + L.tgl(akhir) + '</span>' : '') + '</span>' +
-                (t.status === 'aktif' ? '<span class="ly-item__b"><button type="button" class="ly-btn ly-btn--sm ' + (perluIngat ? 'ly-btn--wa' : '') + '" data-ingat="' + t.id + '">' + (perluIngat ? 'Ingatkan via WA' : 'Kirim pengingat') + '</button></span>' : '') + '</div>';
+                (t.status === 'aktif' ? '<span class="ly-item__b"><button type="button" class="ly-btn ly-btn--sm ' + (perluIngat ? 'ly-btn--wa' : '') + '" data-ingat="' + t.id + '">' + (perluIngat ? 'Ingatkan via WA' : 'Kirim pengingat') + '</button></span>' : '') +
+                (L.ktpBisaDihapus(t, hari) ? '<span class="ly-item__b"><button type="button" class="ly-btn ly-btn--sm ly-btn--del" data-hapusktp="' + t.id + '">Hapus foto KTP</button></span>' : '') + '</div>';
         }).join('') : '<p class="ly-kosong">' + (rows.length ? 'Tidak ada di kategori ini.' : 'Belum ada data. Tekan “+ Beli gitar”.') + '</p>';
     }
     function ingatkanTebus(id, btn) {
@@ -548,7 +556,7 @@
             (te.baru ? '<p class="ly-muted">Kode dibuat otomatis saat disimpan.</p>' : '<div class="ly-kode">' + E(t.kode) + ' <span class="ly-muted" style="font:600 .8rem var(--font-sans);letter-spacing:0">· 4 digit HP: ' + E(L.hp4(t.hp)) + '</span></div>') +
             '<fieldset class="ly-card ly-f"><legend>Penjual</legend>' +
             '<label>Nama (sesuai KTP)<input data-t="nama" autocomplete="off" required></label>' +
-            '<div class="ly-row2"><label>No. HP / WhatsApp<input data-t="hp" type="tel" inputmode="tel" autocomplete="off" required></label><label>NIK (No. KTP)<input data-t="nik" inputmode="numeric" maxlength="16" autocomplete="off"></label></div>' +
+            '<div class="ly-row2"><label>No. HP / WhatsApp<input data-t="hp" type="tel" inputmode="tel" autocomplete="off" required></label><label>NIK (No. KTP, opsional)<input data-t="nik" inputmode="numeric" maxlength="16" autocomplete="off"></label></div>' +
             '<p class="ly-hint">Foto KTP disimpan terkunci di repo privat dan tidak pernah tampil di situs. Di surat perjanjian, NIK dan HP hanya tampil 4 digit terakhir.</p></fieldset>' +
             '<fieldset class="ly-card ly-f"><legend>Gitar</legend>' +
             '<div class="ly-row2"><label>Jenis<select data-t="gitar_jenis">' + opsi(jenis, t.gitar_jenis) + '</select></label><label>Merk / model<input data-t="gitar_merk" placeholder="mis. Yamaha APX600"></label></div>' +
@@ -560,7 +568,7 @@
             '<label>Batas tebus<input type="date" data-t="batas_tebus"></label>' +
             '<div class="ly-btns"><button type="button" class="ly-btn ly-btn--sm" data-batas="30">30 hari</button><button type="button" class="ly-btn ly-btn--sm" data-batas="60">60 hari</button>' + ((TB.maksHari || 90) >= 90 ? '<button type="button" class="ly-btn ly-btn--sm" data-batas="90">90 hari</button>' : '') + '</div>' +
             '<div class="ly-sum" id="tb-sum"></div></fieldset>' +
-            '<fieldset class="ly-card"><legend>Foto</legend><div id="tb-foto"></div><p class="ly-hint" style="margin-top:10px">Foto gitar (depan, belakang, nomor seri) dan foto KTP. Semua dikunci dan disimpan di repo privat.</p></fieldset>' +
+            '<fieldset class="ly-card"><legend>Foto</legend><div id="tb-foto"></div><p class="ly-hint" id="tb-ktp-saran" style="margin-top:10px"></p><p class="ly-hint" style="margin-top:6px">Foto gitar: depan, belakang, dan nomor seri. Foto KTP (opsional): perlu untuk penjual yang belum dikenal atau harga beli di atas ' + L.rupiah(TB.fotoKtpMinHarga || 1000000) + '; hapus ' + Math.round((TB.hapusKtpHari || 90) / 30) + ' bulan setelah gitar dibeli kembali. Semua dikunci dan disimpan di repo privat.</p></fieldset>' +
             '<fieldset class="ly-card ly-f"><legend>Persetujuan &amp; status</legend>' +
             '<label class="ly-cek"><input type="checkbox" id="tb-setuju"> Penjual sudah membalas <b>SETUJU</b> di WhatsApp</label>' +
             '<div class="ly-status" id="tb-status"></div>' +
@@ -580,7 +588,7 @@
         var tb = $('#tb');
         function ubah(e) {
             var el = e.target, k = el.dataset.t;
-            if (k) { t[k] = k === 'harga_beli' || k === 'biaya_admin' ? Math.max(0, Math.round(+el.value || 0)) : el.value; setDirty(true); if (/harga|biaya|batas|tgl_beli/.test(k)) gambarSumTebus(); }
+            if (k) { t[k] = k === 'harga_beli' || k === 'biaya_admin' ? Math.max(0, Math.round(+el.value || 0)) : el.value; setDirty(true); if (/harga|biaya|batas|tgl_beli/.test(k)) { gambarSumTebus(); saranKtp(); } }
             else if (el.id === 'tb-setuju') { t.disetujui = el.checked ? (t.disetujui || L.hariIni()) : null; setDirty(true); }
         }
         tb.addEventListener('input', ubah); tb.addEventListener('change', ubah);
@@ -591,6 +599,7 @@
             else if (d.wat) { if (dirty) return toast('Simpan perubahan dulu.', true); bukaWa(t.hp, L.pesanTebus[d.wat](t)); if (d.wat === 'pengingat') ingatkanTebusForm(); }
             else if (d.hapusfoto) { if (confirm('Hapus foto ini? (terhapus permanen saat Simpan)')) { t.foto = t.foto.filter(function (f) { return f.id !== d.hapusfoto; }); gambarFotoTebus(); setDirty(true); } }
             else if (d.hapusq) { te.antri = te.antri.filter(function (q) { return q.qid !== d.hapusq; }); gambarFotoTebus(); }
+            else if (b.hasAttribute('data-hapusktp')) { if (dirty) return toast('Simpan perubahan dulu.', true); hapusKtp(te.t, b, function (row) { te = { baru: false, t: salin(row), antri: [] }; gambarTebus(); }); }
         });
         $('#tb-foto').addEventListener('change', function (e) { if (e.target.type === 'file') { tambahFotoTebus(e.target.dataset.tahap, [].slice.call(e.target.files)); e.target.value = ''; } });
         $('#tb-simpan').addEventListener('click', simpanTebus);
@@ -623,7 +632,7 @@
     }
     function gambarFotoTebus() {
         var t = te.t;
-        $('#tb-foto').innerHTML = [['gitar', 'Foto gitar'], ['ktp', 'Foto KTP']].map(function (x) {
+        $('#tb-foto').innerHTML = [['gitar', 'Foto gitar'], ['ktp', 'Foto KTP (opsional)']].map(function (x) {
             var ada = [], tunggu = te.antri.filter(function (q) { return q.tahap === x[0]; });
             (t.foto || []).forEach(function (f, i) { if (f.tahap === x[0]) ada.push([f, i]); });
             return '<div class="ly-fgrup"><h3>' + x[1] + '<label class="ly-btn ly-btn--sm ly-file">+ Foto<input type="file" accept="image/*" multiple data-tahap="' + x[0] + '"></label></h3>' +
@@ -631,6 +640,26 @@
                     tunggu.map(function (q) { return '<figure' + (q.hasil ? '' : ' class="ly-up"') + '><img src="' + q.pratinjau + '" alt=""><button type="button" class="ly-fx" data-hapusq="' + q.qid + '" aria-label="Batal">×</button></figure>'; }).join('') + '</div>' : '<p class="ly-muted">Belum ada foto.</p>') + '</div>';
         }).join('');
         L.isiFoto($('#tb-foto'), t, A.fotoAdmin);
+        saranKtp();
+    }
+    /* saran foto KTP untuk harga besar; tawaran hapus foto KTP setelah masa simpannya lewat */
+    function saranKtp() {
+        var el = $('#tb-ktp-saran'), t = te.t; if (!el) return;
+        var adaKtp = L.adaKtp(t) || te.antri.some(function (q) { return q.tahap === 'ktp'; });
+        if (!te.baru && L.ktpBisaDihapus(t)) {
+            el.innerHTML = '<span class="ly-warn">' + (t.status === 'batal' ? 'Transaksi dibatalkan' : 'Sudah ' + L.hariAntara(t.tgl_tebus, L.hariIni()) + ' hari sejak dibeli kembali') + ': foto KTP sudah tidak diperlukan.</span> <button type="button" class="ly-btn ly-btn--sm" data-hapusktp>Hapus foto KTP</button>';
+        } else if (!adaKtp && t.harga_beli > (TB.fotoKtpMinHarga || 1000000)) {
+            el.innerHTML = '<span class="ly-warn">Harga beli di atas ' + L.rupiah(TB.fotoKtpMinHarga || 1000000) + ': sebaiknya foto KTP penjual.</span>';
+        } else el.innerHTML = '';
+    }
+    function hapusKtp(t, btn, selesai) {
+        if (!confirm('Hapus foto KTP ' + t.nama + ' (' + t.kode + ')? Nama dan NIK tetap tercatat.')) return;
+        var rec = salin(t); rec.foto = (rec.foto || []).filter(function (f) { return f.tahap !== 'ktp'; });
+        if (btn) sibuk(btn, true, 'Menghapus…');
+        A.simpanTebus(rec).then(function (row) {
+            cache.tebus = cache.tebus.map(function (x) { return x.id === row.id ? row : x; });
+            toast('Foto KTP dihapus.'); selesai(row);
+        }).catch(function (e) { if (btn) sibuk(btn, false); gagal(e); });
     }
     function simpanTebus() {
         var t = te.t, b = $('#tb-simpan');

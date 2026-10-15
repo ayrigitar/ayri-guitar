@@ -78,6 +78,8 @@ var AYRI_LAYANAN = {
         maksHari: 90,                  /* batas tebus terpanjang yang boleh dipilih */
         biayaMaksPersen: 5,            /* admin diberi peringatan bila biaya administrasi melebihi ini */
         pengingatHari: [7, 1],         /* pengingat WA sekian hari sebelum batas tebus */
+        fotoKtpMinHarga: 1000000,      /* sarankan foto KTP bila harga beli di atas ini (atau penjual belum dikenal) */
+        hapusKtpHari: 90,              /* foto KTP disarankan dihapus sekian hari setelah gitar dibeli kembali */
         /* tercetak di surat perjanjian; {batas}, {tebus} diganti otomatis */
         ketentuan: [
             'Penjual menyatakan gitar ini miliknya sendiri, bukan barang curian, jaminan, atau sengketa, dan menyerahkan kepemilikannya kepada Toko Gitar AYRI dengan harga beli yang tercantum.',
