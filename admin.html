@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Admin Servis | Toko Gitar AYRI</title>
+    <link rel="icon" type="image/png" sizes="48x48" href="favicon-48.png">
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
+    <meta name="theme-color" content="#15100c">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500..700&family=Plus+Jakarta+Sans:wght@400..800&display=swap">
+    <link rel="stylesheet" href="theme-dark.css">
+    <link rel="stylesheet" href="layanan.css">
+    <script src="layanan-config.js"></script>
+    <script src="artikel-md.js"></script>
+    <script src="artikel-builder.js"></script>
+    <script src="layanan.js"></script>
+</head>
+<body class="ly">
+    <header class="ly-top">
+        <b>AYRI <span>Admin</span></b>
+        <nav class="ly-tabs" id="tabs" hidden><a href="#servis">Servis</a><a href="#artikel">Artikel</a></nav>
+        <button type="button" id="kunci" class="ly-btn ly-btn--sm" hidden>Kunci</button>
+    </header>
+    <main class="ly-main" id="app"><p class="ly-kosong">Memuat&hellip;</p></main>
+    <div class="ly-toast" id="toast" role="status" aria-live="polite"></div>
+
+    <script>
+(function () {
+    var L = Layanan, C = L.C, A = L.api, E = L.esc, app = document.getElementById('app');
+    var cache = { servis: [], artikel: [] }, dimuat = false, ed = null, ae = null, dirty = false, filter = 'aktif', cari = '', menyimpan = false;
+    var AKTIF = ['menunggu_dp', 'antri', 'dikerjakan', 'selesai'];
+
+    function $(s, r) { return (r || document).querySelector(s); }
+    function $$(s, r) { return [].slice.call((r || document).querySelectorAll(s)); }
+    function toast(msg, err) {
+        var t = $('#toast'); t.textContent = msg; t.className = 'ly-toast on' + (err ? ' err' : '');
+        clearTimeout(toast.t); toast.t = setTimeout(function () { t.className = 'ly-toast'; }, err ? 8000 : 4000);
+    }
+    function pesanError(e) {
+        var m = (e && e.message) || String(e);
+        if (/failed to fetch|networkerror|load failed/i.test(m)) return 'Koneksi internet bermasalah. Coba lagi.';
+        return m;
+    }
+    function gagal(e) { if (window.console) console.error(e); toast(pesanError(e), true); }
+    function sibuk(btn, on, teks) {
+        if (!btn) return;
+        if (on) { btn.dataset.t = btn.textContent; btn.textContent = teks || 'Menyimpan…'; btn.disabled = true; }
+        else { btn.textContent = btn.dataset.t || btn.textContent; btn.disabled = false; }
+    }
+    function setDirty(v) { dirty = v; var d = $('#dirty'); if (d) d.hidden = !v; }
+    function opsi(list, cur) { return list.map(function (o) { var v = Array.isArray(o) ? o[0] : o, t = Array.isArray(o) ? o[1] : o; return '<option value="' + E(v) + '"' + (String(v) === String(cur == null ? '' : cur) ? ' selected' : '') + '>' + E(t) + '</option>'; }).join(''); }
+    function gitarNama(s) { return [s.gitar_jenis, s.gitar_merk].filter(Boolean).join(' ') || 'Gitar'; }
+    function bukaWa(hp, teks) { window.open(L.waLink(hp, teks), '_blank', 'noopener'); }
+    function salin(o) { return JSON.parse(JSON.stringify(o)); }
+    function idAcak() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 8); }
+
+    /* ================= token & PIN ================= */
+    function mulai() {
+        if (!L.siapAdmin) { app.innerHTML = '<section class="ly-login"><div class="ly-card"><h2>Pengaturan belum lengkap</h2><p class="ly-muted">Isi bagian <b>github</b> di <code>layanan-config.js</code>.</p></div></section>'; return; }
+        if (!A.adaToken()) return layarPasang();
+        if (!A.terbuka()) return layarPin();
+        masukOk();
+    }
+    function layarPasang() {
+        app.innerHTML = '<section class="ly-login"><form class="ly-card ly-f" id="f-pasang" autocomplete="off"><h2>Pasang admin di perangkat ini</h2>' +
+            '<p class="ly-muted">Tempel token GitHub (lihat <b>panduan-admin.md</b>, langkah 2), lalu buat PIN untuk membuka admin di perangkat ini. Token hanya disimpan di perangkat ini, terkunci PIN.</p>' +
+            '<label>Token GitHub<input type="password" name="token" placeholder="github_pat_…" autocomplete="off" spellcheck="false" required></label>' +
+            '<div class="ly-row2"><label>PIN baru (4–8 angka)<input type="password" name="pin" inputmode="numeric" pattern="[0-9]{4,8}" required></label>' +
+            '<label>Ulangi PIN<input type="password" name="pin2" inputmode="numeric" pattern="[0-9]{4,8}" required></label></div>' +
+            '<button class="ly-btn ly-btn--pri">Pasang</button></form></section>';
+        $('#f-pasang').addEventListener('submit', function (e) {
+            e.preventDefault(); var f = e.target, b = $('button', f);
+            if (f.pin.value !== f.pin2.value) return toast('PIN dan ulangan PIN tidak sama.', true);
+            sibuk(b, true, 'Memeriksa token…');
+            A.pasangToken(f.token.value, f.pin.value).then(function () { f.token.value = ''; toast('Admin siap dipakai di perangkat ini.'); masukOk(); })
+                .catch(function (err) { sibuk(b, false); gagal(err); });
+        });
+    }
+    function layarPin() {
+        app.innerHTML = '<section class="ly-login"><form class="ly-card ly-f" id="f-pin" autocomplete="off"><h2>Buka admin</h2>' +
+            '<label>PIN<input type="password" name="pin" inputmode="numeric" pattern="[0-9]{4,8}" autofocus required></label>' +
+            '<button class="ly-btn ly-btn--pri">Buka</button>' +
+            '<p class="ly-hint">Lupa PIN? <button type="button" class="ly-btn ly-btn--sm" id="b-ulang">Pasang ulang token</button></p></form></section>';
+        $('#f-pin').addEventListener('submit', function (e) {
+            e.preventDefault(); var b = $('button', e.target); sibuk(b, true, 'Membuka…');
+            A.buka(e.target.pin.value).then(masukOk).catch(function (err) { sibuk(b, false); e.target.pin.value = ''; gagal(err); });
+        });
+        $('#b-ulang').addEventListener('click', function () { if (confirm('Hapus token dari perangkat ini dan pasang ulang?')) A.lupakan().then(layarPasang); });
+    }
+    function masukOk() {
+        $('#tabs').hidden = false; $('#kunci').hidden = false;
+        app.innerHTML = '<p class="ly-kosong">Memuat data…</p>';
+        A.muat().then(function (d) { cache = d; dimuat = true; rute(); }).catch(function (e) {
+            app.innerHTML = '<section class="ly-login"><div class="ly-card"><h2>Gagal memuat data</h2><p class="ly-muted">' + E(pesanError(e)) + '</p><div class="ly-btns"><button type="button" class="ly-btn ly-btn--pri" id="b-coba">Coba lagi</button><button type="button" class="ly-btn" id="b-ulang2">Pasang ulang token</button></div></div></section>';
+            $('#b-coba').addEventListener('click', masukOk);
+            $('#b-ulang2').addEventListener('click', function () { A.lupakan().then(function () { $('#tabs').hidden = true; $('#kunci').hidden = true; layarPasang(); }); });
+        });
+    }
+    $('#kunci').addEventListener('click', function () {
+        if (dirty && !confirm('Perubahan belum disimpan. Tetap kunci?')) return;
+        A.kunci().then(function () { setDirty(false); $('#tabs').hidden = true; $('#kunci').hidden = true; layarPin(); });
+    });
+
+    /* ================= rute: #servis, #servis/<id>, #servis/baru, #artikel, ... ================= */
+    var hashLama = location.hash;
+    function rute() {
+        if (!A.terbuka()) return layarPin();
+        var p = (location.hash.replace(/^#/, '') || 'servis').split('/');
+        $$('#tabs a').forEach(function (a) { a.setAttribute('aria-current', a.getAttribute('href') === '#' + p[0] ? 'page' : 'false'); });
+        window.scrollTo(0, 0);
+        if (p[0] === 'artikel') return p[1] ? bukaArtikel(p[1] === 'baru' ? null : p[1]) : daftarArtikel();
+        return p[1] ? bukaServis(p[1] === 'baru' ? null : p[1]) : daftarServis();
+    }
+    window.addEventListener('hashchange', function () {
+        if ((dirty && !confirm('Perubahan belum disimpan. Tinggalkan halaman ini?')) || menyimpan) { history.replaceState(null, '', hashLama || '#servis'); return; }
+        setDirty(false); hashLama = location.hash; if (dimuat) rute();
+    });
+    window.addEventListener('beforeunload', function (e) { if (dirty || menyimpan) { e.preventDefault(); e.returnValue = ''; } });
+
+    /* ================= daftar servis ================= */
+    function daftarServis() {
+        app.innerHTML = '<section><div class="ly-head"><h1>Servis</h1><a class="ly-btn ly-btn--pri" href="#servis/baru">+ Gitar masuk</a></div>' +
+            '<div class="ly-cari"><input class="ly-in" id="cari" type="search" placeholder="Cari kode, nama, no. HP, merk…" autocomplete="off"></div>' +
+            '<div class="ly-filter" id="filter"></div><div class="ly-list" id="list"></div>' +
+            '<div class="ly-btns" style="margin-top:18px"><button type="button" class="ly-btn ly-btn--sm" id="b-muat">Muat ulang data</button><button type="button" class="ly-btn ly-btn--sm" id="b-cadang">Unduh cadangan</button><button type="button" class="ly-btn ly-btn--sm ly-btn--del" id="b-lupa">Hapus token dari perangkat ini</button></div></section>';
+        $('#cari').value = cari;
+        $('#cari').addEventListener('input', function () { cari = this.value; gambarDaftar(); });
+        $('#filter').addEventListener('click', function (e) { var b = e.target.closest('[data-f]'); if (b) { filter = b.dataset.f; gambarDaftar(); } });
+        $('#b-muat').addEventListener('click', function () { var b = this; sibuk(b, true, 'Memuat…'); A.muat().then(function (d) { cache = d; sibuk(b, false); gambarDaftar(); toast('Data terbaru dimuat.'); }).catch(function (e) { sibuk(b, false); gagal(e); }); });
+        $('#b-cadang').addEventListener('click', function () {
+            var a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify(A.cadangan(), null, 1)], { type: 'application/json' }));
+            a.download = 'cadangan-servis-ayri-' + L.hariIni() + '.json'; document.body.appendChild(a); a.click(); a.remove();
+        });
+        $('#b-lupa').addEventListener('click', function () { if (confirm('Hapus token dari perangkat ini? Data tetap aman di GitHub; Anda perlu memasang token lagi untuk memakai admin di sini.')) A.lupakan().then(function () { location.hash = ''; location.reload(); }); });
+        gambarDaftar();
+    }
+    function gambarDaftar() {
+        if (!$('#list')) return;
+        var rows = cache.servis, n = {}, hari = L.hariIni(), c = cari.trim().toLowerCase();
+        rows.forEach(function (s) { n[s.status] = (n[s.status] || 0) + 1; });
+        var f = [['aktif', 'Aktif', rows.filter(function (s) { return AKTIF.indexOf(s.status) > -1; }).length]]
+            .concat(L.URUT_STATUS.concat('batal').map(function (k) { return [k, L.STATUS[k].label.replace(/ – .*/, ''), n[k] || 0]; }))
+            .concat([['semua', 'Semua', rows.length]]);
+        $('#filter').innerHTML = f.map(function (x) { return '<button type="button" data-f="' + x[0] + '" aria-pressed="' + (filter === x[0]) + '">' + E(x[1]) + '<b>' + x[2] + '</b></button>'; }).join('');
+        var hasil = rows.filter(function (s) {
+            if (filter === 'aktif' ? AKTIF.indexOf(s.status) < 0 : filter !== 'semua' && s.status !== filter) return false;
+            return !c || [s.kode, s.nama, s.hp, s.gitar_jenis, s.gitar_merk, s.keluhan].join(' ').toLowerCase().indexOf(c) > -1;
+        });
+        $('#list').innerHTML = hasil.length ? hasil.map(function (s) {
+            var h = L.hitung(s, s.items, s.bayar), telat = s.estimasi && s.estimasi < hari && ['menunggu_dp', 'antri', 'dikerjakan'].indexOf(s.status) > -1;
+            var bayar = !h.total ? 'Biaya belum diisi' : h.lunas ? 'Lunas' : h.kurangAwal ? '<span class="ly-warn">Bayar awal kurang ' + L.rupiah(h.kurangAwal) + '</span>' : 'Sisa ' + L.rupiah(h.sisa);
+            return '<a class="ly-item" href="#servis/' + s.id + '"><span class="ly-item__k">' + E(s.kode) + '</span><span class="st-chip st-' + s.status + '">' + E(L.STATUS[s.status].label) + '</span>' +
+                '<span class="ly-item__t">' + E(gitarNama(s)) + ' · ' + E(s.nama) + '</span>' +
+                '<span class="ly-item__m"><span>Masuk ' + L.tgl(s.tgl_masuk) + '</span>' + (s.estimasi ? '<span' + (telat ? ' class="ly-telat"' : '') + '>Estimasi ' + L.tgl(s.estimasi) + (telat ? ' (lewat)' : '') + '</span>' : '') + '<span>' + bayar + '</span></span></a>';
+        }).join('') : '<p class="ly-kosong">' + (rows.length ? 'Tidak ada yang cocok.' : 'Belum ada data servis. Tekan “+ Gitar masuk”.') + '</p>';
+    }
+
+    /* ================= form servis (semua perubahan baru dikirim ke GitHub saat Simpan) ================= */
+    function servisKosong() {
+        return { nama: '', hp: '', tgl_masuk: L.hariIni(), gitar_jenis: (C.jenisGitar || ['Akustik'])[0], gitar_merk: '', keluhan: '', status: 'menunggu_dp', estimasi: '', diskon: 0, saran: '', catatan_publik: '', catatan_admin: '', izin_publikasi: false, items: [], bayar: [], foto: [] };
+    }
+    function bukaServis(id) {
+        var s = id ? cache.servis.filter(function (x) { return x.id === id; })[0] : servisKosong();
+        if (!s) { app.innerHTML = '<p class="ly-kosong">Data tidak ditemukan. <a href="#servis">Kembali ke daftar</a></p>'; return; }
+        s = salin(s);
+        ed = { baru: !id, s: s, items: s.items || [], bayar: s.bayar || [], foto: s.foto || [], antri: [] };
+        gambarServis();
+    }
+    function gambarServis() {
+        var s = ed.s, katalog = {}, kat = '';
+        (C.katalogJasa || []).forEach(function (k, i) { (katalog[k.grup] = katalog[k.grup] || []).push('<option value="' + i + '">' + E(k.nama) + (k.harga ? ' – ' + L.rupiah(k.harga) : '') + '</option>'); });
+        for (var g in katalog) kat += '<optgroup label="' + E(g) + '">' + katalog[g].join('') + '</optgroup>';
+        var jenis = (C.jenisGitar || []).slice(); if (s.gitar_jenis && jenis.indexOf(s.gitar_jenis) < 0) jenis.push(s.gitar_jenis);
+        app.innerHTML = '<section id="sv" class="ly-f">' +
+            '<div class="ly-head"><a class="ly-back" href="#servis">‹ Daftar servis</a></div>' +
+            '<div class="ly-head"><h1>' + (ed.baru ? 'Gitar masuk' : E(gitarNama(s))) + '</h1>' + (ed.baru ? '' : '<span class="st-chip st-' + s.status + '" id="sv-chip">' + E(L.STATUS[s.status].label) + '</span>') + '</div>' +
+            (ed.baru ? '<p class="ly-muted">Kode servis dibuat otomatis saat disimpan.</p>' : '<div class="ly-kode">' + E(s.kode) + ' <span class="ly-muted" style="font:600 .8rem var(--font-sans);letter-spacing:0">· 4 digit HP: ' + E(L.hp4(s.hp)) + '</span></div>') +
+
+            '<fieldset class="ly-card ly-f"><legend>Pelanggan</legend>' +
+            '<label>Nama<input data-f="nama" autocomplete="off" required></label>' +
+            '<label>No. HP / WhatsApp<input data-f="hp" type="tel" inputmode="tel" autocomplete="off" placeholder="08xxxxxxxxxx" required>' + (ed.baru ? '' : '<span class="ly-hint">Mengubah nomor HP mengubah 4 digit untuk cek status; kirim ulang tautan ke pelanggan.</span>') + '</label></fieldset>' +
+
+            '<fieldset class="ly-card ly-f"><legend>Gitar</legend>' +
+            '<div class="ly-row2"><label>Jenis<select data-f="gitar_jenis">' + opsi(jenis, s.gitar_jenis) + '</select></label>' +
+            '<label>Merk / model<input data-f="gitar_merk" placeholder="mis. Yamaha F310"></label></div>' +
+            '<label>Keluhan / kerusakan<textarea data-f="keluhan" rows="3" placeholder="mis. senar fret buzz di fret 3–5, bridge mulai terangkat"></textarea></label>' +
+            '<div class="ly-row2"><label>Tanggal masuk<input type="date" data-f="tgl_masuk"></label><label>Estimasi selesai<input type="date" data-f="estimasi"></label></div>' +
+            '<label class="ly-cek"><input type="checkbox" data-f="izin_publikasi"> Pelanggan setuju foto gitarnya dipakai untuk artikel (tanpa nama dan nomor HP)</label></fieldset>' +
+
+            '<fieldset class="ly-card"><legend>Jasa &amp; part</legend><div class="ly-items" id="sv-items"></div>' +
+            '<div class="ly-add"><select class="ly-in" id="sv-katalog"><option value="">+ Tambah jasa dari daftar…</option>' + kat + '</select>' +
+            '<button type="button" class="ly-btn ly-btn--sm" data-act="jasa">+ Jasa lain</button><button type="button" class="ly-btn ly-btn--sm" data-act="part">+ Part / suku cadang</button></div>' +
+            '<div class="ly-f" style="margin-top:12px"><label style="max-width:220px">Diskon (Rp)<input type="number" inputmode="numeric" min="0" step="1000" data-f="diskon"></label></div>' +
+            '<div class="ly-sum" id="sv-sum"></div></fieldset>' +
+
+            '<fieldset class="ly-card"><legend>Pembayaran</legend><div class="ly-bayar" id="sv-bayar"></div>' +
+            '<div class="ly-f" style="margin-top:10px"><div class="ly-row2"><label>Jumlah (Rp)<input type="number" inputmode="numeric" min="0" step="1000" id="by-jml"></label>' +
+            '<label>Jenis<select id="by-jenis">' + opsi([['dp', 'DP / bayar awal'], ['tambahan', 'Tambahan'], ['pelunasan', 'Pelunasan']], 'dp') + '</select></label></div>' +
+            '<div class="ly-row2"><label>Metode<select id="by-metode">' + opsi([['tunai', 'Tunai'], ['transfer', 'Transfer'], ['qris', 'QRIS']], 'tunai') + '</select></label><label>Tanggal<input type="date" id="by-tgl"></label></div>' +
+            '<button type="button" class="ly-btn" id="by-tambah">Catat pembayaran</button></div></fieldset>' +
+
+            '<fieldset class="ly-card"><legend>Status</legend><div class="ly-status" id="sv-status"></div><p class="ly-hint" style="margin-top:8px">Aturan toko: gitar dikerjakan setelah DP ' + L.dpPersen() + '% jasa + part lunas. Status otomatis pindah ke <b>Antri</b> saat pembayaran awal terpenuhi.</p></fieldset>' +
+
+            '<fieldset class="ly-card"><legend>Foto</legend><div id="sv-foto"></div><p class="ly-hint" style="margin-top:10px">Foto dikecilkan otomatis (WebP ±150 KB) dan dikunci sebelum diunggah. Label <b>Tampil</b> = terlihat pelanggan; ketuk untuk menyembunyikan. Foto sesudah servis baru terlihat pelanggan saat status Selesai.</p></fieldset>' +
+
+            '<fieldset class="ly-card ly-f"><legend>Untuk pelanggan</legend>' +
+            '<label>Pesan / update (tampil di halaman cek status)<textarea data-f="catatan_publik" rows="3" placeholder="mis. Ditemukan truss rod macet, perlu diganti. Estimasi mundur 2 hari."></textarea></label>' +
+            '<label>Saran setelah servis (tampil saat status Selesai)<textarea data-f="saran" rows="3" placeholder="mis. Senar sudah aus, sarankan ganti Elixir 11. Tuner kendur, bisa upgrade ke Grover."></textarea></label></fieldset>' +
+
+            '<fieldset class="ly-card ly-f"><legend>Catatan internal</legend><label>Hanya terlihat admin<textarea data-f="catatan_admin" rows="2"></textarea></label></fieldset>' +
+
+            (ed.baru ? '' : '<fieldset class="ly-card"><legend>Kirim &amp; lainnya</legend><div class="ly-btns">' +
+                '<button type="button" class="ly-btn ly-btn--wa" data-wa="tandaTerima">WA: Tanda terima</button>' +
+                '<button type="button" class="ly-btn ly-btn--wa" data-wa="update">WA: Update status</button>' +
+                '<button type="button" class="ly-btn ly-btn--wa" data-wa="selesai">WA: Kabari selesai</button>' +
+                '<button type="button" class="ly-btn ly-btn--wa" data-wa="nota">WA: Kirim nota</button></div>' +
+                '<div class="ly-btns" style="margin-top:8px"><a class="ly-btn" target="_blank" href="cek-servis.html?k=' + encodeURIComponent(s.kode) + '&amp;h=' + encodeURIComponent(L.hp4(s.hp)) + '">Lihat halaman pelanggan</a>' +
+                '<a class="ly-btn" target="_blank" href="nota.html?k=' + encodeURIComponent(s.kode) + '&amp;h=' + encodeURIComponent(L.hp4(s.hp)) + '">Buka / cetak nota</a>' +
+                '<button type="button" class="ly-btn" id="sv-artikel">Jadikan artikel</button><button type="button" class="ly-btn ly-btn--del" id="sv-hapus">Hapus servis</button></div>' +
+                '<p class="ly-hint" style="margin-top:8px">Halaman pelanggan ikut berubah ±1 menit setelah disimpan.</p></fieldset>') +
+
+            '<div class="ly-save"><span class="ly-dirty" id="dirty" hidden>Belum disimpan</span><button type="button" class="ly-btn ly-btn--pri" id="sv-simpan">' + (ed.baru ? 'Simpan &amp; buat kode' : 'Simpan perubahan') + '</button></div></section>';
+
+        $$('[data-f]', app).forEach(function (el) {
+            var v = s[el.dataset.f];
+            if (el.type === 'checkbox') el.checked = !!v; else el.value = v == null ? '' : v;
+        });
+        $('#by-tgl').value = L.hariIni();
+        gambarItems(); gambarRingkas(); gambarBayar(); gambarStatus(); gambarFoto();
+        setDirty(false);
+
+        var sv = $('#sv');
+        sv.addEventListener('input', ubahField); sv.addEventListener('change', ubahField);
+        sv.addEventListener('click', klikServis);
+        $('#sv-katalog').addEventListener('change', function () {
+            var k = (C.katalogJasa || [])[+this.value]; this.value = ''; if (!k) return;
+            ed.items.push({ jenis: 'jasa', nama: k.nama, harga: k.harga || 0, qty: 1, garansi: k.garansi || '', garansi_syarat: k.jatuh ? C.syaratJatuh : '' });
+            gambarItems(); gambarRingkas(); setDirty(true);
+            if (!k.harga) { var ins = $$('#sv-items [data-k="harga"]'); ins[ins.length - 1].focus(); }
+        });
+        $('#by-tambah').addEventListener('click', tambahBayar);
+        $('#sv-simpan').addEventListener('click', simpanServis);
+        $('#sv-foto').addEventListener('change', function (e) { if (e.target.type === 'file') { tambahFoto(e.target.dataset.tahap, [].slice.call(e.target.files)); e.target.value = ''; } });
+        if (!ed.baru) { $('#sv-artikel').addEventListener('click', jadikanArtikel); $('#sv-hapus').addEventListener('click', hapusServis); }
+    }
+    function ubahField(e) {
+        var t = e.target;
+        if (t.dataset.f) {
+            ed.s[t.dataset.f] = t.type === 'checkbox' ? t.checked : t.dataset.f === 'diskon' ? Math.max(0, Math.round(+t.value || 0)) : t.value;
+            setDirty(true); if (t.dataset.f === 'diskon') gambarRingkas();
+        } else if (t.dataset.k) {
+            var it = ed.items[+t.closest('[data-i]').dataset.i], k = t.dataset.k;
+            if (k === 'jatuh') it.garansi_syarat = t.checked ? C.syaratJatuh : '';
+            else it[k] = k === 'harga' || k === 'qty' ? Math.max(k === 'qty' ? 1 : 0, Math.round(+t.value || 0)) : t.value;
+            setDirty(true); if (k === 'harga' || k === 'qty') gambarRingkas();
+        }
+    }
+    function gambarItems() {
+        $('#sv-items').innerHTML = ed.items.length ? ed.items.map(function (it, i) {
+            var hapus = '<button type="button" class="ly-x" data-del="' + i + '" aria-label="Hapus">×</button>';
+            if (it.jenis === 'part') return '<div class="ly-it" data-i="' + i + '"><div class="ly-it__tag">Part' + hapus + '</div>' +
+                '<input class="ly-in ly-it__n" data-k="nama" placeholder="Nama part, mis. Senar Elixir 11" value="' + E(it.nama) + '" aria-label="Nama part">' +
+                '<label class="ly-lbl">Jumlah<input class="ly-in" data-k="qty" type="number" inputmode="numeric" min="1" value="' + (it.qty || 1) + '"></label>' +
+                '<label class="ly-lbl">Harga satuan (Rp)<input class="ly-in" data-k="harga" type="number" inputmode="numeric" min="0" step="1000" value="' + (it.harga || 0) + '"></label></div>';
+            return '<div class="ly-it" data-i="' + i + '"><div class="ly-it__tag">Jasa' + hapus + '</div>' +
+                '<input class="ly-in ly-it__n" data-k="nama" placeholder="Nama jasa" value="' + E(it.nama) + '" aria-label="Nama jasa">' +
+                '<label class="ly-lbl">Harga (Rp)<input class="ly-in" data-k="harga" type="number" inputmode="numeric" min="0" step="1000" value="' + (it.harga || 0) + '"></label>' +
+                '<label class="ly-lbl">Garansi<select class="ly-in" data-k="garansi">' + opsi(L.GARANSI_PILIHAN, it.garansi || '') + '</select></label>' +
+                '<label class="ly-cek ly-it__n" style="font-size:.75rem"><input type="checkbox" data-k="jatuh"' + (it.garansi_syarat ? ' checked' : '') + '> Syarat garansi: gitar tidak jatuh/terbentur lagi</label></div>';
+        }).join('') : '<p class="ly-muted">Belum ada jasa. Pilih dari daftar di bawah.</p>';
+    }
+    function gambarRingkas() {
+        var h = L.hitung(ed.s, ed.items, ed.bayar);
+        $('#sv-sum').innerHTML = '<div><span>Jasa</span><span>' + L.rupiah(h.jasa) + '</span></div>' + (h.part ? '<div><span>Part</span><span>' + L.rupiah(h.part) + '</span></div>' : '') +
+            (h.diskon ? '<div><span>Diskon</span><span>' + L.rupiah(-h.diskon) + '</span></div>' : '') +
+            '<div class="ly-total"><span>Total</span><span>' + L.rupiah(h.total) + '</span></div>' +
+            '<div><span>Bayar awal sebelum dikerjakan<br><small class="ly-muted">DP ' + L.dpPersen() + '% jasa + part lunas</small></span><span>' + L.rupiah(h.wajibAwal) + '</span></div>' +
+            '<div><span>Sudah dibayar</span><span>' + L.rupiah(h.dibayar) + '</span></div>' +
+            (h.total ? (h.kurangAwal ? '<div class="ly-warn"><span>Bayar awal masih kurang</span><span>' + L.rupiah(h.kurangAwal) + '</span></div>' : '<div class="ly-ok"><span>Bayar awal terpenuhi ✓</span><span></span></div>') : '') +
+            '<div class="ly-total"><span>Sisa' + (h.lebih ? ' (kelebihan bayar ' + L.rupiah(h.lebih) + ')' : '') + '</span><span>' + L.rupiah(h.sisa) + '</span></div>';
+        var j = $('#by-jml'); if (j && !j.dataset.manual) j.value = h.kurangAwal || h.sisa || '';
+        var bj = $('#by-jenis'); if (bj && !bj.dataset.manual) bj.value = h.kurangAwal ? 'dp' : h.sisa ? 'pelunasan' : 'tambahan';
+    }
+    function gambarBayar() {
+        $('#sv-bayar').innerHTML = ed.bayar.length ? ed.bayar.map(function (b, i) {
+            return '<div><span>' + L.tgl(b.tgl) + ' · ' + ({ dp: 'DP', pelunasan: 'Pelunasan', tambahan: 'Tambahan' })[b.jenis] + ' · ' + ({ tunai: 'Tunai', transfer: 'Transfer', qris: 'QRIS' })[b.metode] + (b.baru ? ' <small class="ly-muted">(belum disimpan)</small>' : '') + '</span><b>' + L.rupiah(b.jumlah) + '</b>' +
+                '<button type="button" class="ly-x" data-delbayar="' + i + '" aria-label="Hapus pembayaran">×</button></div>';
+        }).join('') : '<p class="ly-muted">Belum ada pembayaran.</p>';
+    }
+    function gambarStatus() {
+        $('#sv-status').innerHTML = L.URUT_STATUS.concat('batal').map(function (k) { return '<button type="button" data-status="' + k + '" aria-pressed="' + (ed.s.status === k) + '">' + E(L.STATUS[k].label) + '</button>'; }).join('');
+    }
+    function gambarFoto() {
+        $('#sv-foto').innerHTML = ['sebelum', 'kerusakan', 'sesudah'].map(function (t) {
+            var ada = [], tunggu = ed.antri.filter(function (f) { return f.tahap === t; });
+            ed.foto.forEach(function (f, i) { if (f.tahap === t) ada.push([f, i]); });
+            return '<div class="ly-fgrup"><h3>' + L.TAHAP[t] + '<label class="ly-btn ly-btn--sm ly-file">+ Foto<input type="file" accept="image/*" multiple data-tahap="' + t + '"></label></h3>' +
+                (ada.length || tunggu.length ? '<div class="ly-foto">' + ada.map(function (x) {
+                    var f = x[0];
+                    return '<figure><img data-foto="' + x[1] + '" alt=""><button type="button" class="ly-ft" data-tampil="' + f.id + '" aria-pressed="' + !!f.tampil + '">' + (f.tampil ? 'Tampil' : 'Sembunyi') + '</button><button type="button" class="ly-fx" data-hapusfoto="' + f.id + '" aria-label="Hapus foto">×</button></figure>';
+                }).join('') + tunggu.map(function (f) {
+                    return '<figure' + (f.hasil ? '' : ' class="ly-up"') + '><img src="' + f.pratinjau + '" alt=""><button type="button" class="ly-ft" data-tampilq="' + f.qid + '" aria-pressed="' + f.tampil + '">' + (f.tampil ? 'Tampil' : 'Sembunyi') + '</button><button type="button" class="ly-fx" data-hapusq="' + f.qid + '" aria-label="Batal">×</button></figure>';
+                }).join('') + '</div>' : '<p class="ly-muted">Belum ada foto.</p>') + '</div>';
+        }).join('');
+        L.isiFoto($('#sv-foto'), Object.assign({}, ed.s, { foto: ed.foto }), A.fotoAdmin);
+    }
+    function klikServis(e) {
+        var t = e.target.closest('button, [data-act]'); if (!t) return;
+        var d = t.dataset;
+        if (d.act) { ed.items.push({ jenis: d.act === 'part' ? 'part' : 'jasa', nama: '', harga: 0, qty: 1, garansi: '', garansi_syarat: '' }); gambarItems(); gambarRingkas(); setDirty(true); var n = $$('#sv-items [data-k="nama"]'); n[n.length - 1].focus(); }
+        else if (d.del != null) { ed.items.splice(+d.del, 1); gambarItems(); gambarRingkas(); setDirty(true); }
+        else if (d.status) ubahStatus(d.status);
+        else if (d.delbayar != null) hapusBayar(+d.delbayar);
+        else if (d.tampil) { ed.foto.forEach(function (f) { if (f.id === d.tampil) f.tampil = !f.tampil; }); gambarFoto(); setDirty(true); }
+        else if (d.hapusfoto) { if (confirm('Hapus foto ini? (terhapus permanen saat Simpan)')) { ed.foto = ed.foto.filter(function (f) { return f.id !== d.hapusfoto; }); gambarFoto(); setDirty(true); } }
+        else if (d.tampilq) { ed.antri.forEach(function (f) { if (f.qid === d.tampilq) f.tampil = !f.tampil; }); gambarFoto(); }
+        else if (d.hapusq) { ed.antri = ed.antri.filter(function (f) { return f.qid !== d.hapusq; }); gambarFoto(); setDirty(ed.antri.length > 0 || dirty); }
+        else if (d.wa) kirimWa(d.wa);
+    }
+    function ubahStatus(st) {
+        var h = L.hitung(ed.s, ed.items, ed.bayar);
+        if (st === ed.s.status) return;
+        if ((st === 'dikerjakan' || st === 'antri') && h.kurangAwal > 0 && !confirm('Pembayaran awal masih kurang ' + L.rupiah(h.kurangAwal) + '. Aturan toko: dikerjakan setelah DP dan part lunas.\n\nTetap ubah status?')) return;
+        if (st === 'diambil' && h.sisa > 0 && !confirm('Masih ada sisa pembayaran ' + L.rupiah(h.sisa) + '. Tandai sudah diambil?')) return;
+        if (st === 'batal' && !confirm('Tandai servis ini dibatalkan? Pelanggan tidak bisa lagi membuka status dan notanya.')) return;
+        ed.s.status = st; gambarStatus(); setDirty(true);
+        if (st === 'selesai' && !ed.foto.concat(ed.antri).some(function (f) { return f.tahap === 'sesudah'; })) toast('Jangan lupa tambahkan foto sesudah servis dan saran untuk pelanggan.');
+    }
+    function tambahBayar() {
+        var jml = Math.round(+$('#by-jml').value || 0); if (jml <= 0) return toast('Isi jumlah pembayaran.', true);
+        ed.bayar.push({ id: idAcak(), tgl: $('#by-tgl').value || L.hariIni(), jumlah: jml, jenis: $('#by-jenis').value, metode: $('#by-metode').value, baru: true });
+        delete $('#by-jml').dataset.manual; delete $('#by-jenis').dataset.manual;
+        gambarBayar(); gambarRingkas(); setDirty(true);
+        toast('Pembayaran dicatat. Tekan Simpan untuk menyimpan.');
+    }
+    function hapusBayar(i) {
+        var by = ed.bayar[i]; if (!confirm('Hapus pembayaran ' + L.rupiah(by.jumlah) + ' tanggal ' + L.tgl(by.tgl) + '?')) return;
+        ed.bayar.splice(i, 1); gambarBayar(); gambarRingkas(); setDirty(true);
+    }
+    document.addEventListener('input', function (e) { if (e.target.id === 'by-jml' || e.target.id === 'by-jenis') e.target.dataset.manual = '1'; });
+
+    /* foto langsung dikecilkan di HP; diunggah bersama data saat Simpan */
+    var qn = 0;
+    function tambahFoto(tahap, files) {
+        if (!files.length) return;
+        var baru = files.map(function (file) { return { qid: 'q' + (++qn), tahap: tahap, tampil: tahap !== 'sebelum', pratinjau: URL.createObjectURL(file), file: file }; });
+        ed.antri = ed.antri.concat(baru); gambarFoto(); setDirty(true);
+        baru.reduce(function (p, q) {
+            return p.then(function () { return L.kompres(q.file).then(function (hasil) { q.hasil = hasil; q.file = null; if ($('#sv-foto')) gambarFoto(); }); });
+        }, Promise.resolve()).catch(gagal);
+    }
+
+    /* ---------- simpan ---------- */
+    function validasi() {
+        var s = ed.s;
+        if (!String(s.nama).trim()) return 'Nama pelanggan belum diisi.';
+        if (String(s.hp).replace(/\D/g, '').length < 8) return 'No. HP belum benar (minimal 8 angka).';
+        if (ed.items.some(function (i) { return !String(i.nama).trim(); })) return 'Ada jasa/part yang namanya kosong.';
+        if (ed.antri.some(function (q) { return !q.hasil; })) return 'Foto masih diproses, tunggu sebentar.';
+        return '';
+    }
+    function simpanServis() {
+        var err = validasi(); if (err) return toast(err, true);
+        var b = $('#sv-simpan'), baru = ed.baru, statusAwal = ed.s.status;
+        var rec = Object.assign({}, ed.s, { nama: String(ed.s.nama).trim(), hp: String(ed.s.hp).trim(), items: ed.items, bayar: ed.bayar.map(function (x) { var y = Object.assign({}, x); delete y.baru; return y; }), foto: ed.foto });
+        var h = L.hitung(rec, rec.items, rec.bayar);
+        if (rec.status === 'menunggu_dp' && h.total > 0 && h.kurangAwal === 0) rec.status = 'antri';
+        var fotoBaru = ed.antri.map(function (q) { return { hasil: q.hasil, tahap: q.tahap, tampil: q.tampil }; });
+        sibuk(b, true, fotoBaru.length ? 'Mengunggah ' + fotoBaru.length + ' foto…' : 'Menyimpan…'); menyimpan = true;
+        A.simpanServis(rec, fotoBaru).then(function (row) { selesai(row); })
+            .catch(function (e) {
+                menyimpan = false; sibuk(b, false);
+                if (e.sebagian && e.rec) { ed.s = e.rec; ed.foto = e.rec.foto; ed.antri = []; ed.baru = false; gambarFoto(); setDirty(true); }
+                gagal(e);
+            });
+        function selesai(row) {
+            menyimpan = false;
+            cache.servis = cache.servis.filter(function (x) { return x.id !== row.id; }); cache.servis.unshift(row);
+            var r2 = salin(row); ed = { baru: false, s: r2, items: r2.items, bayar: r2.bayar, foto: r2.foto, antri: [] };
+            setDirty(false);
+            var pesan = baru ? 'Tersimpan. Kode servis: ' + row.kode + '. Kirim tanda terima lewat tombol WA.' : 'Tersimpan. Halaman pelanggan diperbarui ±1 menit lagi.';
+            if (statusAwal === 'menunggu_dp' && row.status === 'antri') pesan += ' Status otomatis menjadi Antri.';
+            toast(pesan);
+            if (baru) { hashLama = '#servis/' + row.id; location.hash = hashLama; } else gambarServis();
+        }
+    }
+
+    /* ---------- kirim WA, artikel, hapus ---------- */
+    function kirimWa(jenis) {
+        if (dirty) return toast('Simpan perubahan dulu, supaya yang dilihat pelanggan sudah terbaru.', true);
+        bukaWa(ed.s.hp, L.pesan[jenis](ed.s));
+    }
+    function jadikanArtikel() {
+        if (dirty) return toast('Simpan perubahan dulu.', true);
+        if (!ed.s.izin_publikasi && !confirm('Pelanggan belum dicentang setuju fotonya dipakai untuk artikel. Tetap buat draf?')) return;
+        var s = ed.s, jasa = ed.items.filter(function (i) { return i.jenis !== 'part'; }).map(function (i) { return i.nama.replace(/\s*\+\s*Basic Setup/i, ''); }),
+            part = ed.items.filter(function (i) { return i.jenis === 'part'; }).map(function (i) { return i.nama; }), gitar = gitarNama(s);
+        var judul = (jasa[0] || 'Servis Gitar') + ' ' + (s.gitar_merk || s.gitar_jenis || '') + (s.keluhan ? ': ' + s.keluhan.split(/[.,;\n]/)[0].trim() : '');
+        judul = judul.replace(/\s+/g, ' ').trim().slice(0, 110);
+        var isi = ['## Kondisi gitar saat masuk', s.keluhan || '(Ceritakan keluhan pelanggan dan kondisi gitar saat datang.)', '', '## Yang kami kerjakan']
+            .concat(jasa.map(function (x) { return '- ' + x; }), part.map(function (x) { return '- Pasang/ganti: ' + x; }))
+            .concat(['', '## Hasil', '(Ceritakan hasilnya: misalnya action lebih rendah, tidak fret buzz lagi, suara lebih jernih.)'])
+            .concat(s.saran ? ['', '## Saran dari kami', s.saran] : [])
+            .concat(['', '> Gitar Anda mengalami masalah serupa? Konsultasikan gratis lewat WhatsApp atau mampir ke toko kami di Bogor.']).join('\n');
+        var urutan = ['sebelum', 'kerusakan', 'sesudah'], slug = ArtikelMd.slug(judul), n = 1;
+        while (cache.artikel.some(function (a) { return a.slug === slug; })) slug = ArtikelMd.slug(judul) + '-' + (++n);
+        var draf = {
+            judul: judul, slug: slug, tag: 'Hasil Servis', status: 'draf', servis_id: s.id, isi: isi,
+            ringkasan: ('Hasil ' + (jasa.join(', ') || 'servis') + ' gitar ' + gitar + ' di Toko Gitar AYRI Bogor, lengkap dengan foto sebelum dan sesudah.').slice(0, 160),
+            foto: ed.foto.slice().sort(function (a, b) { return urutan.indexOf(a.tahap) - urutan.indexOf(b.tahap); })
+                .map(function (f) { return { servis: s.id, foto: f.id, alt: L.TAHAP[f.tahap] + ': ' + gitar }; })
+        };
+        var b = $('#sv-artikel'); sibuk(b, true, 'Membuat draf…');
+        A.simpanArtikel(draf).then(function (row) {
+            cache.artikel.unshift(row); toast('Draf artikel dibuat. Rapikan tulisannya, lalu terbitkan.');
+            hashLama = '#artikel/' + row.id; location.hash = hashLama;
+        }).catch(function (e) { sibuk(b, false); gagal(e); });
+    }
+    function hapusServis() {
+        var k = prompt('Menghapus servis juga menghapus semua fotonya dan tidak bisa dibatalkan.\nKetik kode servis (' + ed.s.kode + ') untuk konfirmasi:');
+        if (k == null) return;
+        if (k.trim().toUpperCase() !== ed.s.kode) return toast('Kode tidak cocok, tidak jadi dihapus.', true);
+        var b = $('#sv-hapus'); sibuk(b, true, 'Menghapus…');
+        A.hapusServis(ed.s).then(function () {
+            cache.servis = cache.servis.filter(function (x) { return x.id !== ed.s.id; }); setDirty(false); toast('Servis dihapus.'); location.hash = '#servis';
+        }).catch(function (e) { sibuk(b, false); gagal(e); });
+    }
+
+    /* ================= artikel ================= */
+    function daftarArtikel() {
+        app.innerHTML = '<section><div class="ly-head"><h1>Artikel</h1><a class="ly-btn ly-btn--pri" href="#artikel/baru">+ Artikel baru</a></div>' +
+            '<p class="ly-muted">Artikel berstatus <b>Terbit</b> langsung dibuat menjadi halaman situs, kartu di beranda, dan masuk sitemap Google (tampil ±1 menit setelah disimpan). Buat dari menu servis (tombol <b>Jadikan artikel</b>) supaya foto dan ceritanya terisi otomatis.</p>' +
+            '<div class="ly-list" id="list"></div></section>';
+        var rows = cache.artikel;
+        $('#list').innerHTML = rows.length ? rows.map(function (a) {
+            return '<a class="ly-item" href="#artikel/' + a.id + '"><span class="ly-item__k">' + (a.status === 'terbit' && a.terbit_at ? 'Terbit ' + L.tgl(a.terbit_at.slice(0, 10)) : 'Belum terbit') + '</span><span class="st-chip ' + (a.status === 'terbit' ? 'st-selesai' : 'st-menunggu_dp') + '">' + (a.status === 'terbit' ? 'Terbit' : 'Draf') + '</span>' +
+                '<span class="ly-item__t">' + E(a.judul) + '</span><span class="ly-item__m"><span>artikel-' + E(a.slug) + '.html</span><span>Diubah ' + L.tgl((a.updated_at || '').slice(0, 10)) + '</span></span></a>';
+        }).join('') : '<p class="ly-kosong">Belum ada artikel.</p>';
+    }
+    function bukaArtikel(id) {
+        var a = id ? cache.artikel.filter(function (x) { return x.id === id; })[0] : { judul: '', slug: '', ringkasan: '', isi: '', tag: 'Tips Servis', foto: [], status: 'draf', servis_id: null };
+        if (!a) { app.innerHTML = '<p class="ly-kosong">Artikel tidak ditemukan. <a href="#artikel">Kembali</a></p>'; return; }
+        a = salin(a);
+        var s = a.servis_id ? cache.servis.filter(function (x) { return x.id === a.servis_id; })[0] : null;
+        ae = { baru: !id, a: a, slugManual: !!id, servis: s || null };
+        gambarArtikel();
+    }
+    function gambarArtikel() {
+        var a = ae.a, url = L.situs() + 'artikel-' + a.slug + '.html', terbit = !ae.baru && cache.artikel.some(function (x) { return x.id === a.id && x.status === 'terbit'; });
+        app.innerHTML = '<section id="ar" class="ly-f"><div class="ly-head"><a class="ly-back" href="#artikel">‹ Daftar artikel</a></div>' +
+            '<div class="ly-head"><h1>' + (ae.baru ? 'Artikel baru' : 'Edit artikel') + '</h1></div>' +
+            '<fieldset class="ly-card ly-f"><legend>Judul &amp; alamat</legend>' +
+            '<label>Judul<input data-a="judul" maxlength="140" placeholder="mis. Repair Bridge Lepas Yamaha APX500"></label>' +
+            '<label>Alamat halaman<input data-a="slug" pattern="[a-z0-9-]+" autocapitalize="off"><span class="ly-hint" id="ar-url"></span></label>' +
+            '<div class="ly-row2"><label>Label<input data-a="tag" maxlength="40"></label><label>Status<select data-a="status">' + opsi([['draf', 'Draf'], ['terbit', 'Terbit']], a.status) + '</select></label></div>' +
+            '<label>Ringkasan untuk Google (maks. 160 huruf)<textarea data-a="ringkasan" rows="2" maxlength="160"></textarea><span class="ly-hint" id="ar-n"></span></label></fieldset>' +
+            '<fieldset class="ly-card ly-f"><legend>Isi artikel</legend>' +
+            '<p class="ly-hint">Format: <b>## Judul bagian</b>, <b>- poin</b>, <b>**tebal**</b>, <b>_miring_</b>, <b>[teks](https://alamat)</b>, baris kosong = paragraf baru.</p>' +
+            '<textarea data-a="isi" rows="16"></textarea><div class="ly-btns"><button type="button" class="ly-btn ly-btn--sm" id="ar-prev">Pratinjau</button></div><div class="ly-prev" id="ar-pv" hidden></div></fieldset>' +
+            '<fieldset class="ly-card"><legend>Foto</legend><div class="ly-afoto" id="ar-foto"></div><div id="ar-pick"></div>' +
+            '<div class="ly-btns" style="margin-top:10px"><label class="ly-btn ly-btn--sm ly-file">+ Unggah foto<input type="file" accept="image/*" multiple id="ar-file"></label></div>' +
+            '<p class="ly-hint" style="margin-top:8px">Foto pertama menjadi sampul. Isi keterangan singkat tiap foto (membantu Google). Pastikan tidak ada wajah, nota, atau nomor seri gitar. Foto artikel bersifat publik.</p></fieldset>' +
+            (ae.baru ? '' : '<fieldset class="ly-card"><legend>Lainnya</legend><div class="ly-btns">' + (terbit ? '<a class="ly-btn" target="_blank" href="' + E(url) + '">Lihat di situs</a>' : '') +
+                '<button type="button" class="ly-btn ly-btn--del" id="ar-hapus">Hapus artikel</button></div></fieldset>') +
+            '<div class="ly-save"><span class="ly-dirty" id="dirty" hidden>Belum disimpan</span><button type="button" class="ly-btn ly-btn--pri" id="ar-simpan">Simpan</button></div></section>';
+        $$('[data-a]', app).forEach(function (el) { el.value = a[el.dataset.a] == null ? '' : a[el.dataset.a]; });
+        infoArtikel(); gambarAFoto(); setDirty(false);
+        var ar = $('#ar');
+        ar.addEventListener('input', function (e) {
+            var t = e.target, k = t.dataset.a, i = t.dataset.alt;
+            if (k) {
+                a[k] = t.value; setDirty(true);
+                if (k === 'judul' && !ae.slugManual) { a.slug = ArtikelMd.slug(t.value); $('[data-a="slug"]').value = a.slug; }
+                if (k === 'slug') ae.slugManual = true;
+                infoArtikel(); if (!$('#ar-pv').hidden) pratinjau();
+            } else if (i != null) { a.foto[+i].alt = t.value; setDirty(true); }
+        });
+        ar.addEventListener('change', function (e) { if (e.target.dataset.a === 'status') { a.status = e.target.value; setDirty(true); } });
+        ar.addEventListener('click', function (e) {
+            var t = e.target.closest('button'); if (!t) return; var d = t.dataset;
+            if (t.id === 'ar-prev') { var pv = $('#ar-pv'); pv.hidden = !pv.hidden; t.textContent = pv.hidden ? 'Pratinjau' : 'Tutup pratinjau'; if (!pv.hidden) pratinjau(); }
+            else if (d.fdel != null) { a.foto.splice(+d.fdel, 1); gambarAFoto(); setDirty(true); }
+            else if (d.fup != null) { var i = +d.fup; if (i > 0) { var x = a.foto[i]; a.foto[i] = a.foto[i - 1]; a.foto[i - 1] = x; gambarAFoto(); setDirty(true); } }
+            else if (d.pick) {
+                var f = ae.servis.foto.filter(function (x) { return x.id === d.pick; })[0], ada = -1;
+                a.foto.forEach(function (x, j) { if (x.foto === f.id) ada = j; });
+                if (ada > -1) a.foto.splice(ada, 1); else a.foto.push({ servis: ae.servis.id, foto: f.id, alt: L.TAHAP[f.tahap] });
+                gambarAFoto(); setDirty(true);
+            }
+        });
+        $('#ar-file').addEventListener('change', function () {
+            var files = [].slice.call(this.files); this.value = ''; if (!files.length) return;
+            toast('Mengunggah ' + files.length + ' foto…');
+            files.reduce(function (p, file) {
+                return p.then(function () { return L.kompres(file).then(A.unggahFotoArtikel).then(function (path) { a.foto.push({ path: path, alt: '' }); gambarAFoto(); setDirty(true); }); });
+            }, Promise.resolve()).then(function () { toast('Foto terunggah. Isi keterangannya, lalu Simpan.'); }).catch(gagal);
+        });
+        $('#ar-simpan').addEventListener('click', simpanArtikel);
+        if (!ae.baru) $('#ar-hapus').addEventListener('click', function () {
+            if (!confirm('Hapus artikel ini? Kalau sudah terbit, halamannya ikut dihapus dari situs.')) return;
+            var b = this; sibuk(b, true, 'Menghapus…');
+            A.hapusArtikel(a).then(function () { cache.artikel = cache.artikel.filter(function (x) { return x.id !== a.id; }); setDirty(false); toast('Artikel dihapus.'); location.hash = '#artikel'; })
+                .catch(function (e) { sibuk(b, false); gagal(e); });
+        });
+    }
+    function infoArtikel() {
+        var a = ae.a; $('#ar-url').textContent = 'ayrigitar.com/artikel-' + (a.slug || '…') + '.html';
+        $('#ar-n').textContent = (a.ringkasan || '').length + '/160';
+    }
+    function isiGambar(el) { $$('img[data-af]', el).forEach(function (img) { var f = ae.a.foto[+img.dataset.af]; if (f) A.fotoArtikel(f).then(function (u) { img.src = u; }, function () { img.alt = 'Foto tidak ditemukan'; }); }); }
+    function pratinjau() {
+        var a = ae.a;
+        $('#ar-pv').innerHTML = '<p class="ly-muted">' + E(a.tag) + '</p><h2>' + E(a.judul || '(tanpa judul)') + '</h2>' + (a.foto[0] ? '<img data-af="0" alt="" style="border-radius:12px;margin:10px 0">' : '') + ArtikelMd.keHtml(a.isi);
+        isiGambar($('#ar-pv'));
+    }
+    function gambarAFoto() {
+        if (!$('#ar-foto')) return;
+        var a = ae.a;
+        $('#ar-foto').innerHTML = a.foto.length ? a.foto.map(function (f, i) {
+            return '<div><img data-af="' + i + '" alt=""><input class="ly-in" data-alt="' + i + '" value="' + E(f.alt) + '" placeholder="Keterangan foto"><span class="ly-btns" style="flex-wrap:nowrap">' +
+                (i ? '<button type="button" class="ly-x" data-fup="' + i + '" aria-label="Naikkan">↑</button>' : '') + '<button type="button" class="ly-x" data-fdel="' + i + '" aria-label="Hapus dari artikel">×</button></span></div>';
+        }).join('') : '<p class="ly-muted">Belum ada foto.</p>';
+        isiGambar($('#ar-foto'));
+        var pick = $('#ar-pick'), s = ae.servis, dipakai = a.foto.map(function (x) { return x.foto; });
+        pick.innerHTML = s && s.foto && s.foto.length ? '<p class="ly-hint" style="margin:12px 0 6px">Foto dari data servis ' + E(s.kode) + ' (ketuk untuk pakai/lepas):</p><div class="ly-pick">' + s.foto.map(function (f, i) {
+            return '<button type="button" data-pick="' + f.id + '" aria-pressed="' + (dipakai.indexOf(f.id) > -1) + '"><img data-foto="' + i + '" alt="' + E(L.TAHAP[f.tahap]) + '"></button>';
+        }).join('') + '</div>' : '';
+        if (s) L.isiFoto(pick, s, A.fotoAdmin);
+    }
+    function simpanArtikel() {
+        var a = ae.a;
+        a.judul = (a.judul || '').trim(); a.slug = ArtikelMd.slug(a.slug || a.judul);
+        if (!a.judul) return toast('Judul belum diisi.', true);
+        if (!a.slug) return toast('Alamat halaman belum benar.', true);
+        if (a.status === 'terbit') {
+            if (!a.isi.trim()) return toast('Isi artikel masih kosong.', true);
+            if (/\((Ceritakan|Tulis)[^)]*\)/.test(a.isi) && !confirm('Masih ada teks contoh dalam tanda kurung (mis. “(Ceritakan hasilnya…)”). Tetap terbitkan?')) return;
+            if (!a.ringkasan.trim()) a.ringkasan = ArtikelMd.teksPolos(a.isi).slice(0, 157) + '…';
+            if (a.foto.some(function (f) { return !String(f.alt || '').trim(); })) return toast('Isi keterangan untuk setiap foto dulu.', true);
+        }
+        var b = $('#ar-simpan'); sibuk(b, true, a.status === 'terbit' ? 'Menerbitkan…' : 'Menyimpan…'); menyimpan = true;
+        A.simpanArtikel(a).then(function (row) {
+            menyimpan = false; setDirty(false);
+            cache.artikel = cache.artikel.filter(function (x) { return x.id !== row.id; }); cache.artikel.unshift(row);
+            toast(row.status === 'terbit' ? 'Terbit! Halaman artikel tampil di situs ±1 menit lagi.' : 'Draf tersimpan.');
+            if (ae.baru) { hashLama = '#artikel/' + row.id; location.hash = hashLama; } else { sibuk(b, false); ae.a = salin(row); ae.slugManual = true; gambarArtikel(); }
+        }).catch(function (e) { menyimpan = false; sibuk(b, false); gagal(e); });
+    }
+
+    mulai();
+})();
+    </script>
+</body>
+</html>

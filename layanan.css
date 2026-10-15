@@ -1,0 +1,246 @@
+/* Layanan servis: admin, cek status, nota. Token warna/huruf dari theme-dark.css */
+
+/* ---------- komponen bersama ---------- */
+.st-chip {
+  display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px;
+  border-radius: var(--r-pill); font-size: .75rem; font-weight: 800; letter-spacing: .01em; white-space: nowrap;
+  background: var(--surface-2); color: var(--ink-2); border: 1px solid var(--line);
+}
+.st-chip::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+.st-menunggu_dp { color: #A15C07; background: #FEF3E2; border-color: #F7D9A8; }
+.st-antri { color: #2659A8; background: #E8F0FC; border-color: #C3D6F5; }
+.st-dikerjakan { color: #6B3FA0; background: #F1EAFB; border-color: #DCCBF3; }
+.st-selesai { color: #0E6B40; background: #E2F1E8; border-color: #B7DEC7; }
+.st-diambil { color: var(--ink-3); }
+.st-batal { color: var(--danger); }
+html[data-theme="dark"] .st-menunggu_dp { color: #F5B65C; background: rgba(245, 182, 92, .1); border-color: rgba(245, 182, 92, .3); }
+html[data-theme="dark"] .st-antri { color: #8CB4F5; background: rgba(140, 180, 245, .1); border-color: rgba(140, 180, 245, .3); }
+html[data-theme="dark"] .st-dikerjakan { color: #C4A3F2; background: rgba(196, 163, 242, .1); border-color: rgba(196, 163, 242, .3); }
+html[data-theme="dark"] .st-selesai { color: #5CD196; background: rgba(92, 209, 150, .1); border-color: rgba(92, 209, 150, .3); }
+
+.ly-card {
+  min-width: 0; margin: 0; padding: 16px; border: 1px solid var(--line); border-radius: var(--r-lg);
+  background: var(--surface); box-shadow: var(--shadow-sm);
+}
+.ly-card > legend, .ly-card > h2 { margin: 0 0 12px; padding: 0; font: 700 1.0625rem/1.2 var(--font-display); color: var(--ink); }
+.ly-card > legend { float: left; width: 100%; }
+.ly-card > legend + * { clear: both; }
+.ly-muted { color: var(--ink-3); font-size: .875rem; }
+.ly-sum { display: grid; gap: 6px; margin-top: 12px; padding-top: 12px; border-top: 1px dashed var(--line-strong); font-size: .9375rem; }
+.ly-sum > div { display: flex; justify-content: space-between; gap: 12px; }
+.ly-sum > div > span:last-child { font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.ly-sum .ly-total { font-size: 1.0625rem; font-weight: 800; color: var(--ink); }
+.ly-sum .ly-warn { color: #A15C07; }
+html[data-theme="dark"] .ly-sum .ly-warn { color: #F5B65C; }
+.ly-sum .ly-ok { color: var(--wa-ink); }
+
+.ly-foto { display: grid; grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); gap: 8px; }
+.ly-foto figure { position: relative; margin: 0; overflow: hidden; border-radius: var(--r-sm); background: var(--surface-2); aspect-ratio: 1; }
+.ly-foto img { width: 100%; height: 100%; object-fit: cover; }
+.ly-foto figcaption { position: absolute; inset: auto 0 0; padding: 14px 6px 5px; font-size: .6875rem; font-weight: 600; line-height: 1.2; color: #fff; background: linear-gradient(transparent, rgba(0, 0, 0, .7)); }
+
+/* ---------- halaman admin ---------- */
+body.ly { min-height: 100dvh; background: var(--bg); color: var(--ink); font-family: var(--font-sans); }
+.ly-top {
+  position: sticky; top: 0; z-index: 20; display: flex; align-items: center; gap: 10px;
+  padding: calc(8px + env(safe-area-inset-top)) 14px 8px; border-bottom: 1px solid var(--line);
+  background: var(--glass-strong); backdrop-filter: blur(12px);
+}
+.ly-top b { font: 700 1.0625rem var(--font-display); white-space: nowrap; }
+.ly-top b span { color: var(--accent); }
+.ly-tabs { display: flex; gap: 4px; margin-left: auto; padding: 3px; border-radius: var(--r-pill); background: var(--surface-2); }
+.ly-tabs a { padding: 6px 12px; border-radius: var(--r-pill); font-size: .8125rem; font-weight: 700; color: var(--ink-3); }
+.ly-tabs a[aria-current="page"] { background: var(--surface); color: var(--ink); box-shadow: var(--shadow-sm); }
+.ly-main { display: grid; gap: 12px; width: min(100% - 24px, 760px); margin: 14px auto 120px; }
+.ly-main > section { display: grid; gap: 12px; }
+.ly-main h1 { font: 700 1.5rem/1.15 var(--font-display); }
+.ly-head { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; }
+.ly-head h1 { flex: 1 1 auto; }
+.ly-back { font-size: .875rem; font-weight: 700; color: var(--accent); }
+.ly-kode { font: 800 1.25rem/1 ui-monospace, Menlo, Consolas, monospace; letter-spacing: .06em; color: var(--accent); }
+
+.ly-f { display: grid; gap: 10px; }
+.ly-f label, .ly-lbl { display: grid; gap: 5px; font-size: .8125rem; font-weight: 700; color: var(--ink-2); }
+.ly-f input:not([type="checkbox"]):not([type="file"]), .ly-f select, .ly-f textarea, .ly-in {
+  width: 100%; min-height: 44px; padding: 9px 12px; border: 1px solid var(--line-strong); border-radius: var(--r-sm);
+  background: var(--surface); color: var(--ink); font: 500 1rem/1.35 var(--font-sans);
+}
+.ly-f textarea { min-height: 84px; resize: vertical; }
+.ly-f input:focus, .ly-f select:focus, .ly-f textarea:focus, .ly-in:focus { outline: 2px solid var(--accent-line); border-color: var(--accent); }
+.ly-row2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
+.ly-cek { display: flex !important; align-items: flex-start; gap: 10px; font-weight: 600 !important; line-height: 1.35; }
+.ly-cek input { flex: none; width: 20px; height: 20px; margin: 1px 0 0; accent-color: var(--accent); }
+.ly-hint { font-size: .75rem; font-weight: 500; color: var(--ink-3); }
+
+.ly-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 42px; padding: 0 14px;
+  border: 1px solid var(--line-strong); border-radius: var(--r-pill); background: var(--surface); color: var(--ink);
+  font: 700 .875rem/1 var(--font-sans); cursor: pointer; white-space: nowrap;
+}
+.ly-btn:active { transform: scale(.97); }
+.ly-btn[disabled] { opacity: .5; pointer-events: none; }
+.ly-btn--pri { border-color: var(--accent); background: var(--accent); color: var(--on-accent); }
+.ly-btn--wa { border-color: var(--wa); background: var(--wa); color: #fff; }
+.ly-btn--del { color: var(--danger); }
+.ly-btn--sm { min-height: 34px; padding: 0 11px; font-size: .8125rem; }
+.ly-btns { display: flex; flex-wrap: wrap; gap: 8px; }
+.ly-x { flex: none; width: 34px; height: 34px; border: 0; border-radius: 50%; background: var(--surface-2); color: var(--ink-3); font-size: 1.1rem; cursor: pointer; }
+
+.ly-save {
+  position: fixed; inset: auto 0 0; z-index: 15; display: flex; justify-content: center; gap: 8px;
+  padding: 10px 12px calc(10px + env(safe-area-inset-bottom)); border-top: 1px solid var(--line); background: var(--glass-strong); backdrop-filter: blur(12px);
+}
+.ly-save .ly-btn { flex: 1 1 0; max-width: 360px; min-height: 48px; font-size: 1rem; }
+.ly-dirty { position: absolute; top: -26px; left: 50%; transform: translateX(-50%); padding: 3px 10px; border-radius: var(--r-pill); background: #A15C07; color: #fff; font-size: .7rem; font-weight: 700; }
+
+/* daftar servis */
+.ly-cari { display: flex; gap: 8px; }
+.ly-cari input { flex: 1; }
+.ly-filter { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 2px; scrollbar-width: none; }
+.ly-filter button { flex: none; padding: 7px 12px; border: 1px solid var(--line); border-radius: var(--r-pill); background: var(--surface); color: var(--ink-2); font: 700 .8125rem var(--font-sans); cursor: pointer; }
+.ly-filter button[aria-pressed="true"] { border-color: var(--ink); background: var(--ink); color: var(--bg); }
+.ly-filter b { margin-left: 4px; opacity: .7; }
+.ly-list { display: grid; gap: 8px; }
+.ly-item {
+  display: grid; grid-template-columns: 1fr auto; gap: 4px 10px; padding: 12px 14px;
+  border: 1px solid var(--line); border-radius: var(--r-md); background: var(--surface); color: inherit;
+}
+.ly-item:active { transform: scale(.99); }
+.ly-item__k { font: 800 .8125rem ui-monospace, Menlo, Consolas, monospace; letter-spacing: .04em; color: var(--accent); }
+.ly-item__t { grid-column: 1 / -1; font-weight: 700; }
+.ly-item__m { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: .8125rem; color: var(--ink-3); }
+.ly-item__m .ly-telat { color: var(--danger); font-weight: 700; }
+.ly-item__m .ly-warn { color: #A15C07; font-weight: 700; }
+html[data-theme="dark"] .ly-item__m .ly-warn { color: #F5B65C; }
+.ly-kosong { padding: 30px 10px; text-align: center; color: var(--ink-3); }
+
+/* baris jasa/part */
+.ly-items { display: grid; gap: 8px; }
+.ly-it { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px; align-items: end; padding: 10px; border: 1px solid var(--line); border-radius: var(--r-sm); background: var(--surface-2); }
+.ly-it .ly-in { width: 100%; min-height: 40px; padding: 7px 10px; font-size: .9375rem; }
+.ly-it .ly-lbl { font-size: .7rem; }
+.ly-it__n { grid-column: 1 / -1; }
+.ly-it__tag { grid-column: 1 / -1; display: flex; align-items: center; justify-content: space-between; gap: 8px; margin: -2px 0 -4px; font-size: .7rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3); }
+.ly-it__tag .ly-x { width: 30px; height: 30px; }
+.ly-add { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+.ly-add select { flex: 1 1 220px; }
+
+/* status */
+.ly-status { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 6px; }
+.ly-status button { min-height: 44px; padding: 6px 10px; border: 1px solid var(--line-strong); border-radius: var(--r-sm); background: var(--surface); color: var(--ink-2); font: 700 .8125rem/1.2 var(--font-sans); cursor: pointer; }
+.ly-status button[aria-pressed="true"] { border-color: var(--accent); background: var(--accent); color: var(--on-accent); }
+
+/* pembayaran */
+.ly-bayar { display: grid; gap: 6px; }
+.ly-bayar > div { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: var(--r-sm); background: var(--surface-2); font-size: .875rem; }
+.ly-bayar > div > span:first-child { flex: 1; }
+.ly-bayar b { font-variant-numeric: tabular-nums; }
+
+/* foto admin */
+.ly-fgrup { display: grid; gap: 8px; }
+.ly-fgrup + .ly-fgrup { margin-top: 14px; }
+.ly-fgrup h3 { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: .875rem; font-weight: 800; }
+.ly-foto .ly-fx { position: absolute; top: 4px; right: 4px; width: 28px; height: 28px; border: 0; border-radius: 50%; background: rgba(0, 0, 0, .6); color: #fff; cursor: pointer; }
+.ly-foto .ly-ft { position: absolute; top: 4px; left: 4px; padding: 3px 7px; border: 0; border-radius: var(--r-pill); background: rgba(0, 0, 0, .6); color: #fff; font: 700 .65rem var(--font-sans); cursor: pointer; }
+.ly-foto .ly-ft[aria-pressed="false"] { background: rgba(180, 35, 24, .85); }
+.ly-foto figure.ly-up img { opacity: .45; }
+.ly-foto figure.ly-up::after { content: "mengunggah\2026"; position: absolute; inset: 0; display: grid; place-items: center; font-size: .7rem; font-weight: 700; }
+.ly-file { position: relative; overflow: hidden; }
+.ly-file input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+
+.ly-toast {
+  position: fixed; left: 50%; bottom: calc(84px + env(safe-area-inset-bottom)); z-index: 40; transform: translate(-50%, 20px);
+  max-width: min(92vw, 480px); padding: 11px 16px; border-radius: var(--r-md); background: var(--ink); color: var(--bg);
+  font-size: .875rem; font-weight: 600; box-shadow: var(--shadow-lg); opacity: 0; pointer-events: none; transition: .25s var(--ease-out);
+}
+.ly-toast.on { opacity: 1; transform: translate(-50%, 0); }
+.ly-toast.err { background: var(--danger); color: #fff; }
+
+.ly-login { width: min(100%, 380px); margin: 8vh auto 0; }
+.ly-prev { padding: 16px; border: 1px dashed var(--line-strong); border-radius: var(--r-md); background: var(--bg); }
+.ly-prev h2 { margin: 1em 0 .4em; font: 700 1.25rem var(--font-display); }
+.ly-prev h3 { margin: 1em 0 .3em; font-size: 1.05rem; }
+.ly-prev p, .ly-prev li { margin: .5em 0; line-height: 1.6; }
+.ly-prev ul, .ly-prev ol { padding-left: 1.3em; list-style: revert; }
+.ly-prev blockquote { margin: .8em 0; padding: .2em 1em; border-left: 3px solid var(--accent); color: var(--ink-2); }
+.ly-afoto { display: grid; gap: 8px; }
+.ly-afoto > div { display: grid; grid-template-columns: 64px 1fr auto; gap: 8px; align-items: center; }
+.ly-afoto img { width: 64px; height: 64px; object-fit: cover; border-radius: var(--r-xs); }
+.ly-pick { display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 6px; }
+.ly-pick button { padding: 0; border: 2px solid transparent; border-radius: var(--r-xs); overflow: hidden; background: none; cursor: pointer; aspect-ratio: 1; }
+.ly-pick button[aria-pressed="true"] { border-color: var(--accent); }
+.ly-pick img { width: 100%; height: 100%; object-fit: cover; }
+
+/* ---------- halaman cek status (publik) ---------- */
+.cek-page { padding: calc(var(--header-h) + 24px) 0 calc(var(--tabbar-h) + 48px); }
+.cek-wrap { display: grid; gap: 14px; width: min(100% - 2 * var(--gutter), 640px); margin-inline: auto; }
+.cek-wrap h1 { font: 700 clamp(1.75rem, 5vw, 2.4rem)/1.1 var(--font-display); }
+.cek-form { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.cek-form .ly-btn { grid-column: 1 / -1; min-height: 50px; font-size: 1rem; }
+.cek-err { padding: 12px 14px; border-radius: var(--r-md); background: rgba(180, 35, 24, .08); color: var(--danger); font-weight: 600; }
+.cek-hero { display: grid; gap: 6px; }
+.cek-gitar { font: 700 1.5rem/1.15 var(--font-display); }
+.cek-steps { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; margin: 6px 0 2px; }
+.cek-steps span { height: 6px; border-radius: 3px; background: var(--line-strong); }
+.cek-steps span.on { background: var(--accent); }
+.cek-steps + .cek-steplbl { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; font-size: .625rem; font-weight: 700; color: var(--ink-3); text-align: center; }
+.cek-steplbl span.on { color: var(--accent); }
+.cek-kv { display: grid; grid-template-columns: auto 1fr; gap: 6px 14px; font-size: .9375rem; }
+.cek-kv dt { color: var(--ink-3); }
+.cek-kv dd { margin: 0; font-weight: 600; }
+.cek-saran { padding: 14px 16px; border-radius: var(--r-md); background: var(--accent-soft); border: 1px solid var(--accent-line); white-space: pre-line; line-height: 1.55; }
+.cek-pesan { white-space: pre-line; line-height: 1.55; }
+.cek-foto button { display: block; width: 100%; height: 100%; padding: 0; border: 0; background: none; cursor: zoom-in; }
+.cek-lb { position: fixed; inset: 0; z-index: 100; display: grid; place-items: center; padding: 16px; background: rgba(0, 0, 0, .88); }
+.cek-lb img { max-width: 100%; max-height: 82dvh; border-radius: var(--r-sm); }
+.cek-lb p { margin-top: 10px; color: #fff; text-align: center; }
+.cek-garansi { display: grid; gap: 6px; }
+.cek-garansi > div { padding: 10px 12px; border-radius: var(--r-sm); background: var(--surface-2); font-size: .875rem; }
+.cek-garansi b { display: block; }
+.cek-garansi .aktif { color: var(--wa-ink); font-weight: 700; }
+
+/* ---------- nota ---------- */
+body.nota-body { background: var(--bg-alt); color: var(--ink); font-family: var(--font-sans); }
+.nota-bar { position: sticky; top: 0; z-index: 5; display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; padding: 10px 12px; background: var(--glass-strong); border-bottom: 1px solid var(--line); }
+.nota-gate { width: min(100% - 32px, 420px); margin: 10vh auto; }
+.nota {
+  width: min(100% - 24px, 720px); margin: 16px auto 40px; padding: clamp(18px, 4vw, 36px);
+  background: #fff; color: #1C1815; border-radius: var(--r-md); box-shadow: var(--shadow-md); font-size: .875rem; line-height: 1.45;
+}
+.nota-head { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 14px; padding-bottom: 14px; border-bottom: 2px solid #1C1815; }
+.nota-toko b { display: block; font: 700 1.375rem/1.1 var(--font-display); }
+.nota-toko b span { color: #9E5A0C; }
+.nota-toko p { margin: 4px 0 0; color: #4F4740; font-size: .8125rem; }
+.nota-id { text-align: right; }
+.nota-id h1 { font: 800 1rem/1 var(--font-sans); letter-spacing: .14em; text-transform: uppercase; }
+.nota-id p { margin: 6px 0 0; font: 700 1rem ui-monospace, Menlo, Consolas, monospace; letter-spacing: .05em; }
+.nota-lunas { display: inline-block; margin-top: 6px; padding: 3px 10px; border: 2px solid #0E6B40; border-radius: 6px; color: #0E6B40; font-weight: 800; letter-spacing: .12em; transform: rotate(-4deg); }
+.nota-lunas.dp { border-color: #A15C07; color: #A15C07; }
+.nota-info { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 4px 24px; padding: 14px 0; border-bottom: 1px solid #EAE3D9; }
+.nota-info div { display: flex; gap: 8px; }
+.nota-info dt { min-width: 92px; color: #766B61; }
+.nota-info dd { margin: 0; font-weight: 600; }
+.nota table { width: 100%; margin: 14px 0 6px; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+.nota th { padding: 6px 4px; border-bottom: 1px solid #1C1815; font-size: .7rem; letter-spacing: .08em; text-transform: uppercase; text-align: left; color: #4F4740; }
+.nota td { padding: 8px 4px; border-bottom: 1px solid #EAE3D9; vertical-align: top; }
+.nota td small { display: block; color: #766B61; font-size: .75rem; }
+.nota .r { text-align: right; white-space: nowrap; }
+.nota-tot { display: grid; gap: 4px; width: min(100%, 320px); margin-left: auto; font-variant-numeric: tabular-nums; }
+.nota-tot div { display: flex; justify-content: space-between; gap: 12px; }
+.nota-tot .t { padding-top: 6px; border-top: 1px solid #1C1815; font-size: 1rem; font-weight: 800; }
+.nota-tot .s { padding: 6px 8px; margin-top: 4px; border-radius: 6px; background: #F6EAD9; font-weight: 800; }
+.nota h2 { margin: 18px 0 6px; font-size: .75rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: #4F4740; }
+.nota-gar { display: grid; gap: 4px; }
+.nota-gar div { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 2px 12px; padding: 6px 8px; border-radius: 6px; background: #F7F3EC; }
+.nota-gar small { flex-basis: 100%; color: #766B61; }
+.nota-rek { padding: 10px 12px; border: 1px dashed #DCD2C4; border-radius: 8px; }
+.nota ol { margin: 0; padding-left: 1.2em; color: #4F4740; font-size: .8125rem; }
+.nota ol li { margin: 3px 0; }
+.nota-foot { margin-top: 18px; padding-top: 12px; border-top: 1px solid #EAE3D9; color: #766B61; font-size: .75rem; text-align: center; }
+@media print {
+  body.nota-body { background: #fff; }
+  .nota-bar { display: none; }
+  .nota { width: 100%; margin: 0; padding: 0; box-shadow: none; border-radius: 0; }
+  @page { margin: 12mm; }
+}
+.ly-f input[type="date"] { padding-inline: 8px; font-size: .9375rem; }

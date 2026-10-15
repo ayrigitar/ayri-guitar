@@ -1,0 +1,69 @@
+/* =====================================================================
+   Pengaturan layanan servis Toko Gitar AYRI (admin, cek status, nota, artikel).
+   File ini boleh diubah sendiri lewat GitHub; simpan, tunggu ±1 menit, situs ikut berubah.
+
+   Tidak ada server: data lengkap servis disimpan di repo GitHub PRIVAT (repoData),
+   data untuk pelanggan disimpan terenkripsi di situs ini (repoSitus).
+   JANGAN PERNAH menaruh token GitHub di file ini; token dimasukkan langsung di halaman admin.
+   ===================================================================== */
+var AYRI_LAYANAN = {
+    situsUrl: 'https://ayrigitar.com/',
+
+    github: {
+        pemilik: 'ayrigitar',
+        repoSitus: 'ayri-guitar',        /* repo situs ini (publik) */
+        repoData: 'ayri-servis-data',    /* repo PRIVAT berisi data pelanggan */
+        cabang: 'main'
+    },
+
+    toko: {
+        nama: 'Toko Gitar AYRI',
+        alamat: 'Jln. Jabaru II, Bojong Baru, Pasirkuda, Kota Bogor',
+        jam: 'Senin–Minggu 12.00–19.00 (Jumat mulai 13.00)',
+        wa: '6285795738637',
+        rekening: [
+            { bank: 'BCA', nomor: '6395460912', atasNama: 'Rio Alam Nur' }
+        ]
+    },
+
+    /* aturan pembayaran: pengerjaan dimulai setelah DP jasa + part lunas */
+    dpJasaPersen: 50,
+    bulatkanKe: 1000,
+
+    /* gitar tidak diambil */
+    batasAmbilHari: 30,
+    biayaPenitipan: '',   /* contoh: 'Rp5.000 per hari'; kosong = tidak disebut nominalnya */
+
+    /* garansi: '7h' = 7 hari, '1b' = 1 bulan, '6b' = 6 bulan */
+    syaratJatuh: 'Berlaku selama gitar tidak jatuh atau terbentur kembali.',
+
+    /* daftar jasa yang sering dipakai (harga awal; bisa diubah per servis) */
+    katalogJasa: [
+        { grup: 'Setup & Perawatan', nama: 'Basic Setup (Akustik)', harga: 100000, garansi: '7h' },
+        { grup: 'Setup & Perawatan', nama: 'Basic Setup (Elektrik)', harga: 150000, garansi: '7h' },
+        { grup: 'Setup & Perawatan', nama: 'Full Setup (Akustik)', harga: 350000, garansi: '7h' },
+        { grup: 'Setup & Perawatan', nama: 'Full Setup (Elektrik)', harga: 400000, garansi: '7h' },
+        { grup: 'Custom Nut & Saddle', nama: 'Custom Nut & Saddle Akustik + Basic Setup', harga: 400000, garansi: '7h' },
+        { grup: 'Custom Nut & Saddle', nama: 'Custom Nut Elektrik + Basic Setup', harga: 300000, garansi: '7h' },
+        { grup: 'Kelistrikan', nama: 'Wiring Gitar Elektrik + Basic Setup', harga: 350000, garansi: '1b' },
+        { grup: 'Kelistrikan', nama: 'Shielding Copper Sheet + Basic Setup', harga: 500000, garansi: '1b' },
+        { grup: 'Kelistrikan', nama: 'Perbaikan Kelistrikan / Wiring', harga: 0, garansi: '1b' },
+        { grup: 'Repair Berat', nama: 'Repair Neck Patah', harga: 300000, garansi: '6b', jatuh: true },
+        { grup: 'Repair Berat', nama: 'Repair Bridge Lepas', harga: 300000, garansi: '6b', jatuh: true },
+        { grup: 'Repair Berat', nama: 'Repair Body Terbuka', harga: 0, garansi: '6b', jatuh: true },
+        { grup: 'Lainnya', nama: 'Ganti Senar', harga: 0, garansi: '' }
+    ],
+
+    jenisGitar: ['Akustik', 'Akustik Elektrik', 'Klasik', 'Elektrik', 'Bass', 'Ukulele', 'Lainnya'],
+
+    /* tercetak di nota; {hari} dan {biaya} diganti otomatis */
+    ketentuan: [
+        'Pengerjaan dimulai setelah DP {dp}% biaya jasa dan pembayaran lunas part/suku cadang kami terima.',
+        'Bila ditemukan kerusakan lain, biaya dan estimasi dapat berubah; kami kabari dulu sebelum dikerjakan.',
+        'Garansi dihitung sejak gitar diambil dan hanya berlaku untuk pekerjaan yang tercantum di nota ini.',
+        'Garansi tidak berlaku bila gitar dibongkar atau diperbaiki pihak lain.',
+        'Gitar yang tidak diambil lebih dari {hari} hari sejak dinyatakan selesai: garansi hangus dan dikenakan biaya penitipan{biaya}.',
+        'Klaim garansi wajib menyebutkan kode servis atau menunjukkan nota ini.'
+    ]
+};
+if (typeof module !== 'undefined') module.exports = AYRI_LAYANAN;

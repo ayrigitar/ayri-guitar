@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Nota Servis | Toko Gitar AYRI</title>
+    <link rel="icon" type="image/png" sizes="48x48" href="favicon-48.png">
+    <meta name="theme-color" content="#15100c">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500..700&family=Plus+Jakarta+Sans:wght@400..800&display=swap">
+    <link rel="stylesheet" href="theme-dark.css">
+    <link rel="stylesheet" href="layanan.css">
+    <script src="layanan-config.js"></script>
+    <script src="layanan.js"></script>
+</head>
+<body class="nota-body">
+    <div class="nota-bar" id="bar" hidden>
+        <button type="button" class="ly-btn ly-btn--pri" id="cetak">Simpan PDF / Cetak</button>
+        <a class="ly-btn" id="kembali" href="cek-servis.html">Status servis</a>
+    </div>
+    <main id="isi"><p class="ly-kosong">Memuat&hellip;</p></main>
+
+    <script>
+(function () {
+    var L = Layanan, C = L.C, E = L.esc, isi = document.getElementById('isi'), KEY = 'ayri-cek';
+    var q = new URLSearchParams(location.search), k = (q.get('k') || '').toUpperCase(), h = q.get('h');
+    try { var m = JSON.parse(localStorage.getItem(KEY) || 'null'); if (!h && m && m.k === k) h = m.h; } catch (e) {}
+
+    function gerbang(pesan) {
+        isi.innerHTML = '<form class="ly-card ly-f nota-gate" id="f"><h2>Nota servis</h2>' + (pesan ? '<p class="cek-err">' + E(pesan) + '</p>' : '') +
+            '<label>Kode servis<input name="k" value="' + E(k) + '" placeholder="AYR-XXXXX" autocapitalize="characters" required></label>' +
+            '<label>4 digit terakhir HP<input name="h" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" required></label>' +
+            '<button class="ly-btn ly-btn--pri">Buka nota</button></form>';
+        var f = document.getElementById('f');
+        (k ? f.h : f.k).focus();
+        f.addEventListener('submit', function (e) { e.preventDefault(); k = f.k.value.trim().toUpperCase(); h = f.h.value.replace(/\D/g, ''); muat(); });
+    }
+    function muat() {
+        isi.innerHTML = '<p class="ly-kosong">Memuat&hellip;</p>';
+        L.api.cekPublik(k, h).then(function (s) {
+            if (!s) return gerbang('Data tidak ditemukan. Periksa kode dan 4 digit terakhir HP.');
+            try { localStorage.setItem(KEY, JSON.stringify({ k: k, h: h })); } catch (e) {}
+            if (history.replaceState) history.replaceState(null, '', 'nota.html?k=' + encodeURIComponent(s.kode));
+            nota(s);
+        }).catch(function () { gerbang('Gagal terhubung. Periksa koneksi internet.'); });
+    }
+
+    function nota(s) {
+        var t = C.toko || {}, hit = L.hitung(s, s.items, s.bayar), gitar = [s.gitar_jenis, s.gitar_merk].filter(Boolean).join(' ') || '–';
+        var cap = hit.lunas ? '<span class="nota-lunas">LUNAS</span>' : hit.dibayar ? '<span class="nota-lunas dp">DP</span>' : '';
+        var gar = (s.items || []).filter(function (i) { return i.garansi; });
+        document.title = 'Nota ' + s.kode + ' | ' + (t.nama || 'Toko Gitar AYRI');
+        isi.innerHTML = '<article class="nota">' +
+            '<header class="nota-head"><div class="nota-toko"><b>Toko Gitar <span>AYRI</span></b><p>' + E(t.alamat) + '</p><p>WhatsApp +' + E(t.wa) + ' · ayrigitar.com</p></div>' +
+            '<div class="nota-id"><h1>Nota Servis</h1><p>' + E(s.kode) + '</p>' + cap + '</div></header>' +
+            '<dl class="nota-info">' +
+            '<div><dt>Pelanggan</dt><dd>' + E(s.nama) + '</dd></div><div><dt>No. HP</dt><dd>' + E(s.hp_samar) + '</dd></div>' +
+            '<div><dt>Gitar</dt><dd>' + E(gitar) + '</dd></div><div><dt>Tanggal masuk</dt><dd>' + L.tgl(s.tgl_masuk) + '</dd></div>' +
+            (s.tgl_diambil ? '<div><dt>Diambil</dt><dd>' + L.tgl(s.tgl_diambil) + '</dd></div>' : s.tgl_selesai ? '<div><dt>Selesai</dt><dd>' + L.tgl(s.tgl_selesai) + '</dd></div>' : s.estimasi ? '<div><dt>Estimasi</dt><dd>' + L.tgl(s.estimasi) + '</dd></div>' : '') +
+            '<div><dt>Status</dt><dd>' + E((L.STATUS[s.status] || {}).label || s.status) + '</dd></div>' +
+            (s.keluhan ? '<div style="grid-column:1/-1"><dt>Keluhan</dt><dd>' + E(s.keluhan) + '</dd></div>' : '') + '</dl>' +
+
+            '<table><thead><tr><th>Pekerjaan / part</th><th class="r">Jml</th><th class="r">Harga</th><th class="r">Subtotal</th></tr></thead><tbody>' +
+            ((s.items || []).length ? s.items.map(function (i) {
+                return '<tr><td>' + E(i.nama) + '<small>' + (i.jenis === 'part' ? 'Part' : 'Jasa') + (i.garansi ? ' · garansi ' + L.garansiLabel(i.garansi) : '') + '</small></td><td class="r">' + (i.qty || 1) + '</td><td class="r">' + L.rupiah(i.harga) + '</td><td class="r">' + L.rupiah(i.harga * (i.qty || 1)) + '</td></tr>';
+            }).join('') : '<tr><td colspan="4">Rincian biaya belum diisi.</td></tr>') + '</tbody></table>' +
+
+            '<div class="nota-tot">' +
+            (hit.diskon ? '<div><span>Subtotal</span><span>' + L.rupiah(hit.jasa + hit.part) + '</span></div><div><span>Diskon</span><span>' + L.rupiah(-hit.diskon) + '</span></div>' : '') +
+            '<div class="t"><span>Total</span><span>' + L.rupiah(hit.total) + '</span></div>' +
+            '<div><span>Bayar awal (DP ' + (C.dpJasaPersen == null ? 50 : C.dpJasaPersen) + '% jasa + part)</span><span>' + L.rupiah(hit.wajibAwal) + '</span></div>' +
+            (s.bayar || []).map(function (b) { return '<div><span>' + ({ dp: 'DP', pelunasan: 'Pelunasan', tambahan: 'Pembayaran' })[b.jenis] + ' ' + L.tgl(b.tgl) + ' (' + ({ tunai: 'tunai', transfer: 'transfer', qris: 'QRIS' })[b.metode] + ')</span><span>' + L.rupiah(-b.jumlah) + '</span></div>'; }).join('') +
+            '<div class="s"><span>' + (hit.lunas ? 'Lunas' : 'Sisa pembayaran') + '</span><span>' + L.rupiah(hit.sisa) + '</span></div></div>' +
+
+            (!hit.lunas && hit.total ? '<h2>Pembayaran transfer</h2><div class="nota-rek">' + (t.rekening || []).map(function (r) { return '<b>' + E(r.bank) + ' ' + E(r.nomor) + '</b> a.n. ' + E(r.atasNama); }).join('<br>') + '<br><small>Kirim bukti transfer ke WhatsApp +' + E(t.wa) + ' dengan menyebutkan kode ' + E(s.kode) + '.</small></div>' : '') +
+
+            (gar.length ? '<h2>Garansi</h2><div class="nota-gar">' + gar.map(function (i) {
+                var akhir = s.tgl_diambil ? L.garansiAkhir(i.garansi, s.tgl_diambil) : null;
+                return '<div><b>' + E(i.nama) + '</b><span>' + L.garansiLabel(i.garansi) + (akhir ? ' · s/d ' + L.tgl(akhir) : ' · dihitung sejak gitar diambil') + '</span>' + (i.garansi_syarat ? '<small>' + E(i.garansi_syarat) + '</small>' : '') + '</div>';
+            }).join('') + '</div>' : '') +
+
+            '<h2>Ketentuan</h2><ol>' + L.ketentuan().map(function (x) { return '<li>' + E(x) + '</li>'; }).join('') + '</ol>' +
+            '<p class="nota-foot">Terima kasih sudah mempercayakan gitar Anda kepada Toko Gitar AYRI.<br>Cek status servis kapan saja di ayrigitar.com/cek-servis.html</p></article>';
+        document.getElementById('bar').hidden = false;
+        document.getElementById('kembali').href = 'cek-servis.html?k=' + encodeURIComponent(s.kode);
+    }
+    document.getElementById('cetak').addEventListener('click', function () { window.print(); });
+
+    if (k && h) muat(); else gerbang('');
+})();
+    </script>
+</body>
+</html>
