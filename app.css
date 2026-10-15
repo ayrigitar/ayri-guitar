@@ -306,7 +306,7 @@ input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; appear
 
   .metro-app .mtgrid { flex-direction: row; gap: 24px; }
   .metro-app #mt { flex: 1.3 1 0; }
-  .metro-app .mtside { flex: 1 1 0; align-self: flex-start; max-height: 100%; overflow-y: auto; }
+  .metro-app .mtside { flex: 1 1 0; min-width: 0; align-self: flex-start; max-height: 100%; overflow-y: auto; }
 
   .trans-app .tapp { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: 16px 24px; align-items: start; }
   .trans-app .tapp > .tr-stage { height: 100%; }
@@ -419,4 +419,53 @@ main.app.trans-app.fit1 #capohint { display: none; }
   .apptop .tt a span, .apptop .ib span { font-size: .6rem; }
   .trans-app .tr-cs { display: none; }
   .trans-app canvas.ctab, main.app.fit1 canvas.ctab, main.app.fit3 canvas.ctab { height: 38px; }
+}
+/* HP miring (landscape) untuk Chord, Metronom, Tuner: dua kolom berdampingan.
+   Kotak tidak boleh lebih kecil dari isinya (min-height: auto) supaya luberan terbaca oleh app.js
+   (fit1-fit3) dan, sebagai jalan terakhir, halaman bisa digulir alih-alih isi saling menimpa. */
+@media (orientation: landscape) and (max-height: 560px) and (min-width: 560px) {
+  /* Chord: panel pilihan di kiri, kartu chord di kanan */
+  main.chords-app {
+    display: grid; gap: 8px 12px;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr);
+    grid-template-rows: minmax(auto, 1fr);
+  }
+  .chords-app .selpanel { min-height: 0; overflow-y: auto; padding: 8px 10px; }
+  .chords-app .chcard { min-height: auto; grid-template-columns: minmax(0, 4fr) minmax(0, 5fr); gap: 8px 10px; padding: 10px 12px; }
+  .chords-app .chbot { gap: 6px; }
+  .chords-app .rb { height: 40px; }
+  .chords-app .playrow .seg .chip { height: 30px; }
+  .chords-app .pbtn { height: 38px; }
+
+  /* Metronom: panggung + tempo di kiri, pengaturan di kanan */
+  .metro-app .mtgrid { flex-direction: row; gap: 12px; min-height: auto; }
+  main.metro-app #mt {
+    flex: 1.4 1 0; min-width: 0; min-height: auto;
+    display: grid; gap: 6px 10px; padding: 8px;
+    grid-template-columns: minmax(0, .85fr) minmax(0, 1fr);
+    grid-template-rows: auto auto auto auto 1fr;
+    grid-template-areas: "vis tabs" "vis bpm" "vis rg" "vis act" "vis acc";
+  }
+  .metro-app .mt-tabs { grid-area: tabs; }
+  .metro-app .mt-vis { grid-area: vis; min-height: 0; min-width: 0; }
+  .metro-app .mt-vis > svg.an { position: absolute; inset: 0; width: 100%; max-width: none; height: 100%; }
+  .metro-app .mt-bpm { grid-area: bpm; gap: 10px; }
+  .metro-app #bs { grid-area: rg; }
+  .metro-app .mt-act { grid-area: act; }
+  .metro-app .accr { grid-area: acc; align-content: flex-start; gap: 6px; }
+  .metro-app .mt-act .t-btn { min-height: 42px; }
+  .metro-app .mtside { flex: 1 1 0; min-width: 0; align-self: stretch; gap: 8px; padding: 8px 10px; }
+  .metro-app .mttr .lb { white-space: normal; line-height: 1.1; }
+
+  /* Tuner: meteran setinggi layar di kiri, pilihan & tombol di kanan */
+  main.tuner-app {
+    display: grid; gap: 8px 12px;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-rows: auto minmax(auto, 1fr);
+    grid-template-areas: "meter sel" "meter ctl";
+  }
+  .tuner-app .tm { grid-area: meter; min-height: auto; padding: 8px 10px 10px; }
+  .tuner-app .selrow { grid-area: sel; }
+  .tuner-app .ctl-col { grid-area: ctl; display: flex; flex-direction: column; gap: 8px; }
+  .tuner-app #start { margin-top: auto; min-height: 46px; }
 }
