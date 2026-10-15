@@ -1,0 +1,30 @@
+[
+    {
+        "slug": "setup-yamaha-f310-fret-buzz",
+        "judul": "Full Setup Yamaha F310: fret buzz di fret 3–5 hilang",
+        "ringkasan": "Hasil full setup gitar akustik Yamaha F310 yang fret buzz: action diturunkan, neck diluruskan, fret dipoles. Lengkap dengan foto sebelum dan sesudah.",
+        "tag": "Hasil Servis",
+        "isi": "## Kondisi gitar saat masuk\nSenar berdengung (fret buzz) di fret 3–5, action terlalu tinggi di fret 12.\n\n## Yang kami kerjakan\n- Full Setup (Akustik)\n- Pasang/ganti: Senar Elixir 11\n\n## Hasil\nAction **lebih rendah** dan _tidak ada_ dengung lagi. Coba cek nadanya dengan [tuner gratis kami](tuner.html).\n\n> Gitar Anda mengalami masalah serupa? Konsultasikan gratis lewat WhatsApp.\n\n<script>alert('uji keamanan')</script>",
+        "foto": [
+            { "url": "https://contoh.supabase.co/storage/v1/object/public/servis/a/1.webp", "thumb_url": "https://contoh.supabase.co/storage/v1/object/public/servis/a/1-kecil.webp", "alt": "Sebelum servis: Akustik Yamaha F310" },
+            { "url": "https://contoh.supabase.co/storage/v1/object/public/servis/a/2.webp", "thumb_url": "https://contoh.supabase.co/storage/v1/object/public/servis/a/2-kecil.webp", "alt": "Sesudah servis: \"bersih\" & lurus" },
+            { "url": "javascript:alert(1)", "alt": "foto tidak sah (harus dibuang)" }
+        ],
+        "terbit_at": "2026-10-16T05:00:00+00:00",
+        "updated_at": "2026-10-16T06:30:00+00:00"
+    },
+    {
+        "slug": "custom-nut",
+        "judul": "Artikel yang mencoba menimpa halaman buatan tangan",
+        "isi": "Tidak boleh ditulis.",
+        "foto": [],
+        "terbit_at": "2026-10-15T05:00:00+00:00",
+        "updated_at": "2026-10-15T05:00:00+00:00"
+    },
+    {
+        "slug": "Slug Tidak Valid",
+        "judul": "Harus dilewati",
+        "isi": "x",
+        "foto": []
+    }
+]
