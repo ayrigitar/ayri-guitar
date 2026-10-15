@@ -372,18 +372,31 @@
         return { r: r, ti: tIdx(k) };
     }
     /* baca teks chart: baris yang isinya hanya chord (dan label seperti "Intro:" / "4x") dianggap baris chord; lirik dilewati */
+    /* Posisi kolom chord di atas baris lirik dipakai sebagai petunjuk durasi: jarak (dalam huruf) ke chord berikutnya = g.
+       g = 0 bila tidak ada lirik di bawahnya atau spasinya tampak runtuh (semua dipisah satu spasi, biasanya akibat salin dari web). */
     function parseChart(text) {
-        var items = [], lines = String(text || '').split(/\r?\n/), li;
+        var items = [], lines = String(text || '').replace(/\t/g, '    ').split(/\r?\n/), li, parsed = [];
         for (li = 0; li < lines.length; li++) {
-            var toks = lines[li].replace(/[\[\]()|{}]/g, ' ').replace(/[:,;]/g, ' ').replace(/[–—→•]/g, ' ').split(/\s+/).filter(function (t) { return t && !/^[-\/.~*]+$/.test(t); }), seq = [], rep = 1, bad = false, t, c;
-            for (t = 0; t < toks.length; t++) {
-                var tk = toks[t].replace(/[.]+$/, '');
+            var clean = lines[li].replace(/[\[\]()|{}]/g, ' ').replace(/[:,;]/g, ' ').replace(/[–—→•]/g, ' '), re = /\S+/g, m, seq = [], rep = 1, bad = false, c;
+            while ((m = re.exec(clean))) {
+                if (/^[-\/.~*]+$/.test(m[0])) continue;
+                var tk = m[0].replace(/[.]+$/, '');
                 if (CH_MARK.test(tk) || /^n\.?c\.?$/i.test(tk)) continue;
                 var rm = /^(\d+)x$|^x(\d+)$/i.exec(tk); if (rm) { rep = Math.max(1, Math.min(8, +(rm[1] || rm[2]))); continue; }
-                c = chordFromToken(tk); if (!c) { bad = true; break; } seq.push(c);
+                c = chordFromToken(tk); if (!c) { bad = true; break; } c.col = m.index; c.len = tk.length; seq.push(c);
             }
-            if (bad || !seq.length) continue;
-            for (var q = 0; q < rep; q++) seq.forEach(function (c2, k) { items.push({ r: c2.r, ti: c2.ti, ls: k === 0 }); });
+            parsed.push(bad || !seq.length ? null : { seq: seq, rep: rep });
+        }
+        for (li = 0; li < lines.length; li++) {
+            var p = parsed[li]; if (!p) continue;
+            var nx = lines[li + 1], lyr = (nx !== undefined && !parsed[li + 1] && nx.trim()) ? nx.replace(/\s+$/, '').length : 0, sq = p.seq, spaced = false, j, gaps = [];
+            for (j = 0; j + 1 < sq.length; j++) if (sq[j + 1].col - sq[j].col > sq[j].len + 2) spaced = true;
+            if (sq.length === 1) spaced = true;
+            spaced = spaced && lyr > 0;
+            for (j = 0; j < sq.length; j++) gaps.push(!spaced ? 0 : (j + 1 < sq.length ? sq[j + 1].col - sq[j].col : Math.max(sq[j].len + 1, lyr - sq[j].col)));
+            /* "4x" di chart sering tidak tepat: akhir tiap putaran boleh langsung lanjut ke baris sesudah blok (rx) */
+            var b0 = items.length, after = b0 + p.rep * sq.length;
+            for (var q = 0; q < p.rep; q++) sq.forEach(function (c2, k) { items.push({ r: c2.r, ti: c2.ti, ls: k === 0, g: gaps[k], rx: q < p.rep - 1 && k === sq.length - 1 ? after : -1 }); });
         }
         return items;
     }
@@ -417,44 +430,62 @@
     }
     function chordVecTI(r, ti) { var v = new Float32Array(12), nm = 0, i; TYPES[ti].iv.forEach(function (iv, j2) { var w = j2 === 0 ? 1 : (j2 < 3 ? 0.85 : 0.55); HARM.forEach(function (h) { v[(r + iv + h[0]) % 12] += w * h[1]; }); }); for (i = 0; i < 12; i++) nm += v[i] * v[i]; nm = Math.sqrt(nm) || 1; for (i = 0; i < 12; i++) v[i] /= nm; return v; }
     function fallbackBeats(ana) { var P = 0.5, beats = [], t = 0.25; while (t < ana.dur) { beats.push(t); t += P; } return { beats: beats, P: P, bpm: 120, conf: 0 }; }
-    /* Viterbi atas urutan chord di chart: tetap di chord yang sama, maju ke chord berikutnya, lompat ke awal baris (bagian berulang), atau
-       keluar ke keadaan "tak ada di chart" (solo dsb.) yang memakai chord hasil deteksi otomatis. Perpindahan hanya di ketukan. */
-    function alignChart(ana, items, auto) {
+    /* Viterbi atas urutan chord di chart. Tiap chord chart = rantai sub-keadaan per ketukan, sehingga bisa diberi durasi minimum dan
+       durasi perkiraan (dari spasi chart). Langkah: tetap, maju ke chord berikutnya, lompat ke awal baris (bagian berulang), atau keluar
+       ke "tak ada di chart" (solo dsb.) yang memakai chord hasil deteksi otomatis. Perpindahan hanya di ketukan. */
+    var CH_SPACE = true, CH_STAY = 1.5;
+    function alignCore(ana, items, auto, dur) {
         var useMain = ana.bt && ana.bt.conf >= BEAT_CONF, bt = useMain ? ana.bt : (ana._bt2 || (ana._bt2 = fallbackBeats(ana))), bs = useMain ? (ana._bs || (ana._bs = beatSync(ana))) : (ana._bs2 || (ana._bs2 = beatSync(ana, bt)));
-        var n = bs.c.length, S = items.length + 1, NS = S - 1, K = Math.max(2, Math.min(10, bt.P / (ana.hop / ana.sr))), EM = 10, BW = 4, G = bs.bar.g, useBar = useMain && bs.bar.s > 0.15, f, i, k;
+        var n = bs.c.length, NI = items.length, K = Math.max(2, Math.min(10, bt.P / (ana.hop / ana.sr))), EM = 10, BW = 4, G = bs.bar.g, useBar = useMain && bs.bar.s > 0.15, f, i, j, k, s;
+        var L = [], mn = [], sg = [], base = [], S = 0;
+        for (i = 0; i < NI; i++) { var d0 = dur && dur[i]; L.push(d0 ? d0.exp : 1); mn.push(d0 ? d0.min : 1); sg.push(d0 ? d0.stay : 0); base.push(S); S += L[i]; }
+        var NS = S; S += 1;
+        var itemOf = new Int16Array(S), subOf = new Int16Array(S); for (i = 0; i < NI; i++) for (j = 0; j < L[i]; j++) { itemOf[base[i] + j] = i; subOf[base[i] + j] = j; } itemOf[NS] = -1;
+        var repIn = items.map(function () { return []; }); items.forEach(function (it, q) { if (it.rx >= 0 && it.rx < NI) repIn[it.rx].push(q); });
         var vecs = {}, uniq = [], key = items.map(function (it) { var id = it.r * 20 + it.ti; if (!vecs[id]) { vecs[id] = chordVecTI(it.r, it.ti); uniq.push(id); } return id; });
-        var dp = new Float32Array(S), nd = new Float32Array(S), bp = new Int16Array(n * S), silent = new Uint8Array(n), dots = {}, emN = K * (EM * 0.60 + BW * 0.15);
+        var dp = new Float32Array(S), nd = new Float32Array(S), bp = new Int16Array(n * S), silent = new Uint8Array(n), dots = {}, emN = K * (EM * 0.60 + BW * 0.15), NEG = -1e9, ex = new Float32Array(NI), exFrom = new Int32Array(NI);
         for (f = 0; f < n; f++) {
             silent[f] = bs.r[f] < bs.thr ? 1 : 0;
             uniq.forEach(function (id) { var v = vecs[id], d = 0; for (k = 0; k < 12; k++) d += bs.c[f][k] * v[k]; dots[id] = K * (EM * d + BW * bs.b[f][Math.floor(id / 20)]); });
-            var bpos = ((f - bs.bar.p) % G + G) % G, mult = useBar ? (bpos === 0 ? 0.6 : (G === 4 && bpos === 2 ? 0.9 : 2.2)) : 1, A = 2 * mult, SK = 16 * mult, JP = 9 * mult, NP = 8 * mult;
-            var all = 0; if (f) for (i = 1; i < S; i++) if (dp[i] > dp[all]) all = i;
-            for (i = 0; i < S; i++) {
-                var em = silent[f] ? 0 : (i === NS ? emN : dots[key[i]]), best, from;
-                if (!f) { nd[i] = em - (i === NS ? 4 : (i === 0 || items[i].ls ? 0 : 12)); continue; }
-                best = dp[i]; from = i;
-                if (i === NS) { if (dp[all] - NP > best) { best = dp[all] - NP; from = all; } }
-                else {
-                    if (i >= 1 && dp[i - 1] - A > best) { best = dp[i - 1] - A; from = i - 1; }
-                    if (i >= 2 && dp[i - 2] - SK > best) { best = dp[i - 2] - SK; from = i - 2; }
-                    if (items[i].ls && dp[all] - JP > best) { best = dp[all] - JP; from = all; }
+            var bpos = ((f - bs.bar.p) % G + G) % G, mult = useBar ? (bpos === 0 ? 0.6 : (G === 4 && bpos === 2 ? 0.9 : 2.2)) : 1, A = 2 * mult, SK = 16 * Math.max(1, mult), JP = 9 * mult, NP = 8 * mult;
+            if (!f) {
+                for (s = 0; s < S; s++) { i = itemOf[s]; var e0 = silent[0] ? 0 : (s === NS ? emN : dots[key[i]]); nd[s] = s === NS ? e0 - 4 : (subOf[s] !== 0 ? NEG : e0 - (i === 0 || items[i].ls ? 0 : 12)); }
+            } else {
+                var allV = dp[NS], allS = NS;
+                for (i = 0; i < NI; i++) { var bv = NEG, bsx = base[i]; for (j = mn[i] - 1; j < L[i]; j++) if (dp[base[i] + j] > bv) { bv = dp[base[i] + j]; bsx = base[i] + j; } ex[i] = bv; exFrom[i] = bsx; if (bv > allV) { allV = bv; allS = bsx; } }
+                for (s = 0; s < S; s++) {
+                    var best, from;
+                    if (s === NS) { best = dp[NS]; from = NS; if (allV - NP > best) { best = allV - NP; from = allS; } }
+                    else {
+                        i = itemOf[s]; j = subOf[s];
+                        if (j > 0) { best = dp[s - 1]; from = s - 1; if (j === L[i] - 1 && dp[s] - sg[i] > best) { best = dp[s] - sg[i]; from = s; } }
+                        else {
+                            best = NEG; from = s;
+                            if (L[i] === 1) { best = dp[s] - sg[i]; from = s; }
+                            if (i >= 1 && ex[i - 1] - A > best) { best = ex[i - 1] - A; from = exFrom[i - 1]; }
+                            if (i >= 2 && ex[i - 2] - SK > best) { best = ex[i - 2] - SK; from = exFrom[i - 2]; }
+                            if (items[i].ls && allV - JP > best) { best = allV - JP; from = allS; }
+                            for (var q2 = 0; q2 < repIn[i].length; q2++) { var rk = repIn[i][q2]; if (ex[rk] - A > best) { best = ex[rk] - A; from = exFrom[rk]; } }
+                        }
+                    }
+                    nd[s] = best + (silent[f] ? 0 : (s === NS ? emN : dots[key[itemOf[s]]])); bp[f * S + s] = from;
                 }
-                nd[i] = best + em; bp[f * S + i] = from;
             }
-            var mx = -1e9; for (i = 0; i < S; i++) if (nd[i] > mx) mx = nd[i]; for (i = 0; i < S; i++) dp[i] = nd[i] - mx;
+            var mx = -1e9; for (s = 0; s < S; s++) if (nd[s] > mx) mx = nd[s]; for (s = 0; s < S; s++) dp[s] = nd[s] - mx;
         }
-        var path = new Int16Array(n), cs = 0; for (i = 1; i < S; i++) if (dp[i] > dp[cs]) cs = i;
+        var path = new Int16Array(n), cs = 0; for (s = 1; s < S; s++) if (dp[s] > dp[cs]) cs = s;
         for (f = n - 1; f >= 0; f--) { path[f] = cs; if (f) cs = bp[f * S + cs]; }
+        var itemPath = new Int16Array(n); for (f = 0; f < n; f++) itemPath[f] = itemOf[path[f]];
         var first = 0, lastA = n - 1; while (first < n && silent[first]) first++; while (lastA > first && silent[lastA]) lastA--;
         /* label per ketukan: chord chart, atau hasil deteksi otomatis bila di luar chart */
         var lab = [], prev = null, nOut = 0, firstChart = null;
-        for (f = first; f <= lastA; f++) if (path[f] !== NS) { firstChart = items[path[f]]; break; }
+        for (f = first; f <= lastA; f++) if (itemPath[f] >= 0) { firstChart = items[itemPath[f]]; break; }
         if (!firstChart) firstChart = items[0];
         for (f = first; f <= lastA; f++) {
-            var s2 = path[f], L;
-            if (s2 !== NS) L = { r: items[s2].r, ti: items[s2].ti, c: 1 };
-            else { nOut++; var ap = auto && useMain && auto.path ? auto.path[f] : -1; L = ap >= 0 ? { r: Math.floor(ap / TT.length), ti: TIDX[ap % TT.length], c: 0 } : (prev ? { r: prev.r, ti: prev.ti, c: 0 } : { r: firstChart.r, ti: firstChart.ti, c: 0 }); }
-            lab.push(L); prev = L;
+            var it2 = itemPath[f], Lb;
+            if (it2 >= 0) Lb = { r: items[it2].r, ti: items[it2].ti, c: 1 };
+            else { nOut++; var ap = auto && useMain && auto.path ? auto.path[f] : -1; Lb = ap >= 0 ? { r: Math.floor(ap / TT.length), ti: TIDX[ap % TT.length], c: 0 } : (prev ? { r: prev.r, ti: prev.ti, c: 0 } : { r: firstChart.r, ti: firstChart.ti, c: 0 }); }
+            lab.push(Lb); prev = Lb;
         }
         var runs = [], rs = 0;
         for (f = 1; f <= lab.length; f++) if (f === lab.length || lab[f].r !== lab[rs].r || lab[f].ti !== lab[rs].ti) { runs.push({ s: lab[rs].r * 20 + lab[rs].ti, r: lab[rs].r, ti: lab[rs].ti, a: first + rs, b: first + f, c: lab[rs].c }); rs = f; }
@@ -466,9 +497,22 @@
         });
         mergeShort(runs, 2);
         var res = runs.map(function (o, idx) { return { r: o.r, ti: o.ti, t0: idx ? Math.max(0, bs.t[o.a] - 0.02) : Math.max(0, bs.t[o.a] - 0.05), t1: 0, src: o.c ? 'chart' : 'auto' }; });
-        res.forEach(function (sg, q) { sg.t1 = q + 1 < res.length ? res[q + 1].t0 : (lastA + 1 < n ? bs.t[lastA + 1] : bs.tEnd); });
-        res.outside = nOut / Math.max(1, lab.length); res.nItems = items.length;
+        res.forEach(function (sg2, q) { sg2.t1 = q + 1 < res.length ? res[q + 1].t0 : (lastA + 1 < n ? bs.t[lastA + 1] : bs.tEnd); });
+        res.outside = nOut / Math.max(1, lab.length); res.nItems = items.length; res.itemPath = itemPath;
         return res;
+    }
+    /* Dua tahap: cocokkan tanpa petunjuk durasi, ukur berapa ketukan per huruf spasi chart (median), lalu cocokkan ulang
+       dengan durasi perkiraan tiap chord = jarak hurufnya x ketukan per huruf (minimum 60% darinya). */
+    function alignChart(ana, items, auto) {
+        var res = alignCore(ana, items, auto, null);
+        if (!CH_SPACE || items.filter(function (it) { return it.g > 0; }).length < 4) return res;
+        var ip = res.itemPath, n = ip.length, ratios = [], f = 0;
+        while (f < n) { var it = ip[f], f0 = f; while (f < n && ip[f] === it) f++; if (it >= 0 && items[it].g > 0) ratios.push((f - f0) / items[it].g); }
+        if (ratios.length < 4) return res;
+        ratios.sort(function (a, b) { return a - b; });
+        var kpc = ratios[ratios.length >> 1];
+        var dur = items.map(function (it2) { if (!(it2.g > 0)) return null; var e = Math.max(1, Math.min(16, Math.round(kpc * it2.g))); return { exp: e, min: Math.max(1, Math.round(0.6 * e)), stay: CH_STAY }; });
+        var r2 = alignCore(ana, items, auto, dur); r2.kpc = kpc; return r2;
     }
     function decodeCore(ana, cfg, kzMajor) {
         var c12 = ana.c12, b12 = ana.b12, rms = ana.rms, fr = ana.fr, hop = ana.hop, N = ana.N, sr = ana.sr, f, i, r, t, s2, T = [], bias = [], allow = [], diat = [];
