@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Surat Perjanjian | Toko Gitar AYRI</title>
+    <link rel="icon" type="image/png" sizes="48x48" href="favicon-48.png">
+    <meta name="theme-color" content="#15100c">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500..700&family=Plus+Jakarta+Sans:wght@400..800&display=swap">
+    <link rel="stylesheet" href="theme-dark.css">
+    <link rel="stylesheet" href="layanan.css">
+    <script src="layanan-config.js"></script>
+    <script src="layanan.js"></script>
+</head>
+<body class="nota-body">
+    <div class="nota-bar" id="bar" hidden>
+        <button type="button" class="ly-btn ly-btn--pri" id="cetak">Simpan PDF / Cetak</button>
+    </div>
+    <main id="isi"><p class="ly-kosong">Memuat&hellip;</p></main>
+
+    <script>
+(function () {
+    var L = Layanan, C = L.C, E = L.esc, isi = document.getElementById('isi'), KEY = 'ayri-perjanjian';
+    var q = new URLSearchParams(location.search), k = (q.get('k') || '').toUpperCase(), h = q.get('h');
+    try { var m = JSON.parse(localStorage.getItem(KEY) || 'null'); if (!h && m && m.k === k) h = m.h; } catch (e) {}
+
+    function gerbang(pesan) {
+        isi.innerHTML = '<form class="ly-card ly-f nota-gate" id="f"><h2>Surat perjanjian</h2>' + (pesan ? '<p class="cek-err">' + E(pesan) + '</p>' : '') +
+            '<label>Kode<input name="k" value="' + E(k) + '" placeholder="TBS-XXXXXX" autocapitalize="characters" required></label>' +
+            '<label>4 digit terakhir HP<input name="h" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" required></label>' +
+            '<button class="ly-btn ly-btn--pri">Buka</button></form>';
+        var f = document.getElementById('f');
+        (k ? f.h : f.k).focus();
+        f.addEventListener('submit', function (e) { e.preventDefault(); k = f.k.value.trim().toUpperCase(); h = f.h.value.replace(/\D/g, ''); muat(); });
+    }
+    function muat() {
+        isi.innerHTML = '<p class="ly-kosong">Memuat&hellip;</p>';
+        L.api.cekPublik(k, h, 'tebus').then(function (t) {
+            if (!t) return gerbang('Data tidak ditemukan. Periksa kode dan 4 digit terakhir HP.');
+            try { localStorage.setItem(KEY, JSON.stringify({ k: k, h: h })); } catch (e) {}
+            if (history.replaceState) history.replaceState(null, '', 'perjanjian.html?k=' + encodeURIComponent(t.kode));
+            surat(t);
+        }).catch(function () { gerbang('Gagal terhubung. Periksa koneksi internet.'); });
+    }
+
+    function surat(t) {
+        var toko = C.toko || {}, st = L.STATUS_TEBUS[t.status] || { label: t.status }, gitar = [t.gitar_jenis, t.gitar_merk].filter(Boolean).join(' ') || '–';
+        var cap = t.status === 'ditebus' ? '<span class="nota-lunas">DIBELI KEMBALI</span>' : t.status === 'milik_toko' ? '<span class="nota-lunas dp">MILIK TOKO</span>' : '';
+        document.title = 'Perjanjian ' + t.kode + ' | ' + (toko.nama || 'Toko Gitar AYRI');
+        isi.innerHTML = '<article class="nota">' +
+            '<header class="nota-head"><div class="nota-toko"><b>Toko Gitar <span>AYRI</span></b><p>' + E(toko.alamat) + '</p><p>WhatsApp +' + E(toko.wa) + ' · ayrigitar.com</p></div>' +
+            '<div class="nota-id"><h1>Bukti Jual Beli</h1><p>' + E(t.kode) + '</p>' + cap + '</div></header>' +
+            '<p style="margin:14px 0 0;font-weight:700">Jual beli gitar dengan hak membeli kembali</p>' +
+            '<dl class="nota-info">' +
+            '<div><dt>Pembeli</dt><dd>' + E(toko.nama || 'Toko Gitar AYRI') + '</dd></div>' +
+            '<div><dt>Penjual</dt><dd>' + E(t.nama) + '</dd></div>' +
+            (t.nik_samar ? '<div><dt>NIK</dt><dd>' + E(t.nik_samar) + '</dd></div>' : '') +
+            '<div><dt>No. HP</dt><dd>' + E(t.hp_samar) + '</dd></div>' +
+            '<div><dt>Status</dt><dd>' + E(st.label) + '</dd></div></dl>' +
+            '<h2>Barang</h2><dl class="nota-info" style="padding-top:6px">' +
+            '<div><dt>Gitar</dt><dd>' + E(gitar) + '</dd></div>' + (t.warna ? '<div><dt>Warna</dt><dd>' + E(t.warna) + '</dd></div>' : '') +
+            (t.no_seri ? '<div><dt>No. seri</dt><dd>' + E(t.no_seri) + '</dd></div>' : '') +
+            (t.kelengkapan ? '<div style="grid-column:1/-1"><dt>Kondisi</dt><dd>' + E(t.kelengkapan) + '</dd></div>' : '') + '</dl>' +
+            '<div class="nota-tot" style="margin-top:14px">' +
+            '<div><span>Tanggal jual beli</span><span>' + L.tgl(t.tgl_beli) + '</span></div>' +
+            '<div class="t"><span>Harga beli (dibayar ' + (t.metode === 'transfer' ? 'transfer' : 'tunai') + ')</span><span>' + L.rupiah(t.harga_beli) + '</span></div>' +
+            '<div><span>Batas membeli kembali</span><span>' + L.tgl(t.batas_tebus) + '</span></div>' +
+            '<div class="s"><span>Harga membeli kembali</span><span>' + L.rupiah(L.hargaTebus(t)) + '</span></div>' +
+            (t.status === 'ditebus' ? '<div><span>Dibeli kembali pada</span><span>' + L.tgl(t.tgl_tebus) + '</span></div>' : '') +
+            (t.status === 'milik_toko' ? '<div><span>Hak membeli kembali berakhir</span><span>' + L.tgl(t.tgl_berakhir || t.batas_tebus) + '</span></div>' : '') + '</div>' +
+            '<h2>Ketentuan</h2><ol>' + L.ketentuanTebus(t).map(function (x) { return '<li>' + E(x) + '</li>'; }).join('') + '</ol>' +
+            '<p class="nota-foot">' + (t.disetujui ? 'Penjual menyatakan setuju melalui WhatsApp pada ' + L.tglPanjang(t.disetujui) + '.' : 'Menunggu persetujuan penjual melalui WhatsApp (balas SETUJU).') +
+            '<br>Dokumen ini dibuat oleh ' + E(toko.nama || 'Toko Gitar AYRI') + ' dan dapat dibuka kembali di ayrigitar.com/perjanjian.html</p></article>';
+        document.getElementById('bar').hidden = false;
+    }
+    document.getElementById('cetak').addEventListener('click', function () { window.print(); });
+
+    if (k && h) muat(); else gerbang('');
+})();
+    </script>
+</body>
+</html>
