@@ -60,6 +60,7 @@
             '<div><dt>Gitar</dt><dd>' + E(gitar) + '</dd></div><div><dt>Tanggal masuk</dt><dd>' + L.tgl(s.tgl_masuk) + '</dd></div>' +
             (s.tgl_diambil ? '<div><dt>Diambil</dt><dd>' + L.tgl(s.tgl_diambil) + '</dd></div>' : s.tgl_selesai ? '<div><dt>Selesai</dt><dd>' + L.tgl(s.tgl_selesai) + '</dd></div>' : s.estimasi ? '<div><dt>Estimasi</dt><dd>' + L.tgl(s.estimasi) + '</dd></div>' : '') +
             '<div><dt>Status</dt><dd>' + E((L.STATUS[s.status] || {}).label || s.status) + '</dd></div>' +
+            (L.batasGratis(s) ? '<div><dt>Gratis titip s/d</dt><dd>' + L.tgl(L.batasGratis(s)) + '</dd></div>' : '') +
             (s.keluhan ? '<div style="grid-column:1/-1"><dt>Keluhan</dt><dd>' + E(s.keluhan) + '</dd></div>' : '') + '</dl>' +
 
             '<table><thead><tr><th>Pekerjaan / part</th><th class="r">Jml</th><th class="r">Harga</th><th class="r">Subtotal</th></tr></thead><tbody>' +

@@ -80,9 +80,12 @@
     L.urlCek = function (kode) { return L.situs() + 'cek-servis.html?k=' + encodeURIComponent(kode); };
     L.urlNota = function (kode) { return L.situs() + 'nota.html?k=' + encodeURIComponent(kode); };
     L.rekeningTeks = function () { return (C.toko && C.toko.rekening || []).map(function (r) { return r.bank + ' ' + r.nomor + ' a.n. ' + r.atasNama; }).join(' / '); };
+    /* penitipan gratis sampai tanggal ini (dihitung dari tanggal status Selesai) */
+    L.gratisHari = function () { return C.gratisTitipHari == null ? 14 : C.gratisTitipHari; };
+    L.batasGratis = function (s) { var d = L.tglObj(s.tgl_selesai); if (!d || s.status !== 'selesai') return null; d.setDate(d.getDate() + L.gratisHari()); return L.tglStr(d); };
     L.ketentuan = function () {
         return (C.ketentuan || []).map(function (k) {
-            return k.replace('{dp}', L.dpPersen()).replace('{hari}', C.batasAmbilHari || 30).replace('{biaya}', C.biayaPenitipan ? ' (' + C.biayaPenitipan + ')' : '');
+            return k.replace('{dp}', L.dpPersen()).replace('{gratis}', L.gratisHari()).replace('{biaya}', C.biayaPenitipan || 'sesuai ketentuan toko').replace('{hangus}', C.garansiHangusHari || 30);
         });
     };
 
@@ -115,6 +118,8 @@
         selesai: function (s) {
             var h = L.hitung(s, s.items, s.bayar), t = 'Halo Kak ' + s.nama + ', kabar baik! Gitar ' + gitarTeks(s) + ' (kode *' + s.kode + '*) sudah selesai dan bisa diambil ✅\n\n';
             t += h.sisa ? 'Sisa pembayaran: *' + L.rupiah(h.sisa) + '*\n(bisa tunai saat ambil atau transfer ke ' + L.rekeningTeks() + ')\n' : 'Pembayaran sudah lunas. Terima kasih!\n';
+            var bg = L.batasGratis(s);
+            if (bg) t += '\nGratis dititipkan sampai ' + L.tgl(bg) + '; setelah itu biaya penitipan ' + (C.biayaPenitipan || 'berlaku') + '.\n';
             if (C.toko && C.toko.jam) t += '\nJam buka: ' + C.toko.jam + '\n';
             return t + '\nFoto hasil servis, saran dari kami, dan nota: ' + L.urlCek(s.kode);
         },
