@@ -352,3 +352,13 @@ main.app.fit2 .tr-hd { font-size: .72rem; }
 /* chord: jenis lanjutan di balik tombol "lainnya" */
 .typeg:not(.show-ext) .chip.ext { display: none; }
 .typeg .chip.more { font-weight: 700; border-style: dashed; }
+/* transkrip: tombol geser waktu ganti chord di layar utama, tombol 1/2 tempo */
+.trans-app .tr-adj { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 8px; }
+.trans-app .tr-adjl { font-size: .72rem; font-weight: 700; color: var(--ink-3, var(--sub)); text-transform: uppercase; letter-spacing: .04em; }
+.trans-app .tr-adj .chip { height: 32px; min-height: 32px; padding: 0 10px; font-size: .78rem; }
+.trans-app .tr-adjm { flex-basis: 100%; font-size: .72rem; color: var(--accent, var(--acc)); min-height: 0; }
+.trans-app .tr-adjm:empty { display: none; }
+main.app.fit2 .tr-adjl { display: none; }
+main.app.fit3 .tr-adj .chip { height: 28px; min-height: 28px; padding: 0 8px; }
+.trans-app .chip.bpmh { flex: 0 0 auto; min-width: 40px; padding: 0 8px; height: 42px; font-weight: 700; }
+main.app.fit1 .trans-app .chip.bpmh, main.app.fit1 .chip.bpmh { height: 36px; }
