@@ -32,8 +32,10 @@ var AYRI_LAYANAN = {
 
     /* gitar sudah selesai tapi belum diambil (dihitung dari tanggal status Selesai) */
     gratisTitipHari: 14,                   /* gratis dititipkan sampai sekian hari */
-    biayaPenitipan: 'Rp5.000 per hari',    /* berlaku setelah masa gratis */
+    biayaTitipPerHari: 5000,               /* biaya penitipan per hari setelah masa gratis (Rp) */
     garansiHangusHari: 30,                 /* garansi hangus bila belum diambil lewat sekian hari */
+    lepasTanggungJawabHari: 90,            /* setelah sekian hari, gitar di luar tanggung jawab toko */
+    pengingatHari: [7, 12],                /* admin diingatkan mengirim WA pengingat pada hari ke- ini */
 
     /* garansi: '7h' = 7 hari, '1b' = 1 bulan, '6b' = 6 bulan */
     syaratJatuh: 'Berlaku selama gitar tidak jatuh atau terbentur kembali.',
@@ -57,13 +59,14 @@ var AYRI_LAYANAN = {
 
     jenisGitar: ['Akustik', 'Akustik Elektrik', 'Klasik', 'Elektrik', 'Bass', 'Ukulele', 'Lainnya'],
 
-    /* tercetak di nota; {dp}, {gratis}, {biaya}, {hangus} diganti otomatis */
+    /* tercetak di nota; {dp}, {gratis}, {biaya}, {hangus}, {lepas} diganti otomatis */
     ketentuan: [
         'Pengerjaan dimulai setelah DP {dp}% biaya jasa dan pembayaran lunas part/suku cadang kami terima.',
         'Bila ditemukan kerusakan lain, biaya dan estimasi dapat berubah; kami kabari dulu sebelum dikerjakan.',
         'Garansi dihitung sejak gitar diambil dan hanya berlaku untuk pekerjaan yang tercantum di nota ini.',
         'Garansi tidak berlaku bila gitar dibongkar atau diperbaiki pihak lain.',
         'Gitar yang sudah selesai gratis dititipkan sampai {gratis} hari sejak kami kabari. Setelah itu dikenakan biaya penitipan {biaya}. Bila tidak diambil lebih dari {hangus} hari, garansi servis hangus.',
+        'Gitar yang tidak diambil lebih dari {lepas} hari sejak dinyatakan selesai berada di luar tanggung jawab toko atas kerusakan maupun kehilangan.',
         'Klaim garansi wajib menyebutkan kode servis atau menunjukkan nota ini.'
     ]
 };

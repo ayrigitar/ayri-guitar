@@ -244,3 +244,12 @@ body.nota-body { background: var(--bg-alt); color: var(--ink); font-family: var(
   @page { margin: 12mm; }
 }
 .ly-f input[type="date"] { padding-inline: 8px; font-size: .9375rem; }
+
+/* pengingat ambil & kartu daftar dengan tombol */
+.ly-item { position: relative; }
+.ly-item__a { color: inherit; }
+.ly-item__a::after { content: ""; position: absolute; inset: 0; border-radius: inherit; }
+.ly-item__b { grid-column: 1 / -1; position: relative; z-index: 1; display: flex; justify-content: flex-end; margin-top: 4px; }
+.ly-ingat { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 12px; padding: 12px 14px; border: 1px solid #F7D9A8; border-radius: var(--r-md); background: #FEF3E2; color: #6B3E08; font-size: .875rem; line-height: 1.45; }
+.ly-ingat--info { margin-top: 10px; border-color: var(--line); background: var(--surface-2); color: var(--ink-2); }
+html[data-theme="dark"] .ly-ingat:not(.ly-ingat--info) { border-color: rgba(245, 182, 92, .3); background: rgba(245, 182, 92, .1); color: #F5B65C; }

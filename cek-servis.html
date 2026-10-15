@@ -158,7 +158,11 @@ document.addEventListener('DOMContentLoaded', function () {
             '<dl class="cek-kv"><dt>Tanggal masuk</dt><dd>' + L.tglPanjang(s.tgl_masuk) + '</dd>' +
             (s.status === 'selesai' || s.status === 'diambil' ? '<dt>Selesai</dt><dd>' + L.tglPanjang(s.tgl_selesai) + '</dd>' : s.estimasi ? '<dt>Estimasi selesai</dt><dd>' + L.tglPanjang(s.estimasi) + '</dd>' : '') +
             (s.tgl_diambil ? '<dt>Diambil</dt><dd>' + L.tglPanjang(s.tgl_diambil) + '</dd>' : '') +
-            (L.batasGratis(s) ? '<dt>Ambil sebelum</dt><dd>' + L.tglPanjang(L.batasGratis(s)) + ' <span class="ly-muted">(gratis penitipan; setelahnya ' + E(C.biayaPenitipan || 'dikenakan biaya') + ')</span></dd>' : '') +
+            (function () {
+                var t = s.status === 'selesai' && L.titip(s); if (!t) return '';
+                return t.hariBiaya ? '<dt>Penitipan</dt><dd>Lewat masa gratis ' + t.hariBiaya + ' hari: <b>' + L.rupiah(t.biaya) + '</b> <span class="ly-muted">(' + L.biayaTitipTeks() + ' sejak ' + L.tglPanjang(t.batasGratis) + ')</span></dd>'
+                    : '<dt>Ambil sebelum</dt><dd>' + L.tglPanjang(t.batasGratis) + ' <span class="ly-muted">(gratis penitipan; setelahnya ' + L.biayaTitipTeks() + ')</span></dd>';
+            })() +
             (s.keluhan ? '<dt>Keluhan</dt><dd>' + E(s.keluhan) + '</dd>' : '') + '</dl></section>';
 
         if (s.catatan_publik) html += '<section class="ly-card"><h2>Pesan dari bengkel</h2><p class="cek-pesan">' + E(s.catatan_publik) + '</p></section>';
@@ -188,11 +192,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
         var gar = (s.items || []).filter(function (i) { return i.garansi; });
         if (gar.length && (s.status === 'selesai' || s.status === 'diambil')) {
-            var hari = L.hariIni();
+            var hari = L.hariIni(), hangus = L.garansiHangus(s), tg = L.titip(s);
             html += '<section class="ly-card"><h2>Garansi</h2><div class="cek-garansi">' + gar.map(function (i) {
                 var akhir = s.tgl_diambil ? L.garansiAkhir(i.garansi, s.tgl_diambil) : null;
                 return '<div><b>' + E(i.nama) + ' – ' + L.garansiLabel(i.garansi) + '</b>' +
-                    (akhir ? (akhir >= hari ? '<span class="aktif">Aktif sampai ' + L.tglPanjang(akhir) + '</span>' : 'Berakhir ' + L.tglPanjang(akhir)) : 'Mulai berlaku saat gitar diambil') +
+                    (hangus ? 'Hangus karena gitar tidak diambil lebih dari ' + (C.garansiHangusHari || 30) + ' hari setelah selesai' :
+                        akhir ? (akhir >= hari ? '<span class="aktif">Aktif sampai ' + L.tglPanjang(akhir) + '</span>' : 'Berakhir ' + L.tglPanjang(akhir)) :
+                        'Mulai berlaku saat gitar diambil' + (tg ? ' (ambil paling lambat ' + L.tglPanjang(tg.batasGaransi) + ' agar garansi tetap berlaku)' : '')) +
                     (i.garansi_syarat ? '<br><small>' + E(i.garansi_syarat) + '</small>' : '') + '</div>';
             }).join('') + '</div></section>';
         }
