@@ -233,7 +233,8 @@
         $('iinfo').textContent = I.info; $('tg-left').hidden = !!I.kb; var pb = $('pmode').children; for (i = 0; i < pb.length; i++) pb[i].setAttribute('aria-pressed', pb[i].dataset.pm === st.pm ? 'true' : 'false'); pb[0].textContent = I.kb ? 'Blok' : '\u2193 Strum'; pb[1].textContent = I.kb ? '\u2191 Roll' : '\u2191 Strum';
         $('fav').setAttribute('aria-pressed', favs.indexOf(favKey()) > -1 ? 'true' : 'false');
         var rb = $('roots').children; for (i = 0; i < rb.length; i++) rb[i].setAttribute('aria-pressed', i === st.root ? 'true' : 'false');
-        var tb = $('types').children; for (i = 0; i < tb.length; i++) { tb[i].setAttribute('aria-pressed', i === st.ti ? 'true' : 'false'); tb[i].classList.toggle('na', !voicings(st.root, i).length); }
+        [].forEach.call($('types').querySelectorAll('[data-t]'), function (b) { var k = +b.dataset.t; b.setAttribute('aria-pressed', k === st.ti ? 'true' : 'false'); b.classList.toggle('na', !voicings(st.root, k).length); });
+        var ext = showExt || st.ti >= NBASE; $('types').classList.toggle('show-ext', ext); $('tmore').setAttribute('aria-expanded', ext ? 'true' : 'false'); $('tmore').textContent = ext ? 'Sembunyikan' : '+' + (TYPES.length - NBASE) + ' lainnya';
         $('instsel').value = st.inst; var ib = $('insts').children; for (i = 0; i < ib.length; i++) ib[i].setAttribute('aria-pressed', ib[i].dataset.i === st.inst ? 'true' : 'false');
         $('tg-left').setAttribute('aria-pressed', st.left); $('tg-note').setAttribute('aria-pressed', st.note);
         renderFavs(); renderProg();
@@ -268,9 +269,14 @@
     $('instsel').addEventListener('change', function () { setInst(this.value); });
     $('insts').addEventListener('click', function (e) { var b = e.target.closest('[data-i]'); if (b) setInst(b.dataset.i); });
     $('roots').innerHTML = RB.map(function (n, i) { return '<button type="button" class="chip" data-r="' + i + '">' + disp(n) + '</button>'; }).join('');
-    $('types').innerHTML = TYPES.map(function (t, i) { return '<button type="button" class="chip" data-t="' + i + '">' + (t.s ? t.s : 'Mayor') + '</button>'; }).join('');
+    /* jenis dasar tampil langsung; jenis lanjutan (dim7, m7b5, maj9, 7b9, 13, ...) di balik tombol "lainnya" */
+    var showExt = false;
+    $('types').innerHTML = TYPES.map(function (t, i) { return '<button type="button" class="chip' + (i >= NBASE ? ' ext' : '') + '" data-t="' + i + '" title="' + t.n + '">' + (t.s ? disp(t.s) : 'Mayor') + '</button>'; }).join('') + '<button type="button" class="chip more" id="tmore" aria-expanded="false"></button>';
     $('roots').addEventListener('click', function (e) { var r = e.target.closest('[data-r]'); if (r) { stopProg(); pick(+r.dataset.r, st.ti); } });
-    $('types').addEventListener('click', function (e) { var r = e.target.closest('[data-t]'); if (r) { stopProg(); pick(st.root, +r.dataset.t); } });
+    $('types').addEventListener('click', function (e) {
+        if (e.target.closest('#tmore')) { showExt = !(showExt || st.ti >= NBASE); if (!showExt && st.ti >= NBASE) st.ti = 0; render(); return; }
+        var r = e.target.closest('[data-t]'); if (r) { stopProg(); pick(st.root, +r.dataset.t); }
+    });
     $('thumbs').addEventListener('click', function (e) { var r = e.target.closest('[data-v]'); if (r) { st.vi = +r.dataset.v; render(); strum(vs[st.vi], 'd'); } });
     $('prev').addEventListener('click', function () { st.vi = (st.vi + vs.length - 1) % vs.length; render(); });
     $('next').addEventListener('click', function () { st.vi = (st.vi + 1) % vs.length; render(); });
@@ -304,7 +310,7 @@
     $('pgs').addEventListener('click', function (e) { var p = e.target.closest('[data-p]'); if (p) { stopProg(); prog.i = +p.dataset.p; renderProg(); } });
     $('pgc').addEventListener('click', function (e) { var c = e.target.closest('[data-c]'); if (c) { stopProg(); var x = pc(+c.dataset.c); pick((st.root + x[0]) % 12, tIdx(x[1])); if (vs[0]) strum(vs[0], 'd'); } });
     $('pgplay').addEventListener('click', playProg);
-    var SUF = { '': 'maj', maj: 'maj', M: 'maj', m: 'm', min: 'm', '-': 'm', '7': '7', maj7: 'maj7', M7: 'maj7', m7: 'm7', min7: 'm7', sus2: 'sus2', sus4: 'sus4', sus: 'sus4', '5': '5', '6': '6', add9: 'add9', dim: 'dim', aug: 'aug', '+': 'aug', '9': '9' };
+    var SUF = SUFK;
     document.addEventListener('keydown', function (e) { if (e.key === '/' && !/INPUT|SELECT|TEXTAREA/.test(e.target.tagName)) { e.preventDefault(); $('q').focus(); $('q').select(); } });
     $('q').addEventListener('input', function () {
         var q = this.value.trim().replace(/\u266F/g, '#').replace(/\u266D/g, 'b'), m = /^([A-Ga-g])([#b]?)(.*)$/.exec(q);
@@ -315,7 +321,7 @@
             var sk = SUF[m[3]];
             if (r > -1 && sk) { stopProg(); pick(r, tIdx(sk)); $('qh').textContent = ''; return; }
         }
-        $('qh').textContent = 'Tidak dikenali. Contoh: C, Am, F#m7, Bbmaj7, Dsus4, E7'; $('q').classList.add('bad');
+        $('qh').textContent = 'Tidak dikenali. Contoh: C, Am, F#m7, Bbmaj7, Dsus4, E7, Bdim7, Fmaj9, D7b9, Em7b5'; $('q').classList.add('bad');
     });
     render();
     window.__ch = { voicings: voicings, TYPES: TYPES, NM: NM, INSTS: INSTS };
