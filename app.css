@@ -362,3 +362,6 @@ main.app.fit2 .tr-adjl { display: none; }
 main.app.fit3 .tr-adj .chip { height: 28px; min-height: 28px; padding: 0 8px; }
 .trans-app .chip.bpmh { flex: 0 0 auto; min-width: 40px; padding: 0 8px; height: 42px; font-weight: 700; }
 main.app.fit1 .trans-app .chip.bpmh, main.app.fit1 .chip.bpmh { height: 36px; }
+/* baris tombol waktu/edit selebar kartu; di HP tanpa label supaya muat satu baris */
+.trans-app .tr-adj { margin-top: 2px; flex: 0 0 auto; }
+@media (max-width: 520px) { .trans-app .tr-adjl { display: none; } .trans-app .tr-adj { gap: 5px; } .trans-app .tr-adj .chip { flex: 1 1 auto; padding: 0 6px; font-size: .74rem; } }

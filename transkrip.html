@@ -147,7 +147,8 @@
             <audio id="au" preload="auto"></audio>
             <div class="t-card tr-stage">
                 <div class="tr-ttl" id="ttl"></div>
-                <div class="tr-now"><div><div class="tr-cn" id="cn">&ndash;</div><div class="tr-cs" id="cs"></div><div class="tr-hd" id="hd"></div><div class="tr-adj" role="group" aria-label="Geser waktu pergantian chord"><span class="tr-adjl">Ganti chord</span><button type="button" class="chip" id="adjE" title="Pergantian ke chord berikutnya dimajukan 1 ketukan (tampilan terlambat dari lagu)">&#9664; lebih awal</button><button type="button" class="chip" id="adjL" title="Pergantian ke chord ini dimundurkan 1 ketukan (tampilan terlalu cepat)">lebih akhir &#9654;</button><span class="tr-adjm" id="adjm" role="status"></span></div></div><div class="tr-cd" id="cd"></div></div>
+                <div class="tr-now"><div><div class="tr-cn" id="cn">&ndash;</div><div class="tr-cs" id="cs"></div><div class="tr-hd" id="hd"></div></div><div class="tr-cd" id="cd"></div></div>
+                <div class="tr-adj" role="group" aria-label="Waktu dan edit chord"><span class="tr-adjl">Waktu</span><button type="button" class="chip" id="adjE" title="Pergantian ke chord berikutnya dimajukan 1 ketukan (tampilan terlambat dari lagu)">&#9664; lebih awal</button><button type="button" class="chip" id="adjL" title="Pergantian ke chord ini dimundurkan 1 ketukan (tampilan terlalu cepat)">lebih akhir &#9654;</button><button type="button" class="chip tr-edb" id="adjX" title="Ganti, tambah, atau hapus chord yang sedang tampil">&#9998; Edit chord</button><span class="tr-adjm" id="adjm" role="status"></span></div>
                 <div class="tr-next"><span>Berikutnya</span><b id="nx"></b><div class="tr-nd" id="nd"></div><small id="nt"></small></div>
                 <canvas id="ctab" class="ctab" aria-label="Garis waktu nama chord. Ketuk untuk lompat."></canvas>
                 <input id="seek" class="rg" type="range" min="0" max="100" step="0.1" value="0" aria-label="Posisi lagu"><div class="tr-tm" id="tm">0:00 / 0:00</div>
@@ -181,6 +182,15 @@
         <div class="chips" style="margin-top:1rem"><button id="prn" type="button" class="chip">Cetak transkrip</button><button id="sav" type="button" class="chip">Simpan hasil (.json)</button></div>
         <p class="hint">Simpan hasil agar tidak perlu menganalisis ulang: lain kali pilih file .json dulu, lalu file audionya.</p>
     </div></div>
+    <div class="drawer" id="dr-edit" hidden><div class="drawer-in">
+        <button type="button" class="chip drawer-x" data-close>Tutup</button>
+        <h2 id="xtl">Edit chord</h2>
+        <p class="hint" id="xsub"></p>
+        <div class="pg-row"><select id="xr" class="srch" style="width:auto" aria-label="Nada dasar chord"></select><select id="xt" class="srch" style="width:auto" aria-label="Jenis chord"></select></div>
+        <div class="pg-row"><button id="xok" type="button" class="t-btn" style="min-height:46px;font-size:1rem">Ganti chord ini</button><button id="xadd" type="button" class="chip">Tambah chord mulai di sini</button><button id="xdel" type="button" class="chip">Hapus chord ini</button></div>
+        <p class="hint" id="xmsg"></p>
+        <p class="hint"><b>Ganti</b>: chord yang sedang tampil diganti dengan pilihan di atas. <b>Tambah</b>: chord pilihan disisipkan mulai dari posisi lagu sekarang (dipaskan ke ketukan terdekat). <b>Hapus</b>: waktunya digabung ke chord sebelumnya.</p>
+    </div></div>
     <div class="drawer" id="dr-info" hidden><div class="drawer-in">
         <button type="button" class="chip drawer-x" data-close>Tutup</button>
         <h2>Cara memakai</h2>
@@ -193,7 +203,9 @@
         <p class="t-help">Kapo menggeser bentuk jari ke chord yang lebih mudah, sedangkan suara tetap sama dengan lagu. Tombol saran kapo muncul bila ada posisi yang membuat lebih banyak chord terbuka. Garis waktu di bawah chord besar menampilkan nama chord yang akan datang. Balok yang menyala adalah chord yang sedang dimainkan, dan ketuk balok untuk lompat ke sana.</p>
         <p class="t-help">Akurasi paling baik untuk lagu dengan gitar atau piano yang jelas. Anggap hasilnya draf yang bisa dikoreksi. Pintasan: spasi = putar/jeda, panah kiri/kanan = mundur/maju 5 detik.</p>
         <h2>Waktu ganti chord kurang pas?</h2>
-        <p class="t-help">Di bawah chord besar ada tombol <b>Ganti chord: &#9664; lebih awal / lebih akhir &#9654;</b>. Bila tampilan <b>terlambat</b> dari lagu, tekan <b>&#9664; lebih awal</b>: pergantian ke chord berikutnya dimajukan satu ketukan. Bila tampilan <b>terlalu cepat</b>, tekan <b>lebih akhir &#9654;</b>: pergantian ke chord yang sedang tampil dimundurkan satu ketukan. Bisa ditekan sambil lagu berjalan.</p>
+        <p class="t-help">Di bawah chord besar ada tombol <b>Waktu: &#9664; lebih awal / lebih akhir &#9654;</b>. Bila tampilan <b>terlambat</b> dari lagu, tekan <b>&#9664; lebih awal</b>: pergantian ke chord berikutnya dimajukan satu ketukan. Bila tampilan <b>terlalu cepat</b>, tekan <b>lebih akhir &#9654;</b>: pergantian ke chord yang sedang tampil dimundurkan satu ketukan. Bisa ditekan sambil lagu berjalan.</p>
+        <h2>Chord-nya salah?</h2>
+        <p class="t-help">Tekan <b>&#9998; Edit chord</b> di bawah chord besar. Untuk chord yang sedang tampil Anda bisa <b>Ganti</b> (pilih nada dan jenis lain), <b>Tambah</b> chord baru mulai dari posisi lagu sekarang, atau <b>Hapus</b> (waktunya digabung ke chord sebelumnya). Tip: jeda lagu tepat di tempat chord seharusnya berganti, lalu pakai Tambah.</p>
         <h2>Klik sebelum mulai dan tempo</h2>
         <p class="t-help"><b>Klik sebelum mulai</b>: saat menekan Putar, metronom berbunyi 2 atau 4 kali dulu supaya Anda siap di ketukan pertama. Angka di sebelahnya adalah <b>tempo lagu dalam BPM</b> (ketukan per menit), terisi otomatis dari lagu dan menentukan kecepatan klik. Bila kliknya terasa dua kali terlalu cepat, tekan <b>&frac12;</b>.</p>
         <a class="t-cta" href="index.html#harga"><strong>Butuh gitar yang enak dimainkan?</strong><br>Lihat estimasi biaya setup &amp; servis di Toko Gitar AYRI Bogor &rarr;</a>
@@ -898,6 +910,32 @@
     }
     $('adjE').addEventListener('click', function () { adjust(true); });
     $('adjL').addEventListener('click', function () { adjust(false); });
+    /* edit chord dari layar utama: ganti, tambah (sisipkan mulai posisi lagu), hapus */
+    var xIdx = -1, xT = 0;
+    function snapBeat(t) { var bs = ana && (ana._bs || ana._bs2), i, b = -1; if (!bs || !bs.t.length) return t; for (i = 0; i < bs.t.length; i++) if (b < 0 || Math.abs(bs.t[i] - t) < Math.abs(bs.t[b] - t)) b = i; return Math.max(0, bs.t[b] - 0.02); }
+    function xPick() { return { r: (+$('xr').value + (capoOn() ? st.capo : 0)) % 12, ti: +$('xt').value }; }
+    function xDone(msg) { st.sel = -1; $('edit').hidden = true; sheet(); $('dr-edit').hidden = true; var m = $('adjm'); m.textContent = msg; clearTimeout(adjT); adjT = setTimeout(function () { m.textContent = ''; }, 1800); }
+    $('xr').innerHTML = NM.map(function (n, i) { return '<option value="' + i + '">' + disp(n) + '</option>'; }).join('');
+    $('xt').innerHTML = TYPES.map(function (t, i) { return '<option value="' + i + '">' + (t.s ? disp(t.s) : 'Mayor') + '</option>'; }).join('');
+    $('adjX').addEventListener('click', function () {
+        var t = au.currentTime || 0, i = idxAt(t); if (i < 0) i = 0; if (!segs[i]) return;
+        var s = segs[i]; xIdx = i; xT = t;
+        $('xr').value = sroot(s); $('xt').value = s.ti;
+        $('xtl').textContent = 'Edit chord ' + cname(s);
+        $('xsub').textContent = 'Chord ini berbunyi ' + fmt(s.t0) + ' sampai ' + fmt(s.t1) + '. Posisi lagu sekarang ' + fmt(t) + '.';
+        $('xadd').textContent = 'Tambah chord mulai di ' + fmt(snapBeat(t)); $('xmsg').textContent = ''; $('dr-edit').hidden = false;
+    });
+    $('xok').addEventListener('click', function () { var s = segs[xIdx], c = xPick(); if (!s) return; s.r = c.r; s.ti = c.ti; delete s.q; delete s.bass; xDone('chord diganti menjadi ' + cname(s)); });
+    $('xadd').addEventListener('click', function () {
+        var s = segs[xIdx], c = xPick(), tn = snapBeat(xT); if (!s) return;
+        if (tn - s.t0 < 0.3 || s.t1 - tn < 0.3) { $('xmsg').textContent = 'Posisi lagu terlalu dekat dengan awal/akhir chord ini. Geser posisi lagu sedikit, atau pakai "Ganti chord ini".'; return; }
+        var ns = { r: c.r, ti: c.ti, t0: tn, t1: s.t1 }; s.t1 = tn; segs.splice(xIdx + 1, 0, ns); xDone('chord ' + cname(ns) + ' ditambahkan di ' + fmt(tn));
+    });
+    $('xdel').addEventListener('click', function () {
+        var s = segs[xIdx]; if (!s) return; if (segs.length < 2) { $('xmsg').textContent = 'Ini satu-satunya chord.'; return; }
+        if (xIdx > 0) segs[xIdx - 1].t1 = s.t1; else segs[1].t0 = s.t0;
+        segs.splice(xIdx, 1); xDone('chord ' + cname(s) + ' dihapus');
+    });
     $('emvl').addEventListener('click', function () { nudge(-1); });
     $('emvr').addEventListener('click', function () { nudge(1); });
     $('edel').addEventListener('click', function () { var i = st.sel; if (i < 0) return; if (i > 0) segs[i - 1].t1 = segs[i].t1; segs.splice(i, 1); st.sel = -1; $('edit').hidden = true; sheet(); });
