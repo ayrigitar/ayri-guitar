@@ -244,8 +244,10 @@
     function chartKey() { return 'ayri-chart:' + fname; }
     function fmt(s) { s = Math.max(0, s); return Math.floor(s / 60) + ':' + ('0' + Math.floor(s % 60)).slice(-2); }
     function sroot(s) { return I.kb ? s.r : (s.r - st.capo + 12) % 12; }
-    function cname(s, shape) {
-        var r = shape ? sroot(s) : s.r, sh = shape && !I.kb ? st.capo : 0;
+    /* Dengan kapo, nama utama = bentuk jari yang dimainkan; cname(s, true) = nama bunyi lagu (tanpa kapo). */
+    function capoOn() { return st.capo > 0 && !I.kb; }
+    function cname(s, bunyi) {
+        var sh = !bunyi && capoOn() ? st.capo : 0, r = (s.r - sh + 12) % 12;
         if (st.level === 'asli' && typeof s.q === 'string') return disp(NM[r] + s.q + (s.bass >= 0 ? '/' + NM[(s.bass - sh + 12) % 12] : ''));
         return disp(NM[r] + TYPES[lvTi(s)].s);
     }
@@ -686,12 +688,12 @@
     }
     function voic(s) { var v = voicings(sroot(s), lvTi(s)); return v[0]; }
     /* nama diagram bila beda dari nama chord (mis. Fmaj9 digambar sebagai Fmaj7) */
-    function diagNote(s) { var sh = !!st.capo && !I.kb, full = cname(s, sh), simple = disp(NM[sh ? sroot(s) : s.r] + TYPES[lvTi(s)].s); return full !== simple ? ' · diagram: ' + simple : ''; }
+    function diagNote(s) { var full = cname(s), simple = disp(NM[sroot(s)] + TYPES[lvTi(s)].s); return full !== simple ? ' · diagram: ' + simple : ''; }
     function drawChord(idx) {
         if (idx < 0 || !segs[idx]) { $('cn').textContent = '\u2013'; $('cs').textContent = ''; $('cd').innerHTML = ''; $('nx').textContent = ''; $('nd').innerHTML = ''; return; }
         var s = segs[idx], v = voic(s);
         $('cn').textContent = cname(s);
-        $('cs').textContent = (st.capo && !I.kb ? 'Bentuk jari: ' + cname(s, true) + ' \u00b7 kapo fret ' + st.capo : I.name) + diagNote(s);
+        $('cs').textContent = (capoOn() ? 'Bunyi lagu: ' + cname(s, true) + ' \u00b7 kapo fret ' + st.capo : I.name) + diagNote(s);
         $('cd').innerHTML = v ? diagram(v, { alt: 'Diagram ' + cname(s) }) : '<p class="hint">Bentuk belum tersedia untuk ' + I.name + '.</p>';
         var nx = segs[idx + 1]; $('nx').textContent = nx ? cname(nx) : 'selesai';
         $('nd').innerHTML = nx && voic(nx) ? diagram(voic(nx), { mini: true }) : '';
@@ -700,7 +702,7 @@
         $('sheet').innerHTML = segs.map(function (s, i) { return '<button type="button" class="sc" data-i="' + i + '"><b>' + cname(s) + '</b><small>' + fmt(s.t0) + (s.src === 'auto' ? ' *' : '') + '</small></button>'; }).join('');
         var cnt = {}, u = []; segs.forEach(function (s) { var k = cname(s); if (!cnt[k]) { cnt[k] = 0; u.push(s); } cnt[k]++; });
         u.sort(function (a, b) { return cnt[cname(b)] - cnt[cname(a)]; });
-        $('legend').innerHTML = u.map(function (s) { var v = voic(s); return '<div class="lg"><b>' + cname(s) + (st.capo ? ' <small>(' + cname(s, true) + ')</small>' : '') + '</b>' + (v ? diagram(v, { alt: cname(s) }) : '<small>-</small>') + '</div>'; }).join('');
+        $('legend').innerHTML = u.map(function (s) { var v = voic(s); return '<div class="lg"><b>' + cname(s) + (capoOn() ? ' <small>(bunyi ' + cname(s, true) + ')</small>' : '') + '</b>' + (v ? diagram(v, { alt: cname(s) }) : '<small>-</small>') + '</div>'; }).join('');
         cur = -2; shown = -1; mark(au.currentTime || 0, true);
     }
     function idxAt(t) { var lo = 0, hi = segs.length - 1, m, r = -1; while (lo <= hi) { m = (lo + hi) >> 1; if (segs[m].t0 <= t) { r = m; lo = m + 1; } else hi = m - 1; } return r; }
@@ -719,7 +721,7 @@
             if (on) { var pr = Math.min(1, (now - sg.t0) / Math.max(0.1, sg.t1 - sg.t0)); g.fillStyle = 'rgba(255,255,255,.35)'; g.fillRect(x0 + pad + 8, H - 12, Math.max(0, (w - 16) * pr), 3); }
             g.save(); g.beginPath(); g.rect(x0 + pad, 5, w, H - 10); g.clip();
             g.textAlign = 'left'; g.fillStyle = on ? '#fff' : C.ink; g.font = '700 ' + fs.toFixed(0) + 'px ui-sans-serif,system-ui,sans-serif'; var tw = g.measureText(name).width, tx = Math.min(Math.max(x0 + pad + 8, 8), x0 + pad + w - tw - 8); if (tx < x0 + pad + 8) tx = x0 + pad + 8; g.fillText(name, tx, shape ? H / 2 - 6 : H / 2);
-            if (shape) { g.font = '600 11px ui-sans-serif,system-ui,sans-serif'; g.fillStyle = on ? 'rgba(255,255,255,.85)' : C.sub; g.fillText('jari ' + cname(sg, true), tx, H / 2 + 12); }
+            if (shape) { g.font = '600 11px ui-sans-serif,system-ui,sans-serif'; g.fillStyle = on ? 'rgba(255,255,255,.85)' : C.sub; g.fillText('bunyi ' + cname(sg, true), tx, H / 2 + 12); }
             g.restore(); g.globalAlpha = 1;
         });
         if (chartOn && heard) {
@@ -828,11 +830,11 @@
     $('lc').addEventListener('click', function () { st.a = st.b = null; st.loop = false; loopUi(); });
     $('sheet').addEventListener('click', function (e) {
         var b = e.target.closest('[data-i]'); if (!b) return; var i = +b.dataset.i, s = segs[i]; st.sel = i; au.currentTime = s.t0; mark(s.t0, true);
-        $('edit').hidden = false; $('er').value = s.r; $('et').value = s.ti; $('etl').textContent = 'Ubah chord di ' + fmt(s.t0) + ' (sekarang ' + cname(s) + ')';
+        $('edit').hidden = false; $('er').value = sroot(s); $('et').value = s.ti; $('etl').textContent = 'Ubah chord di ' + fmt(s.t0) + ' (sekarang ' + cname(s) + ')';
     });
     $('er').innerHTML = NM.map(function (n, i) { return '<option value="' + i + '">' + disp(n) + '</option>'; }).join('');
     $('et').innerHTML = TYPES.map(function (t, i) { return '<option value="' + i + '">' + (t.s || 'Mayor') + '</option>'; }).join('');
-    $('eok').addEventListener('click', function () { var s = segs[st.sel]; if (!s) return; s.r = +$('er').value; s.ti = +$('et').value; delete s.q; delete s.bass; sheet(); });
+    $('eok').addEventListener('click', function () { var s = segs[st.sel]; if (!s) return; s.r = (+$('er').value + (capoOn() ? st.capo : 0)) % 12; s.ti = +$('et').value; delete s.q; delete s.bass; sheet(); });
     /* geser awal chord yang dipilih satu ketukan (mengikuti ketukan lagu bila terdeteksi, jika tidak 0,25 detik) */
     function nudge(dir) {
         var s = segs[st.sel]; if (!s) return;
