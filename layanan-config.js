@@ -68,6 +68,26 @@ var AYRI_LAYANAN = {
         'Gitar yang sudah selesai gratis dititipkan sampai {gratis} hari sejak kami kabari. Setelah itu dikenakan biaya penitipan {biaya}. Bila tidak diambil lebih dari {hangus} hari, garansi servis hangus.',
         'Bila gitar belum diambil lebih dari {lepas} hari sejak dinyatakan selesai, kami akan menghubungi pemilik secara tertulis (WhatsApp). Gitar tetap kami simpan dengan baik dan biaya penitipan tetap berjalan. Perubahan kondisi karena penyimpanan lama (misalnya senar berkarat atau setelan neck bergeser) tidak termasuk garansi servis.',
         'Klaim garansi wajib menyebutkan kode servis atau menunjukkan nota ini.'
-    ]
+    ],
+
+    /* ---------- beli gitar dengan hak tebus (jual beli dengan hak membeli kembali, KUHPerdata Pasal 1519 dst.) ----------
+       Toko MEMBELI gitar; penjual boleh membeli kembali sampai batas tebus dengan harga yang SAMA dengan harga beli
+       (boleh ditambah biaya administrasi kecil dan tetap). Jangan menambah "bunga" per bulan: itu menjadikannya pinjaman berbunga. */
+    tebus: {
+        batasHari: 30,                 /* batas tebus bawaan (hari sejak beli) */
+        maksHari: 90,                  /* batas tebus terpanjang yang boleh dipilih */
+        biayaMaksPersen: 5,            /* admin diberi peringatan bila biaya administrasi melebihi ini */
+        pengingatHari: [7, 1],         /* pengingat WA sekian hari sebelum batas tebus */
+        fotoKtpMinHarga: 1000000,      /* sarankan foto KTP bila harga beli di atas ini (atau penjual belum dikenal) */
+        hapusKtpHari: 90,              /* foto KTP disarankan dihapus sekian hari setelah gitar dibeli kembali */
+        /* tercetak di surat perjanjian; {batas}, {tebus} diganti otomatis */
+        ketentuan: [
+            'Penjual menyatakan gitar ini miliknya sendiri, bukan barang curian, jaminan, atau sengketa, dan menyerahkan kepemilikannya kepada Toko Gitar AYRI dengan harga beli yang tercantum.',
+            'Penjual berhak membeli kembali gitar ini paling lambat tanggal {batas} dengan harga {tebus}.',
+            'Selama masa tersebut, toko menyimpan gitar dengan baik dan tidak menjualnya kepada pihak lain.',
+            'Bila sampai tanggal {batas} penjual tidak membeli kembali, hak membeli kembali berakhir dan gitar sepenuhnya menjadi milik toko, tanpa kewajiban lain di antara kedua pihak.',
+            'Perubahan batas waktu hanya berlaku bila disepakati kedua pihak secara tertulis (WhatsApp).'
+        ]
+    }
 };
 if (typeof module !== 'undefined') module.exports = AYRI_LAYANAN;

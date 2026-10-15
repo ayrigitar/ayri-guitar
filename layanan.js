@@ -68,8 +68,8 @@
 
     /* ---------- kode servis & tautan ---------- */
     var ABJAD = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789'; /* tanpa I, L, O, 0, 1 yang mudah tertukar */
-    L.kodeBaru = function () {
-        var r = new Uint8Array(6), s = 'AYR-'; crypto.getRandomValues(r);
+    L.kodeBaru = function (awalan) {
+        var r = new Uint8Array(6), s = (awalan || 'AYR') + '-'; crypto.getRandomValues(r);
         for (var i = 0; i < 6; i++) s += ABJAD[r[i] % ABJAD.length];
         return s;
     };
@@ -79,6 +79,64 @@
     L.situs = function () { return (C.situsUrl || location.origin + '/').replace(/\/?$/, '/'); };
     L.urlCek = function (kode) { return L.situs() + 'cek-servis.html?k=' + encodeURIComponent(kode); };
     L.urlNota = function (kode) { return L.situs() + 'nota.html?k=' + encodeURIComponent(kode); };
+    L.urlPerjanjian = function (kode) { return L.situs() + 'perjanjian.html?k=' + encodeURIComponent(kode); };
+
+    /* ---------- beli dengan hak tebus ---------- */
+    var TB = C.tebus || {};
+    L.STATUS_TEBUS = {
+        aktif: { label: 'Masa tebus', ket: 'Penjual masih berhak membeli kembali gitar ini.' },
+        ditebus: { label: 'Sudah dibeli kembali', ket: 'Gitar sudah dibeli kembali oleh penjual.' },
+        milik_toko: { label: 'Milik toko', ket: 'Masa membeli kembali sudah berakhir; gitar sepenuhnya milik toko.' },
+        batal: { label: 'Dibatalkan', ket: 'Transaksi dibatalkan.' }
+    };
+    L.hargaTebus = function (t) { return (+t.harga_beli || 0) + (+t.biaya_admin || 0); };
+    /* sisa hari sampai batas tebus (negatif = sudah lewat) */
+    L.infoTebus = function (t, hariIni) {
+        var kini = hariIni || L.hariIni(), sisa = t.batas_tebus ? L.hariAntara(kini, t.batas_tebus) : null;
+        return { sisa: sisa, lewat: sisa != null && sisa < 0, harga: L.hargaTebus(t) };
+    };
+    L.perluIngatTebus = function (t, hariIni) {
+        if (t.status !== 'aktif' || !t.batas_tebus) return false;
+        var i = L.infoTebus(t, hariIni), terakhir = (t.pengingat || []).slice(-1)[0] || '';
+        if (i.lewat) return true; /* lewat batas: admin perlu memutuskan (jadikan milik toko / perpanjang) */
+        return (TB.pengingatHari || [7, 1]).some(function (d) { var tgl = L.tglObj(t.batas_tebus); tgl.setDate(tgl.getDate() - d); tgl = L.tglStr(tgl); return i.sisa <= d && terakhir < tgl; });
+    };
+    /* foto KTP: disarankan untuk harga besar; boleh dihapus setelah ditebus sekian hari, atau bila dibatalkan.
+       Untuk gitar yang menjadi milik toko, KTP tetap disimpan sebagai bukti asal-usul barang. */
+    L.adaKtp = function (t) { return (t.foto || []).some(function (f) { return f.tahap === 'ktp'; }); };
+    L.ktpBisaDihapus = function (t, hariIni) {
+        if (!L.adaKtp(t)) return false;
+        if (t.status === 'batal') return true;
+        return t.status === 'ditebus' && !!t.tgl_tebus && L.hariAntara(t.tgl_tebus, hariIni || L.hariIni()) >= (TB.hapusKtpHari || 90);
+    };
+    L.ketentuanTebus = function (t) {
+        return (TB.ketentuan || []).map(function (k) {
+            return k.split('{batas}').join(L.tglPanjang(t.batas_tebus)).split('{tebus}').join(L.rupiah(L.hargaTebus(t)) + (+t.biaya_admin ? ' (harga beli ' + L.rupiah(t.harga_beli) + ' + biaya administrasi ' + L.rupiah(t.biaya_admin) + ')' : ' (sama dengan harga beli)'));
+        });
+    };
+    function gitarTebus(t) { return [t.gitar_jenis, t.gitar_merk].filter(Boolean).join(' ') || 'gitar'; }
+    L.pesanTebus = {
+        konfirmasi: function (t) {
+            return 'Halo Kak ' + t.nama + ', berikut bukti pembelian gitar ' + gitarTebus(t) + (t.no_seri ? ' (no. seri ' + t.no_seri + ')' : '') + ' oleh ' + (C.toko && C.toko.nama || 'Toko Gitar AYRI') + ' dengan hak membeli kembali:\n\n' +
+                '• Kode: *' + t.kode + '*\n• Tanggal beli: ' + L.tgl(t.tgl_beli) + '\n• Harga beli: *' + L.rupiah(t.harga_beli) + '*\n' +
+                '• Kakak boleh membeli kembali sampai *' + L.tgl(t.batas_tebus) + '* dengan harga *' + L.rupiah(L.hargaTebus(t)) + '*\n\n' +
+                'Surat perjanjian lengkap: ' + L.urlPerjanjian(t.kode) + '\n(masukkan 4 digit terakhir no. HP Kakak)\n\n' +
+                'Mohon balas *SETUJU* bila data dan ketentuannya sudah sesuai. Terima kasih 🙏';
+        },
+        pengingat: function (t) {
+            var i = L.infoTebus(t);
+            return 'Halo Kak ' + t.nama + ', kami mengingatkan batas membeli kembali gitar ' + gitarTebus(t) + ' (kode *' + t.kode + '*) adalah *' + L.tgl(t.batas_tebus) + '*' +
+                (i.sisa > 0 ? ' (' + i.sisa + ' hari lagi)' : i.sisa === 0 ? ' (hari ini)' : '') + ', dengan harga *' + L.rupiah(i.harga) + '*.\n\n' +
+                'Setelah tanggal tersebut, sesuai perjanjian, gitar menjadi milik toko.\n' + (C.toko && C.toko.jam ? '\nJam buka: ' + C.toko.jam + '\n' : '') +
+                '\nPerjanjian: ' + L.urlPerjanjian(t.kode);
+        },
+        ditebus: function (t) {
+            return 'Halo Kak ' + t.nama + ', terima kasih. Gitar ' + gitarTebus(t) + ' (kode *' + t.kode + '*) sudah Kakak beli kembali pada ' + L.tgl(t.tgl_tebus || L.hariIni()) + ' seharga ' + L.rupiah(L.hargaTebus(t)) + '. Transaksi selesai ✅\n\nBukti: ' + L.urlPerjanjian(t.kode);
+        },
+        berakhir: function (t) {
+            return 'Halo Kak ' + t.nama + ', masa membeli kembali gitar ' + gitarTebus(t) + ' (kode *' + t.kode + '*) telah berakhir pada ' + L.tgl(t.batas_tebus) + '. Sesuai perjanjian, gitar kini sepenuhnya milik toko. Terima kasih atas kerja samanya 🙏\n\nPerjanjian: ' + L.urlPerjanjian(t.kode);
+        }
+    };
     L.rekeningTeks = function () { return (C.toko && C.toko.rekening || []).map(function (r) { return r.bank + ' ' + r.nomor + ' a.n. ' + r.atasNama; }).join(' / '); };
     /* ---------- penitipan gitar yang sudah selesai (dihitung dari tanggal status Selesai) ---------- */
     L.gratisHari = function () { return C.gratisTitipHari == null ? 14 : C.gratisTitipHari; };
@@ -229,9 +287,9 @@
     /* ================= halaman publik: cek status & nota ================= */
     var fotoCache = {};
     L.api = {};
-    L.api.cekPublik = function (kode, hp4) {
+    L.api.cekPublik = function (kode, hp4, jenis) {
         return L.kunciServis(kode, hp4).then(function (k) {
-            return fetch('data/servis/' + k.id + '.json', { cache: 'no-store' }).then(function (r) {
+            return fetch('data/' + (jenis || 'servis') + '/' + k.id + '.json', { cache: 'no-store' }).then(function (r) {
                 if (r.status === 404) return null;
                 if (!r.ok) throw new Error('Gagal memuat (' + r.status + ')');
                 return r.json().then(function (j) { return dekripsi(k.key, unb64(j.d)); }).then(function (buf) { return JSON.parse(td.decode(buf)); });
@@ -339,19 +397,20 @@
     L.api.lupakan = function () { L.api.kunci(); try { localStorage.removeItem(KUNCI_TOKEN); } catch (e) {} return Promise.resolve(); };
 
     /* ---------- data servis & artikel (repo privat) ---------- */
-    var data = { servis: [], artikel: [] };
+    var data = { servis: [], artikel: [], tebus: [] };
     function salin(o) { return JSON.parse(JSON.stringify(o)); }
     function bacaJson(nama) { return bacaFile('data', nama).then(function (t) { return t ? JSON.parse(t) : []; }); }
     L.api.muat = function () {
-        return Promise.all([bacaJson('servis.json'), bacaJson('artikel.json')]).then(function (r) { data.servis = r[0]; data.artikel = r[1]; return salin(data); });
+        return Promise.all([bacaJson('servis.json'), bacaJson('artikel.json'), bacaJson('tebus.json')]).then(function (r) { data.servis = r[0]; data.artikel = r[1]; data.tebus = r[2]; return salin(data); });
     };
-    /* simpan satu catatan ke file daftar: baca versi terbaru dulu supaya perubahan dari perangkat lain tidak tertimpa */
-    function simpanDaftar(nama, rec, hapus) {
+    /* simpan satu catatan ke file daftar: baca versi terbaru dulu supaya perubahan dari perangkat lain tidak tertimpa.
+       file lain di repo data (mis. foto tebus) ikut dalam commit yang sama */
+    function simpanDaftar(nama, rec, hapus, tambahan) {
         return bacaJson(nama).then(function (list) {
             list = list.filter(function (x) { return x.id !== rec.id; });
             if (!hapus) list.unshift(rec);
             list.sort(function (a, b) { return a.created_at < b.created_at ? 1 : -1; });
-            return commit('data', [{ path: nama, teks: JSON.stringify(list, null, 1) + '\n' }], (hapus ? 'Hapus ' : 'Simpan ') + (rec.kode || rec.slug || rec.id)).then(function () { data[nama === 'servis.json' ? 'servis' : 'artikel'] = list; return list; });
+            return commit('data', [{ path: nama, teks: JSON.stringify(list, null, 1) + '\n' }].concat(tambahan || []), (hapus ? 'Hapus ' : 'Simpan ') + (rec.kode || rec.slug || rec.id)).then(function () { data[nama.replace('.json', '')] = list; return list; });
         });
     }
     function sebelumnya(id) { return data.servis.filter(function (x) { return x.id === id; })[0] || null; }
@@ -425,7 +484,8 @@
     /* foto untuk admin: dibaca langsung dari repo (tidak perlu menunggu situs diperbarui) */
     L.api.fotoAdmin = function (s, f, besar) {
         var file = besar ? f.file : (f.thumb || f.file), c = 'a:' + file;
-        if (!fotoCache[c]) fotoCache[c] = bacaFile('situs', 'data/foto/' + file, true).then(function (buf) {
+        /* foto tebus (gitar & KTP) hanya ada di repo PRIVAT; foto servis di repo situs */
+        if (!fotoCache[c]) fotoCache[c] = (f.repo === 'data' ? bacaFile('data', 'foto/' + file, true) : bacaFile('situs', 'data/foto/' + file, true)).then(function (buf) {
             if (!buf) throw new Error('Foto tidak ditemukan');
             return kunciFoto(s.fk).then(function (key) { return dekripsi(key, buf); });
         }).then(function (b) { return URL.createObjectURL(new Blob([b], { type: f.tipe || 'image/webp' })); });
@@ -433,6 +493,64 @@
         return fotoCache[c];
     };
     L.api.cadangan = function () { return salin(data); };
+
+    /* ---------- beli dengan hak tebus ----------
+       Data lengkap + foto (gitar & KTP) hanya di repo PRIVAT (satu commit).
+       Surat perjanjian untuk penjual disimpan terenkripsi di situs (data/tebus), dibuka dengan kode + 4 digit HP. */
+    function versiPerjanjian(t) {
+        return {
+            kode: t.kode, nama: t.nama, hp_samar: '••••' + L.hp4(t.hp), nik_samar: t.nik ? '••••••••••••' + String(t.nik).replace(/\D/g, '').slice(-4) : '',
+            gitar_jenis: t.gitar_jenis, gitar_merk: t.gitar_merk, warna: t.warna || '', no_seri: t.no_seri || '', kelengkapan: t.kelengkapan || '',
+            tgl_beli: t.tgl_beli, harga_beli: t.harga_beli, biaya_admin: t.biaya_admin || 0, batas_tebus: t.batas_tebus, metode: t.metode,
+            status: t.status, tgl_tebus: t.tgl_tebus || null, tgl_berakhir: t.tgl_berakhir || null, disetujui: t.disetujui || null, diperbarui: t.updated_at
+        };
+    }
+    L.api.simpanTebus = function (rec, fotoBaru) {
+        rec = salin(rec); fotoBaru = fotoBaru || [];
+        var baru = !rec.id, lama = baru ? null : data.tebus.filter(function (x) { return x.id === rec.id; })[0] || null, sekarang = new Date().toISOString(), filesData = [];
+        if (baru) {
+            var dipakai = data.tebus.map(function (x) { return x.kode; });
+            do { rec.kode = L.kodeBaru('TBS'); } while (dipakai.indexOf(rec.kode) > -1);
+            rec.id = crypto.randomUUID ? crypto.randomUUID() : acakHex(16); rec.created_at = sekarang;
+        }
+        if (!rec.fk) rec.fk = b64(crypto.getRandomValues(new Uint8Array(32)));
+        rec.foto = rec.foto || []; rec.updated_at = sekarang;
+        if (rec.status === 'ditebus' && !rec.tgl_tebus) rec.tgl_tebus = L.hariIni();
+        if (rec.status === 'milik_toko' && !rec.tgl_berakhir) rec.tgl_berakhir = L.hariIni();
+        return kunciFoto(rec.fk).then(function (fkey) {
+            return fotoBaru.reduce(function (p, fb) {
+                return p.then(function () {
+                    var nama = acakHex(12);
+                    return Promise.all([fb.hasil.besar.arrayBuffer(), fb.hasil.kecil.arrayBuffer()]).then(function (buf) { return Promise.all([enkripsi(fkey, buf[0]), enkripsi(fkey, buf[1])]); }).then(function (ct) {
+                        filesData.push({ path: 'foto/' + nama + '.bin', base64: b64(ct[0]) }, { path: 'foto/' + nama + '-k.bin', base64: b64(ct[1]) });
+                        rec.foto.push({ id: nama, tahap: fb.tahap, file: nama + '.bin', thumb: nama + '-k.bin', tipe: fb.hasil.besar.type, repo: 'data', created_at: sekarang });
+                    });
+                });
+            }, Promise.resolve());
+        }).then(function () {
+            if (lama) (lama.foto || []).forEach(function (f) {
+                if (!rec.foto.some(function (x) { return x.id === f.id; })) filesData.push({ path: 'foto/' + f.file, hapus: true }, { path: 'foto/' + f.thumb, hapus: true });
+            });
+            return L.kunciServis(rec.kode, L.hp4(rec.hp));
+        }).then(function (k) {
+            var filesSitus = [];
+            if (lama && lama.pubId && lama.pubId !== k.id) filesSitus.push({ path: 'data/tebus/' + lama.pubId + '.json', hapus: true });
+            var tulis = rec.status === 'batal' ? Promise.resolve(null) : enkripsi(k.key, te.encode(JSON.stringify(versiPerjanjian(rec))));
+            return tulis.then(function (ct) {
+                if (ct) { rec.pubId = k.id; filesSitus.push({ path: 'data/tebus/' + k.id + '.json', teks: JSON.stringify({ v: 1, d: b64(ct) }) }); }
+                else { if (lama && lama.pubId === k.id) filesSitus.push({ path: 'data/tebus/' + k.id + '.json', hapus: true }); rec.pubId = null; }
+                /* data privat dulu (sumber utama), lalu surat perjanjian di situs */
+                return simpanDaftar('tebus.json', rec, false, filesData).then(function () { return filesSitus.length ? commit('situs', filesSitus, 'Tebus: perbarui surat perjanjian') : null; })
+                    .catch(function (e) { if (data.tebus.some(function (x) { return x.id === rec.id && x.updated_at === rec.updated_at; })) { e.sebagian = true; e.rec = rec; e.message = 'Data tersimpan, tapi surat perjanjian di situs belum diperbarui: ' + e.message + ' Tekan Simpan sekali lagi.'; } throw e; });
+            });
+        }).then(function () { return salin(rec); });
+    };
+    L.api.hapusTebus = function (rec) {
+        var filesData = [];
+        (rec.foto || []).forEach(function (f) { filesData.push({ path: 'foto/' + f.file, hapus: true }, { path: 'foto/' + f.thumb, hapus: true }); });
+        return (rec.pubId ? commit('situs', [{ path: 'data/tebus/' + rec.pubId + '.json', hapus: true }], 'Tebus: hapus surat perjanjian') : Promise.resolve())
+            .then(function () { return simpanDaftar('tebus.json', rec, true, filesData); });
+    };
 
     /* ---------- artikel ---------- */
     L.api.simpanArtikel = function (art) {
