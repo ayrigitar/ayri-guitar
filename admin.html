@@ -39,11 +39,7 @@
         var t = $('#toast'); t.textContent = msg; t.className = 'ly-toast on' + (err ? ' err' : '');
         clearTimeout(toast.t); toast.t = setTimeout(function () { t.className = 'ly-toast'; }, err ? 8000 : 4000);
     }
-    function pesanError(e) {
-        var m = (e && e.message) || String(e);
-        if (/failed to fetch|networkerror|load failed/i.test(m)) return 'Koneksi internet bermasalah. Coba lagi.';
-        return m;
-    }
+    function pesanError(e) { return (e && e.message) || String(e); }
     function gagal(e) { if (window.console) console.error(e); toast(pesanError(e), true); }
     function sibuk(btn, on, teks) {
         if (!btn) return;
@@ -52,10 +48,93 @@
     }
     function setDirty(v) { dirty = v; var d = $('#dirty'); if (d) d.hidden = !v; }
     function opsi(list, cur) { return list.map(function (o) { var v = Array.isArray(o) ? o[0] : o, t = Array.isArray(o) ? o[1] : o; return '<option value="' + E(v) + '"' + (String(v) === String(cur == null ? '' : cur) ? ' selected' : '') + '>' + E(t) + '</option>'; }).join(''); }
-    function gitarNama(s) { return [s.gitar_jenis, s.gitar_merk].filter(Boolean).join(' ') || 'Gitar'; }
     function bukaWa(hp, teks) { window.open(L.waLink(hp, teks), '_blank', 'noopener'); }
     function salin(o) { return JSON.parse(JSON.stringify(o)); }
     function idAcak() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 8); }
+    function pindah(h) { hashLama = h; location.hash = h; }
+    /* data di memori: cari satu catatan, atau taruh hasil simpan (catatan baru paling atas) */
+    function cariId(jenis, id) { return cache[jenis].filter(function (x) { return x.id === id; })[0]; }
+    function taruh(jenis, row) {
+        var i = cache[jenis].map(function (x) { return x.id; }).indexOf(row.id);
+        if (i > -1) cache[jenis][i] = row; else cache[jenis].unshift(row);
+    }
+    /* salinan catatan untuk diedit, atau catatan kosong bila id null. Data yang dibuat dari perangkat lain belum ada
+       di memori: muat ulang dari GitHub sekali sebelum menyerah */
+    function ambilCatatan(jenis, id, kosong, lanjut) {
+        if (!id) return lanjut(kosong());
+        if (cariId(jenis, id)) return lanjut(salin(cariId(jenis, id)));
+        app.innerHTML = '<p class="ly-kosong">Memuat data terbaru…</p>';
+        A.muat().then(function (d) {
+            cache = d; var x = cariId(jenis, id);
+            if (x) lanjut(salin(x)); else app.innerHTML = '<p class="ly-kosong">Data tidak ditemukan. <a href="#' + jenis + '">Kembali ke daftar</a></p>';
+        }).catch(gagal);
+    }
+    /* simpan lewat Layanan.api lalu perbarui data di memori. Gagal sebagian (satu repo sudah berubah, yang lain belum):
+       form memakai catatan yang sudah dibuat, supaya Simpan berikutnya tidak membuat data ganda */
+    function prosesSimpan(jenis, btn, teks, janji, berhasil, pulih) {
+        sibuk(btn, true, teks); menyimpan = true;
+        janji().then(function (row) { menyimpan = false; taruh(jenis, row); setDirty(false); berhasil(row); }, function (e) {
+            menyimpan = false; sibuk(btn, false);
+            if (e.sebagian && e.rec && pulih) { pulih(e.rec); setDirty(true); }
+            gagal(e);
+        });
+    }
+    function teksUnggah(antri) { return antri.length ? 'Mengunggah ' + antri.length + ' foto…' : 'Menyimpan…'; }
+    function konfirmasiKode(pesan, kode) {
+        var k = prompt(pesan + '\nKetik kode (' + kode + ') untuk konfirmasi:');
+        if (k == null) return false;
+        if (k.trim().toUpperCase() !== kode) { toast('Kode tidak cocok, tidak jadi dihapus.', true); return false; }
+        return true;
+    }
+    function hapusData(jenis, rec, btn, hapus, pesan) {
+        sibuk(btn, true, 'Menghapus…');
+        hapus(rec).then(function () { cache[jenis] = cache[jenis].filter(function (x) { return x.id !== rec.id; }); setDirty(false); toast(pesan); location.hash = '#' + jenis; })
+            .catch(function (e) { sibuk(btn, false); gagal(e); });
+    }
+    function kodeBaris(x, lain) { return '<div class="ly-kode">' + E(x.kode) + (lain == null ? ' <small>· 4 digit HP: ' + E(L.hp4(x.hp)) + '</small>' : lain) + '</div>'; }
+
+    /* ---------- foto di form (servis, tebus, stok) ----------
+       foto baru langsung dikecilkan di HP dan menunggu di antrian; diunggah bersama data saat Simpan */
+    var qn = 0;
+    function antriFoto(antri, files, isi, gambar) {
+        if (!files.length) return;
+        var baru = files.map(function (file) { return Object.assign({ qid: 'q' + (++qn), pratinjau: URL.createObjectURL(file), file: file }, isi); });
+        [].push.apply(antri, baru); gambar(); setDirty(true);
+        baru.reduce(function (p, q) {
+            return p.then(function () {
+                return L.kompres(q.file).then(function (h) { URL.revokeObjectURL(q.pratinjau); q.hasil = h; q.file = null; q.pratinjau = URL.createObjectURL(h.kecil); gambar(); });
+            });
+        }, Promise.resolve()).catch(gagal);
+    }
+    function lepasAntri(antri) { antri.forEach(function (q) { URL.revokeObjectURL(q.pratinjau); }); return []; }
+    function buangQ(antri, qid) { return antri.filter(function (q) { if (q.qid !== qid) return true; URL.revokeObjectURL(q.pratinjau); }); }
+    function tombolTampil(on, attr, id) { return '<button type="button" class="ly-ft" ' + attr + '="' + id + '" aria-pressed="' + !!on + '">' + (on ? 'Tampil' : 'Sembunyi') + '</button>'; }
+    /* satu grup foto: yang tersimpan (img data-foto = indeks, diisi L.isiFoto) + antrian. tahap null = semua foto */
+    function grupFoto(judul, tahap, foto, antri, tampil) {
+        var ada = [], tunggu = antri.filter(function (q) { return !tahap || q.tahap === tahap; });
+        foto.forEach(function (f, i) { if (!tahap || f.tahap === tahap) ada.push([f, i]); });
+        return '<div class="ly-fgrup"><h3>' + judul + '<label class="ly-btn ly-btn--sm ly-file">+ Foto<input type="file" accept="image/*" multiple' + (tahap ? ' data-tahap="' + tahap + '"' : '') + '></label></h3>' +
+            (ada.length || tunggu.length ? '<div class="ly-foto">' + ada.map(function (x) {
+                return '<figure><img data-foto="' + x[1] + '" alt="">' + (tampil ? tombolTampil(x[0].tampil, 'data-tampil', x[0].id) : '') + '<button type="button" class="ly-fx" data-hapusfoto="' + x[0].id + '" aria-label="Hapus foto">×</button></figure>';
+            }).join('') + tunggu.map(function (q) {
+                return '<figure' + (q.hasil ? '' : ' class="ly-up"') + '><img src="' + q.pratinjau + '" alt="">' + (tampil ? tombolTampil(q.tampil, 'data-tampilq', q.qid) : '') + '<button type="button" class="ly-fx" data-hapusq="' + q.qid + '" aria-label="Batal">×</button></figure>';
+            }).join('') + '</div>' : '<p class="ly-muted">Belum ada foto.</p>') + '</div>';
+    }
+    function pilihFoto(el, tambah) { el.addEventListener('change', function (e) { if (e.target.type === 'file') { tambah(e.target.dataset.tahap, [].slice.call(e.target.files)); e.target.value = ''; } }); }
+    /* buka WA dulu (harus langsung dari ketukan), lalu catat tanggal pengingat di data */
+    function catatPengingat(jenis, id, btn) {
+        var x = cariId(jenis, id), servis = jenis === 'servis'; if (!x) return;
+        bukaWa(x.hp, (servis ? L.pesan : L.pesanTebus).pengingat(x));
+        var rec = salin(x); rec.pengingat = (rec.pengingat || []).concat(L.hariIni());
+        if (btn) sibuk(btn, true, 'Mencatat…');
+        (servis ? A.simpanServis : A.simpanTebus)(rec).then(function (row) {
+            taruh(jenis, row);
+            var f = servis ? ed && ed.s : te && te.t;
+            if (f && f.id === row.id) { f.pengingat = row.pengingat; f.updated_at = row.updated_at; if (servis && $('#sv-titip')) gambarStatus(); }
+            toast('Pengingat dicatat (' + L.tgl(L.hariIni()) + ').');
+            if (servis) gambarDaftar(); else gambarDaftarTebus();
+        }).catch(function (e) { if (btn) sibuk(btn, false); gagal(e); });
+    }
 
     /* ================= token & PIN ================= */
     function mulai() {
@@ -132,7 +211,7 @@
         $('#cari').addEventListener('input', function () { cari = this.value; gambarDaftar(); });
         $('#filter').addEventListener('click', function (e) { var b = e.target.closest('[data-f]'); if (b) { filter = b.dataset.f; gambarDaftar(); } });
         $('#ingat').addEventListener('click', function (e) { if (e.target.closest('[data-lihat]')) { filter = 'selesai'; cari = ''; $('#cari').value = ''; gambarDaftar(); } });
-        $('#list').addEventListener('click', function (e) { var b = e.target.closest('[data-ingat]'); if (b) { e.preventDefault(); ingatkan(b.dataset.ingat, b); } });
+        $('#list').addEventListener('click', function (e) { var b = e.target.closest('[data-ingat]'); if (b) { e.preventDefault(); catatPengingat('servis', b.dataset.ingat, b); } });
         $('#b-muat').addEventListener('click', function () { var b = this; sibuk(b, true, 'Memuat…'); A.muat().then(function (d) { cache = d; sibuk(b, false); gambarDaftar(); toast('Data terbaru dimuat.'); }).catch(function (e) { sibuk(b, false); gagal(e); }); });
         $('#b-cadang').addEventListener('click', function () {
             var a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify(A.cadangan(), null, 1)], { type: 'application/json' }));
@@ -158,11 +237,11 @@
         var perlu = rows.filter(function (s) { return L.perluIngat(s, hari); }).length;
         $('#ingat').innerHTML = perlu ? '<div class="ly-ingat"><span>🔔 <b>' + perlu + ' gitar</b> sudah selesai tapi belum diambil dan perlu diingatkan.</span><button type="button" class="ly-btn ly-btn--sm" data-lihat>Lihat</button></div>' : '';
         $('#list').innerHTML = hasil.length ? hasil.map(function (s) {
-            var h = L.hitung(s, s.items, s.bayar), telat = s.estimasi && s.estimasi < hari && ['menunggu_dp', 'antri', 'dikerjakan'].indexOf(s.status) > -1;
-            var bayar = !h.total ? 'Biaya belum diisi' : h.lunas ? 'Lunas' : h.kurangAwal && !L.beres(s) ? '<span class="ly-warn">Bayar awal kurang ' + L.rupiah(h.kurangAwal) + '</span>' : 'Sisa ' + L.rupiah(h.sisa);
+            var h = L.hitung(s, s.items, s.bayar), beres = L.beres(s), telat = s.estimasi && s.estimasi < hari && ['menunggu_dp', 'antri', 'dikerjakan'].indexOf(s.status) > -1;
+            var bayar = !h.total ? 'Biaya belum diisi' : h.lunas ? 'Lunas' : h.kurangAwal && !beres ? '<span class="ly-warn">Bayar awal kurang ' + L.rupiah(h.kurangAwal) + '</span>' : 'Sisa ' + L.rupiah(h.sisa);
             return '<div class="ly-item"><a class="ly-item__a" href="#servis/' + s.id + '"><span class="ly-item__k">' + E(s.kode) + '</span></a><span class="st-chip st-' + s.status + '">' + E(L.STATUS[s.status].label) + '</span>' +
-                '<span class="ly-item__t">' + E(gitarNama(s)) + ' · ' + E(s.nama) + '</span>' +
-                '<span class="ly-item__m"><span>Masuk ' + L.tgl(s.tgl_masuk) + '</span>' + (s.estimasi && !L.beres(s) ? '<span' + (telat ? ' class="ly-telat"' : '') + '>Estimasi ' + L.tgl(s.estimasi) + (telat ? ' (lewat)' : '') + '</span>' : '') + '<span>' + bayar + '</span></span>' +
+                '<span class="ly-item__t">' + E(L.namaGitar(s, 'Gitar')) + ' · ' + E(s.nama) + '</span>' +
+                '<span class="ly-item__m"><span>Masuk ' + L.tgl(s.tgl_masuk) + '</span>' + (s.estimasi && !beres ? '<span' + (telat ? ' class="ly-telat"' : '') + '>Estimasi ' + L.tgl(s.estimasi) + (telat ? ' (lewat)' : '') + '</span>' : '') + '<span>' + bayar + '</span></span>' +
                 (s.status === 'selesai' ? infoTitip(s, hari) : '') + '</div>';
         }).join('') : '<p class="ly-kosong">' + (rows.length ? 'Tidak ada yang cocok.' : 'Belum ada data servis. Tekan “+ Gitar masuk”.') + '</p>';
     }
@@ -171,49 +250,31 @@
         var t = L.titip(s, hari); if (!t) return '';
         var teks = t.hariBiaya ? '<span class="ly-telat">Biaya titip ' + t.hariBiaya + ' hari = ' + L.rupiah(t.biaya) + '</span>' : '<span>Gratis titip s/d ' + L.tgl(t.batasGratis) + ' (' + t.sisaGratis + ' hari lagi)</span>';
         if (t.garansiHangus) teks += '<span class="ly-telat">Garansi hangus</span>';
-        if (t.lepas) teks += '<span class="ly-telat">Lewat ' + (C.penyimpananLamaHari || 90) + ' hari</span>';
-        var akhir = (s.pengingat || []).slice(-1)[0];
+        if (t.lepas) teks += '<span class="ly-telat">Lewat ' + C.penyimpananLamaHari + ' hari</span>';
+        var akhir = (s.pengingat || []).slice(-1)[0], perlu = L.perluIngat(s, hari);
         return '<span class="ly-item__m"><span>Selesai ' + t.lama + ' hari lalu</span>' + teks + (akhir ? '<span>Diingatkan ' + L.tgl(akhir) + '</span>' : '') + '</span>' +
-            '<span class="ly-item__b"><button type="button" class="ly-btn ly-btn--sm ' + (L.perluIngat(s, hari) ? 'ly-btn--wa' : '') + '" data-ingat="' + s.id + '">' + (L.perluIngat(s, hari) ? 'Ingatkan via WA' : 'Kirim pengingat') + '</button></span>';
-    }
-    /* buka WA dulu (harus langsung dari ketukan), lalu catat tanggal pengingat di data */
-    function ingatkan(id, btn) {
-        var s = cache.servis.filter(function (x) { return x.id === id; })[0]; if (!s) return;
-        bukaWa(s.hp, L.pesan.pengingat(s));
-        var rec = salin(s); rec.pengingat = (rec.pengingat || []).concat(L.hariIni());
-        if (btn) sibuk(btn, true, 'Mencatat…');
-        A.simpanServis(rec).then(function (row) {
-            cache.servis = cache.servis.map(function (x) { return x.id === row.id ? row : x; });
-            if (ed && ed.s.id === row.id && $('#sv-titip')) { ed.s.pengingat = row.pengingat; ed.s.updated_at = row.updated_at; gambarStatus(); }
-            toast('Pengingat dicatat (' + L.tgl(L.hariIni()) + ').'); gambarDaftar();
-        }).catch(function (e) { if (btn) sibuk(btn, false); gagal(e); });
+            '<span class="ly-item__b"><button type="button" class="ly-btn ly-btn--sm ' + (perlu ? 'ly-btn--wa' : '') + '" data-ingat="' + s.id + '">' + (perlu ? 'Ingatkan via WA' : 'Kirim pengingat') + '</button></span>';
     }
 
     /* ================= form servis (semua perubahan baru dikirim ke GitHub saat Simpan) ================= */
     function servisKosong() {
-        return { nama: '', hp: '', tgl_masuk: L.hariIni(), gitar_jenis: (C.jenisGitar || ['Akustik'])[0], gitar_merk: '', keluhan: '', status: 'menunggu_dp', estimasi: '', diskon: 0, saran: '', catatan_publik: '', catatan_admin: '', izin_publikasi: false, items: [], bayar: [], foto: [] };
-    }
-    /* data dibuat dari perangkat lain belum ada di memori: muat ulang dari GitHub sekali sebelum menyerah */
-    function muatUlangLalu(ada, lanjut, kembali) {
-        app.innerHTML = '<p class="ly-kosong">Memuat data terbaru…</p>';
-        A.muat().then(function (d) { cache = d; if (ada()) lanjut(); else app.innerHTML = '<p class="ly-kosong">Data tidak ditemukan. <a href="' + kembali + '">Kembali ke daftar</a></p>'; }).catch(gagal);
+        return { nama: '', hp: '', tgl_masuk: L.hariIni(), gitar_jenis: C.jenisGitar[0], gitar_merk: '', keluhan: '', status: 'menunggu_dp', estimasi: '', diskon: 0, saran: '', catatan_publik: '', catatan_admin: '', izin_publikasi: false, items: [], bayar: [], foto: [] };
     }
     function bukaServis(id) {
-        var s = id ? cache.servis.filter(function (x) { return x.id === id; })[0] : servisKosong();
-        if (!s) return muatUlangLalu(function () { return cache.servis.some(function (x) { return x.id === id; }); }, function () { bukaServis(id); }, '#servis');
-        s = salin(s);
-        ed = { baru: !id, s: s, items: s.items || [], bayar: s.bayar || [], foto: s.foto || [], antri: [] };
-        gambarServis();
+        ambilCatatan('servis', id, servisKosong, function (s) {
+            s.items = s.items || []; s.bayar = s.bayar || []; s.foto = s.foto || [];
+            ed = { baru: !id, s: s, antri: [] }; gambarServis();
+        });
     }
     function gambarServis() {
         var s = ed.s, katalog = {}, kat = '';
-        (C.katalogJasa || []).forEach(function (k, i) { (katalog[k.grup] = katalog[k.grup] || []).push('<option value="' + i + '">' + E(k.nama) + (k.harga ? ' – ' + L.rupiah(k.harga) : '') + '</option>'); });
+        C.katalogJasa.forEach(function (k, i) { (katalog[k.grup] = katalog[k.grup] || []).push('<option value="' + i + '">' + E(k.nama) + (k.harga ? ' – ' + L.rupiah(k.harga) : '') + '</option>'); });
         for (var g in katalog) kat += '<optgroup label="' + E(g) + '">' + katalog[g].join('') + '</optgroup>';
-        var jenis = (C.jenisGitar || []).slice(); if (s.gitar_jenis && jenis.indexOf(s.gitar_jenis) < 0) jenis.push(s.gitar_jenis);
+        var jenis = C.jenisGitar.slice(); if (s.gitar_jenis && jenis.indexOf(s.gitar_jenis) < 0) jenis.push(s.gitar_jenis);
         app.innerHTML = '<section id="sv" class="ly-f">' +
             '<div class="ly-head"><a class="ly-back" href="#servis">‹ Daftar servis</a></div>' +
-            '<div class="ly-head"><h1>' + (ed.baru ? 'Gitar masuk' : E(gitarNama(s))) + '</h1>' + (ed.baru ? '' : '<span class="st-chip st-' + s.status + '" id="sv-chip">' + E(L.STATUS[s.status].label) + '</span>') + '</div>' +
-            (ed.baru ? '<p class="ly-muted">Kode servis dibuat otomatis saat disimpan.</p>' : '<div class="ly-kode">' + E(s.kode) + ' <span class="ly-muted" style="font:600 .8rem var(--font-sans);letter-spacing:0">· 4 digit HP: ' + E(L.hp4(s.hp)) + '</span></div>') +
+            '<div class="ly-head"><h1>' + (ed.baru ? 'Gitar masuk' : E(L.namaGitar(s, 'Gitar'))) + '</h1>' + (ed.baru ? '' : '<span class="st-chip st-' + s.status + '" id="sv-chip">' + E(L.STATUS[s.status].label) + '</span>') + '</div>' +
+            (ed.baru ? '<p class="ly-muted">Kode servis dibuat otomatis saat disimpan.</p>' : kodeBaris(s)) +
 
             '<fieldset class="ly-card ly-f"><legend>Pelanggan</legend>' +
             '<label>Nama<input data-f="nama" autocomplete="off" required></label>' +
@@ -238,7 +299,7 @@
             '<div class="ly-row2"><label>Metode<select id="by-metode">' + opsi([['tunai', 'Tunai'], ['transfer', 'Transfer'], ['qris', 'QRIS']], 'tunai') + '</select></label><label>Tanggal<input type="date" id="by-tgl"></label></div>' +
             '<button type="button" class="ly-btn" id="by-tambah">Catat pembayaran</button></div></fieldset>' +
 
-            '<fieldset class="ly-card"><legend>Status</legend><div class="ly-status" id="sv-status"></div><div id="sv-titip"></div><p class="ly-hint" style="margin-top:8px">Aturan toko: gitar dikerjakan setelah DP ' + L.dpPersen() + '% jasa + part lunas. Status otomatis pindah ke <b>Antri</b> saat pembayaran awal terpenuhi.</p></fieldset>' +
+            '<fieldset class="ly-card"><legend>Status</legend><div class="ly-status" id="sv-status"></div><div id="sv-titip"></div><p class="ly-hint" style="margin-top:8px">Status otomatis pindah ke <b>Antri</b> saat bayar awal terpenuhi.</p></fieldset>' +
 
             '<fieldset class="ly-card"><legend>Foto</legend><div id="sv-foto"></div><p class="ly-hint" style="margin-top:10px">Foto dikecilkan otomatis (WebP ±150 KB) dan dikunci sebelum diunggah. Label <b>Tampil</b> = terlihat pelanggan; ketuk untuk menyembunyikan. Foto sesudah servis baru terlihat pelanggan saat status Selesai, berdampingan dengan foto sebelum servis sebagai pembanding.</p></fieldset>' +
 
@@ -272,14 +333,14 @@
         sv.addEventListener('input', ubahField); sv.addEventListener('change', ubahField);
         sv.addEventListener('click', klikServis);
         $('#sv-katalog').addEventListener('change', function () {
-            var k = (C.katalogJasa || [])[+this.value]; this.value = ''; if (!k) return;
-            ed.items.push({ jenis: 'jasa', nama: k.nama, harga: k.harga || 0, qty: 1, garansi: k.garansi || '', garansi_syarat: k.jatuh ? C.syaratJatuh : '' });
+            var k = C.katalogJasa[+this.value]; this.value = ''; if (!k) return;
+            ed.s.items.push({ jenis: 'jasa', nama: k.nama, harga: k.harga || 0, qty: 1, garansi: k.garansi || '', garansi_syarat: k.jatuh ? C.syaratJatuh : '' });
             gambarItems(); gambarRingkas(); setDirty(true);
             if (!k.harga) { var ins = $$('#sv-items [data-k="harga"]'); ins[ins.length - 1].focus(); }
         });
         $('#by-tambah').addEventListener('click', tambahBayar);
         $('#sv-simpan').addEventListener('click', simpanServis);
-        $('#sv-foto').addEventListener('change', function (e) { if (e.target.type === 'file') { tambahFoto(e.target.dataset.tahap, [].slice.call(e.target.files)); e.target.value = ''; } });
+        pilihFoto($('#sv-foto'), function (tahap, files) { antriFoto(ed.antri, files, { tahap: tahap, tampil: true }, gambarFoto); });
         if (!ed.baru) { $('#sv-artikel').addEventListener('click', jadikanArtikel); $('#sv-hapus').addEventListener('click', hapusServis); }
     }
     function ubahField(e) {
@@ -288,14 +349,14 @@
             ed.s[t.dataset.f] = t.type === 'checkbox' ? t.checked : t.dataset.f === 'diskon' ? Math.max(0, Math.round(+t.value || 0)) : t.value;
             setDirty(true); if (t.dataset.f === 'diskon') gambarRingkas();
         } else if (t.dataset.k) {
-            var it = ed.items[+t.closest('[data-i]').dataset.i], k = t.dataset.k;
+            var it = ed.s.items[+t.closest('[data-i]').dataset.i], k = t.dataset.k;
             if (k === 'jatuh') it.garansi_syarat = t.checked ? C.syaratJatuh : '';
             else it[k] = k === 'harga' || k === 'qty' ? Math.max(k === 'qty' ? 1 : 0, Math.round(+t.value || 0)) : t.value;
             setDirty(true); if (k === 'harga' || k === 'qty') gambarRingkas();
         }
     }
     function gambarItems() {
-        $('#sv-items').innerHTML = ed.items.length ? ed.items.map(function (it, i) {
+        $('#sv-items').innerHTML = ed.s.items.length ? ed.s.items.map(function (it, i) {
             var hapus = '<button type="button" class="ly-x" data-del="' + i + '" aria-label="Hapus">×</button>';
             if (it.jenis === 'part') return '<div class="ly-it" data-i="' + i + '"><div class="ly-it__tag">Part' + hapus + '</div>' +
                 '<input class="ly-in ly-it__n" data-k="nama" placeholder="Nama part, mis. Senar Elixir 11" value="' + E(it.nama) + '" aria-label="Nama part">' +
@@ -309,7 +370,7 @@
         }).join('') : '<p class="ly-muted">Belum ada jasa. Pilih dari daftar di bawah.</p>';
     }
     function gambarRingkas() {
-        var h = L.hitung(ed.s, ed.items, ed.bayar);
+        var h = L.hitung(ed.s, ed.s.items, ed.s.bayar);
         $('#sv-sum').innerHTML = '<div><span>Jasa</span><span>' + L.rupiah(h.jasa) + '</span></div>' + (h.part ? '<div><span>Part</span><span>' + L.rupiah(h.part) + '</span></div>' : '') +
             (h.diskon ? '<div><span>Diskon</span><span>' + L.rupiah(-h.diskon) + '</span></div>' : '') +
             '<div class="ly-total"><span>Total</span><span>' + L.rupiah(h.total) + '</span></div>' +
@@ -322,7 +383,7 @@
         var bj = $('#by-jenis'); if (bj && !bj.dataset.manual) bj.value = h.kurangAwal ? 'dp' : h.sisa ? 'pelunasan' : 'tambahan';
     }
     function gambarBayar() {
-        $('#sv-bayar').innerHTML = ed.bayar.length ? ed.bayar.map(function (b, i) {
+        $('#sv-bayar').innerHTML = ed.s.bayar.length ? ed.s.bayar.map(function (b, i) {
             return '<div><span>' + L.tgl(b.tgl) + ' · ' + ({ dp: 'DP', pelunasan: 'Pelunasan', tambahan: 'Tambahan' })[b.jenis] + ' · ' + ({ tunai: 'Tunai', transfer: 'Transfer', qris: 'QRIS' })[b.metode] + (b.baru ? ' <small class="ly-muted">(belum disimpan)</small>' : '') + '</span><b>' + L.rupiah(b.jumlah) + '</b>' +
                 '<button type="button" class="ly-x" data-delbayar="' + i + '" aria-label="Hapus pembayaran">×</button></div>';
         }).join('') : '<p class="ly-muted">Belum ada pembayaran.</p>';
@@ -332,111 +393,85 @@
         /* penitipan: hanya untuk data yang sudah tersimpan sebagai Selesai/Diambil */
         var el = $('#sv-titip'), t = !ed.baru && ed.s.tgl_selesai && L.titip(ed.s); if (!el) return;
         if (!t) { el.innerHTML = ''; return; }
-        var sudah = ed.items.some(function (i) { return /^Biaya penitipan/i.test(i.nama); });
+        var sudah = ed.s.items.some(function (i) { return /^Biaya penitipan/i.test(i.nama); });
         el.innerHTML = '<div class="ly-ingat ly-ingat--info"><span>Selesai ' + L.tgl(ed.s.tgl_selesai) + ' (' + t.lama + ' hari' + (ed.s.status === 'diambil' ? ' sampai diambil' : ' lalu') + '). ' +
             (t.hariBiaya ? '<b>Biaya penitipan ' + t.hariBiaya + ' hari × ' + L.rupiah(L.biayaTitip()) + ' = ' + L.rupiah(t.biaya) + '</b>.' : 'Gratis titip s/d ' + L.tgl(t.batasGratis) + '.') +
-            (t.garansiHangus ? ' <b class="ly-telat">Garansi hangus</b> (lewat ' + (C.garansiHangusHari || 30) + ' hari).' : '') +
+            (t.garansiHangus ? ' <b class="ly-telat">Garansi hangus</b> (lewat ' + C.garansiHangusHari + ' hari).' : '') +
             ((ed.s.pengingat || []).length ? ' Diingatkan: ' + ed.s.pengingat.map(L.tgl).join(', ') + '.' : '') + '</span>' +
             (t.hariBiaya && !sudah ? '<button type="button" class="ly-btn ly-btn--sm" data-titip>+ Tambah biaya penitipan</button>' : '') + '</div>';
     }
     function gambarFoto() {
-        $('#sv-foto').innerHTML = ['sebelum', 'kerusakan', 'sesudah'].map(function (t) {
-            var ada = [], tunggu = ed.antri.filter(function (f) { return f.tahap === t; });
-            ed.foto.forEach(function (f, i) { if (f.tahap === t) ada.push([f, i]); });
-            return '<div class="ly-fgrup"><h3>' + L.TAHAP[t] + '<label class="ly-btn ly-btn--sm ly-file">+ Foto<input type="file" accept="image/*" multiple data-tahap="' + t + '"></label></h3>' +
-                (ada.length || tunggu.length ? '<div class="ly-foto">' + ada.map(function (x) {
-                    var f = x[0];
-                    return '<figure><img data-foto="' + x[1] + '" alt=""><button type="button" class="ly-ft" data-tampil="' + f.id + '" aria-pressed="' + !!f.tampil + '">' + (f.tampil ? 'Tampil' : 'Sembunyi') + '</button><button type="button" class="ly-fx" data-hapusfoto="' + f.id + '" aria-label="Hapus foto">×</button></figure>';
-                }).join('') + tunggu.map(function (f) {
-                    return '<figure' + (f.hasil ? '' : ' class="ly-up"') + '><img src="' + f.pratinjau + '" alt=""><button type="button" class="ly-ft" data-tampilq="' + f.qid + '" aria-pressed="' + f.tampil + '">' + (f.tampil ? 'Tampil' : 'Sembunyi') + '</button><button type="button" class="ly-fx" data-hapusq="' + f.qid + '" aria-label="Batal">×</button></figure>';
-                }).join('') + '</div>' : '<p class="ly-muted">Belum ada foto.</p>') + '</div>';
-        }).join('');
-        L.isiFoto($('#sv-foto'), Object.assign({}, ed.s, { foto: ed.foto }), A.fotoAdmin);
+        var el = $('#sv-foto'); if (!el) return;
+        el.innerHTML = ['sebelum', 'kerusakan', 'sesudah'].map(function (t) { return grupFoto(L.TAHAP[t], t, ed.s.foto, ed.antri, true); }).join('');
+        L.isiFoto(el, ed.s, A.fotoAdmin);
     }
     function klikServis(e) {
         var t = e.target.closest('button, [data-act]'); if (!t) return;
         var d = t.dataset;
-        if (d.act) { ed.items.push({ jenis: d.act === 'part' ? 'part' : 'jasa', nama: '', harga: 0, qty: 1, garansi: '', garansi_syarat: '' }); gambarItems(); gambarRingkas(); setDirty(true); var n = $$('#sv-items [data-k="nama"]'); n[n.length - 1].focus(); }
-        else if (d.del != null) { ed.items.splice(+d.del, 1); gambarItems(); gambarRingkas(); setDirty(true); }
+        if (d.act) { ed.s.items.push({ jenis: d.act === 'part' ? 'part' : 'jasa', nama: '', harga: 0, qty: 1, garansi: '', garansi_syarat: '' }); gambarItems(); gambarRingkas(); setDirty(true); var n = $$('#sv-items [data-k="nama"]'); n[n.length - 1].focus(); }
+        else if (d.del != null) { ed.s.items.splice(+d.del, 1); gambarItems(); gambarRingkas(); setDirty(true); }
         else if (d.status) ubahStatus(d.status);
         else if (d.delbayar != null) hapusBayar(+d.delbayar);
-        else if (d.tampil) { ed.foto.forEach(function (f) { if (f.id === d.tampil) f.tampil = !f.tampil; }); gambarFoto(); setDirty(true); }
-        else if (d.hapusfoto) { if (confirm('Hapus foto ini? (terhapus permanen saat Simpan)')) { ed.foto = ed.foto.filter(function (f) { return f.id !== d.hapusfoto; }); gambarFoto(); setDirty(true); } }
-        else if (d.tampilq) { ed.antri.forEach(function (f) { if (f.qid === d.tampilq) f.tampil = !f.tampil; }); gambarFoto(); }
-        else if (d.hapusq) { ed.antri = ed.antri.filter(function (f) { return f.qid !== d.hapusq; }); gambarFoto(); setDirty(ed.antri.length > 0 || dirty); }
+        else if (d.tampil || d.tampilq) {
+            /* cukup ganti tombolnya, foto tidak perlu digambar ulang */
+            var f = d.tampil ? ed.s.foto.filter(function (x) { return x.id === d.tampil; })[0] : ed.antri.filter(function (x) { return x.qid === d.tampilq; })[0];
+            f.tampil = !f.tampil; t.setAttribute('aria-pressed', f.tampil); t.textContent = f.tampil ? 'Tampil' : 'Sembunyi'; if (d.tampil) setDirty(true);
+        }
+        else if (d.hapusfoto) { if (confirm('Hapus foto ini? (terhapus permanen saat Simpan)')) { ed.s.foto = ed.s.foto.filter(function (f) { return f.id !== d.hapusfoto; }); gambarFoto(); setDirty(true); } }
+        else if (d.hapusq) { ed.antri = buangQ(ed.antri, d.hapusq); gambarFoto(); setDirty(ed.antri.length > 0 || dirty); }
         else if (d.wa) kirimWa(d.wa);
         else if (t.hasAttribute('data-titip')) {
             var tt = L.titip(ed.s);
-            ed.items.push({ jenis: 'jasa', nama: 'Biaya penitipan (' + tt.hariBiaya + ' hari)', harga: tt.biaya, qty: 1, garansi: '', garansi_syarat: '' });
+            ed.s.items.push({ jenis: 'jasa', nama: 'Biaya penitipan (' + tt.hariBiaya + ' hari)', harga: tt.biaya, qty: 1, garansi: '', garansi_syarat: '' });
             gambarItems(); gambarRingkas(); gambarStatus(); setDirty(true); toast('Biaya penitipan ditambahkan ke rincian. Tekan Simpan.');
         }
     }
     function ubahStatus(st) {
-        var h = L.hitung(ed.s, ed.items, ed.bayar);
+        var h = L.hitung(ed.s, ed.s.items, ed.s.bayar);
         if (st === ed.s.status) return;
         if ((st === 'dikerjakan' || st === 'antri') && h.kurangAwal > 0 && !confirm('Pembayaran awal masih kurang ' + L.rupiah(h.kurangAwal) + '. Aturan toko: dikerjakan setelah DP dan part lunas.\n\nTetap ubah status?')) return;
         if (st === 'diambil' && h.sisa > 0 && !confirm('Masih ada sisa pembayaran ' + L.rupiah(h.sisa) + '. Tandai sudah diambil?')) return;
         if (st === 'batal' && !confirm('Tandai servis ini dibatalkan? Pelanggan tidak bisa lagi membuka status dan notanya.')) return;
         ed.s.status = st; gambarStatus(); gambarRingkas(); setDirty(true);
-        if (st === 'selesai' && !ed.foto.concat(ed.antri).some(function (f) { return f.tahap === 'sesudah'; })) toast('Jangan lupa tambahkan foto sesudah servis dan saran untuk pelanggan.');
+        if (st === 'selesai' && !ed.s.foto.concat(ed.antri).some(function (f) { return f.tahap === 'sesudah'; })) toast('Jangan lupa tambahkan foto sesudah servis dan saran untuk pelanggan.');
     }
     function tambahBayar() {
         var jml = Math.round(+$('#by-jml').value || 0); if (jml <= 0) return toast('Isi jumlah pembayaran.', true);
-        ed.bayar.push({ id: idAcak(), tgl: $('#by-tgl').value || L.hariIni(), jumlah: jml, jenis: $('#by-jenis').value, metode: $('#by-metode').value, baru: true });
+        ed.s.bayar.push({ id: idAcak(), tgl: $('#by-tgl').value || L.hariIni(), jumlah: jml, jenis: $('#by-jenis').value, metode: $('#by-metode').value, baru: true });
         delete $('#by-jml').dataset.manual; delete $('#by-jenis').dataset.manual;
         gambarBayar(); gambarRingkas(); setDirty(true);
         toast('Pembayaran dicatat. Tekan Simpan untuk menyimpan.');
     }
     function hapusBayar(i) {
-        var by = ed.bayar[i]; if (!confirm('Hapus pembayaran ' + L.rupiah(by.jumlah) + ' tanggal ' + L.tgl(by.tgl) + '?')) return;
-        ed.bayar.splice(i, 1); gambarBayar(); gambarRingkas(); setDirty(true);
+        var by = ed.s.bayar[i]; if (!confirm('Hapus pembayaran ' + L.rupiah(by.jumlah) + ' tanggal ' + L.tgl(by.tgl) + '?')) return;
+        ed.s.bayar.splice(i, 1); gambarBayar(); gambarRingkas(); setDirty(true);
     }
     document.addEventListener('input', function (e) { if (e.target.id === 'by-jml' || e.target.id === 'by-jenis') e.target.dataset.manual = '1'; });
 
-    /* foto langsung dikecilkan di HP; diunggah bersama data saat Simpan */
-    var qn = 0;
-    function tambahFoto(tahap, files) {
-        if (!files.length) return;
-        var baru = files.map(function (file) { return { qid: 'q' + (++qn), tahap: tahap, tampil: true, pratinjau: URL.createObjectURL(file), file: file }; });
-        ed.antri = ed.antri.concat(baru); gambarFoto(); setDirty(true);
-        baru.reduce(function (p, q) {
-            return p.then(function () { return L.kompres(q.file).then(function (hasil) { q.hasil = hasil; q.file = null; if ($('#sv-foto')) gambarFoto(); }); });
-        }, Promise.resolve()).catch(gagal);
-    }
 
     /* ---------- simpan ---------- */
     function validasi() {
         var s = ed.s;
         if (!String(s.nama).trim()) return 'Nama pelanggan belum diisi.';
         if (String(s.hp).replace(/\D/g, '').length < 8) return 'No. HP belum benar (minimal 8 angka).';
-        if (ed.items.some(function (i) { return !String(i.nama).trim(); })) return 'Ada jasa/part yang namanya kosong.';
+        if (ed.s.items.some(function (i) { return !String(i.nama).trim(); })) return 'Ada jasa/part yang namanya kosong.';
         if (ed.antri.some(function (q) { return !q.hasil; })) return 'Foto masih diproses, tunggu sebentar.';
         return '';
     }
     function simpanServis() {
         var err = validasi(); if (err) return toast(err, true);
-        var b = $('#sv-simpan'), baru = ed.baru, statusAwal = ed.s.status;
-        var rec = Object.assign({}, ed.s, { nama: String(ed.s.nama).trim(), hp: String(ed.s.hp).trim(), items: ed.items, bayar: ed.bayar.map(function (x) { var y = Object.assign({}, x); delete y.baru; return y; }), foto: ed.foto });
+        var baru = ed.baru, statusAwal = ed.s.status;
+        var rec = Object.assign({}, ed.s, { nama: String(ed.s.nama).trim(), hp: String(ed.s.hp).trim(), bayar: ed.s.bayar.map(function (x) { var y = Object.assign({}, x); delete y.baru; return y; }) });
         var h = L.hitung(rec, rec.items, rec.bayar);
         if (rec.status === 'menunggu_dp' && h.total > 0 && h.kurangAwal === 0) rec.status = 'antri';
         var fotoBaru = ed.antri.map(function (q) { return { hasil: q.hasil, tahap: q.tahap, tampil: q.tampil }; });
-        sibuk(b, true, fotoBaru.length ? 'Mengunggah ' + fotoBaru.length + ' foto…' : 'Menyimpan…'); menyimpan = true;
-        A.simpanServis(rec, fotoBaru).then(function (row) { selesai(row); })
-            .catch(function (e) {
-                menyimpan = false; sibuk(b, false);
-                if (e.sebagian && e.rec) { ed.s = e.rec; ed.foto = e.rec.foto; ed.antri = []; ed.baru = false; gambarFoto(); setDirty(true); }
-                gagal(e);
-            });
-        function selesai(row) {
-            menyimpan = false;
-            cache.servis = cache.servis.filter(function (x) { return x.id !== row.id; }); cache.servis.unshift(row);
-            var r2 = salin(row); ed = { baru: false, s: r2, items: r2.items, bayar: r2.bayar, foto: r2.foto, antri: [] };
-            setDirty(false);
+        prosesSimpan('servis', $('#sv-simpan'), teksUnggah(fotoBaru), function () { return A.simpanServis(rec, fotoBaru); }, function (row) {
+            lepasAntri(ed.antri); ed = { baru: false, s: salin(row), antri: [] };
             var pesan = baru ? 'Tersimpan. Kode servis: ' + row.kode + '. Kirim tanda terima lewat tombol WA.' : 'Tersimpan. Halaman pelanggan diperbarui ±1 menit lagi.';
             if (statusAwal === 'menunggu_dp' && row.status === 'antri') pesan += ' Status otomatis menjadi Antri.';
             toast(pesan);
-            if (baru) { hashLama = '#servis/' + row.id; location.hash = hashLama; } else gambarServis();
-        }
+            if (baru) pindah('#servis/' + row.id); else gambarServis();
+        }, function (r) { lepasAntri(ed.antri); ed = { baru: false, s: r, antri: [] }; gambarFoto(); });
     }
 
     /* ---------- kirim WA, artikel, hapus ---------- */
@@ -444,15 +479,15 @@
         if (dirty) return toast('Simpan perubahan dulu, supaya yang dilihat pelanggan sudah terbaru.', true);
         if (jenis === 'pengingat') {
             if (ed.s.status !== 'selesai') return toast('Pengingat ambil hanya untuk status Selesai.', true);
-            return ingatkan(ed.s.id, null);
+            return catatPengingat('servis', ed.s.id);
         }
         bukaWa(ed.s.hp, L.pesan[jenis](ed.s));
     }
     function jadikanArtikel() {
         if (dirty) return toast('Simpan perubahan dulu.', true);
         if (!ed.s.izin_publikasi && !confirm('Pelanggan belum dicentang setuju fotonya dipakai untuk artikel. Tetap buat draf?')) return;
-        var s = ed.s, jasa = ed.items.filter(function (i) { return i.jenis !== 'part'; }).map(function (i) { return i.nama.replace(/\s*\+\s*Basic Setup/i, ''); }),
-            part = ed.items.filter(function (i) { return i.jenis === 'part'; }).map(function (i) { return i.nama; }), gitar = gitarNama(s);
+        var s = ed.s, jasa = s.items.filter(function (i) { return i.jenis !== 'part'; }).map(function (i) { return i.nama.replace(/\s*\+\s*Basic Setup/i, ''); }),
+            part = s.items.filter(function (i) { return i.jenis === 'part'; }).map(function (i) { return i.nama; }), gitar = L.namaGitar(s, 'Gitar');
         var judul = (jasa[0] || 'Servis Gitar') + ' ' + (s.gitar_merk || s.gitar_jenis || '') + (s.keluhan ? ': ' + s.keluhan.split(/[.,;\n]/)[0].trim() : '');
         judul = judul.replace(/\s+/g, ' ').trim().slice(0, 110);
         var isi = ['## Kondisi gitar saat masuk', s.keluhan || '(Ceritakan keluhan pelanggan dan kondisi gitar saat datang.)', '', '## Yang kami kerjakan']
@@ -465,28 +500,21 @@
         var draf = {
             judul: judul, slug: slug, tag: 'Hasil Servis', status: 'draf', servis_id: s.id, isi: isi,
             ringkasan: ('Hasil ' + (jasa.join(', ') || 'servis') + ' gitar ' + gitar + ' di Toko Gitar AYRI Bogor, lengkap dengan foto sebelum dan sesudah.').slice(0, 160),
-            foto: ed.foto.slice().sort(function (a, b) { return urutan.indexOf(a.tahap) - urutan.indexOf(b.tahap); })
+            foto: s.foto.slice().sort(function (a, b) { return urutan.indexOf(a.tahap) - urutan.indexOf(b.tahap); })
                 .map(function (f) { return { servis: s.id, foto: f.id, alt: L.TAHAP[f.tahap] + ': ' + gitar }; })
         };
         var b = $('#sv-artikel'); sibuk(b, true, 'Membuat draf…');
         A.simpanArtikel(draf).then(function (row) {
-            cache.artikel.unshift(row); toast('Draf artikel dibuat. Rapikan tulisannya, lalu terbitkan.');
-            hashLama = '#artikel/' + row.id; location.hash = hashLama;
+            taruh('artikel', row); toast('Draf artikel dibuat. Rapikan tulisannya, lalu terbitkan.');
+            pindah('#artikel/' + row.id);
         }).catch(function (e) { sibuk(b, false); gagal(e); });
     }
     function hapusServis() {
-        var k = prompt('Menghapus servis juga menghapus semua fotonya dan tidak bisa dibatalkan.\nKetik kode servis (' + ed.s.kode + ') untuk konfirmasi:');
-        if (k == null) return;
-        if (k.trim().toUpperCase() !== ed.s.kode) return toast('Kode tidak cocok, tidak jadi dihapus.', true);
-        var b = $('#sv-hapus'); sibuk(b, true, 'Menghapus…');
-        A.hapusServis(ed.s).then(function () {
-            cache.servis = cache.servis.filter(function (x) { return x.id !== ed.s.id; }); setDirty(false); toast('Servis dihapus.'); location.hash = '#servis';
-        }).catch(function (e) { sibuk(b, false); gagal(e); });
+        if (konfirmasiKode('Menghapus servis juga menghapus semua fotonya dan tidak bisa dibatalkan.', ed.s.kode)) hapusData('servis', ed.s, $('#sv-hapus'), A.hapusServis, 'Servis dihapus.');
     }
 
     /* ================= beli dengan hak tebus ================= */
-    var TB = C.tebus || {};
-    function tglPlus(s, n) { var d = L.tglObj(s) || new Date(); d.setDate(d.getDate() + n); return L.tglStr(d); }
+    var TB = C.tebus;
     function chipTebus(t) {
         var lewat = t.status === 'aktif' && L.infoTebus(t).lewat;
         var k = lewat ? 'st-menunggu_dp' : ({ aktif: 'st-antri', ditebus: 'st-selesai', milik_toko: 'st-diambil', batal: 'st-batal' })[t.status];
@@ -502,8 +530,8 @@
             else if (e.target.closest('[data-lihatktp]')) { filterTb = 'semua'; gambarDaftarTebus(); }
         });
         $('#list').addEventListener('click', function (e) {
-            var b = e.target.closest('[data-ingat]'); if (b) { e.preventDefault(); ingatkanTebus(b.dataset.ingat, b); return; }
-            var k = e.target.closest('[data-hapusktp]'); if (k) { e.preventDefault(); var t = cache.tebus.filter(function (x) { return x.id === k.dataset.hapusktp; })[0]; if (t) hapusKtp(t, k, gambarDaftarTebus); }
+            var b = e.target.closest('[data-ingat]'); if (b) { e.preventDefault(); catatPengingat('tebus', b.dataset.ingat, b); return; }
+            var k = e.target.closest('[data-hapusktp]'); if (k) { e.preventDefault(); var t = cariId('tebus', k.dataset.hapusktp); if (t) hapusKtp(t, k, gambarDaftarTebus); }
         });
         gambarDaftarTebus();
     }
@@ -520,45 +548,30 @@
         var hasil = rows.filter(function (t) { return filterTb === 'semua' || t.status === filterTb; });
         if (filterTb === 'aktif') hasil.sort(function (a, b) { return a.batas_tebus < b.batas_tebus ? -1 : 1; });
         $('#list').innerHTML = hasil.length ? hasil.map(function (t) {
-            var i = L.infoTebus(t, hari), akhir = (t.pengingat || []).slice(-1)[0], perluIngat = L.perluIngatTebus(t, hari);
+            var i = L.infoTebus(t, hari), akhir = (t.pengingat || []).slice(-1)[0], perluIngat = L.perluIngatTebus(t, hari), ktpHapus = ktp.indexOf(t) > -1;
             var batas = t.status !== 'aktif' ? '' : i.lewat ? '<span class="ly-telat">Lewat batas ' + (-i.sisa) + ' hari (' + L.tgl(t.batas_tebus) + ')</span>' : '<span>Batas ' + L.tgl(t.batas_tebus) + ' (' + i.sisa + ' hari lagi)</span>';
             return '<div class="ly-item"><a class="ly-item__a" href="#tebus/' + t.id + '"><span class="ly-item__k">' + E(t.kode) + '</span></a>' + chipTebus(t) +
-                '<span class="ly-item__t">' + E(gitarNama(t)) + ' · ' + E(t.nama) + '</span>' +
-                '<span class="ly-item__m"><span>Beli ' + L.tgl(t.tgl_beli) + ' ' + L.rupiah(t.harga_beli) + '</span><span>Tebus ' + L.rupiah(i.harga) + '</span>' + batas +
+                '<span class="ly-item__t">' + E(L.namaGitar(t, 'Gitar')) + ' · ' + E(t.nama) + '</span>' +
+                '<span class="ly-item__m"><span>Beli ' + L.tgl(t.tgl_beli) + ' ' + L.rupiah(t.harga_beli) + '</span>' + batas +
                 (t.disetujui ? '' : '<span class="ly-warn">Belum ada balasan SETUJU</span>') + (akhir ? '<span>Diingatkan ' + L.tgl(akhir) + '</span>' : '') + '</span>' +
                 (t.status === 'aktif' ? '<span class="ly-item__b"><button type="button" class="ly-btn ly-btn--sm ' + (perluIngat ? 'ly-btn--wa' : '') + '" data-ingat="' + t.id + '">' + (perluIngat ? 'Ingatkan via WA' : 'Kirim pengingat') + '</button></span>' : '') +
-                (L.ktpBisaDihapus(t, hari) ? '<span class="ly-item__b"><button type="button" class="ly-btn ly-btn--sm ly-btn--del" data-hapusktp="' + t.id + '">Hapus foto KTP</button></span>' : '') + '</div>';
+                (ktpHapus ? '<span class="ly-item__b"><button type="button" class="ly-btn ly-btn--sm ly-btn--del" data-hapusktp="' + t.id + '">Hapus foto KTP</button></span>' : '') + '</div>';
         }).join('') : '<p class="ly-kosong">' + (rows.length ? 'Tidak ada di kategori ini.' : 'Belum ada data. Tekan “+ Beli gitar”.') + '</p>';
-    }
-    function ingatkanTebus(id, btn) {
-        var t = cache.tebus.filter(function (x) { return x.id === id; })[0]; if (!t) return;
-        bukaWa(t.hp, L.pesanTebus.pengingat(t));
-        var rec = salin(t); rec.pengingat = (rec.pengingat || []).concat(L.hariIni());
-        if (btn) sibuk(btn, true, 'Mencatat…');
-        A.simpanTebus(rec).then(function (row) {
-            cache.tebus = cache.tebus.map(function (x) { return x.id === row.id ? row : x; });
-            if (te && te.t.id === row.id && $('#tb')) { te.t.pengingat = row.pengingat; te.t.updated_at = row.updated_at; }
-            toast('Pengingat dicatat (' + L.tgl(L.hariIni()) + ').'); gambarDaftarTebus();
-        }).catch(function (e) { if (btn) sibuk(btn, false); gagal(e); });
     }
     function tebusKosong() {
         var h = L.hariIni();
-        return { nama: '', hp: '', nik: '', gitar_jenis: (C.jenisGitar || ['Akustik'])[0], gitar_merk: '', warna: '', no_seri: '', kelengkapan: '', tgl_beli: h, harga_beli: 0, batas_tebus: tglPlus(h, TB.batasHari || 30), metode: 'tunai', status: 'aktif', disetujui: null, catatan_admin: '', foto: [], pengingat: [] };
+        return { nama: '', hp: '', nik: '', gitar_jenis: C.jenisGitar[0], gitar_merk: '', warna: '', no_seri: '', kelengkapan: '', tgl_beli: h, harga_beli: 0, batas_tebus: L.tambahHari(h, TB.batasHari), metode: 'tunai', status: 'aktif', disetujui: null, catatan_admin: '', foto: [], pengingat: [] };
     }
-    function bukaTebus(id) {
-        var t = id ? cache.tebus.filter(function (x) { return x.id === id; })[0] : tebusKosong();
-        if (!t) return muatUlangLalu(function () { return cache.tebus.some(function (x) { return x.id === id; }); }, function () { bukaTebus(id); }, '#tebus');
-        t = salin(t); te = { baru: !id, t: t, antri: [] }; gambarTebus();
-    }
+    function bukaTebus(id) { ambilCatatan('tebus', id, tebusKosong, function (t) { t.foto = t.foto || []; te = { baru: !id, t: t, antri: [] }; gambarTebus(); }); }
     function gambarTebus() {
-        var t = te.t, jenis = (C.jenisGitar || []).slice(); if (t.gitar_jenis && jenis.indexOf(t.gitar_jenis) < 0) jenis.push(t.gitar_jenis);
+        var t = te.t, jenis = C.jenisGitar.slice(); if (t.gitar_jenis && jenis.indexOf(t.gitar_jenis) < 0) jenis.push(t.gitar_jenis);
         app.innerHTML = '<section id="tb" class="ly-f"><div class="ly-head"><a class="ly-back" href="#tebus">‹ Daftar tebus</a></div>' +
-            '<div class="ly-head"><h1>' + (te.baru ? 'Beli gitar (hak tebus)' : E(gitarNama(t))) + '</h1>' + (te.baru ? '' : chipTebus(t)) + '</div>' +
-            (te.baru ? '<p class="ly-muted">Kode dibuat otomatis saat disimpan.</p>' : '<div class="ly-kode">' + E(t.kode) + ' <span class="ly-muted" style="font:600 .8rem var(--font-sans);letter-spacing:0">· 4 digit HP: ' + E(L.hp4(t.hp)) + '</span></div>') +
+            '<div class="ly-head"><h1>' + (te.baru ? 'Beli gitar (hak tebus)' : E(L.namaGitar(t, 'Gitar'))) + '</h1>' + (te.baru ? '' : chipTebus(t)) + '</div>' +
+            (te.baru ? '<p class="ly-muted">Kode dibuat otomatis saat disimpan.</p>' : kodeBaris(t)) +
             '<fieldset class="ly-card ly-f"><legend>Penjual</legend>' +
             '<label>Nama (sesuai KTP)<input data-t="nama" autocomplete="off" required></label>' +
             '<div class="ly-row2"><label>No. HP / WhatsApp<input data-t="hp" type="tel" inputmode="tel" autocomplete="off" required></label><label>NIK (No. KTP, opsional)<input data-t="nik" inputmode="numeric" maxlength="16" autocomplete="off"></label></div>' +
-            '<p class="ly-hint">Foto KTP disimpan terkunci di repo privat dan tidak pernah tampil di situs. Di surat perjanjian, NIK dan HP hanya tampil 4 digit terakhir.</p></fieldset>' +
+            '<p class="ly-hint">Di surat perjanjian, NIK dan HP hanya tampil 4 digit terakhir.</p></fieldset>' +
             '<fieldset class="ly-card ly-f"><legend>Gitar</legend>' +
             '<div class="ly-row2"><label>Jenis<select data-t="gitar_jenis">' + opsi(jenis, t.gitar_jenis) + '</select></label><label>Merk / model<input data-t="gitar_merk" placeholder="mis. Yamaha APX600"></label></div>' +
             '<div class="ly-row2"><label>Warna<input data-t="warna"></label><label>Nomor seri<input data-t="no_seri" autocapitalize="characters"></label></div>' +
@@ -567,9 +580,9 @@
             '<div class="ly-row2"><label>Tanggal beli<input type="date" data-t="tgl_beli"></label><label>Dibayar<select data-t="metode">' + opsi([['tunai', 'Tunai'], ['transfer', 'Transfer']], t.metode) + '</select></label></div>' +
             '<label>Harga beli = harga tebus (Rp)<input type="number" inputmode="numeric" min="0" step="10000" data-t="harga_beli"></label>' +
             '<label>Batas tebus<input type="date" data-t="batas_tebus"></label>' +
-            '<div class="ly-btns"><button type="button" class="ly-btn ly-btn--sm" data-batas="30">30 hari</button><button type="button" class="ly-btn ly-btn--sm" data-batas="60">60 hari</button>' + ((TB.maksHari || 90) >= 90 ? '<button type="button" class="ly-btn ly-btn--sm" data-batas="90">90 hari</button>' : '') + '</div>' +
+            '<div class="ly-btns"><button type="button" class="ly-btn ly-btn--sm" data-batas="30">30 hari</button><button type="button" class="ly-btn ly-btn--sm" data-batas="60">60 hari</button>' + (TB.maksHari >= 90 ? '<button type="button" class="ly-btn ly-btn--sm" data-batas="90">90 hari</button>' : '') + '</div>' +
             '<div class="ly-sum" id="tb-sum"></div></fieldset>' +
-            '<fieldset class="ly-card"><legend>Foto</legend><div id="tb-foto"></div><p class="ly-hint" id="tb-ktp-saran" style="margin-top:10px"></p><p class="ly-hint" style="margin-top:6px">Foto gitar: depan, belakang, dan nomor seri. Foto KTP (opsional): perlu untuk penjual yang belum dikenal atau harga beli di atas ' + L.rupiah(TB.fotoKtpMinHarga || 1000000) + '; hapus ' + Math.round((TB.hapusKtpHari || 90) / 30) + ' bulan setelah gitar dibeli kembali. Semua dikunci dan disimpan di repo privat.</p></fieldset>' +
+            '<fieldset class="ly-card"><legend>Foto</legend><div id="tb-foto"></div><p class="ly-hint" id="tb-ktp-saran" style="margin-top:10px"></p><p class="ly-hint" style="margin-top:6px">Foto gitar: depan, belakang, dan nomor seri. Foto KTP (opsional) untuk penjual yang belum dikenal atau harga beli di atas ' + L.rupiah(TB.fotoKtpMinHarga) + '; hapus ' + Math.round(TB.hapusKtpHari / 30) + ' bulan setelah gitar dibeli kembali. Semua foto dikunci di repo privat dan tidak pernah tampil di situs.</p></fieldset>' +
             '<fieldset class="ly-card ly-f"><legend>Persetujuan &amp; status</legend>' +
             '<label class="ly-cek"><input type="checkbox" id="tb-setuju"> Penjual sudah membalas <b>SETUJU</b> di WhatsApp</label>' +
             '<div class="ly-status" id="tb-status"></div>' +
@@ -597,23 +610,22 @@
         tb.addEventListener('input', ubah); tb.addEventListener('change', ubah);
         tb.addEventListener('click', function (e) {
             var b = e.target.closest('button'); if (!b) return; var d = b.dataset;
-            if (d.batas) { t.batas_tebus = tglPlus(t.tgl_beli, +d.batas); $('[data-t="batas_tebus"]').value = t.batas_tebus; gambarSumTebus(); setDirty(true); }
+            if (d.batas) { t.batas_tebus = L.tambahHari(t.tgl_beli, +d.batas); $('[data-t="batas_tebus"]').value = t.batas_tebus; gambarSumTebus(); setDirty(true); }
             else if (d.st) ubahStatusTebus(d.st);
-            else if (d.wat) { if (dirty) return toast('Simpan perubahan dulu.', true); bukaWa(t.hp, L.pesanTebus[d.wat](t)); if (d.wat === 'pengingat') ingatkanTebusForm(); }
+            else if (d.wat) { if (dirty) return toast('Simpan perubahan dulu.', true); if (d.wat === 'pengingat') catatPengingat('tebus', t.id); else bukaWa(t.hp, L.pesanTebus[d.wat](t)); }
             else if (d.hapusfoto) { if (confirm('Hapus foto ini? (terhapus permanen saat Simpan)')) { t.foto = t.foto.filter(function (f) { return f.id !== d.hapusfoto; }); gambarFotoTebus(); setDirty(true); } }
-            else if (d.hapusq) { te.antri = te.antri.filter(function (q) { return q.qid !== d.hapusq; }); gambarFotoTebus(); }
+            else if (d.hapusq) { te.antri = buangQ(te.antri, d.hapusq); gambarFotoTebus(); }
             else if (b.hasAttribute('data-hapusktp')) { if (dirty) return toast('Simpan perubahan dulu.', true); hapusKtp(te.t, b, function (row) { te = { baru: false, t: salin(row), antri: [] }; gambarTebus(); }); }
             else if (b.id === 'tb-kestok') { if (dirty) return toast('Simpan perubahan dulu.', true); tebusKeStok(te.t, b); }
         });
-        $('#tb-foto').addEventListener('change', function (e) { if (e.target.type === 'file') { tambahFotoTebus(e.target.dataset.tahap, [].slice.call(e.target.files)); e.target.value = ''; } });
+        pilihFoto($('#tb-foto'), function (tahap, files) { antriFoto(te.antri, files, { tahap: tahap }, gambarFotoTebus); });
         $('#tb-simpan').addEventListener('click', simpanTebus);
         if (!te.baru) $('#tb-hapus').addEventListener('click', hapusTebus);
     }
     function gambarSumTebus() {
-        var t = te.t, i = L.infoTebus(t), batasMaks = tglPlus(t.tgl_beli, TB.maksHari || 90);
-        $('#tb-sum').innerHTML = '<div class="ly-total"><span>Harga tebus (= harga beli)</span><span>' + L.rupiah(i.harga) + '</span></div>' +
-            '<div><span>Masa tebus</span><span>' + (t.batas_tebus ? L.hariAntara(t.tgl_beli, t.batas_tebus) + ' hari (s/d ' + L.tgl(t.batas_tebus) + ')' : '–') + '</span></div>' +
-            (t.batas_tebus > batasMaks ? '<div class="ly-warn"><span>Batas tebus lebih dari ' + (TB.maksHari || 90) + ' hari.</span><span></span></div>' : '');
+        var t = te.t, batasMaks = L.tambahHari(t.tgl_beli, TB.maksHari);
+        $('#tb-sum').innerHTML = '<div><span>Masa tebus</span><span>' + (t.batas_tebus ? L.hariAntara(t.tgl_beli, t.batas_tebus) + ' hari (s/d ' + L.tgl(t.batas_tebus) + ')' : '–') + '</span></div>' +
+            (t.batas_tebus > batasMaks ? '<div class="ly-warn"><span>Batas tebus lebih dari ' + TB.maksHari + ' hari.</span><span></span></div>' : '');
     }
     function gambarStatusTebus() {
         $('#tb-status').innerHTML = ['aktif', 'ditebus', 'milik_toko', 'batal'].map(function (k) { return '<button type="button" data-st="' + k + '" aria-pressed="' + (te.t.status === k) + '">' + E(L.STATUS_TEBUS[k].label) + '</button>'; }).join('');
@@ -625,23 +637,10 @@
         if (st === 'batal' && !confirm('Batalkan transaksi ini? Surat perjanjian di situs akan dihapus.')) return;
         t.status = st; gambarStatusTebus(); setDirty(true);
     }
-    var qtb = 0;
-    function tambahFotoTebus(tahap, files) {
-        if (!files.length) return;
-        var baru = files.map(function (file) { return { qid: 't' + (++qtb), tahap: tahap, pratinjau: URL.createObjectURL(file), file: file }; });
-        te.antri = te.antri.concat(baru); gambarFotoTebus(); setDirty(true);
-        baru.reduce(function (p, q) { return p.then(function () { return L.kompres(q.file).then(function (h) { q.hasil = h; q.file = null; if ($('#tb-foto')) gambarFotoTebus(); }); }); }, Promise.resolve()).catch(gagal);
-    }
     function gambarFotoTebus() {
-        var t = te.t;
-        $('#tb-foto').innerHTML = [['gitar', 'Foto gitar'], ['ktp', 'Foto KTP (opsional)']].map(function (x) {
-            var ada = [], tunggu = te.antri.filter(function (q) { return q.tahap === x[0]; });
-            (t.foto || []).forEach(function (f, i) { if (f.tahap === x[0]) ada.push([f, i]); });
-            return '<div class="ly-fgrup"><h3>' + x[1] + '<label class="ly-btn ly-btn--sm ly-file">+ Foto<input type="file" accept="image/*" multiple data-tahap="' + x[0] + '"></label></h3>' +
-                (ada.length || tunggu.length ? '<div class="ly-foto">' + ada.map(function (p) { return '<figure><img data-foto="' + p[1] + '" alt=""><button type="button" class="ly-fx" data-hapusfoto="' + p[0].id + '" aria-label="Hapus foto">×</button></figure>'; }).join('') +
-                    tunggu.map(function (q) { return '<figure' + (q.hasil ? '' : ' class="ly-up"') + '><img src="' + q.pratinjau + '" alt=""><button type="button" class="ly-fx" data-hapusq="' + q.qid + '" aria-label="Batal">×</button></figure>'; }).join('') + '</div>' : '<p class="ly-muted">Belum ada foto.</p>') + '</div>';
-        }).join('');
-        L.isiFoto($('#tb-foto'), t, A.fotoAdmin);
+        var el = $('#tb-foto'); if (!el) return;
+        el.innerHTML = [['gitar', 'Foto gitar'], ['ktp', 'Foto KTP (opsional)']].map(function (x) { return grupFoto(x[1], x[0], te.t.foto, te.antri, false); }).join('');
+        L.isiFoto(el, te.t, A.fotoAdmin);
         saranKtp();
     }
     /* saran foto KTP untuk harga besar; tawaran hapus foto KTP setelah masa simpannya lewat */
@@ -650,8 +649,8 @@
         var adaKtp = L.adaKtp(t) || te.antri.some(function (q) { return q.tahap === 'ktp'; });
         if (!te.baru && L.ktpBisaDihapus(t)) {
             el.innerHTML = '<span class="ly-warn">' + (t.status === 'batal' ? 'Transaksi dibatalkan' : 'Sudah ' + L.hariAntara(t.tgl_tebus, L.hariIni()) + ' hari sejak dibeli kembali') + ': foto KTP sudah tidak diperlukan.</span> <button type="button" class="ly-btn ly-btn--sm" data-hapusktp>Hapus foto KTP</button>';
-        } else if (!adaKtp && t.harga_beli > (TB.fotoKtpMinHarga || 1000000)) {
-            el.innerHTML = '<span class="ly-warn">Harga beli di atas ' + L.rupiah(TB.fotoKtpMinHarga || 1000000) + ': sebaiknya foto KTP penjual.</span>';
+        } else if (!adaKtp && t.harga_beli > TB.fotoKtpMinHarga) {
+            el.innerHTML = '<span class="ly-warn">Harga beli di atas ' + L.rupiah(TB.fotoKtpMinHarga) + ': sebaiknya foto KTP penjual.</span>';
         } else el.innerHTML = '';
     }
     function hapusKtp(t, btn, selesai) {
@@ -659,44 +658,26 @@
         var rec = salin(t); rec.foto = (rec.foto || []).filter(function (f) { return f.tahap !== 'ktp'; });
         if (btn) sibuk(btn, true, 'Menghapus…');
         A.simpanTebus(rec).then(function (row) {
-            cache.tebus = cache.tebus.map(function (x) { return x.id === row.id ? row : x; });
-            toast('Foto KTP dihapus.'); selesai(row);
+            taruh('tebus', row); toast('Foto KTP dihapus.'); selesai(row);
         }).catch(function (e) { if (btn) sibuk(btn, false); gagal(e); });
     }
     function simpanTebus() {
-        var t = te.t, b = $('#tb-simpan');
+        var t = te.t;
         t.nama = String(t.nama).trim(); t.hp = String(t.hp).trim();
         if (!t.nama) return toast('Nama penjual belum diisi.', true);
         if (t.hp.replace(/\D/g, '').length < 8) return toast('No. HP belum benar (minimal 8 angka).', true);
         if (!(t.harga_beli > 0)) return toast('Harga beli belum diisi.', true);
         if (!t.batas_tebus || t.batas_tebus < t.tgl_beli) return toast('Batas tebus harus setelah tanggal beli.', true);
         if (te.antri.some(function (q) { return !q.hasil; })) return toast('Foto masih diproses, tunggu sebentar.', true);
-        delete t.biaya_admin; /* kebijakan toko: harga tebus selalu sama dengan harga beli */
         var baru = te.baru, fotoBaru = te.antri.map(function (q) { return { hasil: q.hasil, tahap: q.tahap }; });
-        sibuk(b, true, fotoBaru.length ? 'Mengunggah ' + fotoBaru.length + ' foto…' : 'Menyimpan…'); menyimpan = true;
-        A.simpanTebus(t, fotoBaru).then(function (row) {
-            menyimpan = false;
-            cache.tebus = cache.tebus.filter(function (x) { return x.id !== row.id; }); cache.tebus.unshift(row);
-            te = { baru: false, t: salin(row), antri: [] }; setDirty(false);
+        prosesSimpan('tebus', $('#tb-simpan'), teksUnggah(fotoBaru), function () { return A.simpanTebus(t, fotoBaru); }, function (row) {
+            lepasAntri(te.antri); te = { baru: false, t: salin(row), antri: [] };
             toast(baru ? 'Tersimpan. Kode: ' + row.kode + '. Kirim bukti ke penjual lewat tombol WA.' : 'Tersimpan.');
-            if (baru) { hashLama = '#tebus/' + row.id; location.hash = hashLama; } else gambarTebus();
-        }).catch(function (e) {
-            menyimpan = false; sibuk(b, false);
-            if (e.sebagian && e.rec) { te.t = e.rec; te.antri = []; te.baru = false; gambarFotoTebus(); setDirty(true); }
-            gagal(e);
-        });
-    }
-    function ingatkanTebusForm() {
-        var rec = salin(te.t); rec.pengingat = (rec.pengingat || []).concat(L.hariIni());
-        A.simpanTebus(rec).then(function (row) { cache.tebus = cache.tebus.map(function (x) { return x.id === row.id ? row : x; }); te.t.pengingat = row.pengingat; te.t.updated_at = row.updated_at; toast('Pengingat dicatat.'); }).catch(gagal);
+            if (baru) pindah('#tebus/' + row.id); else gambarTebus();
+        }, function (r) { lepasAntri(te.antri); te = { baru: false, t: r, antri: [] }; gambarFotoTebus(); });
     }
     function hapusTebus() {
-        var k = prompt('Menghapus data ini juga menghapus foto gitar & KTP dan surat perjanjiannya. Tidak bisa dibatalkan.\nKetik kode (' + te.t.kode + ') untuk konfirmasi:');
-        if (k == null) return;
-        if (k.trim().toUpperCase() !== te.t.kode) return toast('Kode tidak cocok, tidak jadi dihapus.', true);
-        var b = $('#tb-hapus'); sibuk(b, true, 'Menghapus…');
-        A.hapusTebus(te.t).then(function () { cache.tebus = cache.tebus.filter(function (x) { return x.id !== te.t.id; }); setDirty(false); toast('Data dihapus.'); location.hash = '#tebus'; })
-            .catch(function (e) { sibuk(b, false); gagal(e); });
+        if (konfirmasiKode('Menghapus data ini juga menghapus foto gitar & KTP dan surat perjanjiannya. Tidak bisa dibatalkan.', te.t.kode)) hapusData('tebus', te.t, $('#tb-hapus'), A.hapusTebus, 'Data dihapus.');
     }
 
     /* ================= stok gitar (baru & bekas) ================= */
@@ -710,40 +691,44 @@
         $('#cari').value = cariSk;
         $('#cari').addEventListener('input', function () { cariSk = this.value; gambarDaftarStok(); });
         $('#filter').addEventListener('click', function (e) { var b = e.target.closest('[data-f]'); if (b) { filterSk = b.dataset.f; gambarDaftarStok(); } });
-        $('#list').addEventListener('click', function (e) { var b = e.target.closest('[data-tawar]'); if (b) { e.preventDefault(); tawarkanStok(b.dataset.tawar); } });
+        $('#list').addEventListener('click', function (e) { var b = e.target.closest('[data-tawar]'); if (b) { e.preventDefault(); bukaWa('', teksTawar(cariId('stok', b.dataset.tawar))); } });
         gambarDaftarStok();
     }
     function adaStok(s) { return s.status === 'tersedia' || s.status === 'dipesan'; }
+    function kelStok(s) { return s.kategori === 'aksesoris' ? 'aksesoris' : s.kondisi; }
+    function chipStok(s) {
+        var aks = s.kategori === 'aksesoris';
+        return '<span class="st-chip ' + (aks ? 'st-menunggu_dp' : s.kondisi === 'baru' ? 'st-antri' : 'st-dikerjakan') + '">' + (aks ? 'Aksesoris' : L.KONDISI[s.kondisi]) + ' · ' + L.STATUS_STOK[s.status] + '</span>';
+    }
     function gambarDaftarStok() {
         if (!$('#list')) return;
-        var rows = cache.stok, bln = bulanIni(), c = cariSk.trim().toLowerCase();
-        var unit = { baru: 0, bekas: 0, aksesoris: 0 }, modal = 0, potensi = 0, tanpaHarga = 0, terjualUnit = 0, omzet = 0, untung = 0, diWeb = 0;
+        var rows = cache.stok, bln = bulanIni(), hari = L.hariIni(), c = cariSk.trim().toLowerCase();
+        var unit = { baru: 0, bekas: 0, aksesoris: 0 }, n = { tersedia: 0, baru: 0, bekas: 0, aksesoris: 0, terjual: 0 }, modal = 0, potensi = 0, tanpaHarga = 0, terjualUnit = 0, untung = 0, diWeb = 0;
         rows.forEach(function (s) {
             if (adaStok(s)) {
-                var kel = s.kategori === 'aksesoris' ? 'aksesoris' : s.kondisi;
+                var kel = kelStok(s);
+                n.tersedia++; n[kel] = (n[kel] || 0) + 1;
                 unit[kel] = (unit[kel] || 0) + (+s.jumlah || 0); modal += (+s.jumlah || 0) * (+s.harga_beli || 0); if (L.diKatalog(s)) diWeb++;
                 if (+s.harga_jual > 0) potensi += (+s.jumlah || 0) * (s.harga_jual - (+s.harga_beli || 0)); else tanpaHarga++;
             }
-            (s.penjualan || []).forEach(function (p) { if (String(p.tgl).slice(0, 7) === bln) { terjualUnit += p.qty; omzet += p.harga * p.qty; untung += (p.harga - (+s.harga_beli || 0)) * p.qty; } });
+            if ((s.penjualan || []).length) n.terjual++;
+            (s.penjualan || []).forEach(function (p) { if (String(p.tgl).slice(0, 7) === bln) { terjualUnit += p.qty; untung += (p.harga - (+s.harga_beli || 0)) * p.qty; } });
         });
         $('#sk-rekap').innerHTML = '<div><span>Stok tersedia</span><span>' + (unit.baru + unit.bekas + unit.aksesoris) + ' unit</span></div>' +
             '<div><span>&nbsp; gitar baru / bekas / aksesoris</span><span>' + unit.baru + ' / ' + unit.bekas + ' / ' + unit.aksesoris + '</span></div>' +
             '<div><span>Tampil di katalog website</span><span>' + diWeb + ' barang</span></div>' +
             '<div><span>Modal di stok</span><span>' + L.rupiah(modal) + '</span></div><div><span>Perkiraan untung bila semua terjual' + (tanpaHarga ? '<br><small class="ly-warn">' + tanpaHarga + ' barang belum ada harga jual</small>' : '') + '</span><span>' + L.rupiah(potensi) + '</span></div>' +
             '<div class="ly-total"><span>Terjual bulan ini</span><span>' + terjualUnit + ' unit · untung ' + L.rupiah(untung) + '</span></div>';
-        function kel(s) { return s.kategori === 'aksesoris' ? 'aksesoris' : s.kondisi; }
-        var f = [['tersedia', 'Tersedia', rows.filter(adaStok).length], ['baru', 'Gitar baru', rows.filter(function (s) { return adaStok(s) && kel(s) === 'baru'; }).length],
-            ['bekas', 'Gitar bekas', rows.filter(function (s) { return adaStok(s) && kel(s) === 'bekas'; }).length], ['aksesoris', 'Aksesoris', rows.filter(function (s) { return adaStok(s) && kel(s) === 'aksesoris'; }).length],
-            ['terjual', 'Terjual', rows.filter(function (s) { return (s.penjualan || []).length; }).length], ['semua', 'Semua', rows.length]];
-        $('#filter').innerHTML = f.map(function (x) { return '<button type="button" data-f="' + x[0] + '" aria-pressed="' + (filterSk === x[0]) + '">' + x[1] + '<b>' + x[2] + '</b></button>'; }).join('');
+        $('#filter').innerHTML = [['tersedia', 'Tersedia'], ['baru', 'Gitar baru'], ['bekas', 'Gitar bekas'], ['aksesoris', 'Aksesoris'], ['terjual', 'Terjual'], ['semua', 'Semua']].map(function (x) {
+            return '<button type="button" data-f="' + x[0] + '" aria-pressed="' + (filterSk === x[0]) + '">' + x[1] + '<b>' + (x[0] === 'semua' ? rows.length : n[x[0]] || 0) + '</b></button>';
+        }).join('');
         var hasil = rows.filter(function (s) {
-            var ok = filterSk === 'semua' ? true : filterSk === 'terjual' ? (s.penjualan || []).length > 0 : filterSk === 'tersedia' ? adaStok(s) : adaStok(s) && kel(s) === filterSk;
+            var ok = filterSk === 'semua' ? true : filterSk === 'terjual' ? (s.penjualan || []).length > 0 : filterSk === 'tersedia' ? adaStok(s) : adaStok(s) && kelStok(s) === filterSk;
             return ok && (!c || [s.kode, s.nama, s.sub, s.gitar_jenis, s.gitar_merk, s.warna, s.no_seri, s.deskripsi].join(' ').toLowerCase().indexOf(c) > -1);
         });
         $('#list').innerHTML = hasil.length ? hasil.map(function (s) {
-            var u = L.untungStok(s), lama = L.hariAntara(s.tgl_masuk, L.hariIni());
-            return '<div class="ly-item"><a class="ly-item__a" href="#stok/' + s.id + '"><span class="ly-item__k">' + E(s.kode) + (L.diKatalog(s) ? ' 🌐' : '') + '</span></a>' +
-                '<span class="st-chip ' + (s.kategori === 'aksesoris' ? 'st-menunggu_dp' : s.kondisi === 'baru' ? 'st-antri' : 'st-dikerjakan') + '">' + (s.kategori === 'aksesoris' ? 'Aksesoris' : L.KONDISI[s.kondisi]) + ' · ' + L.STATUS_STOK[s.status] + '</span>' +
+            var u = L.untungStok(s), lama = L.hariAntara(s.tgl_masuk, hari);
+            return '<div class="ly-item"><a class="ly-item__a" href="#stok/' + s.id + '"><span class="ly-item__k">' + E(s.kode) + (L.diKatalog(s) ? ' 🌐' : '') + '</span></a>' + chipStok(s) +
                 '<span class="ly-item__t">' + E(L.jenisStok(s)) + ' · ' + E(L.namaStok(s)) + (s.warna ? ' · ' + E(s.warna) : '') + '</span>' +
                 '<span class="ly-item__m"><span>Modal ' + L.rupiah(s.harga_beli) + '</span><span>Jual ' + (s.harga_jual ? L.rupiah(s.harga_jual) : '<span class="ly-warn">belum diisi</span>') + '</span>' +
                 (adaStok(s) ? '<span>Stok ' + s.jumlah + '</span><span' + (lama > 90 ? ' class="ly-telat"' : '') + '>Masuk ' + (lama > 0 ? lama + ' hari lalu' : 'hari ini') + '</span>' : '') +
@@ -754,29 +739,24 @@
     function teksTawar(s) {
         var judul = s.kategori === 'aksesoris' ? L.namaStok(s) : 'Gitar ' + L.jenisStok(s) + ' ' + L.namaStok(s);
         return judul + (s.warna ? ' (' + s.warna + ')' : '') + ' – ' + (s.kondisi === 'bekas' ? 'bekas' : 'BARU') + '\n' +
-            (s.deskripsi ? s.deskripsi + '\n' : '') + 'Harga: *' + L.rupiah(s.harga_jual) + '*\n\nTersedia di ' + (C.toko && C.toko.nama || 'Toko Gitar AYRI') + ', ' + (C.toko && C.toko.alamat || '') +
+            (s.deskripsi ? s.deskripsi + '\n' : '') + 'Harga: *' + L.rupiah(s.harga_jual) + '*\n\nTersedia di ' + C.toko.nama + ', ' + C.toko.alamat +
             (L.diKatalog(s) ? '\nLihat foto: ' + L.situs() + 'katalog.html#' + s.kode : '') +
-            '\nTanya / pesan: https://wa.me/' + (C.toko && C.toko.wa || '');
+            '\nTanya / pesan: https://wa.me/' + C.toko.wa;
     }
-    /* tanpa nomor tujuan: WhatsApp membuka pilihan kontak/grup/status */
-    function tawarkanStok(id) { var s = cache.stok.filter(function (x) { return x.id === id; })[0]; if (s) window.open('https://wa.me/?text=' + encodeURIComponent(teksTawar(s)), '_blank', 'noopener'); }
+    /* teks penawaran dibuka dengan bukaWa('', ...): tanpa nomor tujuan, WhatsApp membuka pilihan kontak/grup/status */
     function stokKosong() {
-        return { kategori: 'gitar', kondisi: 'bekas', gitar_jenis: (C.jenisGitar || ['Akustik'])[0], gitar_merk: '', sub: (C.kategoriAksesoris || ['Lainnya'])[0], nama: '', warna: '', no_seri: '', deskripsi: '', jumlah: 1, harga_beli: 0, harga_jual: 0, tgl_masuk: L.hariIni(), asal: '', status: 'tersedia', tampil: true, penjualan: [], foto: [], catatan_admin: '' };
+        return { kategori: 'gitar', kondisi: 'bekas', gitar_jenis: C.jenisGitar[0], gitar_merk: '', sub: C.kategoriAksesoris[0], nama: '', warna: '', no_seri: '', deskripsi: '', jumlah: 1, harga_beli: 0, harga_jual: 0, tgl_masuk: L.hariIni(), asal: '', status: 'tersedia', tampil: true, penjualan: [], foto: [], catatan_admin: '' };
     }
-    function bukaStok(id) {
-        var s = id ? cache.stok.filter(function (x) { return x.id === id; })[0] : stokKosong();
-        if (!s) return muatUlangLalu(function () { return cache.stok.some(function (x) { return x.id === id; }); }, function () { bukaStok(id); }, '#stok');
-        s = salin(s); sk = { baru: !id, s: s, antri: [] }; gambarStok();
-    }
+    function bukaStok(id) { ambilCatatan('stok', id, stokKosong, function (s) { s.foto = s.foto || []; s.penjualan = s.penjualan || []; sk = { baru: !id, s: s, antri: [] }; gambarStok(); }); }
     function gambarStok() {
-        var s = sk.s, jenis = (C.jenisGitar || []).slice(), subs = (C.kategoriAksesoris || ['Lainnya']).slice();
+        var s = sk.s, jenis = C.jenisGitar.slice(), subs = C.kategoriAksesoris.slice();
         s.kategori = s.kategori || 'gitar';
         if (s.gitar_jenis && jenis.indexOf(s.gitar_jenis) < 0) jenis.push(s.gitar_jenis);
         if (s.sub && subs.indexOf(s.sub) < 0) subs.push(s.sub);
         var aks = s.kategori === 'aksesoris';
         app.innerHTML = '<section id="sk" class="ly-f"><div class="ly-head"><a class="ly-back" href="#stok">‹ Daftar stok</a></div>' +
-            '<div class="ly-head"><h1>' + (sk.baru ? 'Tambah stok' : E(L.namaStok(s))) + '</h1>' + (sk.baru ? '' : '<span class="st-chip ' + (aks ? 'st-menunggu_dp' : s.kondisi === 'baru' ? 'st-antri' : 'st-dikerjakan') + '">' + (aks ? 'Aksesoris' : L.KONDISI[s.kondisi]) + ' · ' + L.STATUS_STOK[s.status] + '</span>') + '</div>' +
-            (sk.baru ? '' : '<div class="ly-kode">' + E(s.kode) + (L.diKatalog(s) ? ' <a class="ly-muted" style="font:600 .8rem var(--font-sans);letter-spacing:0" target="_blank" href="' + E(L.situs()) + 'katalog.html#' + E(s.kode) + '">🌐 lihat di katalog</a>' : '') + '</div>') +
+            '<div class="ly-head"><h1>' + (sk.baru ? 'Tambah stok' : E(L.namaStok(s))) + '</h1>' + (sk.baru ? '' : chipStok(s)) + '</div>' +
+            (sk.baru ? '' : kodeBaris(s, L.diKatalog(s) ? ' <a target="_blank" href="' + E(L.situs()) + 'katalog.html#' + E(s.kode) + '">🌐 lihat di katalog</a>' : '')) +
             '<fieldset class="ly-card ly-f"><legend>Barang</legend>' +
             '<div class="ly-status" id="sk-kategori">' + [['gitar', 'Gitar'], ['aksesoris', 'Aksesoris']].map(function (k) { return '<button type="button" data-kategori="' + k[0] + '" aria-pressed="' + (s.kategori === k[0]) + '">' + k[1] + '</button>'; }).join('') + '</div>' +
             '<div class="ly-status" id="sk-kondisi">' + ['baru', 'bekas'].map(function (k) { return '<button type="button" data-kondisi="' + k + '" aria-pressed="' + (s.kondisi === k) + '">' + L.KONDISI[k] + '</button>'; }).join('') + '</div>' +
@@ -825,11 +805,11 @@
             else if (d.sts) { s.status = d.sts; gambarStatusStok(); setDirty(true); }
             else if (d.deljual != null) { var p = s.penjualan[+d.deljual]; if (confirm('Hapus catatan penjualan ' + p.qty + ' unit tanggal ' + L.tgl(p.tgl) + '? Jumlah stok dikembalikan.')) { s.jumlah = (+s.jumlah || 0) + p.qty; s.penjualan.splice(+d.deljual, 1); if (s.status === 'terjual') s.status = 'tersedia'; $('[data-s="jumlah"]').value = s.jumlah; gambarJual(); gambarSumStok(); gambarStatusStok(); setDirty(true); } }
             else if (d.hapusfoto) { if (confirm('Hapus foto ini? (terhapus permanen saat Simpan)')) { s.foto = s.foto.filter(function (f) { return f.id !== d.hapusfoto; }); gambarFotoStok(); setDirty(true); } }
-            else if (d.hapusq) { sk.antri = sk.antri.filter(function (q) { return q.qid !== d.hapusq; }); gambarFotoStok(); }
+            else if (d.hapusq) { sk.antri = buangQ(sk.antri, d.hapusq); gambarFotoStok(); }
             else if (b.id === 'jl-tambah') catatJual();
-            else if (b.id === 'sk-tawar') { if (dirty) return toast('Simpan perubahan dulu.', true); window.open('https://wa.me/?text=' + encodeURIComponent(teksTawar(s)), '_blank', 'noopener'); }
+            else if (b.id === 'sk-tawar') { if (dirty) return toast('Simpan perubahan dulu.', true); bukaWa('', teksTawar(s)); }
         });
-        $('#sk-foto').addEventListener('change', function (e) { if (e.target.type === 'file') { tambahFotoStok([].slice.call(e.target.files)); e.target.value = ''; } });
+        pilihFoto($('#sk-foto'), function (tahap, files) { antriFoto(sk.antri, files, {}, gambarFotoStok); });
         $('#sk-simpan').addEventListener('click', simpanStok);
         if (!sk.baru) $('#sk-hapus').addEventListener('click', hapusStok);
     }
@@ -854,47 +834,32 @@
         var s = sk.s, qty = Math.max(1, Math.round(+$('#jl-qty').value || 1)), harga = Math.round(+$('#jl-harga').value || 0);
         if (qty > (+s.jumlah || 0)) return toast('Stok tersisa hanya ' + (s.jumlah || 0) + ' unit.', true);
         if (harga <= 0) return toast('Isi harga jual.', true);
-        s.penjualan.push({ id: Date.now().toString(36), tgl: $('#jl-tgl').value || L.hariIni(), qty: qty, harga: harga, catatan: $('#jl-ket').value.trim(), baru: true });
+        s.penjualan.push({ id: idAcak(), tgl: $('#jl-tgl').value || L.hariIni(), qty: qty, harga: harga, catatan: $('#jl-ket').value.trim(), baru: true });
         s.jumlah = (+s.jumlah || 0) - qty; if (!s.jumlah && s.status !== 'ditarik') s.status = 'terjual';
         $('[data-s="jumlah"]').value = s.jumlah; $('#jl-ket').value = '';
         gambarJual(); gambarSumStok(); gambarStatusStok(); setDirty(true); toast('Penjualan dicatat. Tekan Simpan.');
     }
-    var qsk = 0;
-    function tambahFotoStok(files) {
-        if (!files.length) return;
-        var baru = files.map(function (file) { return { qid: 's' + (++qsk), pratinjau: URL.createObjectURL(file), file: file }; });
-        sk.antri = sk.antri.concat(baru); gambarFotoStok(); setDirty(true);
-        baru.reduce(function (p, q) { return p.then(function () { return L.kompres(q.file).then(function (h) { q.hasil = h; q.file = null; if ($('#sk-foto')) gambarFotoStok(); }); }); }, Promise.resolve()).catch(gagal);
-    }
     function gambarFotoStok() {
-        var s = sk.s;
-        $('#sk-foto').innerHTML = '<div class="ly-fgrup"><h3>Foto gitar<label class="ly-btn ly-btn--sm ly-file">+ Foto<input type="file" accept="image/*" multiple></label></h3>' +
-            ((s.foto || []).length || sk.antri.length ? '<div class="ly-foto">' + s.foto.map(function (f, i) { return '<figure><img data-foto="' + i + '" alt=""><button type="button" class="ly-fx" data-hapusfoto="' + f.id + '" aria-label="Hapus foto">×</button></figure>'; }).join('') +
-                sk.antri.map(function (q) { return '<figure' + (q.hasil ? '' : ' class="ly-up"') + '><img src="' + q.pratinjau + '" alt=""><button type="button" class="ly-fx" data-hapusq="' + q.qid + '" aria-label="Batal">×</button></figure>'; }).join('') + '</div>' : '<p class="ly-muted">Belum ada foto.</p>') + '</div>';
-        L.isiFoto($('#sk-foto'), s, A.fotoAdmin);
+        var el = $('#sk-foto'); if (!el) return;
+        el.innerHTML = grupFoto('Foto barang', null, sk.s.foto, sk.antri, false);
+        L.isiFoto(el, sk.s, A.fotoAdmin);
     }
     function simpanStok() {
-        var s = sk.s, b = $('#sk-simpan');
+        var s = sk.s;
         if (s.kategori === 'aksesoris' ? !String(s.nama || '').trim() : !String(s.gitar_merk || '').trim()) return toast(s.kategori === 'aksesoris' ? 'Isi nama produk.' : 'Isi merk / model gitar.', true);
         if (s.tampil !== false && adaStok(s) && s.harga_jual > 0 && !s.foto.length && !sk.antri.length && !confirm('Barang ini akan tampil di katalog website tanpa foto. Lanjutkan?')) return;
         if (sk.antri.some(function (q) { return !q.hasil; })) return toast('Foto masih diproses, tunggu sebentar.', true);
         if (s.harga_jual && s.harga_jual < s.harga_beli && !confirm('Harga jual lebih rendah dari modal. Tetap simpan?')) return;
         var baru = sk.baru, fotoBaru = sk.antri.map(function (q) { return { hasil: q.hasil }; });
         var rec = Object.assign({}, s, { penjualan: s.penjualan.map(function (p) { var x = Object.assign({}, p); delete x.baru; return x; }) });
-        sibuk(b, true, fotoBaru.length ? 'Mengunggah ' + fotoBaru.length + ' foto…' : 'Menyimpan…'); menyimpan = true;
-        A.simpanStok(rec, fotoBaru).then(function (row) {
-            menyimpan = false;
-            cache.stok = cache.stok.filter(function (x) { return x.id !== row.id; }); cache.stok.unshift(row);
-            sk = { baru: false, s: salin(row), antri: [] }; setDirty(false);
+        prosesSimpan('stok', $('#sk-simpan'), teksUnggah(fotoBaru), function () { return A.simpanStok(rec, fotoBaru); }, function (row) {
+            lepasAntri(sk.antri); sk = { baru: false, s: salin(row), antri: [] };
             toast(baru ? 'Stok tersimpan. Kode: ' + row.kode + '.' : 'Tersimpan.');
-            if (baru) { hashLama = '#stok/' + row.id; location.hash = hashLama; } else gambarStok();
-        }).catch(function (e) { menyimpan = false; sibuk(b, false); gagal(e); });
+            if (baru) pindah('#stok/' + row.id); else gambarStok();
+        }, function (r) { lepasAntri(sk.antri); sk = { baru: false, s: r, antri: [] }; gambarFotoStok(); });
     }
     function hapusStok() {
-        if (!confirm('Hapus data stok ' + sk.s.kode + ' beserta fotonya? Catatan penjualannya ikut terhapus.')) return;
-        var b = $('#sk-hapus'); sibuk(b, true, 'Menghapus…');
-        A.hapusStok(sk.s).then(function () { cache.stok = cache.stok.filter(function (x) { return x.id !== sk.s.id; }); setDirty(false); toast('Data stok dihapus.'); location.hash = '#stok'; })
-            .catch(function (e) { sibuk(b, false); gagal(e); });
+        if (confirm('Hapus data stok ' + sk.s.kode + ' beserta fotonya? Catatan penjualannya ikut terhapus.')) hapusData('stok', sk.s, $('#sk-hapus'), A.hapusStok, 'Data stok dihapus.');
     }
     /* gitar tebus yang menjadi milik toko -> stok bekas (foto gitar ikut dipindah, KTP tidak) */
     function tebusKeStok(t, btn) {
@@ -905,11 +870,11 @@
                 var rec = Object.assign(stokKosong(), { kondisi: 'bekas', gitar_jenis: t.gitar_jenis, gitar_merk: t.gitar_merk, warna: t.warna, no_seri: t.no_seri, deskripsi: t.kelengkapan, harga_beli: t.harga_beli, asal: 'Hak tebus ' + t.kode + ' (' + t.nama + ')', sumber_tebus: t.id });
                 return A.simpanStok(rec, fotoBaru);
             }).then(function (row) {
-                cache.stok.unshift(row);
+                taruh('stok', row);
                 var tr = salin(t); tr.stok_id = row.id;
                 return A.simpanTebus(tr).then(function (t2) {
-                    cache.tebus = cache.tebus.map(function (x) { return x.id === t2.id ? t2 : x; });
-                    setDirty(false); toast('Masuk ke stok (' + row.kode + '). Isi harga jualnya.'); hashLama = '#stok/' + row.id; location.hash = hashLama;
+                    taruh('tebus', t2);
+                    setDirty(false); toast('Masuk ke stok (' + row.kode + '). Isi harga jualnya.'); pindah('#stok/' + row.id);
                 });
             }).catch(function (e) { sibuk(btn, false); gagal(e); });
     }
@@ -921,17 +886,16 @@
             '<div class="ly-list" id="list"></div></section>';
         var rows = cache.artikel;
         $('#list').innerHTML = rows.length ? rows.map(function (a) {
-            return '<a class="ly-item" href="#artikel/' + a.id + '"><span class="ly-item__k">' + (a.status === 'terbit' && a.terbit_at ? 'Terbit ' + L.tgl(a.terbit_at.slice(0, 10)) : 'Belum terbit') + '</span><span class="st-chip ' + (a.status === 'terbit' ? 'st-selesai' : 'st-menunggu_dp') + '">' + (a.status === 'terbit' ? 'Terbit' : 'Draf') + '</span>' +
+            return '<a class="ly-item" href="#artikel/' + a.id + '"><span class="ly-item__k">' + L.tgl((a.status === 'terbit' && a.terbit_at || a.created_at || '').slice(0, 10)) + '</span><span class="st-chip ' + (a.status === 'terbit' ? 'st-selesai' : 'st-menunggu_dp') + '">' + (a.status === 'terbit' ? 'Terbit' : 'Draf') + '</span>' +
                 '<span class="ly-item__t">' + E(a.judul) + '</span><span class="ly-item__m"><span>artikel-' + E(a.slug) + '.html</span><span>Diubah ' + L.tgl((a.updated_at || '').slice(0, 10)) + '</span></span></a>';
         }).join('') : '<p class="ly-kosong">Belum ada artikel.</p>';
     }
+    function artikelKosong() { return { judul: '', slug: '', ringkasan: '', isi: '', tag: 'Tips Servis', foto: [], status: 'draf', servis_id: null }; }
     function bukaArtikel(id) {
-        var a = id ? cache.artikel.filter(function (x) { return x.id === id; })[0] : { judul: '', slug: '', ringkasan: '', isi: '', tag: 'Tips Servis', foto: [], status: 'draf', servis_id: null };
-        if (!a) return muatUlangLalu(function () { return cache.artikel.some(function (x) { return x.id === id; }); }, function () { bukaArtikel(id); }, '#artikel');
-        a = salin(a);
-        var s = a.servis_id ? cache.servis.filter(function (x) { return x.id === a.servis_id; })[0] : null;
-        ae = { baru: !id, a: a, slugManual: !!id, servis: s || null };
-        gambarArtikel();
+        ambilCatatan('artikel', id, artikelKosong, function (a) {
+            a.foto = a.foto || [];
+            ae = { baru: !id, a: a, slugManual: !!id, servis: a.servis_id && cariId('servis', a.servis_id) || null }; gambarArtikel();
+        });
     }
     function gambarArtikel() {
         var a = ae.a, url = L.situs() + 'artikel-' + a.slug + '.html', terbit = !ae.baru && cache.artikel.some(function (x) { return x.id === a.id && x.status === 'terbit'; });
@@ -960,7 +924,7 @@
                 a[k] = t.value; setDirty(true);
                 if (k === 'judul' && !ae.slugManual) { a.slug = ArtikelMd.slug(t.value); $('[data-a="slug"]').value = a.slug; }
                 if (k === 'slug') ae.slugManual = true;
-                infoArtikel(); if (!$('#ar-pv').hidden) pratinjau();
+                infoArtikel(); if (!$('#ar-pv').hidden) { clearTimeout(pratinjau.t); pratinjau.t = setTimeout(pratinjau, 300); }
             } else if (i != null) { a.foto[+i].alt = t.value; setDirty(true); }
         });
         ar.addEventListener('change', function (e) { if (e.target.dataset.a === 'status') { a.status = e.target.value; setDirty(true); } });
@@ -979,16 +943,15 @@
         $('#ar-file').addEventListener('change', function () {
             var files = [].slice.call(this.files); this.value = ''; if (!files.length) return;
             toast('Mengunggah ' + files.length + ' foto…');
-            files.reduce(function (p, file) {
-                return p.then(function () { return L.kompres(file).then(A.unggahFotoArtikel).then(function (path) { a.foto.push({ path: path, alt: '' }); gambarAFoto(); setDirty(true); }); });
-            }, Promise.resolve()).then(function () { toast('Foto terunggah. Isi keterangannya, lalu Simpan.'); }).catch(gagal);
+            /* dikecilkan satu per satu (hemat memori HP), lalu diunggah sekaligus dalam satu commit */
+            var hasil = [];
+            files.reduce(function (p, file) { return p.then(function () { return L.kompres(file, { kecil: false }).then(function (h) { hasil.push(h); }); }); }, Promise.resolve())
+                .then(function () { return A.unggahFotoArtikel(hasil); })
+                .then(function (paths) { paths.forEach(function (p) { a.foto.push({ path: p, alt: '' }); }); gambarAFoto(); setDirty(true); toast('Foto terunggah. Isi keterangannya, lalu Simpan.'); }).catch(gagal);
         });
         $('#ar-simpan').addEventListener('click', simpanArtikel);
         if (!ae.baru) $('#ar-hapus').addEventListener('click', function () {
-            if (!confirm('Hapus artikel ini? Kalau sudah terbit, halamannya ikut dihapus dari situs.')) return;
-            var b = this; sibuk(b, true, 'Menghapus…');
-            A.hapusArtikel(a).then(function () { cache.artikel = cache.artikel.filter(function (x) { return x.id !== a.id; }); setDirty(false); toast('Artikel dihapus.'); location.hash = '#artikel'; })
-                .catch(function (e) { sibuk(b, false); gagal(e); });
+            if (confirm('Hapus artikel ini? Kalau sudah terbit, halamannya ikut dihapus dari situs.')) hapusData('artikel', a, this, A.hapusArtikel, 'Artikel dihapus.');
         });
     }
     function infoArtikel() {
@@ -997,7 +960,7 @@
     }
     function isiGambar(el) { $$('img[data-af]', el).forEach(function (img) { var f = ae.a.foto[+img.dataset.af]; if (f) A.fotoArtikel(f).then(function (u) { img.src = u; }, function () { img.alt = 'Foto tidak ditemukan'; }); }); }
     function pratinjau() {
-        var a = ae.a;
+        var a = ae.a; if (!$('#ar-pv')) return;
         $('#ar-pv').innerHTML = '<p class="ly-muted">' + E(a.tag) + '</p><h2>' + E(a.judul || '(tanpa judul)') + '</h2>' + (a.foto[0] ? '<img data-af="0" alt="" style="border-radius:12px;margin:10px 0">' : '') + ArtikelMd.keHtml(a.isi);
         isiGambar($('#ar-pv'));
     }
@@ -1026,13 +989,10 @@
             if (!a.ringkasan.trim()) a.ringkasan = ArtikelMd.teksPolos(a.isi).slice(0, 157) + '…';
             if (a.foto.some(function (f) { return !String(f.alt || '').trim(); })) return toast('Isi keterangan untuk setiap foto dulu.', true);
         }
-        var b = $('#ar-simpan'); sibuk(b, true, a.status === 'terbit' ? 'Menerbitkan…' : 'Menyimpan…'); menyimpan = true;
-        A.simpanArtikel(a).then(function (row) {
-            menyimpan = false; setDirty(false);
-            cache.artikel = cache.artikel.filter(function (x) { return x.id !== row.id; }); cache.artikel.unshift(row);
+        prosesSimpan('artikel', $('#ar-simpan'), a.status === 'terbit' ? 'Menerbitkan…' : 'Menyimpan…', function () { return A.simpanArtikel(a); }, function (row) {
             toast(row.status === 'terbit' ? 'Terbit! Halaman artikel tampil di situs ±1 menit lagi.' : 'Draf tersimpan.');
-            if (ae.baru) { hashLama = '#artikel/' + row.id; location.hash = hashLama; } else { sibuk(b, false); ae.a = salin(row); ae.slugManual = true; gambarArtikel(); }
-        }).catch(function (e) { menyimpan = false; sibuk(b, false); gagal(e); });
+            if (ae.baru) pindah('#artikel/' + row.id); else { ae.a = salin(row); ae.slugManual = true; gambarArtikel(); }
+        });
     }
 
     mulai();

@@ -129,9 +129,7 @@ document.addEventListener('DOMContentLoaded', function () {
     var L = window.Layanan, f = document.getElementById('f-cek'), out = document.getElementById('hasil');
     if (!L) return;
     var C = L.C, E = L.esc, KEY = 'ayri-cek';
-    function simpanIngat(k, h) { try { localStorage.setItem(KEY, JSON.stringify({ k: k, h: h })); } catch (e) {} }
-    function ingat() { try { return JSON.parse(localStorage.getItem(KEY) || 'null'); } catch (e) { return null; } }
-    function waToko(teks) { return 'https://wa.me/' + C.toko.wa + '?text=' + encodeURIComponent(teks); }
+    function waToko(teks) { return L.waLink(C.toko.wa, teks); }
 
     function cek(k, h) {
         k = k.trim().toUpperCase(); h = h.replace(/\D/g, '');
@@ -140,7 +138,7 @@ document.addEventListener('DOMContentLoaded', function () {
         L.api.cekPublik(k, h).then(function (s) {
             b.disabled = false; b.textContent = 'Cek status';
             if (!s) { out.innerHTML = '<p class="cek-err">Data tidak ditemukan. Periksa lagi kode servis dan 4 digit terakhir nomor HP, atau tanya kami lewat WhatsApp.</p>'; return; }
-            simpanIngat(k, h); tampil(s, h);
+            L.simpanKode(KEY, k, h); tampil(s);
             if (history.replaceState) history.replaceState(null, '', 'cek-servis.html?k=' + encodeURIComponent(s.kode));
         }).catch(function () {
             b.disabled = false; b.textContent = 'Cek status';
@@ -148,16 +146,16 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    function tampil(s, h4) {
-        var st = L.STATUS[s.status] || { label: s.status, ket: '' }, langkah = L.URUT_STATUS.indexOf(s.status);
-        var hit = L.hitung(s, s.items, s.bayar), gitar = [s.gitar_jenis, s.gitar_merk].filter(Boolean).join(' ') || 'Gitar Anda';
-        var html = '<section class="ly-card cek-hero"><span class="ly-kode">' + E(s.kode) + '</span><div class="cek-gitar">' + E(gitar) + '</div>' +
+    function tampil(s) {
+        var st = L.STATUS[s.status] || { label: s.status, ket: '' }, langkah = L.URUT_STATUS.indexOf(s.status), beres = L.beres(s);
+        var hit = L.hitung(s, s.items, s.bayar);
+        /* status cukup ditunjukkan chip + bilah progres (tanpa deretan nama tahap yang mengulang chip) */
+        var html = '<section class="ly-card cek-hero"><span class="ly-kode">' + E(s.kode) + '</span><div class="cek-gitar">' + E(L.namaGitar(s, 'Gitar Anda')) + '</div>' +
             '<div><span class="st-chip st-' + E(s.status) + '">' + E(st.label) + '</span></div>' +
-            '<div class="cek-steps" aria-hidden="true">' + [0, 1, 2, 3, 4].map(function (i) { return '<span' + (i <= langkah ? ' class="on"' : '') + '></span>'; }).join('') + '</div>' +
-            '<div class="cek-steplbl" aria-hidden="true">' + ['Masuk', 'Antri', 'Dikerjakan', 'Selesai', 'Diambil'].map(function (t, i) { return '<span' + (i === langkah ? ' class="on"' : '') + '>' + t + '</span>'; }).join('') + '</div>' +
-            '<p>' + E(st.ket) + '</p>' +
+            '<div class="cek-steps" role="img" aria-label="Tahap ' + (langkah + 1) + ' dari 5">' + [0, 1, 2, 3, 4].map(function (i) { return '<span' + (i <= langkah ? ' class="on"' : '') + '></span>'; }).join('') + '</div>' +
+            (st.ket ? '<p>' + E(st.ket) + '</p>' : '') +
             '<dl class="cek-kv"><dt>Tanggal masuk</dt><dd>' + L.tglPanjang(s.tgl_masuk) + '</dd>' +
-            (s.status === 'selesai' || s.status === 'diambil' ? '<dt>Selesai</dt><dd>' + L.tglPanjang(s.tgl_selesai) + '</dd>' : s.estimasi ? '<dt>Estimasi selesai</dt><dd>' + L.tglPanjang(s.estimasi) + '</dd>' : '') +
+            (beres ? '<dt>Selesai</dt><dd>' + L.tglPanjang(s.tgl_selesai) + '</dd>' : s.estimasi ? '<dt>Estimasi selesai</dt><dd>' + L.tglPanjang(s.estimasi) + '</dd>' : '') +
             (s.tgl_diambil ? '<dt>Diambil</dt><dd>' + L.tglPanjang(s.tgl_diambil) + '</dd>' : '') +
             (function () {
                 var t = s.status === 'selesai' && L.titip(s); if (!t) return '';
@@ -173,41 +171,43 @@ document.addEventListener('DOMContentLoaded', function () {
 
         var foto = s.foto || [];
         function kelompokFoto(t) { var fs = []; foto.forEach(function (x, i) { if (x.tahap === t) fs.push([x, i]); }); return fs; }
-        function fig(p, label) {
+        function fig(p) {
             var x = p[0];
             return '<figure><button type="button" data-besar="' + p[1] + '"><img data-foto="' + p[1] + '" alt="' + E(L.TAHAP[x.tahap] + (x.keterangan ? ': ' + x.keterangan : '')) + '"></button>' +
-                (label || x.keterangan ? '<figcaption>' + E([label, x.keterangan].filter(Boolean).join(' · ')) + '</figcaption>' : '') + '</figure>';
+                (x.keterangan ? '<figcaption>' + E(x.keterangan) + '</figcaption>' : '') + '</figure>';
         }
+        function seksi(judul, isi) { return '<section class="ly-card"><h2>' + judul + '</h2>' + isi + '</section>'; }
+        function grid(fs) { return '<div class="ly-foto cek-foto">' + fs.map(fig).join('') + '</div>'; }
         var fSebelum = kelompokFoto('sebelum'), fSesudah = kelompokFoto('sesudah'), fRusak = kelompokFoto('kerusakan');
         if (fSebelum.length && fSesudah.length) {
-            /* pembanding: kolom kiri sebelum, kolom kanan sesudah */
+            /* pembanding: kolom kiri sebelum, kolom kanan sesudah; labelnya cukup sekali di kepala kolom */
             var n = Math.max(fSebelum.length, fSesudah.length), baris = '';
-            for (var i = 0; i < n; i++) baris += (fSebelum[i] ? fig(fSebelum[i], 'Sebelum') : '<span></span>') + (fSesudah[i] ? fig(fSesudah[i], 'Sesudah') : '<span></span>');
-            html += '<section class="ly-card"><h2>Sebelum &amp; sesudah</h2><div class="cek-banding-head"><span>Sebelum</span><span>Sesudah</span></div><div class="ly-foto cek-foto cek-banding">' + baris + '</div></section>';
+            for (var i = 0; i < n; i++) baris += (fSebelum[i] ? fig(fSebelum[i]) : '<span></span>') + (fSesudah[i] ? fig(fSesudah[i]) : '<span></span>');
+            html += seksi('Foto hasil servis', '<div class="cek-banding-head"><span>Sebelum</span><span>Sesudah</span></div><div class="ly-foto cek-foto cek-banding">' + baris + '</div>');
         } else {
-            if (fSesudah.length) html += '<section class="ly-card"><h2>' + L.TAHAP.sesudah + '</h2><div class="ly-foto cek-foto">' + fSesudah.map(function (p) { return fig(p); }).join('') + '</div></section>';
-            if (fSebelum.length) html += '<section class="ly-card"><h2>Kondisi saat masuk</h2><div class="ly-foto cek-foto">' + fSebelum.map(function (p) { return fig(p); }).join('') + '</div></section>';
+            if (fSesudah.length) html += seksi(L.TAHAP.sesudah, grid(fSesudah));
+            if (fSebelum.length) html += seksi('Kondisi saat masuk', grid(fSebelum));
         }
-        if (fRusak.length) html += '<section class="ly-card"><h2>' + L.TAHAP.kerusakan + '</h2><div class="ly-foto cek-foto">' + fRusak.map(function (p) { return fig(p); }).join('') + '</div></section>';
+        if (fRusak.length) html += seksi(L.TAHAP.kerusakan, grid(fRusak));
 
         if (hit.total) {
             html += '<section class="ly-card"><h2>Biaya</h2><div class="ly-sum" style="margin:0;padding:0;border:0">' +
                 (s.items || []).map(function (i) { return '<div><span>' + E(i.nama) + (i.qty > 1 ? ' ×' + i.qty : '') + '</span><span>' + L.rupiah(i.harga * (i.qty || 1)) + '</span></div>'; }).join('') +
                 (hit.diskon ? '<div><span>Diskon</span><span>' + L.rupiah(-hit.diskon) + '</span></div>' : '') +
                 '<div class="ly-total"><span>Total</span><span>' + L.rupiah(hit.total) + '</span></div>' +
-                '<div><span>Sudah dibayar</span><span>' + L.rupiah(hit.dibayar) + '</span></div>' +
-                (hit.kurangAwal && s.status === 'menunggu_dp' ? '<div class="ly-warn"><span>Pembayaran awal untuk mulai dikerjakan<br><small>DP ' + (C.dpJasaPersen == null ? 50 : C.dpJasaPersen) + '% jasa + part lunas</small></span><span>' + L.rupiah(hit.kurangAwal) + '</span></div>' : '') +
+                (hit.dibayar && !hit.lunas ? '<div><span>Sudah dibayar</span><span>' + L.rupiah(hit.dibayar) + '</span></div>' : '') +
+                (hit.kurangAwal && s.status === 'menunggu_dp' ? '<div class="ly-warn"><span>Pembayaran awal untuk mulai dikerjakan<br><small>DP ' + L.dpPersen() + '% jasa + part lunas</small></span><span>' + L.rupiah(hit.kurangAwal) + '</span></div>' : '') +
                 '<div class="ly-total"><span>' + (hit.lunas ? 'Lunas ✓' : 'Sisa pembayaran') + '</span><span>' + (hit.lunas ? '' : L.rupiah(hit.sisa)) + '</span></div></div>' +
                 (!hit.lunas ? '<p class="ly-muted" style="margin-top:10px">Transfer ke <b>' + E(L.rekeningTeks()) + '</b>, lalu kirim bukti transfer lewat WhatsApp.</p>' : '') + '</section>';
         }
 
         var gar = (s.items || []).filter(function (i) { return i.garansi; });
-        if (gar.length && (s.status === 'selesai' || s.status === 'diambil')) {
+        if (gar.length && beres) {
             var hari = L.hariIni(), hangus = L.garansiHangus(s), tg = L.titip(s);
             html += '<section class="ly-card"><h2>Garansi</h2><div class="cek-garansi">' + gar.map(function (i) {
                 var akhir = s.tgl_diambil ? L.garansiAkhir(i.garansi, s.tgl_diambil) : null;
                 return '<div><b>' + E(i.nama) + ' – ' + L.garansiLabel(i.garansi) + '</b>' +
-                    (hangus ? 'Hangus karena gitar tidak diambil lebih dari ' + (C.garansiHangusHari || 30) + ' hari setelah selesai' :
+                    (hangus ? 'Hangus karena gitar tidak diambil lebih dari ' + C.garansiHangusHari + ' hari setelah selesai' :
                         akhir ? (akhir >= hari ? '<span class="aktif">Aktif sampai ' + L.tglPanjang(akhir) + '</span>' : 'Berakhir ' + L.tglPanjang(akhir)) :
                         'Mulai berlaku saat gitar diambil' + (tg ? ' (ambil paling lambat ' + L.tglPanjang(tg.batasGaransi) + ' agar garansi tetap berlaku)' : '')) +
                     (i.garansi_syarat ? '<br><small>' + E(i.garansi_syarat) + '</small>' : '') + '</div>';
@@ -233,7 +233,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
     f.addEventListener('submit', function (e) { e.preventDefault(); cek(f.k.value, f.h.value); });
 
-    var q = new URLSearchParams(location.search), k = q.get('k'), h = q.get('h'), mem = ingat();
+    var q = new URLSearchParams(location.search), k = q.get('k'), h = q.get('h'), mem = L.ingatKode(KEY);
     if (k) {
         f.k.value = k.toUpperCase();
         if (!h && mem && mem.k === k.toUpperCase()) h = mem.h;

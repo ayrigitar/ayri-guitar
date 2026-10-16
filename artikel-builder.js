@@ -58,5 +58,5 @@
         if (!re.test(teks)) throw new Error('Penanda ARTIKEL-OTOMATIS tidak ditemukan di ' + namaFile);
         return teks.replace(re, function (m, a, b) { return a + (isiBaru ? '\n' + isiBaru : '') + b; });
     }
-    root.ArtikelBuilder = { PENANDA: PENANDA, halaman: halaman, kartu: kartu, entriSitemap: entriSitemap, gantiBlok: gantiBlok, deskripsi: deskripsi };
+    root.ArtikelBuilder = { PENANDA: PENANDA, halaman: halaman, kartu: kartu, entriSitemap: entriSitemap, gantiBlok: gantiBlok };
 })(this);
