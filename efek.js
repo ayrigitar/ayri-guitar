@@ -363,7 +363,42 @@
             return blokWorklet(ctx, 'ayri-rotary', true, function (n, p) { setP(n, 'cepat', +p.cepat); setP(n, 'dalam', p.dalam / 10); setP(n, 'campur', p.campur / 100); });
         }
     };
-    var URUT = ['gate', 'komp', 'wah', 'autowah', 'boost', 'od', 'dist', 'fuzz', 'eq', 'amp', 'chorus', 'flanger', 'phaser', 'vibrato', 'tremolo', 'rotary', 'delay', 'reverb'];
+    /* tahap 3: nada (eksperimen) - membaca/menggeser nada secara langsung, paling rapi untuk not tunggal */
+    var NADA = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+    BLOK.oktaf = {
+        nama: 'Octaver', warna: 'nila', eksperimen: true, catatan: 'Menambah nada satu atau dua oktaf di bawah (dan oktaf di atas). Paling rapi untuk not tunggal, bukan chord.',
+        param: [R('bawah1', 'Oktaf bawah', 0, 100, 80, 1, '%'), R('bawah2', '2 oktaf bawah', 0, 100, 0, 1, '%'), R('atas', 'Oktaf atas', 0, 100, 0, 1, '%'), R('asli', 'Suara asli', 0, 100, 70, 1, '%')],
+        buat: function (ctx) {
+            return blokWorklet(ctx, 'ayri-oktaf', false, function (n, p) { setP(n, 'bawah1', p.bawah1 / 100); setP(n, 'bawah2', p.bawah2 / 100); setP(n, 'atas', p.atas / 100); setP(n, 'asli', p.asli / 100); });
+        }
+    };
+    BLOK.geser = {
+        nama: 'Pitch shifter', warna: 'magenta', eksperimen: true, catatan: 'Menggeser nada per semiton (12 = satu oktaf), atau sedikit saja (sen) untuk efek dobel. Bisa untuk chord, dengan sedikit getar.',
+        param: [R('semi', 'Geser', -12, 12, 12, 1, ' semiton'), R('sen', 'Halus', -50, 50, 0, 1, ' sen'), R('campur', 'Campur', 0, 100, 40, 1, '%')],
+        buat: function (ctx) {
+            return blokWorklet(ctx, 'ayri-geser', false, function (n, p) { setP(n, 'semi', p.semi); setP(n, 'sen', p.sen); setP(n, 'campur', p.campur / 100); });
+        }
+    };
+    BLOK.harmoni = {
+        nama: 'Harmonizer', warna: 'pirus', eksperimen: true, catatan: 'Menambah suara harmoni yang mengikuti kunci dan tangga nada lagu. Untuk melodi not tunggal; harmoni terdengar sedikit terlambat.',
+        param: [PIL('kunci', 'Kunci', NADA.map(function (n, i) { return [String(i), n]; }), '0'), PIL('tangga', 'Tangga nada', [['0', 'Mayor'], ['1', 'Minor']], '0'),
+            PIL('langkah', 'Harmoni', [['2', 'Terts atas'], ['3', 'Kuart atas'], ['4', 'Kuint atas'], ['5', 'Sekst atas'], ['7', 'Oktaf atas'], ['-2', 'Terts bawah'], ['-4', 'Kuint bawah'], ['-7', 'Oktaf bawah']], '2'),
+            R('campur', 'Campur', 0, 100, 60, 1, '%')],
+        buat: function (ctx) {
+            return blokWorklet(ctx, 'ayri-harmoni', false, function (n, p) { setP(n, 'kunci', +p.kunci); setP(n, 'minor', +p.tangga); setP(n, 'langkah', +p.langkah); setP(n, 'campur', p.campur / 100); });
+        }
+    };
+    BLOK.synth = {
+        nama: 'Guitar synth', warna: 'neon', eksperimen: true, catatan: 'Nada gitar diikuti synthesizer. Mainkan not tunggal (chord tidak terbaca); suara synth mengikuti kuat-lemah petikan.',
+        param: [PIL('bentuk', 'Gelombang', [['0', 'Gergaji'], ['1', 'Kotak'], ['2', 'Halus']], '0'), PIL('oktaf', 'Oktaf', [['-2', '\u22122'], ['-1', '\u22121'], ['0', '0'], ['1', '+1']], '0'),
+            R('cutoff', 'Filter', 100, 8000, 1500, 50, ' Hz'), KN('reso', 'Resonansi', 4), KN('amplop', 'Amplop', 5), R('glide', 'Glide', 0, 300, 30, 5, ' ms'), R('campur', 'Campur', 0, 100, 70, 1, '%')],
+        buat: function (ctx) {
+            return blokWorklet(ctx, 'ayri-synth', false, function (n, p) {
+                setP(n, 'bentuk', +p.bentuk); setP(n, 'oktaf', +p.oktaf); setP(n, 'cutoff', p.cutoff); setP(n, 'reso', p.reso / 10); setP(n, 'amplop', p.amplop / 10); setP(n, 'glide', p.glide); setP(n, 'campur', p.campur / 100);
+            });
+        }
+    };
+    var URUT = ['gate', 'komp', 'oktaf', 'synth', 'harmoni', 'geser', 'wah', 'autowah', 'boost', 'od', 'dist', 'fuzz', 'eq', 'amp', 'chorus', 'flanger', 'phaser', 'vibrato', 'tremolo', 'rotary', 'delay', 'reverb'];
     /* urutan lama (sebelum ada blok baru) dilengkapi: blok baru disisipkan sesudah blok sebelumnya menurut urutan bawaan */
     function lengkapiUrutan(u) {
         var hasil = (Array.isArray(u) ? u : []).filter(function (k, i, a) { return URUT.indexOf(k) > -1 && a.indexOf(k) === i; });
@@ -469,7 +504,13 @@
         pr('Organ berputar', { gate: {}, amp: { model: 'crunch', gain: 3 }, rotary: { cepat: '0', dalam: 7 }, reverb: { jenis: 'ruang', campur: 15 } }),
         pr('Tremolo surf', { gate: { ambang: -70 }, amp: { model: 'bersih', gain: 4, treble: 7, kab: '1x12' }, tremolo: { laju: 6, dalam: 60 }, reverb: { jenis: 'pegas', decay: 2.5, campur: 40 } }),
         pr('Jet flanger', { gate: { ambang: -58 }, dist: { gain: 5 }, amp: { model: 'crunch', gain: 4, kab: '4x12' }, flanger: { laju: 0.2, dalam: 7, umpan: 60 } }),
-        pr('Vibrato vintage', { gate: { ambang: -70 }, amp: { model: 'bersih', gain: 4 }, vibrato: { laju: 5.5, dalam: 4 }, reverb: { jenis: 'pegas', campur: 25 } })
+        pr('Vibrato vintage', { gate: { ambang: -70 }, amp: { model: 'bersih', gain: 4 }, vibrato: { laju: 5.5, dalam: 4 }, reverb: { jenis: 'pegas', campur: 25 } }),
+        pr('Oktaf bawah (bass)', { gate: {}, komp: { sustain: 4 }, oktaf: { bawah1: 80, asli: 70 }, amp: { model: 'bersih', gain: 3 }, reverb: { jenis: 'ruang', decay: 1, campur: 10 } }),
+        pr('Fuzz oktaf atas', { gate: { ambang: -60 }, oktaf: { bawah1: 0, atas: 70, asli: 80 }, fuzz: { fuzz: 6 }, amp: { model: 'crunch', gain: 3 }, reverb: { jenis: 'ruang', campur: 12 } }),
+        pr('Harmoni terts (C mayor)', { gate: {}, harmoni: { kunci: '0', tangga: '0', langkah: '2', campur: 60 }, od: { drive: 3, level: 6 }, amp: { model: 'lead', gain: 4 }, delay: { waktu: 380, umpan: 25, campur: 20 }, reverb: { jenis: 'aula', campur: 20 } }),
+        pr('Synth lead', { gate: { ambang: -58 }, synth: { bentuk: '0', cutoff: 1200, reso: 5, amplop: 6, campur: 85 }, amp: { model: 'bersih', gain: 2, kab: 'tanpa' }, delay: { waktu: 330, umpan: 35, campur: 25 }, reverb: { jenis: 'aula', campur: 25 } }),
+        pr('Gitar 12 senar', { gate: { ambang: -70 }, komp: { sustain: 4 }, geser: { semi: 12, campur: 35 }, chorus: { laju: 0.6, dalam: 3, campur: 25 }, amp: { model: 'bersih', gain: 3, treble: 6 }, reverb: { jenis: 'aula', campur: 22 } }),
+        pr('Dobel detune', { gate: { ambang: -70 }, geser: { semi: 0, sen: 12, campur: 50 }, amp: { model: 'crunch', gain: 4 }, reverb: { jenis: 'ruang', campur: 15 } })
     ];
     function paramAwal(k) { var p = {}; BLOK[k].param.forEach(function (x) { p[x.k] = x.def; }); return p; }
     function dariPreset(prs) {
@@ -700,7 +741,7 @@
             var B = BLOK[k], b = S.blok[k];
             return '<article class="ef-kartu w-' + B.warna + (b.on ? ' on' : '') + (B.lebar ? ' lebar' : '') + (k === pilih ? ' aktif' : '') + '" data-blok="' + k + '">' +
                 '<header class="ef-kk" draggable="true" title="Seret untuk mengubah urutan"><button type="button" class="ef-led" data-nyala="' + k + '" aria-pressed="' + b.on + '" title="Nyalakan / matikan" aria-label="' + (b.on ? 'Matikan ' : 'Nyalakan ') + B.nama + '"></button>' +
-                '<b>' + B.nama + '</b><span class="ef-geser"><button type="button" data-geser="-1" aria-label="Pindah lebih awal"' + (i ? '' : ' disabled') + '>&lsaquo;</button><button type="button" data-geser="1" aria-label="Pindah lebih akhir"' + (i < S.urutan.length - 1 ? '' : ' disabled') + '>&rsaquo;</button></span></header>' +
+                '<b>' + B.nama + (B.eksperimen ? ' <small class="ef-eks" title="Fitur eksperimen: paling rapi untuk not tunggal">eksperimen</small>' : '') + '</b><span class="ef-geser"><button type="button" data-geser="-1" aria-label="Pindah lebih awal"' + (i ? '' : ' disabled') + '>&lsaquo;</button><button type="button" data-geser="1" aria-label="Pindah lebih akhir"' + (i < S.urutan.length - 1 ? '' : ' disabled') + '>&rsaquo;</button></span></header>' +
                 '<div class="ef-isi">' + B.param.map(function (p) { return htmlParam(k, p, b.p[p.k]); }).join('') + '</div>' +
                 (B.catatan ? '<p class="ef-cat">' + B.catatan + '</p>' : '') + '</article>';
         }).join('');
