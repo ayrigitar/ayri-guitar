@@ -26,7 +26,7 @@
   function setH() { var h = (window.visualViewport && window.visualViewport.height) || window.innerHeight; document.documentElement.style.setProperty('--app-h', Math.round(h) + 'px'); }
   if ((window.matchMedia && matchMedia('(display-mode: standalone)').matches) || navigator.standalone) document.documentElement.classList.add('standalone');
   function fit() {
-    var m = document.querySelector('main.app'); if (!m) return; busy = true;
+    var m = document.querySelector('main.app'); if (!m || m.classList.contains('gulir')) return; busy = true;
     m.classList.remove('fit1', 'fit2', 'fit3'); var cfg = MIN[page];
     function squeezed() { var lf = page === 'chords' && m.querySelector('.chleft'); if (lf && lf.offsetParent !== null && lf.scrollHeight > lf.clientHeight + 1) return true; var n = cfg && m.querySelector(cfg[0]); if (n && n.offsetParent !== null && n.getBoundingClientRect().height < cfg[1]) return true; return m.scrollHeight > m.clientHeight + 1; }
     for (var l = 1; l <= 3 && squeezed(); l++) m.classList.add('fit' + l);
