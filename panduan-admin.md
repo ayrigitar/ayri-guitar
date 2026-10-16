@@ -112,7 +112,7 @@ Barang yang **tersedia**, **ada harga jual**, dan dicentang **🌐 Tampilkan di 
 - **cek-servis.html** dan **nota.html**: hanya terbuka dengan kode servis + 4 digit terakhir HP.
 - Terlihat: jenis/merk gitar, status, estimasi, pesan dari bengkel, rincian biaya, foto berlabel **Tampil**, dan (setelah selesai) foto sesudah, saran, serta garansi.
 - Tidak pernah terlihat: nomor HP lengkap, catatan internal, foto yang disembunyikan.
-- Foto **sebelum** servis disembunyikan secara bawaan; ketuk labelnya di admin untuk menampilkan.
+- Semua foto tampil ke pelanggan secara bawaan (label **Tampil**); ketuk labelnya di admin bila ada foto yang ingin disembunyikan. Setelah servis selesai, pelanggan melihat bagian **Sebelum & sesudah** berdampingan.
 - Kalau nomor HP pelanggan diubah, 4 digit untuk cek status ikut berubah. Kirim ulang tautan lewat WA.
 
 ## Keamanan & perawatan

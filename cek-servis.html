@@ -172,13 +172,23 @@ document.addEventListener('DOMContentLoaded', function () {
             '<p style="margin-top:12px"><a class="ly-btn ly-btn--wa" target="_blank" rel="noopener" href="' + E(waToko('Halo AYRI, saya pemilik servis ' + s.kode + '. Saya mau tanya soal saran dari bengkel: ')) + '">Tanya / setujui lewat WhatsApp</a></p></section>';
 
         var foto = s.foto || [];
-        ['sesudah', 'kerusakan', 'sebelum'].forEach(function (t) {
-            var fs = []; foto.forEach(function (x, i) { if (x.tahap === t) fs.push([x, i]); });
-            if (fs.length) html += '<section class="ly-card"><h2>' + L.TAHAP[t] + '</h2><div class="ly-foto cek-foto">' + fs.map(function (p) {
-                var x = p[0];
-                return '<figure><button type="button" data-besar="' + p[1] + '"><img data-foto="' + p[1] + '" alt="' + E(L.TAHAP[t] + (x.keterangan ? ': ' + x.keterangan : '')) + '"></button>' + (x.keterangan ? '<figcaption>' + E(x.keterangan) + '</figcaption>' : '') + '</figure>';
-            }).join('') + '</div></section>';
-        });
+        function kelompokFoto(t) { var fs = []; foto.forEach(function (x, i) { if (x.tahap === t) fs.push([x, i]); }); return fs; }
+        function fig(p, label) {
+            var x = p[0];
+            return '<figure><button type="button" data-besar="' + p[1] + '"><img data-foto="' + p[1] + '" alt="' + E(L.TAHAP[x.tahap] + (x.keterangan ? ': ' + x.keterangan : '')) + '"></button>' +
+                (label || x.keterangan ? '<figcaption>' + E([label, x.keterangan].filter(Boolean).join(' · ')) + '</figcaption>' : '') + '</figure>';
+        }
+        var fSebelum = kelompokFoto('sebelum'), fSesudah = kelompokFoto('sesudah'), fRusak = kelompokFoto('kerusakan');
+        if (fSebelum.length && fSesudah.length) {
+            /* pembanding: kolom kiri sebelum, kolom kanan sesudah */
+            var n = Math.max(fSebelum.length, fSesudah.length), baris = '';
+            for (var i = 0; i < n; i++) baris += (fSebelum[i] ? fig(fSebelum[i], 'Sebelum') : '<span></span>') + (fSesudah[i] ? fig(fSesudah[i], 'Sesudah') : '<span></span>');
+            html += '<section class="ly-card"><h2>Sebelum &amp; sesudah</h2><div class="cek-banding-head"><span>Sebelum</span><span>Sesudah</span></div><div class="ly-foto cek-foto cek-banding">' + baris + '</div></section>';
+        } else {
+            if (fSesudah.length) html += '<section class="ly-card"><h2>' + L.TAHAP.sesudah + '</h2><div class="ly-foto cek-foto">' + fSesudah.map(function (p) { return fig(p); }).join('') + '</div></section>';
+            if (fSebelum.length) html += '<section class="ly-card"><h2>Kondisi saat masuk</h2><div class="ly-foto cek-foto">' + fSebelum.map(function (p) { return fig(p); }).join('') + '</div></section>';
+        }
+        if (fRusak.length) html += '<section class="ly-card"><h2>' + L.TAHAP.kerusakan + '</h2><div class="ly-foto cek-foto">' + fRusak.map(function (p) { return fig(p); }).join('') + '</div></section>';
 
         if (hit.total) {
             html += '<section class="ly-card"><h2>Biaya</h2><div class="ly-sum" style="margin:0;padding:0;border:0">' +
