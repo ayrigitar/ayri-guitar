@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Baca &amp; Tulis Tab Gitar Online: Guitar Pro, MusicXML, Partitur | Toko Gitar AYRI</title>
-    <meta name="description" content="Buka file Guitar Pro (.gp, .gp5) dan MusicXML langsung di browser: tampil tab gitar, not balok, dan chord untuk semua instrumen, bisa diputar. Tulis tab sendiri dan unduh sebagai file Guitar Pro.">
+    <title>Partitur &amp; Tab Online Semua Instrumen: Guitar Pro, MusicXML, Not Angka | Toko Gitar AYRI</title>
+    <meta name="description" content="Buka file Guitar Pro dan MusicXML untuk semua instrumen (gitar, bass, ukulele, piano, drum, vokal) langsung di browser: not balok, tab, not angka, chord, bisa diputar, transpose, dan kapo. Tulis partitur sendiri dan unduh sebagai Guitar Pro.">
     <link rel="canonical" href="https://ayrigitar.com/partitur.html">
     <meta property="og:type" content="website">
     <meta property="og:locale" content="id_ID">
     <meta property="og:site_name" content="Toko Gitar AYRI">
-    <meta property="og:title" content="Baca &amp; Tulis Tab Gitar Online: Guitar Pro, MusicXML, Partitur | Toko Gitar AYRI">
-    <meta property="og:description" content="Buka file Guitar Pro (.gp, .gp5) dan MusicXML langsung di browser: tampil tab gitar, not balok, dan chord untuk semua instrumen, bisa diputar. Tulis tab sendiri dan unduh sebagai file Guitar Pro.">
+    <meta property="og:title" content="Partitur &amp; Tab Online Semua Instrumen: Guitar Pro, MusicXML, Not Angka | Toko Gitar AYRI">
+    <meta property="og:description" content="Buka file Guitar Pro dan MusicXML untuk semua instrumen (gitar, bass, ukulele, piano, drum, vokal) langsung di browser: not balok, tab, not angka, chord, bisa diputar, transpose, dan kapo. Tulis partitur sendiri dan unduh sebagai Guitar Pro.">
     <meta property="og:url" content="https://ayrigitar.com/partitur.html">
     <meta name="twitter:card" content="summary">
     <link rel="manifest" href="manifest.webmanifest">
@@ -24,9 +24,9 @@
 {
   "@context": "https://schema.org",
   "@type": "WebApplication",
-  "name": "Baca & Tulis Tab AYRI",
+  "name": "Partitur & Tab AYRI",
   "url": "https://ayrigitar.com/partitur.html",
-  "description": "Buka file Guitar Pro (.gp, .gp5) dan MusicXML langsung di browser: tampil tab gitar, not balok, dan chord untuk semua instrumen, bisa diputar. Tulis tab sendiri dan unduh sebagai file Guitar Pro.",
+  "description": "Buka file Guitar Pro dan MusicXML untuk semua instrumen (gitar, bass, ukulele, piano, drum, vokal) langsung di browser: not balok, tab, not angka, chord, bisa diputar, transpose, dan kapo. Tulis partitur sendiri dan unduh sebagai Guitar Pro.",
   "applicationCategory": "MusicApplication",
   "operatingSystem": "Semua perangkat dengan browser modern",
   "inLanguage": "id",
@@ -142,11 +142,11 @@
             </nav>
             <button type="button" class="ib" data-open="dr-info" aria-label="Bantuan (info)"><svg class="ic" aria-hidden="true"><use href="#i-info"/></svg><span aria-hidden="true">Info</span></button>
         </div>
-        <h1 class="sr-only">Baca dan tulis tab gitar, not balok, dan chord dari file Guitar Pro dan MusicXML</h1>
+        <h1 class="sr-only">Partitur dan tab semua instrumen: buka Guitar Pro dan MusicXML, transpose, kapo, not angka</h1>
         <div class="t-card sc-top">
             <div class="sc-mode" role="group" aria-label="Mode">
                 <button type="button" class="chip" data-mode="buka" aria-pressed="true">Buka file</button>
-                <button type="button" class="chip" data-mode="tulis" aria-pressed="false">Tulis tab</button>
+                <button type="button" class="chip" data-mode="tulis" aria-pressed="false">Tulis sendiri</button>
             </div>
             <div id="sc-buka" class="sc-buka">
                 <div class="sc-row">
@@ -156,12 +156,16 @@
                 <p class="t-help">Guitar Pro (.gp, .gp3&ndash;.gp5, .gpx) atau MusicXML (.musicxml, .xml, .mxl). Bisa juga tarik file ke halaman ini. File dibuka di perangkat Anda dan tidak diunggah.</p>
             </div>
             <div id="sc-tulis" class="sc-tulis" hidden>
-                <textarea id="tex" class="sc-tex" rows="9" spellcheck="false" autocapitalize="off" autocomplete="off" aria-label="Tulis tab (format alphaTex)"></textarea>
+                <div class="sc-row">
+                    <select id="templat" class="sel" aria-label="Mulai baru untuk instrumen">
+                        <option value="">Mulai baru untuk&hellip;</option><option value="gitar">Gitar</option><option value="bass">Bass</option><option value="ukulele">Ukulele</option><option value="piano">Piano / keyboard</option><option value="drum">Drum</option><option value="vokal">Vokal / melodi</option>
+                    </select>
+                    <button type="button" class="chip" data-open="dr-tulis">Cara menulis</button>
+                </div>
+                <textarea id="tex" class="sc-tex" rows="9" spellcheck="false" autocapitalize="off" autocomplete="off" aria-label="Tulis partitur atau tab (format alphaTex)"></textarea>
                 <p class="sc-err" id="texerr" role="alert" hidden></p>
                 <div class="sc-row">
-                    <button type="button" class="chip" data-open="dr-tulis">Cara menulis</button>
                     <button type="button" class="chip" id="tex-ini">Ubah lagu yang tampil jadi teks</button>
-                    <button type="button" class="chip" id="tex-kosong">Mulai dari kosong</button>
                 </div>
             </div>
         </div>
@@ -175,8 +179,12 @@
             <button type="button" class="chip" id="loop" aria-pressed="false">Ulang</button>
             <button type="button" class="chip" id="metro" aria-pressed="false">Metronom</button>
             <button type="button" class="chip" id="countin" aria-pressed="false">Hitung masuk</button>
+            <span class="sc-nada" role="group" aria-label="Transpose">
+                <button type="button" class="chip" id="nada-turun" aria-label="Turunkan setengah nada">&minus;</button><span id="nada">Nada 0</span><button type="button" class="chip" id="nada-naik" aria-label="Naikkan setengah nada">+</button>
+            </span>
+            <span id="kapo-w"><select id="kapo" class="sel" aria-label="Kapo gitar dan ukulele"></select></span>
             <select id="profil" class="sel" aria-label="Tampilan">
-                <option value="Default">Not balok + tab</option><option value="Tab">Tab saja</option><option value="Score">Not balok saja</option>
+                <option value="semua">Tampilan asli</option><option value="balok">Not balok saja</option><option value="tab">Tab saja</option><option value="angka">Not angka</option><option value="slash">Slash (irama)</option>
             </select>
             <button type="button" class="chip" data-open="dr-track">Instrumen (<span id="n-track">0</span>)</button>
             <button type="button" class="chip" id="unduh" data-open="dr-unduh" disabled>Unduh &amp; cetak</button>
@@ -202,29 +210,49 @@
     </div></div>
     <div class="drawer" id="dr-tulis" hidden><div class="drawer-in">
         <button type="button" class="chip drawer-x" data-close>Tutup</button>
-        <h2>Cara menulis tab</h2>
+        <h2>Cara menulis</h2>
+        <p class="t-help">Paling mudah: pilih <b>Mulai baru untuk&hellip;</b> sesuai instrumen, lalu ubah contohnya.</p>
+        <h3 class="sc-h3">Semua instrumen</h3>
         <ul class="sc-cheat">
-            <li><code>3.2</code> = fret 3 di senar 2 (senar 1 = E kecil paling bawah, senar 6 = E besar)</li>
             <li><code>:4</code> not seperempat, <code>:8</code> seperdelapan, <code>:2</code> setengah, <code>:1</code> penuh. Berlaku untuk not berikutnya.</li>
-            <li><code>(0.1 1.2 0.3 2.4 3.5)</code> = beberapa senar dipetik bersamaan</li>
-            <li><code>r</code> = diam (tanda istirahat), <code>|</code> = garis birama</li>
-            <li><code>{ch "C"}</code> setelah not = nama chord di atasnya. <code>\chord ("C" 0 1 0 2 3 x)</code> = diagram chordnya.</li>
-            <li><code>{d}</code> = not bertitik, <code>:8 {tu 3}</code> = triol</li>
-            <li><code>5.3 {h} 7.3</code> = hammer-on, <code>5.3 {sl} 7.3</code> = slide, <code>7.3 {b (0 4)}</code> = bend</li>
+            <li><code>r</code> = diam (tanda istirahat), <code>|</code> = garis birama, <code>{d}</code> = not bertitik, <code>:8 {tu 3}</code> = triol</li>
             <li><code>\title "Judul"</code>, <code>\tempo 90</code>, <code>\ts 3 4</code> (birama 3/4)</li>
-            <li><code>\track "Bass"</code> + <code>\tuning (G2 D2 A1 E1)</code> = instrumen baru dengan stelan senarnya</li>
+            <li><code>\track "Nama"</code> = instrumen baru di lagu yang sama (seperti contoh lagu band)</li>
+            <li><code>{ch "C"}</code> setelah not = nama chord di atasnya</li>
+        </ul>
+        <h3 class="sc-h3">Gitar, bass, ukulele</h3>
+        <ul class="sc-cheat">
+            <li><code>3.2</code> = fret 3 di senar 2 (senar 1 = senar paling tipis)</li>
+            <li><code>(0.1 1.2 0.3 2.4 3.5)</code> = beberapa senar dipetik bersamaan</li>
+            <li><code>\tuning (G2 D2 A1 E1)</code> = stelan senar dari yang paling tipis (contoh ini bass 4 senar)</li>
+            <li><code>\chord ("C" 0 1 0 2 3 x)</code> = diagram chord, fret tiap senar, <code>x</code> = tidak dibunyikan</li>
+            <li><code>5.3 {h} 7.3</code> = hammer-on, <code>5.3 {sl} 7.3</code> = slide, <code>7.3 {b (0 4)}</code> = bend</li>
+        </ul>
+        <h3 class="sc-h3">Piano, keyboard, vokal, tiup</h3>
+        <ul class="sc-cheat">
+            <li><code>C4 D4 E4</code> = nama not + oktaf (C4 = do tengah), <code>F#4</code> kres, <code>Bb3</code> mol</li>
+            <li><code>(C4 E4 G4)</code> = akor (beberapa not bersamaan)</li>
+            <li><code>\tuning piano</code> atau <code>\tuning voice</code> setelah <code>\track</code>, <code>\lyrics "do re mi"</code> = lirik</li>
+        </ul>
+        <h3 class="sc-h3">Drum</h3>
+        <ul class="sc-cheat">
+            <li>Mulai dengan <code>\instrument percussion</code> dan <code>\articulation defaults</code></li>
+            <li><code>KickHit</code> (kick), <code>SnareHit</code>, <code>HiHatClosed</code>, <code>HiHatOpen</code>, <code>CrashMediumHit</code>, <code>RideMiddle</code>, <code>HighTomHit</code>, <code>LowFloorTomHit</code></li>
+            <li><code>(KickHit HiHatClosed)</code> = dipukul bersamaan</li>
         </ul>
         <p class="t-help">Format ini bernama alphaTex. Lihat contoh lagu untuk pola yang lebih lengkap.</p>
     </div></div>
     <div class="drawer" id="dr-info" hidden><div class="drawer-in">
         <button type="button" class="chip drawer-x" data-close>Tutup</button>
         <h2>Buka file</h2>
-        <p class="t-help">Mendukung Guitar Pro 3 sampai 8 (.gp3, .gp4, .gp5, .gpx, .gp) dan MusicXML (.musicxml, .xml, .mxl), lengkap dengan semua instrumennya: tab, not balok, chord, dan lirik bila ada di file. Partitur dari MuseScore bisa diekspor ke MusicXML lalu dibuka di sini.</p>
+        <p class="t-help">Mendukung Guitar Pro 3 sampai 8 (.gp3, .gp4, .gp5, .gpx, .gp) dan MusicXML (.musicxml, .xml, .mxl) untuk semua instrumen: gitar, bass, ukulele, piano, drum, vokal, tiup, dan gesek. Tab, not balok, chord, dan lirik tampil bila ada di file. Partitur dari MuseScore bisa diekspor ke MusicXML lalu dibuka di sini.</p>
         <h2>Putar &amp; latihan</h2>
-        <p class="t-help">Ketuk not untuk mulai dari situ, atau seret beberapa birama untuk dipilih lalu nyalakan Ulang untuk melatih bagian itu. Turunkan kecepatan ke 50&ndash;75% untuk bagian yang sulit. Spasi = putar/jeda.</p>
+        <p class="t-help">Ketuk not untuk mulai dari situ, atau seret beberapa birama untuk dipilih lalu nyalakan Ulang untuk melatih bagian itu. Turunkan kecepatan ke 50&ndash;75% untuk bagian yang sulit. Bisukan satu instrumen di menu Instrumen untuk latihan mengiringi. Spasi = putar/jeda.</p>
+        <h2>Nada, kapo, tampilan</h2>
+        <p class="t-help"><b>Nada &minus;/+</b> menaikkan atau menurunkan lagu setengah nada untuk semua instrumen (tab ikut menyesuaikan). <b>Kapo</b> untuk gitar dan ukulele: tab dan chord berubah menjadi bentuk yang dimainkan dengan kapo, bunyinya tetap. Tampilan bisa diganti ke not balok, tab, <b>not angka</b>, atau <b>slash</b> (irama saja, untuk pengiring).</p>
         <h2>Hak cipta</h2>
         <p class="t-help">Lagu contoh adalah karya domain publik. File yang Anda buka tidak dikirim ke server mana pun.</p>
-        <a class="t-cta" href="index.html#harga"><strong>Action gitar terlalu tinggi atau senar berdengung saat latihan?</strong><br>Lihat estimasi biaya setup &amp; servis di Toko Gitar AYRI Bogor &rarr;</a>
+        <a class="t-cta" href="index.html#harga"><strong>Toko Gitar AYRI di Bogor juga melayani servis gitar, bass, dan ukulele (akustik maupun elektrik) serta servis ampli.</strong><br>Lihat estimasi biaya servis &rarr;</a>
     </div></div>
     <!-- Footer (disembunyikan di mode aplikasi, tetap ada untuk mesin pencari) -->
     <footer id="kontak" class="site-footer">
