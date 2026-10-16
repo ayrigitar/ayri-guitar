@@ -60,6 +60,8 @@
     var dasar = null, nada = 0, kapo = 0, tampilan = 'semua', tampilTrack = [], bisu = {}, solo = {};
     /* chord lagu: garis waktu (nama asli) untuk panel & main bersama; ab = titik ulang A/B (tick) */
     var garisChord = [], adaKapo = false, alat = 'gtr', kidal = false, bentukKe = {}, ikut = false, ab = { a: null, b: null };
+    /* latihan: kecepatan putar, hitung masuk suara, naik tempo otomatis */
+    var kecepatan = 1, hitungOn = false, ikutAwal = false, latih = { on: false, mulai: 0.6, naik: 0.05, setiap: 1, sampai: 1, putaran: 0 };
 
     function pesan(t, salah) { msg.textContent = t || ''; msg.hidden = !t; msg.classList.toggle('err', !!salah); }
     function jam(ms) { var s = Math.max(0, Math.floor(ms / 1000)); return Math.floor(s / 60) + ':' + ('0' + s % 60).slice(-2); }
@@ -272,7 +274,7 @@
         tex.focus(); tex.setSelectionRange(+p[0], Math.max(+p[1], +p[0] + 1));
     });
 
-    at.scoreLoaded.on(function (score) { $('#n-track').textContent = score.tracks.length; gambarTrack(); $('#unduh').disabled = false; });
+    at.scoreLoaded.on(function (score) { $('#n-track').textContent = score.tracks.length; gambarTrack(); $('#unduh').disabled = false; tampilBpm(); });
     at.renderStarted.on(function () { if (!msg.classList.contains('err')) pesan('Menggambar partitur…'); });
     at.renderFinished.on(function () { if (!msg.classList.contains('err')) pesan(''); });
     at.error.on(function (e) {
@@ -301,7 +303,9 @@
         var u = ADA_MESIN ? daftarChord() : [];
         $('#sc-chord').hidden = !u.length;
         $('#ikut-btn').hidden = !u.length;
-        if (!u.length) { if (ikut) aturIkut(false); return; }
+        if (!u.length) { if (ikut) aturIkut(false); $('#saran').hidden = true; return; }
+        if (ikutAwal) { ikutAwal = false; aturIkut(true); }
+        tampilSaran();
         $('#n-chord').textContent = u.length;
         $('#chords').classList.toggle('pk', alat === 'pno');
         $('#chords').innerHTML = u.map(function (n) {
@@ -314,8 +318,41 @@
         if (g) { var k = alat + g.dataset.ganti; bentukKe[k] = (bentukKe[k] || 0) + 1; gambarPanel(); ikutChord(at.tickPosition || 0, true); }
         else if (b) bunyikan(b.dataset.bunyi);
     });
-    $('#alat').addEventListener('change', function () { alat = this.value; $('#kidal-w').hidden = alat === 'pno'; gambarPanel(); ikutChord(at.tickPosition || 0, true); });
-    $('#kidal').addEventListener('change', function () { kidal = this.checked; gambarPanel(); ikutChord(at.tickPosition || 0, true); });
+    $('#alat').addEventListener('change', function () { alat = this.value; $('#kidal-w').hidden = alat === 'pno'; gambarPanel(); ikutChord(at.tickPosition || 0, true); simpan(); });
+    $('#kidal').addEventListener('change', function () { kidal = this.checked; gambarPanel(); ikutChord(at.tickPosition || 0, true); simpan(); });
+
+    /* saran kapo (seperti halaman Transkrip): posisi kapo yang membuat chord paling banyak berbentuk terbuka */
+    var MUDAH = { maj: [0, 2, 4, 7, 9], m: [2, 4, 9] }, MINOR = { m: 1, m7: 1, m6: 1, m9: 1, madd9: 1, mmaj7: 1, m7b5: 1, dim: 1, dim7: 1 };
+    function saranKapo() {
+        if (!garisChord.length || !adaKapo || (alat !== 'gtr' && alat !== 'gll') || !at.score) return null;
+        var mb = at.score.masterBars, akhir = mb[mb.length - 1].start + mb[mb.length - 1].calculateDuration();
+        function skor(k) {
+            var sc = 0, tot = 0;
+            garisChord.forEach(function (g, i) {
+                var dur = (i + 1 < garisChord.length ? garisChord[i + 1].t : akhir) - g.t, c = bacaChord(geserNama(geserNama(g.n, nada), -k));
+                tot += dur;
+                if (c && (MINOR[TYPES[c.ti].k] ? MUDAH.m : MUDAH.maj).indexOf(c.root) > -1) sc += dur;
+            });
+            return tot ? sc / tot : 0;
+        }
+        var best = 0, bs = -1;
+        for (var k = 0; k <= 7; k++) { var p = skor(k); if (p > bs + 0.001) { bs = p; best = k; } }
+        return { k: best, p: bs, kini: skor(kapo) };
+    }
+    function tampilSaran() {
+        var el = $('#saran'), s = saranKapo();
+        if (!s) { el.hidden = true; return; }
+        el.hidden = false;
+        if (s.k === kapo || s.p <= s.kini + 0.001) { el.textContent = (kapo ? 'Kapo ' + kapo : 'Tanpa kapo') + ' sudah paling mudah untuk lagu ini.'; return; }
+        var u = [];
+        garisChord.forEach(function (g) { var n = disp(geserNama(geserNama(g.n, nada), -s.k)); if (u.indexOf(n) < 0 && u.length < 4) u.push(n); });
+        el.innerHTML = 'Saran: <b>' + (s.k ? 'kapo ' + s.k : 'tanpa kapo') + '</b>, chord jadi ' + esc(u.join(' \u2013 ')) + ' (' + Math.round(s.p * 100) + '% bentuk terbuka). ' +
+            '<button type="button" class="chip" data-kapo="' + s.k + '">Pakai</button>';
+    }
+    $('#saran').addEventListener('click', function (e) {
+        var b = e.target.closest('[data-kapo]'); if (!b) return;
+        kapo = +b.dataset.kapo; kontrolNada(); gambar();
+    });
 
     /* bunyi chord sederhana (petikan / piano) seperti di halaman Chord */
     var ac = null, comp = null, gel = null;
@@ -367,7 +404,7 @@
         $('#ik-next').textContent = nLanjut ? disp(nLanjut) : 'selesai';
         $('#ik-next-d').innerHTML = nLanjut ? gambarDiagram(nLanjut, true) : '';
     }
-    $('#ikut-btn').addEventListener('click', function () { aturIkut(!ikut); });
+    $('#ikut-btn').addEventListener('click', function () { aturIkut(!ikut); simpan(); });
 
     /* ================= ulang bagian: titik A & B (per birama) ================= */
     function birama(tick) {
@@ -411,7 +448,7 @@
     $('#nada-naik').addEventListener('click', function () { if (nada < 12) { nada++; kontrolNada(); gambar(); } });
     $('#kapo').innerHTML = '<option value="0">Tanpa kapo</option>' + [1, 2, 3, 4, 5, 6, 7, 8, 9].map(function (k) { return '<option value="' + k + '">Kapo ' + k + '</option>'; }).join('');
     $('#kapo').addEventListener('change', function () { kapo = +this.value; gambar(); });
-    $('#profil').addEventListener('change', function () { tampilan = this.value; gambar(); });
+    $('#profil').addEventListener('change', function () { tampilan = this.value; gambar(); simpan(); });
 
     at.soundFontLoad.on(function (e) { if (e.total) btnPlay.textContent = 'Memuat suara ' + Math.round(e.loaded / e.total * 100) + '%'; });
     at.playerReady.on(function () { btnPlay.disabled = false; btnPlay.textContent = 'Putar'; });
@@ -425,16 +462,117 @@
         waktu.textContent = jam(e.currentTime) + ' / ' + jam(e.endTime);
     });
     at.playerPositionChanged.on(function (e) { ikutChord(e.currentTick); });
-    btnPlay.addEventListener('click', function () { at.playPause(); });
+    /* hitung masuk "one, two, three, four" (rekaman yang sama dengan metronom) sebelum lagu mulai */
+    var SUARA = {}, suaraSiap = null, sedangHitung = false;
+    function muatSuara() {
+        if (suaraSiap) return suaraSiap;
+        var c = audio();
+        suaraSiap = Promise.all(['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'].map(function (n) {
+            return fetch('audio/hitung/' + n + '.wav').then(function (r) { return r.ok ? r.arrayBuffer() : null; })
+                .then(function (b) { return b && new Promise(function (ok) { c.decodeAudioData(b, function (buf) { SUARA[n] = buf; ok(); }, function () { ok(); }); }); })
+                .catch(function () {});
+        }));
+        return suaraSiap;
+    }
+    function hitungMasuk() {
+        var mb = birama(at.tickPosition || 0), bpm = tempoPada(mb) * kecepatan, n = mb.timeSignatureNumerator, iv = 60 / bpm * 4 / mb.timeSignatureDenominator;
+        if (n > 12 || iv < 0.12) n = Math.min(n, 4);
+        return muatSuara().then(function () {
+            if (!SUARA['1']) return false;
+            var c = audio(), t0 = c.currentTime + 0.12;
+            for (var i = 0; i < n; i++) {
+                var src = c.createBufferSource(); src.buffer = SUARA[String(i + 1)]; src.connect(comp); src.start(t0 + i * iv);
+                (function (k) { setTimeout(function () { btnPlay.textContent = String(k + 1) + '\u2026'; }, (0.12 + k * iv) * 1000); })(i);
+            }
+            return new Promise(function (ok) { setTimeout(function () { ok(true); }, (0.12 + n * iv) * 1000 - 40); });
+        });
+    }
+    btnPlay.addEventListener('click', function () {
+        if (sedangHitung) return;
+        if (!hitungOn || at.playerState === alphaTab.synth.PlayerState.Playing) { at.playPause(); return; }
+        sedangHitung = true;
+        hitungMasuk().then(function (ok) { sedangHitung = false; if (!ok) btnPlay.textContent = 'Putar'; at.play(); });
+    });
     $('#stop').addEventListener('click', function () { at.stop(); });
-    $('#speed').addEventListener('change', function () { at.playbackSpeed = +this.value; });
+    /* kecepatan putar, ditampilkan juga sebagai BPM; tap tempo menyamakan dengan ketukan yang diketuk */
+    function tempoPada(mb) {
+        var bpm = at.score ? at.score.tempo || 120 : 120;
+        if (at.score) at.score.masterBars.forEach(function (m) { if (m.index <= mb.index && m.tempoAutomations && m.tempoAutomations.length) bpm = m.tempoAutomations[m.tempoAutomations.length - 1].value; });
+        return bpm;
+    }
+    function tampilBpm() { $('#bpm').textContent = '\u2669 = ' + Math.round((at.score ? at.score.tempo || 120 : 120) * kecepatan); }
+    function aturKecepatan(v, tanpaSimpan) {
+        v = Math.max(0.25, Math.min(2, Math.round(v * 100) / 100)); kecepatan = v; at.playbackSpeed = v;
+        var sel = $('#speed');
+        [].slice.call(sel.querySelectorAll('[data-sendiri]')).forEach(function (o) { o.remove(); });
+        if (![].some.call(sel.options, function (o) { return +o.value === v; })) {
+            var o = document.createElement('option'); o.value = String(v); o.textContent = Math.round(v * 100) + '%'; o.dataset.sendiri = '1'; sel.appendChild(o);
+        }
+        sel.value = String(v); tampilBpm(); labelLatih();
+        if (!tanpaSimpan) simpan();
+    }
+    $('#speed').addEventListener('change', function () { aturKecepatan(+this.value); });
+    var ketukTap = [], tapJeda = 0;
+    $('#tap').addEventListener('click', function () {
+        var t = performance.now(), b = this;
+        if (ketukTap.length && t - ketukTap[ketukTap.length - 1] > 2000) ketukTap = [];
+        ketukTap.push(t); if (ketukTap.length > 6) ketukTap.shift();
+        clearTimeout(tapJeda); tapJeda = setTimeout(function () { b.textContent = 'Tap'; ketukTap = []; }, 2500);
+        if (ketukTap.length < 3) { b.textContent = 'Tap ' + ketukTap.length; return; }
+        b.textContent = 'Tap \u2713';
+        aturKecepatan(60000 / ((ketukTap[ketukTap.length - 1] - ketukTap[0]) / (ketukTap.length - 1)) / (at.score ? at.score.tempo || 120 : 120));
+    });
+
+    /* naik tempo otomatis: setiap beberapa putaran ulang, kecepatan bertambah sampai target */
+    var tickLalu = 0;
+    function labelLatih() { var b = $('#latih'); if (b) b.textContent = latih.on ? 'Naik tempo ' + Math.round(kecepatan * 100) + '\u2192' + Math.round(latih.sampai * 100) + '%' : 'Naik tempo'; }
+    $('#latih').addEventListener('click', function () {
+        if (latih.on) { latih.on = false; this.setAttribute('aria-pressed', 'false'); labelLatih(); return; }
+        $('#dr-latihan').hidden = false;
+    });
+    $('#lt-go').addEventListener('click', function () {
+        latih.mulai = +$('#lt-mulai').value; latih.naik = +$('#lt-naik').value; latih.setiap = +$('#lt-setiap').value; latih.sampai = +$('#lt-sampai').value;
+        latih.putaran = 0; latih.on = true;
+        at.isLooping = true; $('#loop').setAttribute('aria-pressed', 'true');
+        $('#latih').setAttribute('aria-pressed', 'true'); aturKecepatan(latih.mulai);
+        $('#dr-latihan').hidden = true;
+    });
+    at.playerPositionChanged.on(function (e) {
+        /* posisi melompat mundur saat sedang main = satu putaran ulang selesai */
+        if (latih.on && e.currentTick + 480 < tickLalu && at.playerState === alphaTab.synth.PlayerState.Playing) {
+            latih.putaran++;
+            if (latih.putaran % latih.setiap === 0 && kecepatan < latih.sampai) aturKecepatan(Math.min(latih.sampai, kecepatan + latih.naik));
+        }
+        tickLalu = e.currentTick;
+    });
     function saklar(id, fn) {
         var b = $(id);
         b.addEventListener('click', function () { var on = b.getAttribute('aria-pressed') !== 'true'; b.setAttribute('aria-pressed', on); fn(on); });
     }
     saklar('#loop', function (on) { at.isLooping = on; });
-    saklar('#metro', function (on) { at.metronomeVolume = on ? 1 : 0; });
-    saklar('#countin', function (on) { at.countInVolume = on ? 1 : 0; });
+    saklar('#metro', function (on) { at.metronomeVolume = on ? 1 : 0; simpan(); });
+    saklar('#countin', function (on) { hitungOn = on; if (on) muatSuara(); simpan(); });
+
+    /* pengaturan terakhir diingat di perangkat ini */
+    var KUNCI = 'ayri-partitur';
+    function simpan() {
+        try {
+            localStorage.setItem(KUNCI, JSON.stringify({ kecepatan: kecepatan, tampilan: tampilan, alat: alat, kidal: kidal, ikut: ikut, hitung: hitungOn,
+                metro: $('#metro').getAttribute('aria-pressed') === 'true', latih: { mulai: latih.mulai, naik: latih.naik, setiap: latih.setiap, sampai: latih.sampai } }));
+        } catch (e) {}
+    }
+    function pulihkan() {
+        var p = null; try { p = JSON.parse(localStorage.getItem(KUNCI) || 'null'); } catch (e) {}
+        if (!p) return;
+        if (p.kecepatan) aturKecepatan(p.kecepatan, true);
+        if (/^(semua|balok|tab|angka|slash)$/.test(p.tampilan)) { tampilan = p.tampilan; $('#profil').value = tampilan; }
+        if (typeof INSTS === 'object' && INSTS[p.alat]) { alat = p.alat; $('#alat').value = alat; $('#kidal-w').hidden = alat === 'pno'; }
+        kidal = !!p.kidal; $('#kidal').checked = kidal;
+        ikutAwal = !!p.ikut;
+        hitungOn = !!p.hitung; $('#countin').setAttribute('aria-pressed', hitungOn);
+        if (p.metro) { at.metronomeVolume = 1; $('#metro').setAttribute('aria-pressed', 'true'); }
+        if (p.latih) ['mulai', 'naik', 'setiap', 'sampai'].forEach(function (k) { if (p.latih[k]) { latih[k] = p.latih[k]; $('#lt-' + k).value = String(p.latih[k]); } });
+    }
 
     /* ---------- instrumen (track) ---------- */
     function gambarTrack() {
@@ -509,5 +647,6 @@
     });
 
     /* lagu awal: band lengkap, supaya terlihat semua instrumen bisa */
+    pulihkan();
     $('#contoh').value = 'sayange'; tex.value = CONTOH.sayange.tex; muatTeks(CONTOH.sayange.tex, true);
 })();

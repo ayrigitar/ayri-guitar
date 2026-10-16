@@ -569,3 +569,8 @@ main.app.drop .sc-paper { outline: 3px dashed var(--accent); outline-offset: 4px
 .sc-nod { display: block; padding: 10px 0; font-size: .6875rem; color: var(--ink-3); text-align: center; }
 .sc-chord { display: grid; gap: 4px; padding: 12px; border: 1px solid var(--line); border-radius: var(--r-lg); background: var(--surface); box-shadow: var(--shadow-sm); }
 .sc-chord[hidden] { display: none; }
+.sc-bpm { min-width: 62px; font: 700 .8125rem var(--font-sans); font-variant-numeric: tabular-nums; color: var(--ink-2); text-align: center; }
+.sc-saran { margin: 4px 0 0; padding: 8px 10px; border-radius: var(--r-sm); background: var(--accent-soft); color: var(--ink); font-size: .875rem; line-height: 1.5; }
+.sc-saran[hidden] { display: none; }
+.sc-saran .chip { height: 30px; margin-left: 4px; }
+.sc-latih { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 10px 0 14px; }
