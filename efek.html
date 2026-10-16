@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Amp &amp; Efek Gitar Online: Multi Efek di Browser | Toko Gitar AYRI</title>
-    <meta name="description" content="Colok gitar lewat audio interface dan mainkan dengan amp simulator dan efek gitar langsung di browser: overdrive, distortion, fuzz, delay, reverb, noise gate, EQ, dan preset. Gratis, tanpa instal.">
+    <meta name="description" content="Colok gitar lewat audio interface dan mainkan dengan amp simulator dan efek gitar langsung di browser: overdrive, distortion, fuzz, chorus, flanger, phaser, tremolo, wah, compressor, delay, reverb, dan rekam WAV. Gratis, tanpa instal.">
     <link rel="canonical" href="https://ayrigitar.com/efek.html">
     <meta property="og:type" content="website">
     <meta property="og:locale" content="id_ID">
@@ -152,14 +152,21 @@
                     <button type="button" class="t-btn alt" id="ef-contoh" aria-pressed="false">&#9654; Contoh suara</button>
                 </div>
                 <div class="ef-meter" aria-hidden="true">
-                    <span>IN</span><div class="ef-bar"><i id="ef-in"></i></div><b class="ef-clip" id="ef-clip">CLIP</b>
-                    <span>OUT</span><div class="ef-bar"><i id="ef-out"></i></div><b></b>
+                    <span>IN</span><div class="ef-bar"><i id="ef-in"></i></div><em id="ef-in-db">&minus;&infin;</em><b class="ef-clip" id="ef-clip">CLIP</b>
+                    <span>OUT</span><div class="ef-bar"><i id="ef-out"></i></div><em id="ef-out-db">&minus;&infin;</em><b></b>
                 </div>
                 <div class="ef-atur">
                     <label class="lb">Input<select id="ef-dev" class="sel"><option value="">Input bawaan</option></select></label>
                     <label class="lb">Kanal gitar<select id="ef-kanal" class="sel"><option value="campur">Input 1 + 2</option><option value="kiri">Input 1</option><option value="kanan">Input 2</option></select></label>
-                    <label class="lb ef-geserin"><span>Gain input <output id="ef-ing-v"></output></span><input type="range" class="rg" id="ef-ing" min="-12" max="24" step="0.5"></label>
+                    <label class="lb ef-geserin"><span>Gain input <output id="ef-ing-v"></output></span><input type="range" class="rg" id="ef-ing" min="-12" max="36" step="0.5"></label>
                     <label class="lb ef-geserin"><span>Volume <output id="ef-vol-v"></output></span><input type="range" class="rg" id="ef-vol" min="0" max="10" step="0.1"></label>
+                </div>
+                <div class="ef-rekam">
+                    <button type="button" class="chip" id="ef-rekam" aria-pressed="false" title="Rekam suara yang sudah diolah"><i class="ef-titik" aria-hidden="true"></i> Rekam</button>
+                    <span class="ef-waktu" id="ef-waktu"></span>
+                    <a class="chip" id="ef-unduh" hidden>Unduh WAV</a>
+                    <button type="button" class="chip" id="ef-buang" hidden>Hapus</button>
+                    <audio id="ef-hasil" controls hidden></audio>
                 </div>
                 <p class="ef-status" id="ef-status" role="status">Colok gitar ke audio interface, pakai headphone, lalu tekan Nyalakan gitar. Belum ada gitar? Dengarkan dulu lewat Contoh suara.</p>
                 <p class="ef-jeda" id="ef-jeda"></p>
@@ -185,8 +192,15 @@
         <button type="button" class="chip drawer-x" data-close>Tutup</button>
         <h2>Cara pakai</h2>
         <p class="t-help">Colok gitar ke audio interface (atau adaptor gitar USB/iRig), sambungkan ke komputer atau HP, pasang headphone, lalu tekan <b>Nyalakan gitar</b> dan izinkan akses input audio. Pilih inputnya bila ada lebih dari satu, dan pilih kanal tempat gitar dicolok (Input 1 atau 2). Petik senar sekeras saat bermain, lalu atur <b>Gain input</b> sampai meter IN masuk zona kuning tanpa lampu CLIP menyala. Belum punya interface? Tekan <b>Contoh suara</b> untuk mendengar gitar contoh lewat efek yang sama.</p>
+        <h2>Tanpa audio interface (colokan mikrofon PC/laptop)</h2>
+        <p class="t-help"><b>PC dengan colokan mikrofon terpisah (biasanya merah muda):</b> gitar &rarr; kabel &rarr; adaptor 6,35 mm ke 3,5 mm &rarr; colokan mikrofon. Bila Windows/Realtek bertanya perangkat apa yang dicolok, pilih <b>Mic in</b>.</p>
+        <p class="t-help"><b>Laptop dengan satu colokan headset (gabungan):</b> adaptor biasa terbaca sebagai headphone sehingga mikrofon tidak muncul. Pakai kabel/adaptor gitar khusus headset (TRRS, untuk HP/laptop) atau audio interface/adaptor gitar USB.</p>
+        <p class="t-help"><b>Atur di Windows:</b> Pengaturan &gt; Sistem &gt; Suara &gt; Input, pilih mikrofon tadi, naikkan volume input ke 70&ndash;100 dan matikan &ldquo;audio enhancements&rdquo;. Bila masih pelan, naikkan <i>Microphone Boost</i> (Panel kontrol suara &gt; Recording &gt; Properties &gt; Levels), lalu naikkan <b>Gain input</b> di halaman ini. Angka dB di samping meter IN menunjukkan apakah ada suara yang masuk.</p>
+        <p class="t-help">Colokan mikrofon bawaan biasanya lebih berdesis dan jedanya lebih besar dibanding audio interface; gitar wireless menambah beberapa milidetik lagi. Setelah kabel dicabut-colok, tunggu sebentar: halaman akan menyambung lagi otomatis, atau tekan Nyalakan gitar.</p>
+        <h2>Rekam</h2>
+        <p class="t-help">Tekan <b>Rekam</b> untuk merekam suara yang sudah diolah (gitar atau contoh suara), lalu Stop. Hasilnya bisa diputar dan diunduh sebagai WAV (maksimal 10 menit), langsung dari perangkat Anda.</p>
         <h2>Rantai efek</h2>
-        <p class="t-help">Suara mengalir dari kiri (gitar) ke kanan (speaker), seperti pedalboard sungguhan. Ketuk lampu bulat untuk menyalakan atau mematikan efek. Urutan bisa diubah dengan tombol &lsaquo; &rsaquo; atau diseret di komputer. Lazimnya: noise gate dan distorsi sebelum amp, delay dan reverb sesudah amp.</p>
+        <p class="t-help">Suara mengalir dari kiri (gitar) ke kanan (speaker), seperti pedalboard sungguhan. Ketuk lampu bulat untuk menyalakan atau mematikan efek. Urutan bisa diubah dengan tombol &lsaquo; &rsaquo; atau diseret di komputer. Lazimnya: noise gate, compressor, wah, dan distorsi sebelum amp; modulasi (chorus, flanger, phaser, vibrato, tremolo, rotary), delay, dan reverb sesudah amp.</p>
         <h2>Jeda suara (latensi)</h2>
         <p class="t-help">Browser tidak bisa memakai driver audio khusus seperti ASIO, jadi suara bisa terdengar sedikit terlambat (biasanya 20&ndash;40 ms di Windows, lebih kecil di Mac, dan bisa lebih besar di Android). Halaman ini cocok untuk latihan dan mencoba tone; untuk rekaman atau panggung pakai perangkat atau aplikasi khusus. Tips: pakai Chrome atau Edge terbaru, tutup tab dan aplikasi lain yang memakai audio, di Windows matikan &ldquo;audio enhancements&rdquo; pada perangkat output, dan samakan sample rate interface dengan sistem (misalnya 48 kHz).</p>
         <h2>Preset</h2>
