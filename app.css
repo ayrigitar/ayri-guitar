@@ -839,6 +839,8 @@ main.efek-app { max-width: 1280px; }
 .w-baja { --w: #3E5C76; } .w-amp { --w: #A0682C; } .w-biru { --w: #2D6CC0; } .w-hijau-laut { --w: #1F8A84; }
 .w-kuning { --w: #C9A227; } .w-gelap { --w: #5A5550; } .w-merah-muda { --w: #D9487D; } .w-biru-muda { --w: #3AA6D9; } .w-ungu-muda { --w: #9B7FD1; }
 .w-jingga { --w: #E58A1F; } .w-hijau-muda { --w: #6DBE45; } .w-emas { --w: #B8892B; } .w-kayu { --w: #7A5230; }
+.w-nila { --w: #4B5BC9; } .w-magenta { --w: #C2338E; } .w-pirus { --w: #22A8BC; } .w-neon { --w: #12A58C; }
+.ef-eks { margin-left: 4px; padding: 1px 6px; border-radius: var(--r-pill); background: var(--accent-soft); color: var(--accent); font: 700 .625rem var(--font-sans); letter-spacing: .02em; vertical-align: middle; white-space: nowrap; }
 .ef-kiri { display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; align-content: start; min-width: 0; }
 .ef-masuk { display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; min-width: 0; padding: 14px; border: 1px solid var(--line); border-radius: var(--r-lg); background: var(--surface); box-shadow: var(--shadow-sm); }
 .ef-tombol { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px; }

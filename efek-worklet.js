@@ -4,7 +4,8 @@
    - ayri-phaser  : phaser (filter allpass bertingkat yang disapu LFO, dengan umpan balik)
    - ayri-rotary  : simulasi speaker berputar (horn + drum, efek doppler & volume, stereo)
    - ayri-autowah : envelope filter, frekuensi mengikuti kuat-lemah petikan
-   - ayri-rekam   : meneruskan potongan suara ke halaman untuk direkam (WAV) */
+   - ayri-rekam   : meneruskan potongan suara ke halaman untuk direkam (WAV)
+   - tahap 3 (nada): ayri-oktaf, ayri-geser, ayri-harmoni, ayri-synth (lihat bagian bawah) */
 const PI2 = Math.PI * 2;
 function k(name, def, min, max) { return { name, defaultValue: def, minValue: min, maxValue: max, automationRate: 'k-rate' }; }
 function mono(inp, i) { let x = 0; for (let c = 0; c < inp.length; c++) x += inp[c][i]; return inp.length ? x / inp.length : 0; }
@@ -185,3 +186,177 @@ class RekamAyri extends AudioWorkletProcessor {
     }
 }
 registerProcessor('ayri-rekam', RekamAyri);
+
+/* ===================== tahap 3: nada (eksperimen) =====================
+   ayri-oktaf   : octaver gaya analog (pembagi frekuensi) + oktaf atas (penyearah)
+   ayri-geser   : pitch shifter dua ketukan tunda bergantian (bisa untuk chord)
+   ayri-harmoni : harmonizer; nada dideteksi, harmoni mengikuti kunci & tangga nada
+   ayri-synth   : synth yang mengikuti nada & kuat-lemah petikan gitar */
+
+/* pendeteksi nada YIN pada sinyal yang diturunkan 4x (12 kHz) supaya ringan; satu nada (monofonik), 70-1300 Hz */
+class Deteksi {
+    constructor(sr) {
+        this.fs = sr / 4; this.minLag = Math.max(2, Math.floor(this.fs / 1300)); this.maxLag = Math.ceil(this.fs / 70); this.W = Math.ceil(this.fs * 0.022);
+        this.n = this.W + this.maxLag + 2; this.ring = new Float32Array(this.n); this.buf = new Float32Array(this.n); this.d = new Float32Array(this.maxLag + 2);
+        this.ri = 0; this.isi = 0; this.lp1 = 0; this.lp2 = 0; this.acc = 0; this.k = 0; this.langkah = 0; this.hz = 0; this.yakin = 0;
+    }
+    push(x) {
+        this.lp1 += 0.3 * (x - this.lp1); this.lp2 += 0.3 * (this.lp1 - this.lp2); this.acc += this.lp2;
+        if (++this.k < 4) return;
+        this.k = 0; this.ring[this.ri] = this.acc / 4; this.acc = 0; this.ri = (this.ri + 1) % this.n;
+        if (this.isi < this.n) this.isi++;
+        if (++this.langkah >= 64 && this.isi >= this.n) { this.langkah = 0; this.hitung(); }
+    }
+    hitung() {
+        const n = this.n, b = this.buf, W = this.W, d = this.d, maks = this.maxLag;
+        for (let i = 0; i < n; i++) b[i] = this.ring[(this.ri + i) % n];
+        let e = 0; for (let i = n - W; i < n; i++) e += b[i] * b[i];
+        if (e / W < 1e-7) { this.yakin = 0; return; }
+        const o = n - W - maks; let jumlah = 0, pilih = -1; d[0] = 1;
+        for (let t = 1; t <= maks; t++) {
+            let s = 0; for (let j = 0; j < W; j++) { const v = b[o + j] - b[o + j + t]; s += v * v; }
+            jumlah += s; d[t] = jumlah > 0 ? s * t / jumlah : 1;
+        }
+        for (let t = this.minLag; t < maks; t++) if (d[t] < 0.15) { while (t + 1 < maks && d[t + 1] < d[t]) t++; pilih = t; break; }
+        if (pilih < 1) { this.yakin = 0; return; }
+        const a = d[pilih - 1], c = d[pilih], z = d[pilih + 1], den = a - 2 * c + z;
+        this.hz = this.fs / (pilih + (den ? 0.5 * (a - z) / den : 0)); this.yakin = 1 - c;
+    }
+}
+/* penggeser nada: dua ketukan tunda bergerak dengan laju = rasio nada, bergantian dengan crossfade.
+   Bila periode nada diketahui (not tunggal), panjang jendela dibuat kelipatan periode itu supaya saat ketukan
+   melompat fasenya tetap menyambung (tanpa getar); untuk chord dipakai jendela tetap. */
+class Penggeser {
+    constructor(sr, ms) { this.W0 = Math.round(sr * ms / 1000); this.W = this.W0; this.g = new Tunda(this.W0 * 2 + 8); this.dA = 2; this.dB = 2 + this.W0 / 2; }
+    aturPeriode(T) { this.W = T > 4 ? Math.min(this.W0 * 2, Math.max(2 * T, Math.round(this.W0 / (2 * T)) * 2 * T)) : this.W0; }
+    proses(x, r) {
+        this.g.tulis(x);
+        const dd = 1 - r, W = this.W;
+        this.dA += dd; this.dB += dd;
+        if (this.dA < 2) this.dA += W; else if (this.dA > 2 + W) this.dA -= W;
+        if (this.dB < 2) this.dB += W; else if (this.dB > 2 + W) this.dB -= W;
+        const pa = Math.min(1, Math.max(0, (this.dA - 2) / W)), pb = Math.min(1, Math.max(0, (this.dB - 2) / W));
+        const ga = Math.sin(Math.PI * pa), gb = Math.sin(Math.PI * pb), wa = ga * ga, wb = gb * gb, jml = wa + wb || 1;
+        return (this.g.baca(this.dA) * wa + this.g.baca(this.dB) * wb) / jml;
+    }
+}
+function ikut(env, v, naik, turun) { return v > env ? v + (env - v) * naik : v + (env - v) * turun; }
+
+class OktafAyri extends AudioWorkletProcessor {
+    static get parameterDescriptors() { return [k('bawah1', 0.8, 0, 1), k('bawah2', 0, 0, 1), k('atas', 0, 0, 1), k('asli', 0.7, 0, 1)]; }
+    constructor() {
+        super(); this.a = 0; this.b = 0; this.tinggi = false; this.f1 = 1; this.f2 = 1; this.env = 0;
+        this.s1a = 0; this.s1b = 0; this.s2a = 0; this.s2b = 0; this.hx = 0; this.hy = 0;
+        this.kD = 1 - Math.exp(-PI2 * 700 / sampleRate); this.kS = 1 - Math.exp(-PI2 * 500 / sampleRate); this.kS2 = 1 - Math.exp(-PI2 * 300 / sampleRate);
+        this.naik = Math.exp(-1 / (sampleRate * 0.001)); this.turun = Math.exp(-1 / (sampleRate * 0.08));
+    }
+    process(inputs, outputs, p) {
+        const inp = inputs[0], out = outputs[0], n = out[0].length, b1 = p.bawah1[0] * 1.3, b2 = p.bawah2[0] * 1.3, at = p.atas[0] * 1.5, as = p.asli[0];
+        for (let i = 0; i < n; i++) {
+            const x = inp && inp.length ? mono(inp, i) : 0;
+            this.a += this.kD * (x - this.a); this.b += this.kD * (this.a - this.b);
+            this.env = ikut(this.env, Math.abs(x), this.naik, this.turun);
+            /* pembagi: tiap puncak naik membalik flip-flop pertama (f/2); flip-flop kedua mengikuti yang pertama (f/4) */
+            const h = this.env * 0.15 + 1e-4;
+            if (!this.tinggi && this.b > h) { this.tinggi = true; this.f1 = -this.f1; if (this.f1 > 0) this.f2 = -this.f2; }
+            else if (this.tinggi && this.b < -h) this.tinggi = false;
+            this.s1a += this.kS * (this.f1 * this.env - this.s1a); this.s1b += this.kS * (this.s1a - this.s1b);
+            this.s2a += this.kS2 * (this.f2 * this.env - this.s2a); this.s2b += this.kS2 * (this.s2a - this.s2b);
+            const r = Math.abs(x), y = r - this.hx + 0.995 * this.hy; this.hx = r; this.hy = y;
+            const o = x * as + this.s1b * b1 + this.s2b * b2 + y * at;
+            for (let c = 0; c < out.length; c++) out[c][i] = o;
+        }
+        return true;
+    }
+}
+registerProcessor('ayri-oktaf', OktafAyri);
+
+class GeserAyri extends AudioWorkletProcessor {
+    static get parameterDescriptors() { return [k('semi', 12, -24, 24), k('sen', 0, -100, 100), k('campur', 0.4, 0, 1)]; }
+    constructor() { super(); this.g = new Penggeser(sampleRate, 40); this.det = new Deteksi(sampleRate); this.hitungan = 0; }
+    process(inputs, outputs, p) {
+        const inp = inputs[0], out = outputs[0], n = out[0].length, r = Math.pow(2, (p.semi[0] + p.sen[0] / 100) / 12), m = p.campur[0];
+        for (let i = 0; i < n; i++) {
+            const x = inp && inp.length ? mono(inp, i) : 0;
+            this.det.push(x);
+            if (++this.hitungan >= 256) { this.hitungan = 0; this.g.aturPeriode(this.det.yakin > 0.8 ? sampleRate / this.det.hz : 0); }
+            const o = x * (1 - m) + this.g.proses(x, r) * m;
+            for (let c = 0; c < out.length; c++) out[c][i] = o;
+        }
+        return true;
+    }
+}
+registerProcessor('ayri-geser', GeserAyri);
+
+const TANGGA = [[0, 2, 4, 5, 7, 9, 11], [0, 2, 3, 5, 7, 8, 10]];
+class HarmoniAyri extends AudioWorkletProcessor {
+    static get parameterDescriptors() { return [k('kunci', 0, 0, 11), k('minor', 0, 0, 1), k('langkah', 2, -7, 7), k('campur', 0.6, 0, 1)]; }
+    constructor() { super(); this.det = new Deteksi(sampleRate); this.g = new Penggeser(sampleRate, 40); this.r = 1; this.target = 0; this.hitungan = 0; this.awal = true; }
+    /* interval (semiton) dari nada m ke nada harmoni: langkah tangga nada dari derajat terdekat */
+    interval(m, kunci, tg, langkah) {
+        const rel = ((Math.round(m) - kunci) % 12 + 12) % 12;
+        let der = 0; for (let i = 0; i < 7; i++) if (tg[i] <= rel) der = i;
+        const t = der + langkah, okt = Math.floor(t / 7), idx = ((t % 7) + 7) % 7;
+        return tg[idx] + 12 * okt - tg[der];
+    }
+    process(inputs, outputs, p) {
+        const inp = inputs[0], out = outputs[0], n = out[0].length, m = p.campur[0], tg = TANGGA[p.minor[0] > 0.5 ? 1 : 0];
+        const kunci = Math.round(p.kunci[0]), langkah = Math.round(p.langkah[0]);
+        if (this.awal) { this.awal = false; this.target = Math.pow(2, this.interval(kunci, kunci, tg, langkah) / 12); this.r = this.target; }
+        for (let i = 0; i < n; i++) {
+            const x = inp && inp.length ? mono(inp, i) : 0;
+            this.det.push(x);
+            if (++this.hitungan >= 64) {
+                this.hitungan = 0;
+                if (this.det.yakin > 0.8 && this.det.hz > 0) {
+                    this.target = Math.pow(2, this.interval(69 + 12 * Math.log2(this.det.hz / 440), kunci, tg, langkah) / 12);
+                    this.g.aturPeriode(sampleRate / this.det.hz);
+                } else this.g.aturPeriode(0);
+            }
+            this.r += (this.target - this.r) * 0.003;
+            const o = x * (1 - 0.3 * m) + this.g.proses(x, this.r) * 0.7 * m;
+            for (let c = 0; c < out.length; c++) out[c][i] = o;
+        }
+        return true;
+    }
+}
+registerProcessor('ayri-harmoni', HarmoniAyri);
+
+function blep(t, dt) { if (t < dt) { t /= dt; return t + t - t * t - 1; } if (t > 1 - dt) { t = (t - 1) / dt; return t * t + t + t + 1; } return 0; }
+class SynthAyri extends AudioWorkletProcessor {
+    static get parameterDescriptors() {
+        return [k('bentuk', 0, 0, 2), k('oktaf', 0, -2, 1), k('cutoff', 1500, 80, 10000), k('reso', 0.4, 0, 1), k('amplop', 0.5, 0, 1), k('glide', 30, 0, 500), k('campur', 0.7, 0, 1)];
+    }
+    constructor() {
+        super(); this.det = new Deteksi(sampleRate); this.fase = 0; this.hz = 0; this.target = 0; this.env = 0; this.ic1 = 0; this.ic2 = 0; this.a1 = 0; this.a2 = 0; this.a3 = 0;
+        this.naik = Math.exp(-1 / (sampleRate * 0.004)); this.turun = Math.exp(-1 / (sampleRate * 0.25));
+    }
+    process(inputs, outputs, p) {
+        const inp = inputs[0], out = outputs[0], n = out[0].length, bentuk = Math.round(p.bentuk[0]), kali = Math.pow(2, Math.round(p.oktaf[0])), m = p.campur[0];
+        const gk = 1 - Math.exp(-1 / (sampleRate * Math.max(0.001, p.glide[0] / 1000))), kq = 2 - 1.85 * p.reso[0], amplop = p.amplop[0], dasar = p.cutoff[0];
+        for (let i = 0; i < n; i++) {
+            const x = inp && inp.length ? mono(inp, i) : 0;
+            this.det.push(x);
+            this.env = ikut(this.env, Math.abs(x), this.naik, this.turun);
+            if (this.det.yakin > 0.8 && this.det.hz > 0) { this.target = this.det.hz * kali; if (!this.hz) this.hz = this.target; }
+            if (this.target) this.hz += (this.target - this.hz) * gk;
+            const dt = Math.min(0.45, this.hz / sampleRate);
+            this.fase += dt; if (this.fase >= 1) this.fase -= 1;
+            let osc;
+            if (bentuk === 0) osc = 2 * this.fase - 1 - blep(this.fase, dt);
+            else if (bentuk === 1) osc = (this.fase < 0.5 ? 1 : -1) + blep(this.fase, dt) - blep((this.fase + 0.5) % 1, dt);
+            else osc = Math.sin(PI2 * this.fase);
+            const a = this.target ? Math.min(1, this.env * 4) : 0;
+            if ((i & 15) === 0) {
+                const fc = Math.min(sampleRate * 0.45, dasar * (1 + amplop * 6 * a)), g = Math.tan(Math.PI * fc / sampleRate);
+                this.a1 = 1 / (1 + g * (g + kq)); this.a2 = g * this.a1; this.a3 = g * this.a2;
+            }
+            const v3 = osc - this.ic2, v1 = this.a1 * this.ic1 + this.a2 * v3, v2 = this.ic2 + this.a2 * this.ic1 + this.a3 * v3;
+            this.ic1 = 2 * v1 - this.ic1; this.ic2 = 2 * v2 - this.ic2;
+            const o = x * (1 - m) + v2 * a * 0.45 * m;
+            for (let c = 0; c < out.length; c++) out[c][i] = o;
+        }
+        return true;
+    }
+}
+registerProcessor('ayri-synth', SynthAyri);
