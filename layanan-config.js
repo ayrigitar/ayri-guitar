@@ -59,6 +59,10 @@ var AYRI_LAYANAN = {
 
     jenisGitar: ['Akustik', 'Akustik Elektrik', 'Klasik', 'Elektrik', 'Bass', 'Ukulele', 'Lainnya'],
 
+    /* menu Stok & katalog website: kategori aksesoris, dan kapan "sisa N" ditampilkan */
+    kategoriAksesoris: ['Senar', 'Capo', 'Tuner', 'Strap', 'Kabel', 'Case & tas', 'Efek & amplifier', 'Part & pickup', 'Perawatan', 'Lainnya'],
+    katalogSisaTampil: 3,
+
     /* tercetak di nota; {dp}, {gratis}, {biaya}, {hangus}, {lepas} diganti otomatis */
     ketentuan: [
         'Pengerjaan dimulai setelah DP {dp}% biaya jasa dan pembayaran lunas part/suku cadang kami terima.',

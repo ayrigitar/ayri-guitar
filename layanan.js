@@ -483,8 +483,12 @@
     };
     /* foto untuk admin: dibaca langsung dari repo (tidak perlu menunggu situs diperbarui) */
     L.api.fotoAdmin = function (s, f, besar) {
-        var file = besar ? f.file : (f.thumb || f.file), c = 'a:' + file;
-        /* foto tebus (gitar & KTP) hanya ada di repo PRIVAT; foto servis di repo situs */
+        var file = besar ? f.file || f.path : (f.thumb || f.thumb_path || f.file || f.path), c = 'a:' + file;
+        /* foto stok bersifat publik (tidak dienkripsi); foto tebus (gitar & KTP) hanya di repo PRIVAT; foto servis terenkripsi di repo situs */
+        if (!fotoCache[c] && f.repo === 'publik') fotoCache[c] = bacaFile('situs', besar ? f.path : f.thumb_path || f.path, true).then(function (buf) {
+            if (!buf) throw new Error('Foto tidak ditemukan');
+            return URL.createObjectURL(new Blob([buf], { type: f.tipe || 'image/webp' }));
+        });
         if (!fotoCache[c]) fotoCache[c] = (f.repo === 'data' ? bacaFile('data', 'foto/' + file, true) : bacaFile('situs', 'data/foto/' + file, true)).then(function (buf) {
             if (!buf) throw new Error('Foto tidak ditemukan');
             return kunciFoto(s.fk).then(function (key) { return dekripsi(key, buf); });
@@ -552,9 +556,23 @@
             .then(function () { return simpanDaftar('tebus.json', rec, true, filesData); });
     };
 
-    /* ---------- stok gitar (baru & bekas): hanya di repo PRIVAT (stok.json + foto terenkripsi) ---------- */
+    /* ---------- stok (gitar & aksesoris) ----------
+       Data lengkap (modal, asal barang, no. seri, penjualan) hanya di repo PRIVAT (stok.json).
+       Barang yang tersedia + foto produk dipublikasikan ke situs: data/katalog.json dan foto/stok/ (tanpa enkripsi). */
     L.KONDISI = { baru: 'Baru', bekas: 'Bekas' };
     L.STATUS_STOK = { tersedia: 'Tersedia', dipesan: 'Dipesan', terjual: 'Terjual', ditarik: 'Ditarik' };
+    L.namaStok = function (s) { return s.kategori === 'aksesoris' ? (s.nama || 'Aksesoris') : (s.gitar_merk || s.gitar_jenis || 'Gitar'); };
+    L.jenisStok = function (s) { return s.kategori === 'aksesoris' ? (s.sub || 'Aksesoris') : (s.gitar_jenis || 'Gitar'); };
+    L.diKatalog = function (s) { return s.tampil !== false && (s.status === 'tersedia' || s.status === 'dipesan') && +s.harga_jual > 0 && +s.jumlah > 0; };
+    function versiKatalog(s) {
+        var aks = s.kategori === 'aksesoris';
+        return {
+            kode: s.kode, kategori: aks ? 'aksesoris' : 'gitar', jenis: L.jenisStok(s), kondisi: s.kondisi || 'baru', nama: L.namaStok(s), warna: s.warna || '',
+            deskripsi: s.deskripsi || '', harga: +s.harga_jual, status: s.status, sisa: aks && +s.jumlah <= (C.katalogSisaTampil || 3) ? +s.jumlah : null,
+            foto: (s.foto || []).filter(function (f) { return f.repo === 'publik'; }).map(function (f) { return { src: f.path, kecil: f.thumb_path || f.path }; }),
+            masuk: s.tgl_masuk || ''
+        };
+    }
     L.untungStok = function (s) {
         var jual = 0, untung = 0, unit = 0;
         (s.penjualan || []).forEach(function (p) { jual += p.harga * p.qty; untung += (p.harga - (+s.harga_beli || 0)) * p.qty; unit += p.qty; });
@@ -562,42 +580,70 @@
     };
     /* foto (data mentah) untuk dipindahkan, mis. dari tebus ke stok */
     L.api.fotoBlob = function (s, f, besar) {
+        if (f.repo === 'publik') return bacaFile('situs', besar ? f.path : f.thumb_path || f.path, true).then(function (buf) { if (!buf) throw new Error('Foto tidak ditemukan'); return new Blob([buf], { type: f.tipe || 'image/webp' }); });
         return (f.repo === 'data' ? bacaFile('data', 'foto/' + (besar ? f.file : f.thumb || f.file), true) : bacaFile('situs', 'data/foto/' + (besar ? f.file : f.thumb || f.file), true))
             .then(function (buf) { if (!buf) throw new Error('Foto tidak ditemukan'); return kunciFoto(s.fk).then(function (k) { return dekripsi(k, buf); }); })
             .then(function (b) { return new Blob([b], { type: f.tipe || 'image/webp' }); });
     };
+    function hapusFotoStok(f, filesSitus, filesData) {
+        if (f.repo === 'publik') filesSitus.push({ path: f.path, hapus: true }, { path: f.thumb_path, hapus: true });
+        else filesData.push({ path: 'foto/' + f.file, hapus: true }, { path: 'foto/' + f.thumb, hapus: true });
+    }
+    /* katalog publik dibuat ulang dari seluruh stok terbaru; ditulis hanya bila isinya berubah */
+    function fileKatalog(list) {
+        var item = list.filter(L.diKatalog).sort(function (a, b) { return (b.tgl_masuk || '') < (a.tgl_masuk || '') ? -1 : 1; }).map(versiKatalog);
+        var teks = JSON.stringify({ toko: C.toko && C.toko.nama || 'Toko Gitar AYRI', item: item }, null, 1) + '\n';
+        return bacaFile('situs', 'data/katalog.json').then(function (lama) { return lama === teks ? null : { path: 'data/katalog.json', teks: teks }; });
+    }
     L.api.simpanStok = function (rec, fotoBaru) {
         rec = salin(rec); fotoBaru = fotoBaru || [];
-        var baru = !rec.id, lama = baru ? null : data.stok.filter(function (x) { return x.id === rec.id; })[0] || null, sekarang = new Date().toISOString(), files = [];
+        var baru = !rec.id, lama = baru ? null : data.stok.filter(function (x) { return x.id === rec.id; })[0] || null, sekarang = new Date().toISOString(), filesSitus = [], filesData = [];
         if (baru) {
             var dipakai = data.stok.map(function (x) { return x.kode; });
             do { rec.kode = L.kodeBaru('STK'); } while (dipakai.indexOf(rec.kode) > -1);
             rec.id = crypto.randomUUID ? crypto.randomUUID() : acakHex(16); rec.created_at = sekarang;
         }
-        if (!rec.fk) rec.fk = b64(crypto.getRandomValues(new Uint8Array(32)));
+        rec.kategori = rec.kategori || 'gitar';
         rec.foto = rec.foto || []; rec.penjualan = rec.penjualan || []; rec.updated_at = sekarang;
         if (rec.status !== 'ditarik') rec.status = +rec.jumlah > 0 ? (rec.status === 'dipesan' ? 'dipesan' : 'tersedia') : 'terjual';
-        return kunciFoto(rec.fk).then(function (fkey) {
-            return fotoBaru.reduce(function (p, fb) {
-                return p.then(function () {
-                    var nama = acakHex(12);
-                    return Promise.all([fb.hasil.besar.arrayBuffer(), fb.hasil.kecil.arrayBuffer()]).then(function (buf) { return Promise.all([enkripsi(fkey, buf[0]), enkripsi(fkey, buf[1])]); }).then(function (ct) {
-                        files.push({ path: 'foto/' + nama + '.bin', base64: b64(ct[0]) }, { path: 'foto/' + nama + '-k.bin', base64: b64(ct[1]) });
-                        rec.foto.push({ id: nama, tahap: 'gitar', file: nama + '.bin', thumb: nama + '-k.bin', tipe: fb.hasil.besar.type, repo: 'data', created_at: sekarang });
-                    });
-                });
-            }, Promise.resolve());
+        function unggah(besar, kecil, tipe) {
+            var nama = acakHex(10), ext = tipe === 'image/jpeg' ? '.jpg' : '.webp', p = 'foto/stok/' + nama + ext, pk = 'foto/stok/' + nama + '-k' + ext;
+            return Promise.all([besar.arrayBuffer(), kecil.arrayBuffer()]).then(function (buf) {
+                filesSitus.push({ path: p, base64: b64(buf[0]) }, { path: pk, base64: b64(buf[1]) });
+                return { id: nama, tahap: 'gitar', path: p, thumb_path: pk, tipe: tipe, repo: 'publik', created_at: sekarang };
+            });
+        }
+        /* foto lama yang masih terenkripsi (dari versi sebelumnya / dari tebus) dipindah menjadi foto produk publik */
+        return rec.foto.reduce(function (p, f, i) {
+            return p.then(function () {
+                if (f.repo === 'publik') return;
+                return Promise.all([L.api.fotoBlob(rec, f, true), L.api.fotoBlob(rec, f, false)]).then(function (b) { return unggah(b[0], b[1], f.tipe); })
+                    .then(function (baruF) { hapusFotoStok(f, filesSitus, filesData); rec.foto[i] = baruF; });
+            });
+        }, Promise.resolve()).then(function () {
+            return fotoBaru.reduce(function (p, fb) { return p.then(function () { return unggah(fb.hasil.besar, fb.hasil.kecil, fb.hasil.besar.type).then(function (f) { rec.foto.push(f); }); }); }, Promise.resolve());
         }).then(function () {
             if (lama) (lama.foto || []).forEach(function (f) {
-                if (!rec.foto.some(function (x) { return x.id === f.id; })) files.push({ path: 'foto/' + f.file, hapus: true }, { path: 'foto/' + f.thumb, hapus: true });
+                if (!rec.foto.some(function (x) { return x.id === f.id; }) && !filesSitus.concat(filesData).some(function (x) { return x.hapus && (x.path === f.path || x.path === 'foto/' + f.file); })) hapusFotoStok(f, filesSitus, filesData);
             });
-            return simpanDaftar('stok.json', rec, false, files);
+            if (rec.foto.every(function (f) { return f.repo === 'publik'; })) delete rec.fk;
+            return bacaJson('stok.json');
+        }).then(function (list) {
+            list = list.filter(function (x) { return x.id !== rec.id; }).concat([rec]);
+            return fileKatalog(list);
+        }).then(function (kat) {
+            if (kat) filesSitus.push(kat);
+            /* foto produk + katalog ke situs dulu (data utama merujuk ke file itu), lalu data utama ke repo privat */
+            return (filesSitus.length ? commit('situs', filesSitus, 'Stok: perbarui katalog') : Promise.resolve()).then(function () { return simpanDaftar('stok.json', rec, false, filesData); });
         }).then(function () { return salin(rec); });
     };
     L.api.hapusStok = function (rec) {
-        var files = [];
-        (rec.foto || []).forEach(function (f) { files.push({ path: 'foto/' + f.file, hapus: true }, { path: 'foto/' + f.thumb, hapus: true }); });
-        return simpanDaftar('stok.json', rec, true, files);
+        var filesSitus = [], filesData = [];
+        (rec.foto || []).forEach(function (f) { hapusFotoStok(f, filesSitus, filesData); });
+        return bacaJson('stok.json').then(function (list) { return fileKatalog(list.filter(function (x) { return x.id !== rec.id; })); }).then(function (kat) {
+            if (kat) filesSitus.push(kat);
+            return (filesSitus.length ? commit('situs', filesSitus, 'Stok: perbarui katalog') : Promise.resolve()).then(function () { return simpanDaftar('stok.json', rec, true, filesData); });
+        });
     };
 
     /* ---------- artikel ---------- */

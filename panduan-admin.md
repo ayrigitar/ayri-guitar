@@ -88,20 +88,24 @@ toko **membeli** gitar, dan penjual boleh **membeli kembali** sampai batas tebus
 - Penjual bisa membuka **surat perjanjian** di `ayrigitar.com/perjanjian.html` dengan kode `TBS-…` + 4 digit terakhir HP. NIK dan HP tampil disamarkan.
 - Ketentuan surat perjanjian bisa diubah di `layanan-config.js` bagian `tebus`.
 
-## Stok gitar (menu **Stok**)
+## Stok & katalog website (menu **Stok**)
 
-Catatan gitar dagangan, **baru** maupun **bekas** (termasuk gitar yang dibeli putus dan gitar tebus yang menjadi milik toko). Semua data dan foto **hanya di repo privat**.
+Catatan barang dagangan: **gitar** (baru/bekas, termasuk gitar tebus yang menjadi milik toko) dan **aksesoris** (senar, capo, tuner, strap, kabel, case, efek, part, perawatan; daftarnya di `layanan-config.js` → `kategoriAksesoris`).
+Barang yang **tersedia**, **ada harga jual**, dan dicentang **🌐 Tampilkan di katalog website** otomatis tampil di **https://ayrigitar.com/katalog.html** (±1 menit setelah disimpan).
 
 | Kejadian | Yang dilakukan di admin |
 |---|---|
-| Gitar masuk stok | **Stok** → **+ Tambah stok** → pilih **Baru/Bekas**, merk/model, warna, no. seri, deskripsi, **modal (harga beli)**, **harga jual**, jumlah, asal barang (opsional), foto → **Simpan** |
-| Mau menawarkan | **Tawarkan via WA** → pilih kontak, grup, atau status WhatsApp (teks berisi merk, kondisi, deskripsi, harga, alamat toko) |
-| Ada yang dipesan | Status **Dipesan** → Simpan |
-| Terjual | Bagian **Penjualan** → jumlah, harga, catatan (mis. nama pembeli) → **Catat penjualan** → **Simpan**. Stok berkurang otomatis; status jadi **Terjual** bila habis |
+| Barang masuk | **Stok** → **+ Tambah stok** → pilih **Gitar/Aksesoris** dan **Baru/Bekas** → nama/merk, warna atau varian, deskripsi, **modal**, **harga jual**, jumlah, asal barang (opsional), foto → **Simpan** |
+| Mau menawarkan | **Tawarkan via WA** → pilih kontak, grup, atau status WhatsApp. Pesannya berisi link foto di katalog |
+| Ada yang dipesan | Status **Dipesan** → Simpan (di katalog tampil label "Dipesan") |
+| Terjual | Bagian **Penjualan** → jumlah, harga, catatan → **Catat penjualan** → **Simpan**. Stok berkurang otomatis; bila habis, status **Terjual** dan barang hilang dari katalog |
+| Tidak mau ditampilkan | Hilangkan centang **🌐 Tampilkan di katalog website** → Simpan |
 
-- Bagian atas daftar menampilkan **rekap**: jumlah unit (baru/bekas), modal yang tertanam di stok, perkiraan untung, serta unit dan untung **bulan ini**.
-- Gitar yang sudah lebih dari 90 hari di stok ditandai merah, sebagai tanda untuk dipromosikan atau diturunkan harganya.
-- Untuk gitar bekas dari perorangan, isi **Asal barang** (mis. "beli dari pelanggan, Bogor") sebagai catatan asal-usul.
+- **Yang tampil di website:** nama, jenis/kategori, kondisi, warna/varian, deskripsi, harga jual, foto, label "Sisa N" untuk aksesoris yang tinggal sedikit, dan tombol pesan via WhatsApp (pesan otomatis berisi kode barang).
+- **Yang tidak pernah tampil:** modal, asal barang, nomor seri, catatan internal, dan catatan penjualan.
+- **Foto produk** bersifat publik (tidak dikunci) karena memang untuk dijual. Foto pertama menjadi sampul.
+- Bagian atas daftar menampilkan **rekap**: unit tersedia (gitar baru/bekas/aksesoris), jumlah barang di katalog, modal di stok, perkiraan untung, serta penjualan **bulan ini**.
+- Barang yang lebih dari 90 hari di stok ditandai merah, sebagai tanda untuk dipromosikan atau diturunkan harganya.
 
 ## Yang dilihat pelanggan
 
