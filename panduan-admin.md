@@ -70,9 +70,9 @@ Catatan:
 ## Beli dengan hak tebus (menu **Tebus**)
 
 Dipakai saat orang butuh uang dan menyerahkan gitarnya. Bentuknya **jual beli dengan hak membeli kembali** (KUHPerdata Pasal 1519 dst.), bukan gadai:
-toko **membeli** gitar, dan penjual boleh **membeli kembali** sampai batas tebus dengan harga yang **sama dengan harga beli** (boleh ditambah biaya administrasi kecil dan tetap).
+toko **membeli** gitar, dan penjual boleh **membeli kembali** sampai batas tebus dengan harga yang **sama persis dengan harga beli** (kebijakan toko: tanpa biaya tambahan).
 
-> Jangan menambah "bunga" per bulan (misalnya beli Rp600.000, tebus Rp700.000). Transaksi seperti itu tetap dianggap **pinjaman berbunga dengan jaminan**, dan kalau dilakukan rutin termasuk usaha pergadaian yang wajib berizin OJK. Admin memberi peringatan bila biaya administrasi lebih dari 5% harga beli. Sebelum dipakai rutin, minta advokat memeriksa ketentuannya sekali.
+> Untung toko datang dari **harga beli yang tepat** (di bawah harga pasar) dan dari gitar yang **tidak ditebus** (masuk stok toko), bukan dari bunga. Menambah "bunga"/biaya per bulan (misalnya beli Rp600.000, tebus Rp700.000, atau wajib beli senar) tetap dianggap **pinjaman berbunga dengan jaminan**, dan kalau rutin termasuk usaha pergadaian yang wajib berizin OJK. Menawarkan servis/senar saat penebusan boleh, asal **tidak diwajibkan**. Sebelum dipakai rutin, minta advokat memeriksa ketentuannya sekali.
 
 | Kejadian | Yang dilakukan di admin |
 |---|---|
@@ -80,13 +80,28 @@ toko **membeli** gitar, dan penjual boleh **membeli kembali** sampai batas tebus
 | Penjual membalas SETUJU | Centang **Penjual sudah membalas SETUJU** → Simpan (tanggalnya tercatat di surat perjanjian) |
 | Mendekati batas | Daftar tebus menampilkan **🔔** 7 hari dan 1 hari sebelum batas → **Ingatkan via WA** |
 | Penjual menebus | Terima pembayaran → status **Sudah dibeli kembali** → Simpan → **WA: Terima kasih** |
-| Lewat batas, tidak ditebus | Status **Milik toko** → Simpan → **WA: Masa tebus berakhir**. Gitar boleh dijual sebagai stok toko |
+| Lewat batas, tidak ditebus | Status **Milik toko** → Simpan → **WA: Masa tebus berakhir** → **Masukkan ke stok** (foto gitar ikut pindah, KTP tidak), lalu isi harga jualnya |
 
 - **KTP:** selalu lihat KTP asli dan catat nama sesuai KTP (NIK opsional). **Foto KTP** disarankan untuk penjual yang belum dikenal atau harga beli di atas Rp1 juta (admin memberi saran). Foto gitar dan KTP **hanya disimpan di repo privat** (terkunci) dan tidak pernah ada di situs.
 - **Hapus foto KTP** setelah tidak diperlukan: daftar tebus menandai 🪪 data yang sudah dibeli kembali lebih dari 3 bulan (atau dibatalkan); tekan **Hapus foto KTP**. Untuk gitar yang menjadi **milik toko**, foto KTP tetap disimpan sebagai bukti asal-usul barang.
 - Kalimat untuk penjual: *"Untuk keamanan bersama, kami catat KTP-nya ya Kak. Fotonya disimpan terkunci, tidak dibagikan ke siapa pun, dan dihapus setelah transaksi selesai."*
 - Penjual bisa membuka **surat perjanjian** di `ayrigitar.com/perjanjian.html` dengan kode `TBS-…` + 4 digit terakhir HP. NIK dan HP tampil disamarkan.
 - Ketentuan surat perjanjian bisa diubah di `layanan-config.js` bagian `tebus`.
+
+## Stok gitar (menu **Stok**)
+
+Catatan gitar dagangan, **baru** maupun **bekas** (termasuk gitar yang dibeli putus dan gitar tebus yang menjadi milik toko). Semua data dan foto **hanya di repo privat**.
+
+| Kejadian | Yang dilakukan di admin |
+|---|---|
+| Gitar masuk stok | **Stok** → **+ Tambah stok** → pilih **Baru/Bekas**, merk/model, warna, no. seri, deskripsi, **modal (harga beli)**, **harga jual**, jumlah, asal barang (opsional), foto → **Simpan** |
+| Mau menawarkan | **Tawarkan via WA** → pilih kontak, grup, atau status WhatsApp (teks berisi merk, kondisi, deskripsi, harga, alamat toko) |
+| Ada yang dipesan | Status **Dipesan** → Simpan |
+| Terjual | Bagian **Penjualan** → jumlah, harga, catatan (mis. nama pembeli) → **Catat penjualan** → **Simpan**. Stok berkurang otomatis; status jadi **Terjual** bila habis |
+
+- Bagian atas daftar menampilkan **rekap**: jumlah unit (baru/bekas), modal yang tertanam di stok, perkiraan untung, serta unit dan untung **bulan ini**.
+- Gitar yang sudah lebih dari 90 hari di stok ditandai merah, sebagai tanda untuk dipromosikan atau diturunkan harganya.
+- Untuk gitar bekas dari perorangan, isi **Asal barang** (mis. "beli dari pelanggan, Bogor") sebagai catatan asal-usul.
 
 ## Yang dilihat pelanggan
 
