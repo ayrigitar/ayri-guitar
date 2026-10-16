@@ -43,6 +43,17 @@
     }
     function ws(ctx, c) { var w = ctx.createWaveShaper(); w.curve = c; w.oversample = '4x'; return w; }
     function rangkai(nodes) { for (var i = 0; i < nodes.length - 1; i++) nodes[i].connect(nodes[i + 1]); return nodes; }
+    /* node AudioWorklet (efek-worklet.js); bila browser belum mendukung, blok menjadi jalur lurus */
+    function wnode(ctx, nama, stereo) {
+        if (!ctx.ayriSiap) return null;
+        try { return new AudioWorkletNode(ctx, nama, stereo ? { numberOfInputs: 1, numberOfOutputs: 1, outputChannelCount: [2] } : { numberOfInputs: 1, numberOfOutputs: 1 }); } catch (e) { return null; }
+    }
+    function lurus(ctx) { var g = gn(ctx, 1); return { masuk: g, keluar: g, atur: function () {} }; }
+    function setP(node, nama, v) { var a = node.parameters.get(nama); if (a) a.value = v; }
+    function blokWorklet(ctx, nama, stereo, atur) {
+        var n = wnode(ctx, nama, stereo); if (!n) return lurus(ctx);
+        return { masuk: n, keluar: n, atur: function (p) { atur(n, p); } };
+    }
     /* perubahan kenop dihaluskan ~15 ms supaya tidak berbunyi "klik" */
     function halus(ctx, param, v) {
         if (ctx.state !== 'running') { param.value = v; return; }
@@ -125,7 +136,7 @@
             nama: 'Noise gate', warna: 'abu', catatan: 'Meredam dengung saat senar tidak dipetik.',
             param: [R('ambang', 'Ambang', -90, -20, -62, 1, ' dB'), R('lepas', 'Lepas', 20, 600, 120, 5, ' ms')],
             buat: function (ctx) {
-                if (!ctx.gerbangSiap) { var g = gn(ctx, 1); return { masuk: g, keluar: g, atur: function () {} }; }
+                if (!ctx.ayriSiap) { var g = gn(ctx, 1); return { masuk: g, keluar: g, atur: function () {} }; }
                 var n = new AudioWorkletNode(ctx, 'ayri-gerbang', { numberOfInputs: 1, numberOfOutputs: 1 });
                 return { masuk: n, keluar: n, atur: function (p) { n.parameters.get('ambang').value = p.ambang; n.parameters.get('lepas').value = p.lepas; } };
             }
@@ -254,7 +265,115 @@
             }
         }
     };
-    var URUT = ['gate', 'boost', 'od', 'dist', 'fuzz', 'eq', 'amp', 'delay', 'reverb'];
+    /* tahap 2: dinamika & filter, modulasi */
+    BLOK.komp = {
+        nama: 'Compressor', warna: 'kuning', catatan: 'Meratakan keras-pelan petikan; sustain lebih panjang dan suara lebih stabil.',
+        param: [KN('sustain', 'Sustain', 5), R('attack', 'Attack', 1, 50, 10, 1, ' ms'), R('level', 'Level', -6, 12, 0, 0.5, ' dB'), R('campur', 'Campur', 0, 100, 100, 1, '%')],
+        buat: function (ctx) {
+            var masuk = gn(ctx, 1), keluar = gn(ctx, 1), k = ctx.createDynamicsCompressor(), isi = gn(ctx, 1), kering = gn(ctx, 0);
+            k.knee.value = 6; k.release.value = 0.25;
+            rangkai([masuk, k, isi, keluar]); masuk.connect(kering); kering.connect(keluar);
+            return { masuk: masuk, keluar: keluar, atur: function (p) {
+                halus(ctx, k.threshold, -10 - p.sustain * 4); halus(ctx, k.ratio, 3 + p.sustain * 0.7); k.attack.value = p.attack / 1000;
+                halus(ctx, isi.gain, db(p.level + p.sustain * 1.6) * p.campur / 100); halus(ctx, kering.gain, 1 - p.campur / 100);
+            } };
+        }
+    };
+    BLOK.wah = {
+        nama: 'Wah', warna: 'gelap', catatan: 'Geser Pedal untuk mengubah suara dari "uu" (tumit) ke "aa" (ujung kaki).',
+        param: [KN('pedal', 'Pedal', 5), KN('reso', 'Resonansi', 5), KN('level', 'Level', 5)],
+        buat: function (ctx) {
+            var masuk = gn(ctx, 1), bp = bq(ctx, 'bandpass', 800, 5), isi = gn(ctx, 3), kering = gn(ctx, 0.08), keluar = gn(ctx, 1);
+            rangkai([masuk, bp, isi, keluar]); masuk.connect(kering); kering.connect(keluar);
+            return { masuk: masuk, keluar: keluar, atur: function (p) {
+                halus(ctx, bp.frequency, 350 * Math.pow(2300 / 350, p.pedal / 10)); halus(ctx, bp.Q, 2 + p.reso * 0.8);
+                halus(ctx, isi.gain, (2 + p.reso * 0.3) * db((p.level - 5) * 2.4));
+            } };
+        }
+    };
+    BLOK.autowah = {
+        nama: 'Auto-wah', warna: 'merah-muda', catatan: 'Wah otomatis yang mengikuti kuat-lemah petikan (envelope filter). Cocok untuk funk.',
+        param: [KN('peka', 'Kepekaan', 6), R('bawah', 'Dari', 150, 1000, 300, 10, ' Hz'), R('atas', 'Sampai', 800, 5000, 2500, 50, ' Hz'), KN('reso', 'Resonansi', 5),
+            R('campur', 'Campur', 0, 100, 100, 1, '%'), PIL('arah', 'Arah', [['naik', 'Naik'], ['turun', 'Turun']], 'naik')],
+        buat: function (ctx) {
+            return blokWorklet(ctx, 'ayri-autowah', false, function (n, p) {
+                setP(n, 'peka', p.peka / 10); setP(n, 'bawah', p.bawah); setP(n, 'atas', p.atas); setP(n, 'q', 1 + p.reso * 1.2);
+                setP(n, 'campur', p.campur / 100); setP(n, 'arah', p.arah === 'turun' ? -1 : 1);
+            });
+        }
+    };
+    BLOK.chorus = {
+        nama: 'Chorus', warna: 'biru-muda', catatan: 'Seperti beberapa gitar dimainkan bersamaan: tebal dan lebar (stereo).',
+        param: [R('laju', 'Laju', 0.1, 5, 0.8, 0.05, ' Hz'), KN('dalam', 'Kedalaman', 5), R('campur', 'Campur', 0, 100, 50, 1, '%')],
+        buat: function (ctx) {
+            return blokWorklet(ctx, 'ayri-tunda', true, function (n, p) {
+                setP(n, 'dasar', 14); setP(n, 'dalam', p.dalam * 0.5); setP(n, 'laju', p.laju); setP(n, 'umpan', 0);
+                setP(n, 'basah', p.campur / 100); setP(n, 'kering', 1 - p.campur / 200); setP(n, 'lebar', 1);
+            });
+        }
+    };
+    BLOK.flanger = {
+        nama: 'Flanger', warna: 'ungu-muda', catatan: 'Sapuan mendesing seperti jet lepas landas.',
+        param: [R('laju', 'Laju', 0.05, 2, 0.25, 0.01, ' Hz'), KN('dalam', 'Kedalaman', 6), R('umpan', 'Regen', -90, 90, 55, 1, '%'), R('campur', 'Campur', 0, 100, 50, 1, '%')],
+        buat: function (ctx) {
+            return blokWorklet(ctx, 'ayri-tunda', true, function (n, p) {
+                setP(n, 'dasar', 0.5); setP(n, 'dalam', 0.3 + p.dalam * 0.45); setP(n, 'laju', p.laju); setP(n, 'umpan', p.umpan / 100);
+                setP(n, 'basah', p.campur / 100); setP(n, 'kering', 1 - p.campur / 200); setP(n, 'lebar', 0.3);
+            });
+        }
+    };
+    BLOK.phaser = {
+        nama: 'Phaser', warna: 'jingga', catatan: 'Sapuan halus seperti suara angin; lebih lembut dari flanger.',
+        param: [R('laju', 'Laju', 0.05, 5, 0.5, 0.05, ' Hz'), KN('dalam', 'Kedalaman', 7), R('umpan', 'Umpan balik', 0, 90, 40, 1, '%'),
+            PIL('tahap', 'Tahap', [['4', '4 tahap'], ['6', '6 tahap'], ['8', '8 tahap']], '4'), R('campur', 'Campur', 0, 100, 100, 1, '%')],
+        buat: function (ctx) {
+            return blokWorklet(ctx, 'ayri-phaser', true, function (n, p) {
+                setP(n, 'laju', p.laju); setP(n, 'dalam', p.dalam / 10); setP(n, 'umpan', p.umpan / 100); setP(n, 'campur', p.campur / 100); setP(n, 'tahap', +p.tahap);
+            });
+        }
+    };
+    BLOK.vibrato = {
+        nama: 'Vibrato', warna: 'hijau-muda', catatan: 'Nada diayun naik-turun secara halus.',
+        param: [R('laju', 'Laju', 0.5, 10, 5, 0.1, ' Hz'), KN('dalam', 'Kedalaman', 4)],
+        buat: function (ctx) {
+            return blokWorklet(ctx, 'ayri-tunda', true, function (n, p) {
+                setP(n, 'dasar', 2); setP(n, 'dalam', p.dalam * 0.35); setP(n, 'laju', p.laju); setP(n, 'umpan', 0);
+                setP(n, 'basah', 1); setP(n, 'kering', 0); setP(n, 'lebar', 0);
+            });
+        }
+    };
+    BLOK.tremolo = {
+        nama: 'Tremolo', warna: 'emas', catatan: 'Volume diayun keras-pelan secara berkala.',
+        param: [R('laju', 'Laju', 1, 12, 5, 0.1, ' Hz'), R('dalam', 'Kedalaman', 0, 100, 60, 1, '%'), PIL('bentuk', 'Bentuk', [['sine', 'Halus'], ['triangle', 'Segitiga'], ['square', 'Kotak']], 'sine')],
+        buat: function (ctx) {
+            var masuk = gn(ctx, 1), vca = gn(ctx, 1), osc = ctx.createOscillator(), lp = bq(ctx, 'lowpass', 200, 0.7), amp = gn(ctx, 0.3);
+            rangkai([osc, lp, amp]); amp.connect(vca.gain); masuk.connect(vca); osc.start();
+            return { masuk: masuk, keluar: vca, atur: function (p) {
+                var d = p.dalam / 100; osc.type = p.bentuk; halus(ctx, osc.frequency, p.laju);
+                /* gelombang kotak diperhalus supaya tidak berbunyi klik */
+                halus(ctx, lp.frequency, p.bentuk === 'square' ? 40 : 200);
+                halus(ctx, vca.gain, 1 - d / 2); halus(ctx, amp.gain, d / 2);
+            } };
+        }
+    };
+    BLOK.rotary = {
+        nama: 'Rotary', warna: 'kayu', catatan: 'Speaker berputar ala organ (Leslie): lambat untuk chorale, cepat untuk tremolo.',
+        param: [PIL('cepat', 'Kecepatan', [['0', 'Lambat'], ['1', 'Cepat']], '0'), KN('dalam', 'Kedalaman', 7), R('campur', 'Campur', 0, 100, 100, 1, '%')],
+        buat: function (ctx) {
+            return blokWorklet(ctx, 'ayri-rotary', true, function (n, p) { setP(n, 'cepat', +p.cepat); setP(n, 'dalam', p.dalam / 10); setP(n, 'campur', p.campur / 100); });
+        }
+    };
+    var URUT = ['gate', 'komp', 'wah', 'autowah', 'boost', 'od', 'dist', 'fuzz', 'eq', 'amp', 'chorus', 'flanger', 'phaser', 'vibrato', 'tremolo', 'rotary', 'delay', 'reverb'];
+    /* urutan lama (sebelum ada blok baru) dilengkapi: blok baru disisipkan sesudah blok sebelumnya menurut urutan bawaan */
+    function lengkapiUrutan(u) {
+        var hasil = (Array.isArray(u) ? u : []).filter(function (k, i, a) { return URUT.indexOf(k) > -1 && a.indexOf(k) === i; });
+        URUT.forEach(function (k, i) {
+            if (hasil.indexOf(k) > -1) return;
+            var j2 = i - 1; while (j2 >= 0 && hasil.indexOf(URUT[j2]) < 0) j2--;
+            hasil.splice(j2 < 0 ? 0 : hasil.indexOf(URUT[j2]) + 1, 0, k);
+        });
+        return hasil;
+    }
 
     /* ================= graf audio =================
        input (mono) -> gain input -> [blok sesuai urutan, masing-masing bisa dimatikan] -> volume -> pembatas -> keluaran */
@@ -342,7 +461,15 @@
         pr('Distorsi grunge', { gate: { ambang: -58 }, dist: { gain: 7, tone: 4, level: 5 }, amp: { model: 'crunch', gain: 3, kab: '4x12' }, reverb: { jenis: 'ruang', campur: 12 } }),
         pr('Fuzz 60-an', { gate: { ambang: -60 }, fuzz: { fuzz: 7, tone: 5 }, amp: { model: 'bersih', gain: 4, kab: '1x12' }, reverb: { jenis: 'pegas', decay: 2, campur: 22 } }),
         pr('Surf spring', { gate: { ambang: -70 }, amp: { model: 'bersih', gain: 4, treble: 7, kab: '1x12' }, reverb: { jenis: 'pegas', decay: 3, campur: 45 } }),
-        pr('DI bersih (tanpa efek)', { amp: { model: 'bersih', gain: 0, kab: 'tanpa' } })
+        pr('DI bersih (tanpa efek)', { amp: { model: 'bersih', gain: 0, kab: 'tanpa' } }),
+        pr('Clean chorus 80-an', { gate: { ambang: -70 }, komp: { sustain: 4 }, amp: { model: 'bersih', gain: 3, treble: 6 }, chorus: { laju: 0.8, dalam: 6, campur: 55 }, delay: { waktu: 380, umpan: 25, campur: 20 }, reverb: { jenis: 'aula', campur: 25 } }),
+        pr('Funk auto-wah', { gate: { ambang: -66 }, komp: { sustain: 6, level: -6 }, autowah: { peka: 6 }, amp: { model: 'bersih', gain: 3, master: 3 }, reverb: { jenis: 'ruang', decay: 1, campur: 12 } }),
+        pr('Wah solo', { gate: {}, wah: { pedal: 6 }, od: { drive: 4, level: 6 }, amp: { model: 'lead', gain: 5 }, delay: { waktu: 380, umpan: 30, campur: 22 }, reverb: { jenis: 'aula', campur: 18 } }),
+        pr('Psikedelik phaser', { gate: { ambang: -60 }, fuzz: { fuzz: 6, tone: 5 }, amp: { model: 'crunch', gain: 3, kab: '2x12' }, phaser: { laju: 0.4, dalam: 8, umpan: 50 }, reverb: { jenis: 'aula', campur: 25 } }),
+        pr('Organ berputar', { gate: {}, amp: { model: 'crunch', gain: 3 }, rotary: { cepat: '0', dalam: 7 }, reverb: { jenis: 'ruang', campur: 15 } }),
+        pr('Tremolo surf', { gate: { ambang: -70 }, amp: { model: 'bersih', gain: 4, treble: 7, kab: '1x12' }, tremolo: { laju: 6, dalam: 60 }, reverb: { jenis: 'pegas', decay: 2.5, campur: 40 } }),
+        pr('Jet flanger', { gate: { ambang: -58 }, dist: { gain: 5 }, amp: { model: 'crunch', gain: 4, kab: '4x12' }, flanger: { laju: 0.2, dalam: 7, umpan: 60 } }),
+        pr('Vibrato vintage', { gate: { ambang: -70 }, amp: { model: 'bersih', gain: 4 }, vibrato: { laju: 5.5, dalam: 4 }, reverb: { jenis: 'pegas', campur: 25 } })
     ];
     function paramAwal(k) { var p = {}; BLOK[k].param.forEach(function (x) { p[x.k] = x.def; }); return p; }
     function dariPreset(prs) {
@@ -352,24 +479,28 @@
             if (ub) Object.keys(ub).forEach(function (n) { p[n] = ub[n]; });
             blok[k] = { on: !!ub, p: p };
         });
-        return { urutan: (prs.urutan || URUT).slice(), blok: blok };
+        return { urutan: lengkapiUrutan(prs.urutan || URUT), blok: blok };
     }
 
     /* ================= keadaan & penyimpanan ================= */
     var KUNCI = 'ayri-efek', KUNCI_PRESET = 'ayri-efek-preset', KUNCI_HP = 'ayri-efek-headphone';
     function baca(k, def) { try { var v = JSON.parse(localStorage.getItem(k) || 'null'); return v === null ? def : v; } catch (e) { return def; } }
     function tulis(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+    /* lengkapi dari bawaan supaya preset & pengaturan lama tetap jalan bila blok/param bertambah */
+    function lengkapi(src) {
+        var blok = {};
+        URUT.forEach(function (k) {
+            var b = (src.blok && src.blok[k]) || { on: false, p: {} }, p = paramAwal(k);
+            Object.keys(p).forEach(function (n) { if (b.p && b.p[n] !== undefined) p[n] = b.p[n]; });
+            blok[k] = { on: !!b.on, p: p };
+        });
+        return { urutan: lengkapiUrutan(src.urutan), blok: blok };
+    }
     var S = (function () {
         var awal = dariPreset(PRESET[2]), s = baca(KUNCI, null);
         awal.ing = 0; awal.vol = 7; awal.kanal = 'campur'; awal.perangkat = ''; awal.preset = 'b2';
         if (!s || !s.blok) return awal;
-        /* lengkapi dari bawaan supaya preset lama tetap jalan bila blok/param bertambah */
-        URUT.forEach(function (k) {
-            var b = s.blok[k] || { on: false, p: {} }, p = paramAwal(k);
-            Object.keys(p).forEach(function (n) { if (b.p && b.p[n] !== undefined) p[n] = b.p[n]; });
-            awal.blok[k] = { on: !!b.on, p: p };
-        });
-        if (Array.isArray(s.urutan) && s.urutan.length === URUT.length && URUT.every(function (k) { return s.urutan.indexOf(k) > -1; })) awal.urutan = s.urutan;
+        var l = lengkapi(s); awal.blok = l.blok; awal.urutan = l.urutan;
         ['ing', 'vol', 'kanal', 'perangkat', 'preset'].forEach(function (k) { if (s[k] !== undefined) awal[k] = s[k]; });
         return awal;
     })();
@@ -379,11 +510,13 @@
 
     /* ================= audio: mulai, input gitar, suara contoh ================= */
     var ctx = null, graf = null, siap = null, aliran = null, sumberGitar = null, pisah = null, kanal = [], sumberContoh = null, bufContoh = null;
+    var sambungLagi = false, labelDefault = '', tSinyal = 0, sepi = false;
+    var SEPI = 'Belum ada suara dari input. Cek: kabel tercolok ke colokan mikrofon (bukan headphone), input yang dipilih benar, volume gitar tidak nol, dan di Windows (Pengaturan > Sistem > Suara > Input) mikrofon tidak dibisukan dan levelnya cukup. Lihat Info, bagian "Tanpa audio interface".';
     function siapkan() {
         if (siap) return siap;
         try { ctx = new AC({ latencyHint: 0 }); } catch (e) { ctx = new AC({ latencyHint: 'interactive' }); }
         if (ctx.state === 'suspended') ctx.resume();
-        var modul = ctx.audioWorklet && ctx.audioWorklet.addModule ? ctx.audioWorklet.addModule('efek-worklet.js').then(function () { ctx.gerbangSiap = true; }, function () {}) : Promise.resolve();
+        var modul = ctx.audioWorklet && ctx.audioWorklet.addModule ? ctx.audioWorklet.addModule('efek-worklet.js').then(function () { ctx.ayriSiap = true; }, function () {}) : Promise.resolve();
         siap = modul.then(function () {
             graf = Graf(ctx);
             pisah = ctx.createChannelSplitter(2);
@@ -392,6 +525,9 @@
             kanal[0].connect(graf.mono); kanal[1].connect(graf.mono);
             aturKanal();
             graf.sambung(S.urutan); graf.terapkan(S);
+            /* perekam di ujung rantai (sesudah pembatas), ditarik lewat gain nol supaya tetap diproses */
+            var rn = wnode(ctx, 'ayri-rekam', true);
+            if (rn) { var nol = gn(ctx, 0); graf.batas.connect(rn); rn.connect(nol); nol.connect(ctx.destination); rn.port.onmessage = function (e) { potongan.push(e.data); }; rekamNode = rn; }
             window.__efek.ctx = ctx; window.__efek.graf = graf;
             meter();
             return ctx;
@@ -410,14 +546,16 @@
         var ms = ((ctx.baseLatency || 0) + (ctx.outputLatency || 0) + (st.latency || 0)) * 1000;
         $('#ef-jeda').textContent = ms > 0 ? 'Perkiraan jeda suara: ' + Math.round(ms) + ' ms' + (ms > 30 ? ' (terasa telat; lihat Info untuk tips)' : '') : '';
     }
+    function labelBawaan(ds) { var d = ds.filter(function (x) { return x.kind === 'audioinput' && x.deviceId === 'default'; })[0]; return d ? d.label : ''; }
     function isiPerangkat() {
-        if (!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices) return;
-        navigator.mediaDevices.enumerateDevices().then(function (ds) {
+        if (!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices) return Promise.resolve([]);
+        return navigator.mediaDevices.enumerateDevices().then(function (ds) {
             var masuk = ds.filter(function (d) { return d.kind === 'audioinput'; }), sel = $('#ef-dev');
             sel.innerHTML = '<option value="">Input bawaan</option>' + masuk.filter(function (d) { return d.deviceId && d.deviceId !== 'default'; }).map(function (d, i) {
                 return '<option value="' + d.deviceId.replace(/"/g, '') + '">' + (d.label || 'Input ' + (i + 1)).replace(/[<>&]/g, '') + '</option>';
             }).join('');
             sel.value = S.perangkat; if (sel.value !== S.perangkat) sel.value = '';
+            return ds;
         });
     }
     function hentikanGitar() {
@@ -437,11 +575,20 @@
         }).then(function (st) {
             hentikanGitar();
             aliran = st; sumberGitar = ctx.createMediaStreamSource(st); sumberGitar.connect(pisah);
+            sambungLagi = false; tSinyal = performance.now(); sepi = false;
+            /* kabel dicabut / perangkat dilepas: aliran berakhir; sambung lagi otomatis saat perangkat muncul */
+            st.getAudioTracks().forEach(function (t) {
+                t.addEventListener('ended', function () {
+                    if (aliran !== st) return;
+                    hentikanGitar(); sambungLagi = true;
+                    kabar('Input audio terputus (kabel dicabut atau perangkat berganti). Colok lagi; halaman akan mencoba menyambung otomatis, atau tekan Nyalakan gitar.', true);
+                });
+            });
             if (ctx.state === 'suspended') ctx.resume();
             $('#ef-mulai').textContent = 'Matikan gitar'; $('#ef-mulai').classList.add('on'); $('#ef-mulai').setAttribute('aria-pressed', 'true');
             var tr = st.getAudioTracks()[0];
             kabar('Gitar menyala' + (tr && tr.label ? ' (' + tr.label + ')' : '') + '. Petik senar dan atur Gain input sampai meter masuk zona kuning.');
-            isiPerangkat(); tampilJeda(); setTimeout(tampilJeda, 1500);
+            isiPerangkat().then(function (ds) { labelDefault = labelBawaan(ds); }); tampilJeda(); setTimeout(tampilJeda, 1500);
         }).catch(function (e) {
             var n = e && e.name;
             kabar(n === 'NotAllowedError' ? 'Izin input audio ditolak. Izinkan mikrofon untuk situs ini di pengaturan browser, lalu coba lagi.'
@@ -465,17 +612,76 @@
         });
     }
 
+    /* ================= rekam (hasil olahan, sesudah pembatas) & unduh WAV ================= */
+    var rekamNode = null, potongan = [], rekamMulai = 0, tRekam = 0, urlRekam = '', MAKS_REKAM = 600;
+    function wav(kanal, sr) {
+        var n = kanal[0].length, c = kanal.length, buf = new ArrayBuffer(44 + n * c * 2), v = new DataView(buf), o = 44, i, k2;
+        function s(of, t) { for (var q = 0; q < t.length; q++) v.setUint8(of + q, t.charCodeAt(q)); }
+        s(0, 'RIFF'); v.setUint32(4, 36 + n * c * 2, true); s(8, 'WAVE'); s(12, 'fmt '); v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, c, true);
+        v.setUint32(24, sr, true); v.setUint32(28, sr * c * 2, true); v.setUint16(32, c * 2, true); v.setUint16(34, 16, true); s(36, 'data'); v.setUint32(40, n * c * 2, true);
+        for (i = 0; i < n; i++) for (k2 = 0; k2 < c; k2++) { var x = Math.max(-1, Math.min(1, kanal[k2][i])); v.setInt16(o, x < 0 ? x * 0x8000 : x * 0x7FFF, true); o += 2; }
+        return new Blob([buf], { type: 'audio/wav' });
+    }
+    function jam(dtk) { dtk = Math.floor(dtk); return Math.floor(dtk / 60) + ':' + ('0' + dtk % 60).slice(-2); }
+    function buangRekaman() {
+        if (urlRekam) URL.revokeObjectURL(urlRekam); urlRekam = '';
+        $('#ef-hasil').hidden = true; $('#ef-hasil').removeAttribute('src'); $('#ef-unduh').hidden = true; $('#ef-buang').hidden = true; $('#ef-waktu').textContent = '';
+    }
+    function mulaiRekam() {
+        siapkan().then(function () {
+            if (!rekamNode) { kabar('Browser ini belum bisa merekam dari halaman ini. Pakai Chrome, Edge, atau Firefox terbaru.', true); return; }
+            buangRekaman(); potongan = []; rekamMulai = performance.now();
+            rekamNode.port.postMessage({ rekam: true });
+            $('#ef-rekam').setAttribute('aria-pressed', 'true'); $('#ef-rekam').lastChild.textContent = ' Stop';
+            clearInterval(tRekam);
+            tRekam = setInterval(function () {
+                var d = (performance.now() - rekamMulai) / 1000; $('#ef-waktu').textContent = jam(d);
+                if (d >= MAKS_REKAM) selesaiRekam();
+            }, 250);
+            if (!aliran && !sumberContoh) kabar('Merekam. Nyalakan gitar atau putar Contoh suara supaya ada yang terekam.');
+        });
+    }
+    function selesaiRekam() {
+        clearInterval(tRekam);
+        if (!rekamNode) return;
+        rekamNode.port.postMessage({ rekam: false });
+        $('#ef-rekam').setAttribute('aria-pressed', 'false'); $('#ef-rekam').lastChild.textContent = ' Rekam';
+        /* tunggu potongan terakhir dari jalur audio */
+        setTimeout(function () {
+            var n = potongan.reduce(function (a, p) { return a + p[0].length; }, 0);
+            if (!n) { $('#ef-waktu').textContent = ''; return; }
+            var kanal = [new Float32Array(n), new Float32Array(n)], o = 0;
+            potongan.forEach(function (p) { kanal[0].set(p[0], o); kanal[1].set(p[1], o); o += p[0].length; });
+            potongan = [];
+            urlRekam = URL.createObjectURL(wav(kanal, ctx.sampleRate));
+            var t = new Date(), nama = 'ayri-gitar-' + t.getFullYear() + ('0' + (t.getMonth() + 1)).slice(-2) + ('0' + t.getDate()).slice(-2) + '-' + ('0' + t.getHours()).slice(-2) + ('0' + t.getMinutes()).slice(-2) + '.wav';
+            $('#ef-hasil').src = urlRekam; $('#ef-hasil').hidden = false;
+            $('#ef-unduh').href = urlRekam; $('#ef-unduh').setAttribute('download', nama); $('#ef-unduh').hidden = false; $('#ef-buang').hidden = false;
+            $('#ef-waktu').textContent = jam(n / ctx.sampleRate);
+            window.__efek.rekaman = { detik: n / ctx.sampleRate, nama: nama };
+        }, 300);
+    }
+    $('#ef-rekam').addEventListener('click', function () { if (this.getAttribute('aria-pressed') === 'true') selesaiRekam(); else mulaiRekam(); });
+    $('#ef-buang').addEventListener('click', buangRekaman);
+
     /* meter level masuk & keluar */
     var tClip = 0;
     function puncak(an) { var d = new Float32Array(an.fftSize); an.getFloatTimeDomainData(d); var m = 0; for (var i = 0; i < d.length; i++) { var v = Math.abs(d[i]); if (v > m) m = v; } return m; }
+    function dbTeks(p) { return p > 0.00001 ? Math.round(20 * Math.log10(p)) + ' dB' : '\u2212\u221e'; }
     function lebarMeter(p) { return Math.max(0, Math.min(1, (20 * Math.log10(p + 1e-9) + 60) / 60)); }
     function meter() {
         if (!graf) return;
         var pi = puncak(graf.inMeter), po = puncak(graf.outMeter);
         $('#ef-in').style.transform = 'scaleX(' + (1 - lebarMeter(pi)) + ')';
         $('#ef-out').style.transform = 'scaleX(' + (1 - lebarMeter(po)) + ')';
-        if (pi >= 0.99) tClip = performance.now();
-        $('#ef-clip').classList.toggle('on', performance.now() - tClip < 1200);
+        var kini = performance.now();
+        if (pi >= 0.99) tClip = kini;
+        $('#ef-clip').classList.toggle('on', kini - tClip < 1200);
+        $('#ef-in-db').textContent = dbTeks(pi); $('#ef-out-db').textContent = dbTeks(po);
+        if (aliran) {
+            if (pi > 0.0008) { tSinyal = kini; if (sepi) { sepi = false; kabar('Sinyal gitar masuk. Atur Gain input sampai meter IN masuk zona kuning.'); } }
+            else if (!sepi && kini - tSinyal > 5000) { sepi = true; kabar(SEPI, true); }
+        }
         window.__efek.puncak = [pi, po];
         requestAnimationFrame(meter);
     }
@@ -518,7 +724,7 @@
     }
     function terapkanSemua() { if (graf) { graf.sambung(S.urutan); graf.terapkan(S); } }
     function pakaiPreset(v) {
-        var src = v.charAt(0) === 'b' ? dariPreset(PRESET[+v.slice(1)]) : milikku[+v.slice(1)] && JSON.parse(JSON.stringify(milikku[+v.slice(1)].data));
+        var src = v.charAt(0) === 'b' ? dariPreset(PRESET[+v.slice(1)]) : milikku[+v.slice(1)] && lengkapi(JSON.parse(JSON.stringify(milikku[+v.slice(1)].data)));
         if (!src) return;
         S.urutan = src.urutan; S.blok = src.blok; S.preset = v;
         if (!S.blok[pilih] || !S.blok[pilih].on) pilih = 'amp';
@@ -554,7 +760,15 @@
             gambar(); simpan(); tandaiPreset(true); return;
         }
         var c = e.target.closest('[data-pilih]');
-        if (c) { pilih = c.dataset.pilih; gambar(); return; }
+        if (c) {
+            pilih = c.dataset.pilih; gambar();
+            /* layar lebar: semua kartu tampil, jadi chip berfungsi sebagai navigasi ke kartunya */
+            if (window.matchMedia('(min-width: 900px) and (min-height: 520px)').matches) {
+                var kt = papan.querySelector('[data-blok="' + pilih + '"]');
+                if (kt) { kt.scrollIntoView({ block: 'center', behavior: 'smooth' }); kt.classList.add('sorot'); setTimeout(function () { kt.classList.remove('sorot'); }, 1200); }
+            }
+            return;
+        }
         var g = e.target.closest('[data-geser]');
         if (g) { var kartu = g.closest('[data-blok]'), kb = kartu.dataset.blok; pilih = kb; pindah(kb, S.urutan.indexOf(kb) + +g.dataset.geser); }
     });
@@ -613,8 +827,18 @@
     });
     $('#ef-hp-ok').addEventListener('click', function () { tulis(KUNCI_HP, true); $('#dr-hp').hidden = true; mulaiGitar(); });
     $('#ef-contoh').addEventListener('click', function () { contoh(this.getAttribute('aria-pressed') !== 'true'); });
-    if (navigator.mediaDevices && navigator.mediaDevices.addEventListener) navigator.mediaDevices.addEventListener('devicechange', isiPerangkat);
+    /* perangkat dicolok/dicabut: perbarui daftar; sambung lagi bila input tadi terputus atau input bawaan sistem berganti */
+    var tPerangkat = 0;
+    if (navigator.mediaDevices && navigator.mediaDevices.addEventListener) navigator.mediaDevices.addEventListener('devicechange', function () {
+        clearTimeout(tPerangkat);
+        tPerangkat = setTimeout(function () {
+            isiPerangkat().then(function (ds) {
+                var ganti = aliran && !S.perangkat && labelDefault && labelBawaan(ds) !== labelDefault;
+                if (sambungLagi || ganti) { kabar('Perangkat audio berubah, input dibuka ulang\u2026'); mulaiGitar(); }
+            });
+        }, 900);
+    });
 
-    window.__efek = { S: S, BLOK: BLOK, PRESET: PRESET, Graf: Graf, suaraContoh: suaraContoh, dariPreset: dariPreset, URUT: URUT };
+    window.__efek = { S: S, BLOK: BLOK, PRESET: PRESET, Graf: Graf, suaraContoh: suaraContoh, dariPreset: dariPreset, URUT: URUT, lengkapi: lengkapi };
     isiPreset(); gambar();
 })();
