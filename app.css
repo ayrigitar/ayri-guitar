@@ -654,3 +654,122 @@ body.lembar-on .sc-latar { opacity: 1; pointer-events: auto; }
   .sc-tr2 [data-lembar] { display: none; }
   .sc-tr2 .sc-tb { min-width: 110px; }
 }
+
+/* 10. Editor tab ketuk-ketik (partitur-edit.js)
+   HP: panel bawah berisi panjang not, pilihan senar + keypad angka fret, dan baris teknik.
+   HP miring: panel di kanan. Layar lebar: panel samping + keyboard, pemutar tetap di bawah.
+   ========================================================================== */
+main.edit-on .sc-edit, main.edit-on .sc-chips { display: none; }
+main.edit-on #at { cursor: pointer; }
+/* kursor putar alphaTab hanya tampil saat lagu diputar, supaya tidak bertumpuk dengan kursor edit */
+main.edit-on .at-cursor-bar, main.edit-on .at-selection, main.edit-on:not(.ed-main) .at-cursor-beat { visibility: hidden; }
+.sc-draf { display: grid; gap: 2px; padding: 10px 12px; border: 1px dashed var(--line-strong); border-radius: var(--r-md); background: var(--accent-soft); color: var(--ink); font-family: var(--font-sans); text-align: left; cursor: pointer; }
+.sc-draf[hidden] { display: none; }
+.sc-draf b { font-size: .875rem; }
+.sc-draf small { font-size: .75rem; color: var(--ink-3); }
+
+main.score-app.edit-on { --dock-h: 0px; --tr-h: var(--ed-h, 330px); }
+main.score-app.edit-on .apptop, main.score-app.edit-on .sc-transport { display: none; }
+
+.ed-panel {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 56;
+  display: grid; gap: 6px; max-height: 72dvh; overflow-y: auto; overscroll-behavior: contain;
+  padding: 8px max(10px, env(safe-area-inset-right)) calc(8px + env(safe-area-inset-bottom)) max(10px, env(safe-area-inset-left));
+  background: var(--glass-strong); -webkit-backdrop-filter: blur(18px) saturate(1.5); backdrop-filter: blur(18px) saturate(1.5);
+  border-top: 1px solid var(--line); box-shadow: 0 -10px 30px -22px rgba(28, 22, 16, .4);
+}
+.ed-panel[hidden] { display: none; }
+.ed-nama, .ed-kunci, .ed-lagu { display: none; }
+.ed-atas { display: flex; align-items: center; gap: 6px; min-width: 0; }
+.ed-alat { display: flex; flex: none; gap: 4px; }
+main.score-app .ed-atas select.sel { flex: 1 1 auto; width: auto; min-width: 0; height: 40px; }
+main.score-app .ed-alat .chip { height: 40px; min-width: 40px; padding: 0; justify-content: center; font-size: 1.0625rem; }
+.ed-alat .chip:disabled { opacity: .4; cursor: default; }
+main.score-app .ed-selesai { flex: none; min-height: 40px; padding: 0 14px; font-size: .9375rem; }
+
+.ed-durasi { display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 4px; }
+.ed-dur { display: grid; justify-items: center; align-content: center; gap: 1px; min-width: 0; height: 46px; padding: 2px 0; border: 1px solid var(--line); border-radius: var(--r-sm); background: var(--surface); color: var(--ink); font-family: var(--font-sans); cursor: pointer; }
+.ed-dur svg { width: 16px; height: 21px; }
+.ed-dur b { font: 800 1.0625rem/21px var(--font-sans); }
+.ed-dur small { font-size: .625rem; font-weight: 700; line-height: 1; color: var(--ink-3); }
+.ed-dur[aria-pressed="true"] { border-color: var(--accent); background: var(--accent); color: var(--on-accent); }
+.ed-dur[aria-pressed="true"] small { color: inherit; opacity: .85; }
+
+.ed-tengah { display: grid; grid-template-columns: minmax(64px, 26%) minmax(0, 1fr); gap: 6px; }
+.ed-senar { display: grid; gap: 3px; }
+.ed-senar button { display: flex; align-items: center; justify-content: space-between; gap: 4px; min-width: 0; min-height: 0; padding: 0 8px; border: 1px solid var(--line); border-radius: var(--r-sm); background: var(--surface); color: var(--ink-3); font: 700 .75rem var(--font-sans); cursor: pointer; }
+.ed-senar button b { font-size: .9375rem; color: var(--ink); font-variant-numeric: tabular-nums; }
+.ed-senar button[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-soft); color: var(--ink-2); box-shadow: inset 3px 0 0 var(--accent); }
+.ed-pad { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); grid-auto-rows: 42px; gap: 4px; }
+.ed-pad button { min-width: 0; border: 1px solid var(--line); border-radius: var(--r-sm); background: var(--surface); color: var(--ink); font: 800 1.1875rem var(--font-sans); cursor: pointer; -webkit-user-select: none; user-select: none; touch-action: manipulation; }
+.ed-pad .ed-fn { background: var(--surface-2); color: var(--ink-2); font-size: .875rem; font-weight: 700; }
+.ed-pad button:active, .ed-dur:active, .ed-senar button:active { transform: scale(.96); }
+
+.ed-efek { display: flex; gap: 5px; overflow-x: auto; scrollbar-width: none; }
+.ed-efek::-webkit-scrollbar { display: none; }
+main.score-app .ed-efek .chip { flex: none; height: 34px; padding: 0 11px; font-size: .8125rem; }
+.ed-chord { display: flex; align-items: center; gap: 6px; }
+.ed-chord[hidden] { display: none; }
+main.score-app .ed-chord .numin { flex: 1 1 auto; width: auto; height: 38px; padding: 0 10px; text-align: left; }
+main.score-app .ed-chord .chip { height: 38px; }
+.ed-panel.info .ed-lagu { display: grid; }
+.ed-panel.info .ed-tengah { display: none; }
+.ed-lagu { grid-template-columns: 1fr 1fr; gap: 8px; }
+.ed-lagu .ed-lb-judul, .ed-lagu .t-help { grid-column: 1 / -1; }
+.ed-lagu .t-help { margin: 0; }
+main.score-app .ed-lagu .numin, main.score-app .ed-lagu select.sel { height: 40px; }
+main.score-app .ed-lagu .lb { gap: 4px; font-size: .6875rem; }
+.ed-lb-judul .numin { padding: 0 10px; text-align: left; font-weight: 600; }
+.ed-status { margin: 0; overflow: hidden; font-size: .6875rem; font-weight: 700; color: var(--ink-3); white-space: nowrap; text-overflow: ellipsis; }
+.ed-pesan { position: fixed; left: 12px; right: 12px; bottom: calc(var(--ed-h, 330px) + 10px); z-index: 57; max-width: 520px; margin: 0 auto; padding: 9px 14px; border-radius: var(--r-md); background: rgba(28, 24, 21, .92); color: #fff; font-size: .8125rem; font-weight: 600; line-height: 1.4; box-shadow: 0 10px 28px -10px rgba(0, 0, 0, .45); }
+.ed-pesan[hidden] { display: none; }
+
+/* kursor: kolom ketukan + kotak senar terpilih di tab */
+.ed-kursor { position: absolute; z-index: 2; border-radius: 5px; background: rgba(214, 140, 40, .12); box-shadow: inset 0 0 0 1px rgba(181, 100, 14, .35); pointer-events: none; }
+.ed-kursor[hidden] { display: none; }
+.ed-sel { position: absolute; left: -3px; right: -3px; border: 2px solid #B5640E; border-radius: 4px; background: rgba(214, 140, 40, .2); }
+
+/* HP miring: panel di sisi kanan */
+@media (orientation: landscape) and (max-height: 560px) and (min-width: 560px) {
+  main.score-app.edit-on { --tr-h: 0px; padding-right: calc(min(380px, 50vw) + 12px); }
+  .ed-panel { top: calc(var(--header-h) + env(safe-area-inset-top)); left: auto; width: min(380px, 50vw); max-height: none; align-content: start; border-top: 0; border-left: 1px solid var(--line); }
+  .ed-pad { grid-auto-rows: 36px; }
+  .ed-dur { height: 40px; }
+  .ed-pesan { bottom: 12px; right: calc(min(380px, 50vw) + 12px); }
+}
+
+/* layar lebar: panel editor menggantikan panel pengaturan di kiri, keyboard jadi alat utama */
+@media (min-width: 900px) and (min-height: 520px) {
+  main.score-app.edit-on { --tr-h: 104px; }
+  main.score-app.edit-on .sc-transport { display: grid; }
+  main.score-app.edit-on .apptop { display: flex; }
+  .sc-kepala > .chip.sc-edit { display: inline-flex; }
+  main.edit-on .sc-kepala > .chip.sc-edit, main.edit-on .sc-samping { display: none; }
+  .ed-panel {
+    position: sticky; top: 62px; left: auto; right: auto; bottom: auto; z-index: 1;
+    gap: 10px; align-content: start; max-height: calc(100dvh - var(--header-h) - 96px - var(--tr-h) - 24px);
+    padding: 14px 16px; border: 1px solid var(--line); border-radius: var(--r-lg);
+    background: var(--surface); -webkit-backdrop-filter: none; backdrop-filter: none; box-shadow: var(--shadow-sm);
+  }
+  .ed-atas { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "nama selesai" "track track" "alat alat"; gap: 8px; }
+  .ed-nama { display: block; grid-area: nama; font: 700 1.0625rem var(--font-display); }
+  main.score-app .ed-atas select.sel { grid-area: track; }
+  .ed-alat { grid-area: alat; }
+  main.score-app .ed-alat .chip { flex: 1 1 0; }
+  .ed-selesai { grid-area: selesai; }
+  .ed-durasi { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .ed-tengah { display: none; }
+  .ed-efek { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); overflow: visible; }
+  main.score-app .ed-efek .chip { min-width: 0; padding: 0 4px; justify-content: center; }
+  main.score-app .ed-efek .ed-info-btn { display: none; }
+  .ed-lagu { display: grid; }
+  .ed-kunci { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 3px 10px; margin: 0; padding-top: 10px; border-top: 1px solid var(--line); font-size: .75rem; color: var(--ink-3); }
+  .ed-kunci dt { font-weight: 800; color: var(--ink-2); white-space: nowrap; }
+  .ed-kunci dd { margin: 0; }
+  .ed-pesan { bottom: calc(var(--tr-h) + 16px); }
+}
+/* tablet layar lebar tanpa keyboard: keypad tetap ada */
+@media (min-width: 900px) and (min-height: 520px) and (pointer: coarse) {
+  .ed-tengah { display: grid; }
+  .ed-kunci { display: none; }
+}
