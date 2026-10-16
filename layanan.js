@@ -1,19 +1,33 @@
 /* Layanan servis Toko Gitar AYRI, tanpa server.
-   - Data lengkap (nama, HP, catatan) disimpan admin di repo GitHub PRIVAT (servis.json, artikel.json).
-   - Data untuk pelanggan disimpan di situs (data/servis/*.json, data/foto/*.bin) dalam bentuk TERENKRIPSI:
-     hanya bisa dibuka dengan kode servis + 4 digit terakhir HP pelanggan.
+   - Data lengkap (nama, HP, catatan) disimpan admin di repo GitHub PRIVAT (servis.json, artikel.json, tebus.json, stok.json).
+   - Data untuk pelanggan disimpan di situs (data/servis, data/tebus, data/foto) dalam bentuk TERENKRIPSI:
+     hanya bisa dibuka dengan kode + 4 digit terakhir HP pelanggan. Katalog stok (data/katalog.json, foto/stok) bersifat publik.
    Semua akses data lewat Layanan.api, supaya mudah diuji dan diganti. */
 (function () {
-    var C = window.AYRI_LAYANAN || {};
+    /* pengaturan dari layanan-config.js, dilengkapi nilai bawaan sekali di sini (yang tidak diisi memakai bawaan) */
+    var BAWAAN = {
+        dpJasaPersen: 50, bulatkanKe: 1000, gratisTitipHari: 14, biayaTitipPerHari: 5000, garansiHangusHari: 30, penyimpananLamaHari: 90,
+        pengingatHari: [7, 12], katalogSisaTampil: 3, jenisGitar: ['Akustik'], kategoriAksesoris: ['Lainnya'], katalogJasa: [], ketentuan: [], syaratJatuh: '',
+        github: {}, toko: { nama: 'Toko Gitar AYRI', alamat: '', jam: '', wa: '', rekening: [] },
+        tebus: { batasHari: 30, maksHari: 90, pengingatHari: [7, 1], fotoKtpMinHarga: 1000000, hapusKtpHari: 90, ketentuan: [] }
+    };
+    function lengkapi(c, d) {
+        Object.keys(d).forEach(function (k) {
+            if (c[k] == null) c[k] = d[k];
+            else if (d[k] && typeof d[k] === 'object' && !Array.isArray(d[k])) lengkapi(c[k], d[k]);
+        });
+        return c;
+    }
+    var C = lengkapi(window.AYRI_LAYANAN || {}, BAWAAN), TB = C.tebus, E;
     var L = window.Layanan = { C: C };
 
     /* ---------- tema (sama dengan situs) ---------- */
     try { if (localStorage.getItem('ayri-theme') === 'dark') document.documentElement.setAttribute('data-theme', 'dark'); } catch (e) {}
 
-    /* ---------- format ---------- */
+    /* ---------- format & tanggal ---------- */
     var BLN = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
     var BULAN = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
-    L.esc = function (s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
+    E = L.esc = function (s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
     L.rupiah = function (n) { n = Math.round(+n || 0); return (n < 0 ? '−' : '') + 'Rp' + Math.abs(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.'); };
     /* tanggal disimpan 'YYYY-MM-DD'; dibaca sebagai tanggal lokal supaya tidak bergeser zona waktu */
     L.tglObj = function (s) { if (!s) return null; var m = /^(\d{4})-(\d{2})-(\d{2})/.exec(s); return m ? new Date(+m[1], +m[2] - 1, +m[3]) : null; };
@@ -21,15 +35,18 @@
     L.hariIni = function () { return L.tglStr(new Date()); };
     L.tgl = function (s) { var d = L.tglObj(s); return d ? d.getDate() + ' ' + BLN[d.getMonth()] + ' ' + d.getFullYear() : '–'; };
     L.tglPanjang = function (s) { var d = L.tglObj(s); return d ? d.getDate() + ' ' + BULAN[d.getMonth()] + ' ' + d.getFullYear() : '–'; };
+    L.hariAntara = function (a, b) { return Math.round((L.tglObj(b) - L.tglObj(a)) / 864e5); };
+    L.tambahHari = function (s, n) { var d = L.tglObj(s) || new Date(); d.setDate(d.getDate() + n); return L.tglStr(d); };
+    L.namaGitar = function (s, cadangan) { return [s.gitar_jenis, s.gitar_merk].filter(Boolean).join(' ') || cadangan; };
 
     /* ---------- status ---------- */
     L.STATUS = {
         menunggu_dp: { label: 'Menunggu DP', ket: 'Gitar sudah kami terima. Pengerjaan dimulai setelah DP dan pembayaran part kami terima.' },
         antri: { label: 'Antri', ket: 'Pembayaran awal sudah kami terima. Gitar sedang menunggu giliran dikerjakan.' },
-        dikerjakan: { label: 'Sedang dikerjakan', ket: 'Gitar sedang kami kerjakan.' },
-        selesai: { label: 'Selesai – bisa diambil', ket: 'Servis sudah selesai. Gitar bisa diambil di toko.' },
-        diambil: { label: 'Sudah diambil', ket: 'Gitar sudah diambil. Terima kasih sudah servis di Toko Gitar AYRI!' },
-        batal: { label: 'Dibatalkan', ket: 'Servis dibatalkan.' }
+        dikerjakan: { label: 'Sedang dikerjakan', ket: '' },
+        selesai: { label: 'Selesai – bisa diambil', ket: 'Gitar bisa diambil di toko.' },
+        diambil: { label: 'Sudah diambil', ket: 'Terima kasih sudah servis di ' + C.toko.nama + '!' },
+        batal: { label: 'Dibatalkan', ket: '' }
     };
     L.URUT_STATUS = ['menunggu_dp', 'antri', 'dikerjakan', 'selesai', 'diambil'];
     L.TAHAP = { sebelum: 'Sebelum servis', kerusakan: 'Kerusakan tambahan', sesudah: 'Sesudah servis' };
@@ -43,22 +60,23 @@
         return n % 12 === 0 ? (n / 12) + ' tahun' : n + ' bulan';
     };
     L.garansiAkhir = function (g, mulai) {
-        var m = /^(\d+)([hb])$/.exec(g || ''), d = L.tglObj(mulai); if (!m || !d) return null;
-        if (m[2] === 'h') d.setDate(d.getDate() + +m[1]);
-        else { var tgl = d.getDate(); d.setDate(1); d.setMonth(d.getMonth() + +m[1]); d.setDate(Math.min(tgl, new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate())); }
+        var m = /^(\d+)([hb])$/.exec(g || ''); if (!m || !L.tglObj(mulai)) return null;
+        if (m[2] === 'h') return L.tambahHari(mulai, +m[1]);
+        var d = L.tglObj(mulai), tgl = d.getDate(); d.setDate(1); d.setMonth(d.getMonth() + +m[1]);
+        d.setDate(Math.min(tgl, new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate()));
         return L.tglStr(d);
     };
     L.GARANSI_PILIHAN = [['', 'Tanpa garansi'], ['7h', '1 minggu'], ['14h', '2 minggu'], ['1b', '1 bulan'], ['3b', '3 bulan'], ['6b', '6 bulan'], ['12b', '1 tahun']];
 
     /* ---------- hitungan biaya ---------- */
-    L.dpPersen = function () { return C.dpJasaPersen == null ? 50 : C.dpJasaPersen; };
+    L.dpPersen = function () { return C.dpJasaPersen; };
     L.hitung = function (s, items, bayar) {
-        var jasa = 0, part = 0, dibayar = 0, bulat = C.bulatkanKe || 1000;
+        var jasa = 0, part = 0, dibayar = 0, bulat = C.bulatkanKe;
         (items || []).forEach(function (i) { var v = (+i.harga || 0) * (+i.qty || 1); if (i.jenis === 'part') part += v; else jasa += v; });
         (bayar || []).forEach(function (b) { dibayar += +b.jumlah || 0; });
         var diskon = Math.min(+s.diskon || 0, jasa + part), jasaNet = Math.max(0, jasa - diskon), partNet = part - Math.max(0, diskon - jasa);
         var total = jasaNet + partNet;
-        var wajib = Math.min(total, Math.ceil(jasaNet * L.dpPersen() / 100 / bulat) * bulat + partNet);
+        var wajib = Math.min(total, Math.ceil(jasaNet * C.dpJasaPersen / 100 / bulat) * bulat + partNet);
         return {
             jasa: jasa, part: part, diskon: diskon, total: total, wajibAwal: wajib, dibayar: dibayar,
             sisa: Math.max(0, total - dibayar), kurangAwal: Math.max(0, wajib - dibayar), lebih: Math.max(0, dibayar - total),
@@ -66,7 +84,7 @@
         };
     };
 
-    /* ---------- kode servis & tautan ---------- */
+    /* ---------- kode & tautan ---------- */
     var ABJAD = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789'; /* tanpa I, L, O, 0, 1 yang mudah tertukar */
     L.kodeBaru = function (awalan) {
         var r = new Uint8Array(6), s = (awalan || 'AYR') + '-'; crypto.getRandomValues(r);
@@ -80,26 +98,22 @@
     L.urlCek = function (kode) { return L.situs() + 'cek-servis.html?k=' + encodeURIComponent(kode); };
     L.urlNota = function (kode) { return L.situs() + 'nota.html?k=' + encodeURIComponent(kode); };
     L.urlPerjanjian = function (kode) { return L.situs() + 'perjanjian.html?k=' + encodeURIComponent(kode); };
+    L.rekeningTeks = function () { return C.toko.rekening.map(function (r) { return r.bank + ' ' + r.nomor + ' a.n. ' + r.atasNama; }).join(' / '); };
+    function jamBuka() { return C.toko.jam ? '\nJam buka: ' + C.toko.jam + '\n' : ''; }
 
     /* ---------- beli dengan hak tebus ---------- */
-    var TB = C.tebus || {};
-    L.STATUS_TEBUS = {
-        aktif: { label: 'Masa tebus', ket: 'Penjual masih berhak membeli kembali gitar ini.' },
-        ditebus: { label: 'Sudah dibeli kembali', ket: 'Gitar sudah dibeli kembali oleh penjual.' },
-        milik_toko: { label: 'Milik toko', ket: 'Masa membeli kembali sudah berakhir; gitar sepenuhnya milik toko.' },
-        batal: { label: 'Dibatalkan', ket: 'Transaksi dibatalkan.' }
-    };
+    L.STATUS_TEBUS = { aktif: { label: 'Masa tebus' }, ditebus: { label: 'Sudah dibeli kembali' }, milik_toko: { label: 'Milik toko' }, batal: { label: 'Dibatalkan' } };
     L.hargaTebus = function (t) { return +t.harga_beli || 0; }; /* kebijakan toko: harga tebus = harga beli */
     /* sisa hari sampai batas tebus (negatif = sudah lewat) */
     L.infoTebus = function (t, hariIni) {
-        var kini = hariIni || L.hariIni(), sisa = t.batas_tebus ? L.hariAntara(kini, t.batas_tebus) : null;
+        var sisa = t.batas_tebus ? L.hariAntara(hariIni || L.hariIni(), t.batas_tebus) : null;
         return { sisa: sisa, lewat: sisa != null && sisa < 0, harga: L.hargaTebus(t) };
     };
     L.perluIngatTebus = function (t, hariIni) {
         if (t.status !== 'aktif' || !t.batas_tebus) return false;
         var i = L.infoTebus(t, hariIni), terakhir = (t.pengingat || []).slice(-1)[0] || '';
         if (i.lewat) return true; /* lewat batas: admin perlu memutuskan (jadikan milik toko / perpanjang) */
-        return (TB.pengingatHari || [7, 1]).some(function (d) { var tgl = L.tglObj(t.batas_tebus); tgl.setDate(tgl.getDate() - d); tgl = L.tglStr(tgl); return i.sisa <= d && terakhir < tgl; });
+        return TB.pengingatHari.some(function (d) { return i.sisa <= d && terakhir < L.tambahHari(t.batas_tebus, -d); });
     };
     /* foto KTP: disarankan untuk harga besar; boleh dihapus setelah ditebus sekian hari, atau bila dibatalkan.
        Untuk gitar yang menjadi milik toko, KTP tetap disimpan sebagai bukti asal-usul barang. */
@@ -107,17 +121,16 @@
     L.ktpBisaDihapus = function (t, hariIni) {
         if (!L.adaKtp(t)) return false;
         if (t.status === 'batal') return true;
-        return t.status === 'ditebus' && !!t.tgl_tebus && L.hariAntara(t.tgl_tebus, hariIni || L.hariIni()) >= (TB.hapusKtpHari || 90);
+        return t.status === 'ditebus' && !!t.tgl_tebus && L.hariAntara(t.tgl_tebus, hariIni || L.hariIni()) >= TB.hapusKtpHari;
     };
     L.ketentuanTebus = function (t) {
-        return (TB.ketentuan || []).map(function (k) {
+        return TB.ketentuan.map(function (k) {
             return k.split('{batas}').join(L.tglPanjang(t.batas_tebus)).split('{tebus}').join(L.rupiah(L.hargaTebus(t)) + ' (sama dengan harga beli, tanpa biaya tambahan)');
         });
     };
-    function gitarTebus(t) { return [t.gitar_jenis, t.gitar_merk].filter(Boolean).join(' ') || 'gitar'; }
     L.pesanTebus = {
         konfirmasi: function (t) {
-            return 'Halo Kak ' + t.nama + ', berikut bukti pembelian gitar ' + gitarTebus(t) + (t.no_seri ? ' (no. seri ' + t.no_seri + ')' : '') + ' oleh ' + (C.toko && C.toko.nama || 'Toko Gitar AYRI') + ' dengan hak membeli kembali:\n\n' +
+            return 'Halo Kak ' + t.nama + ', berikut bukti pembelian gitar ' + L.namaGitar(t, 'gitar') + (t.no_seri ? ' (no. seri ' + t.no_seri + ')' : '') + ' oleh ' + C.toko.nama + ' dengan hak membeli kembali:\n\n' +
                 '• Kode: *' + t.kode + '*\n• Tanggal beli: ' + L.tgl(t.tgl_beli) + '\n• Harga beli: *' + L.rupiah(t.harga_beli) + '*\n' +
                 '• Kakak boleh membeli kembali sampai *' + L.tgl(t.batas_tebus) + '* dengan harga *' + L.rupiah(L.hargaTebus(t)) + '*\n\n' +
                 'Surat perjanjian lengkap: ' + L.urlPerjanjian(t.kode) + '\n(masukkan 4 digit terakhir no. HP Kakak)\n\n' +
@@ -125,35 +138,31 @@
         },
         pengingat: function (t) {
             var i = L.infoTebus(t);
-            return 'Halo Kak ' + t.nama + ', kami mengingatkan batas membeli kembali gitar ' + gitarTebus(t) + ' (kode *' + t.kode + '*) adalah *' + L.tgl(t.batas_tebus) + '*' +
+            return 'Halo Kak ' + t.nama + ', kami mengingatkan batas membeli kembali gitar ' + L.namaGitar(t, 'gitar') + ' (kode *' + t.kode + '*) adalah *' + L.tgl(t.batas_tebus) + '*' +
                 (i.sisa > 0 ? ' (' + i.sisa + ' hari lagi)' : i.sisa === 0 ? ' (hari ini)' : '') + ', dengan harga *' + L.rupiah(i.harga) + '*.\n\n' +
-                'Setelah tanggal tersebut, sesuai perjanjian, gitar menjadi milik toko.\n' + (C.toko && C.toko.jam ? '\nJam buka: ' + C.toko.jam + '\n' : '') +
-                '\nPerjanjian: ' + L.urlPerjanjian(t.kode);
+                'Setelah tanggal tersebut, sesuai perjanjian, gitar menjadi milik toko.\n' + jamBuka() + '\nPerjanjian: ' + L.urlPerjanjian(t.kode);
         },
         ditebus: function (t) {
-            return 'Halo Kak ' + t.nama + ', terima kasih. Gitar ' + gitarTebus(t) + ' (kode *' + t.kode + '*) sudah Kakak beli kembali pada ' + L.tgl(t.tgl_tebus || L.hariIni()) + ' seharga ' + L.rupiah(L.hargaTebus(t)) + '. Transaksi selesai ✅\n\nBukti: ' + L.urlPerjanjian(t.kode);
+            return 'Halo Kak ' + t.nama + ', terima kasih. Gitar ' + L.namaGitar(t, 'gitar') + ' (kode *' + t.kode + '*) sudah Kakak beli kembali pada ' + L.tgl(t.tgl_tebus || L.hariIni()) + ' seharga ' + L.rupiah(L.hargaTebus(t)) + '. Transaksi selesai ✅\n\nBukti: ' + L.urlPerjanjian(t.kode);
         },
         berakhir: function (t) {
-            return 'Halo Kak ' + t.nama + ', masa membeli kembali gitar ' + gitarTebus(t) + ' (kode *' + t.kode + '*) telah berakhir pada ' + L.tgl(t.batas_tebus) + '. Sesuai perjanjian, gitar kini sepenuhnya milik toko. Terima kasih atas kerja samanya 🙏\n\nPerjanjian: ' + L.urlPerjanjian(t.kode);
+            return 'Halo Kak ' + t.nama + ', masa membeli kembali gitar ' + L.namaGitar(t, 'gitar') + ' (kode *' + t.kode + '*) telah berakhir pada ' + L.tgl(t.batas_tebus) + '. Sesuai perjanjian, gitar kini sepenuhnya milik toko. Terima kasih atas kerja samanya 🙏\n\nPerjanjian: ' + L.urlPerjanjian(t.kode);
         }
     };
-    L.rekeningTeks = function () { return (C.toko && C.toko.rekening || []).map(function (r) { return r.bank + ' ' + r.nomor + ' a.n. ' + r.atasNama; }).join(' / '); };
+
     /* ---------- penitipan gitar yang sudah selesai (dihitung dari tanggal status Selesai) ---------- */
-    L.gratisHari = function () { return C.gratisTitipHari == null ? 14 : C.gratisTitipHari; };
-    L.biayaTitip = function () { return C.biayaTitipPerHari == null ? 5000 : C.biayaTitipPerHari; };
-    L.biayaTitipTeks = function () { return L.rupiah(L.biayaTitip()) + ' per hari'; };
-    function hariAntara(a, b) { return Math.round((L.tglObj(b) - L.tglObj(a)) / 864e5); }
-    function tambahHari(s, n) { var d = L.tglObj(s); d.setDate(d.getDate() + n); return L.tglStr(d); }
-    L.hariAntara = hariAntara;
+    L.gratisHari = function () { return C.gratisTitipHari; };
+    L.biayaTitip = function () { return C.biayaTitipPerHari; };
+    L.biayaTitipTeks = function () { return L.rupiah(C.biayaTitipPerHari) + ' per hari'; };
     /* keadaan penitipan: null bila belum selesai. lama = hari sejak selesai (sampai diambil atau hari ini) */
     L.titip = function (s, hariIni) {
         if (!s.tgl_selesai || !L.beres(s)) return null;
-        var akhir = s.status === 'diambil' && s.tgl_diambil ? s.tgl_diambil : hariIni || L.hariIni(), lama = Math.max(0, hariAntara(s.tgl_selesai, akhir));
-        var gratis = L.gratisHari(), hangus = C.garansiHangusHari || 30, lepas = C.penyimpananLamaHari || 90, hariBiaya = Math.max(0, lama - gratis);
+        var akhir = s.status === 'diambil' && s.tgl_diambil ? s.tgl_diambil : hariIni || L.hariIni(), lama = Math.max(0, L.hariAntara(s.tgl_selesai, akhir));
+        var gratis = C.gratisTitipHari, hariBiaya = Math.max(0, lama - gratis);
         return {
-            lama: lama, sisaGratis: Math.max(0, gratis - lama), hariBiaya: hariBiaya, biaya: hariBiaya * L.biayaTitip(),
-            batasGratis: tambahHari(s.tgl_selesai, gratis), batasGaransi: tambahHari(s.tgl_selesai, hangus), batasLepas: tambahHari(s.tgl_selesai, lepas),
-            garansiHangus: lama > hangus, lepas: lama > lepas
+            lama: lama, sisaGratis: Math.max(0, gratis - lama), hariBiaya: hariBiaya, biaya: hariBiaya * C.biayaTitipPerHari,
+            batasGratis: L.tambahHari(s.tgl_selesai, gratis), batasGaransi: L.tambahHari(s.tgl_selesai, C.garansiHangusHari),
+            garansiHangus: lama > C.garansiHangusHari, lepas: lama > C.penyimpananLamaHari
         };
     };
     L.batasGratis = function (s) { var t = s.status === 'selesai' && L.titip(s); return t ? t.batasGratis : null; };
@@ -162,31 +171,30 @@
     L.perluIngat = function (s, hariIni) {
         if (s.status !== 'selesai') return false;
         var t = L.titip(s, hariIni); if (!t) return false;
-        var kini = hariIni || L.hariIni(), terakhir = (s.pengingat || []).slice(-1)[0] || '';
-        var titik = (C.pengingatHari || [7, 12]).filter(function (d) { return t.lama >= d; });
-        if (titik.length && terakhir < tambahHari(s.tgl_selesai, titik[titik.length - 1])) return true;
-        return t.hariBiaya > 0 && (!terakhir || hariAntara(terakhir, kini) >= 7);
+        var terakhir = (s.pengingat || []).slice(-1)[0] || '';
+        var titik = C.pengingatHari.filter(function (d) { return t.lama >= d; });
+        if (titik.length && terakhir < L.tambahHari(s.tgl_selesai, titik[titik.length - 1])) return true;
+        return t.hariBiaya > 0 && (!terakhir || L.hariAntara(terakhir, hariIni || L.hariIni()) >= 7);
     };
     L.ketentuan = function () {
-        return (C.ketentuan || []).map(function (k) {
-            return k.replace('{dp}', L.dpPersen()).replace('{gratis}', L.gratisHari()).replace('{biaya}', L.biayaTitipTeks())
-                .replace('{hangus}', C.garansiHangusHari || 30).replace('{lepas}', C.penyimpananLamaHari || 90);
+        return C.ketentuan.map(function (k) {
+            return k.replace('{dp}', C.dpJasaPersen).replace('{gratis}', C.gratisTitipHari).replace('{biaya}', L.biayaTitipTeks())
+                .replace('{hangus}', C.garansiHangusHari).replace('{lepas}', C.penyimpananLamaHari);
         });
     };
 
-    /* ---------- pesan WhatsApp ---------- */
-    function gitarTeks(s) { return [s.gitar_jenis, s.gitar_merk].filter(Boolean).join(' ') || 'Kakak'; }
+    /* ---------- pesan WhatsApp servis ---------- */
     function jasaTeks(items) { return (items || []).map(function (i) { return '• ' + i.nama + (i.qty > 1 ? ' ×' + i.qty : '') + ' – ' + L.rupiah(i.harga * (i.qty || 1)); }).join('\n'); }
     L.pesan = {
         tandaTerima: function (s) {
-            var h = L.hitung(s, s.items, s.bayar), t = 'Halo Kak ' + s.nama + ', gitar ' + gitarTeks(s) + ' sudah kami terima di ' + (C.toko && C.toko.nama || 'Toko Gitar AYRI') + ' 🙏\n\n';
+            var h = L.hitung(s, s.items, s.bayar), t = 'Halo Kak ' + s.nama + ', gitar ' + L.namaGitar(s, 'Kakak') + ' sudah kami terima di ' + C.toko.nama + ' 🙏\n\n';
             t += 'Kode servis: *' + s.kode + '*\nTanggal masuk: ' + L.tgl(s.tgl_masuk) + '\n';
             if (s.estimasi) t += 'Estimasi selesai: ' + L.tgl(s.estimasi) + '\n';
             if (s.items && s.items.length) t += '\nPekerjaan:\n' + jasaTeks(s.items) + '\n';
             if (h.diskon) t += 'Diskon: ' + L.rupiah(-h.diskon) + '\n';
             t += '*Total: ' + L.rupiah(h.total) + '*\n';
             if (h.total) {
-                t += '\nPengerjaan dimulai setelah pembayaran awal (DP ' + L.dpPersen() + '% jasa + part lunas): *' + L.rupiah(h.wajibAwal) + '*\n';
+                t += '\nPengerjaan dimulai setelah pembayaran awal (DP ' + C.dpJasaPersen + '% jasa + part lunas): *' + L.rupiah(h.wajibAwal) + '*\n';
                 if (h.dibayar) t += 'Sudah dibayar: ' + L.rupiah(h.dibayar) + (h.kurangAwal ? ' (kurang ' + L.rupiah(h.kurangAwal) + ')' : ' ✅') + '\n';
                 if (h.kurangAwal) t += 'Transfer ke ' + L.rekeningTeks() + '\n';
             }
@@ -195,35 +203,33 @@
             return t;
         },
         update: function (s) {
-            var t = 'Halo Kak ' + s.nama + ', update servis gitar ' + gitarTeks(s) + ' (kode *' + s.kode + '*):\n';
+            var t = 'Halo Kak ' + s.nama + ', update servis gitar ' + L.namaGitar(s, 'Kakak') + ' (kode *' + s.kode + '*):\n';
             t += 'Status: *' + L.STATUS[s.status].label + '*\n';
             if (s.estimasi && !L.beres(s)) t += 'Estimasi selesai: ' + L.tgl(s.estimasi) + '\n';
             if (s.catatan_publik) t += '\n' + s.catatan_publik + '\n';
             return t + '\nDetail, foto, dan biaya: ' + L.urlCek(s.kode);
         },
         selesai: function (s) {
-            var h = L.hitung(s, s.items, s.bayar), t = 'Halo Kak ' + s.nama + ', kabar baik! Gitar ' + gitarTeks(s) + ' (kode *' + s.kode + '*) sudah selesai dan bisa diambil ✅\n\n';
+            var h = L.hitung(s, s.items, s.bayar), t = 'Halo Kak ' + s.nama + ', kabar baik! Gitar ' + L.namaGitar(s, 'Kakak') + ' (kode *' + s.kode + '*) sudah selesai dan bisa diambil ✅\n\n';
             t += h.sisa ? 'Sisa pembayaran: *' + L.rupiah(h.sisa) + '*\n(bisa tunai saat ambil atau transfer ke ' + L.rekeningTeks() + ')\n' : 'Pembayaran sudah lunas. Terima kasih!\n';
             var bg = L.batasGratis(s);
             if (bg) t += '\nGratis dititipkan sampai ' + L.tgl(bg) + '; setelah itu biaya penitipan ' + L.biayaTitipTeks() + '.\n';
-            if (C.toko && C.toko.jam) t += '\nJam buka: ' + C.toko.jam + '\n';
-            return t + '\nFoto hasil servis, saran dari kami, dan nota: ' + L.urlCek(s.kode);
+            return t + jamBuka() + '\nFoto hasil servis, saran dari kami, dan nota: ' + L.urlCek(s.kode);
         },
         /* pengingat gitar yang sudah selesai tapi belum diambil */
         pengingat: function (s) {
             var t = L.titip(s), h = L.hitung(s, s.items, s.bayar);
-            var m = 'Halo Kak ' + s.nama + ', kami mengingatkan gitar ' + gitarTeks(s) + ' (kode *' + s.kode + '*) sudah selesai sejak ' + L.tgl(s.tgl_selesai) + ' dan bisa diambil di toko 🙏\n\n';
+            var m = 'Halo Kak ' + s.nama + ', kami mengingatkan gitar ' + L.namaGitar(s, 'Kakak') + ' (kode *' + s.kode + '*) sudah selesai sejak ' + L.tgl(s.tgl_selesai) + ' dan bisa diambil di toko 🙏\n\n';
             if (!t.hariBiaya) m += 'Gratis dititipkan sampai *' + L.tgl(t.batasGratis) + '*' + (t.sisaGratis ? ' (' + t.sisaGratis + ' hari lagi)' : ' (hari ini terakhir)') + '. Setelah itu biaya penitipan ' + L.biayaTitipTeks() + '.\n';
-            else m += 'Masa gratis penitipan sudah lewat sejak ' + L.tgl(t.batasGratis) + '. Biaya penitipan sampai hari ini: ' + t.hariBiaya + ' hari × ' + L.rupiah(L.biayaTitip()) + ' = *' + L.rupiah(t.biaya) + '*.\n';
-            m += t.garansiHangus ? 'Garansi servis sudah hangus karena gitar belum diambil lebih dari ' + (C.garansiHangusHari || 30) + ' hari.\n'
+            else m += 'Masa gratis penitipan sudah lewat sejak ' + L.tgl(t.batasGratis) + '. Biaya penitipan sampai hari ini: ' + t.hariBiaya + ' hari × ' + L.rupiah(C.biayaTitipPerHari) + ' = *' + L.rupiah(t.biaya) + '*.\n';
+            m += t.garansiHangus ? 'Garansi servis sudah hangus karena gitar belum diambil lebih dari ' + C.garansiHangusHari + ' hari.\n'
                 : 'Garansi servis tetap berlaku bila gitar diambil paling lambat ' + L.tgl(t.batasGaransi) + '.\n';
-            if (t.lama >= (C.garansiHangusHari || 30)) m += 'Mohon gitar diambil secepatnya; biaya penitipan terus bertambah setiap hari.\n';
+            if (t.lama >= C.garansiHangusHari) m += 'Mohon gitar diambil secepatnya; biaya penitipan terus bertambah setiap hari.\n';
             if (h.sisa) m += '\nSisa pembayaran servis: ' + L.rupiah(h.sisa) + '\n';
-            if (C.toko && C.toko.jam) m += '\nJam buka: ' + C.toko.jam + '\n';
-            return m + '\nDetail & nota: ' + L.urlCek(s.kode);
+            return m + jamBuka() + '\nDetail & nota: ' + L.urlCek(s.kode);
         },
         nota: function (s) {
-            return 'Halo Kak ' + s.nama + ', berikut nota servis gitar ' + gitarTeks(s) + ' (kode *' + s.kode + '*):\n' + L.urlNota(s.kode) + '\n(masukkan 4 digit terakhir no. HP Kakak)\n\nTerima kasih sudah servis di ' + (C.toko && C.toko.nama || 'Toko Gitar AYRI') + ' 🎸';
+            return 'Halo Kak ' + s.nama + ', berikut nota servis gitar ' + L.namaGitar(s, 'Kakak') + ' (kode *' + s.kode + '*):\n' + L.urlNota(s.kode) + '\n(masukkan 4 digit terakhir no. HP Kakak)\n\nTerima kasih sudah servis di ' + C.toko.nama + ' 🎸';
         }
     };
 
@@ -236,23 +242,28 @@
             im.src = u;
         });
     }
-    function keBlob(c, kualitas) {
-        return new Promise(function (ok) { c.toBlob(function (b) { ok(b); }, 'image/webp', kualitas); }).then(function (b) {
-            if (b && b.type === 'image/webp') return b;
-            return new Promise(function (ok) { c.toBlob(function (b2) { ok(b2); }, 'image/jpeg', kualitas); }); /* Safari lama belum bisa membuat WebP */
-        });
+    /* dukungan WebP dicek sekali (Safari lama belum bisa membuat WebP, jadi pakai JPEG) */
+    var tipeFoto = null;
+    function cekTipe() {
+        if (tipeFoto) return Promise.resolve(tipeFoto);
+        var c = document.createElement('canvas'); c.width = c.height = 1;
+        return new Promise(function (ok) { c.toBlob(function (b) { ok(tipeFoto = b && b.type === 'image/webp' ? 'image/webp' : 'image/jpeg'); }, 'image/webp'); });
     }
-    /* hasil: { besar, kecil } (sisi terpanjang 1440 px dan 400 px) */
-    L.kompres = function (file) {
+    function kanvas(src, w, h, sisi) {
+        var k = Math.min(1, sisi / Math.max(w, h)), c = document.createElement('canvas');
+        c.width = Math.max(1, Math.round(w * k)); c.height = Math.max(1, Math.round(h * k));
+        c.getContext('2d').drawImage(src, 0, 0, c.width, c.height);
+        return c;
+    }
+    function keBlob(c, q) { return cekTipe().then(function (t) { return new Promise(function (ok) { c.toBlob(ok, t, q); }); }); }
+    /* hasil: { besar, kecil } (sisi terpanjang 1440 px dan 400 px; kecil dibuat dari kanvas besar). opsi.kecil === false: tanpa versi kecil */
+    L.kompres = function (file, opsi) {
         var muat = window.createImageBitmap ? createImageBitmap(file, { imageOrientation: 'from-image' }).catch(function () { return muatGambar(file); }) : muatGambar(file);
         return muat.then(function (img) {
-            function buat(sisi, q) {
-                var w = img.width, h = img.height, k = Math.min(1, sisi / Math.max(w, h)), c = document.createElement('canvas');
-                c.width = Math.max(1, Math.round(w * k)); c.height = Math.max(1, Math.round(h * k));
-                c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
-                return keBlob(c, q);
-            }
-            return Promise.all([buat(1440, 0.78), buat(400, 0.7)]).then(function (r) { if (img.close) img.close(); return { besar: r[0], kecil: r[1] }; });
+            var besar = kanvas(img, img.width, img.height, 1440);
+            if (img.close) img.close();
+            return Promise.all([keBlob(besar, 0.78), opsi && opsi.kecil === false ? null : keBlob(kanvas(besar, besar.width, besar.height, 400), 0.7)])
+                .then(function (r) { return { besar: r[0], kecil: r[1] }; });
         });
     };
 
@@ -262,8 +273,7 @@
     function unb64(s) { var bin = atob(s), b = new Uint8Array(bin.length); for (var i = 0; i < bin.length; i++) b[i] = bin.charCodeAt(i); return b; }
     function hex(buf) { return Array.prototype.map.call(new Uint8Array(buf), function (x) { return ('0' + x.toString(16)).slice(-2); }).join(''); }
     function acakHex(n) { var r = new Uint8Array(n); crypto.getRandomValues(r); return hex(r); }
-    L._b64 = b64; L._unb64 = unb64;
-    function aes(raw, pakai) { return crypto.subtle.importKey('raw', raw, { name: 'AES-GCM' }, false, pakai || ['encrypt', 'decrypt']); }
+    function aes(raw) { return crypto.subtle.importKey('raw', raw, { name: 'AES-GCM' }, false, ['encrypt', 'decrypt']); }
     function enkripsi(key, data) {
         var iv = crypto.getRandomValues(new Uint8Array(12));
         return crypto.subtle.encrypt({ name: 'AES-GCM', iv: iv }, key, data).then(function (ct) { var out = new Uint8Array(12 + ct.byteLength); out.set(iv); out.set(new Uint8Array(ct), 12); return out; });
@@ -273,7 +283,7 @@
         return crypto.subtle.importKey('raw', te.encode(teks), 'PBKDF2', false, ['deriveBits'])
             .then(function (k) { return crypto.subtle.deriveBits({ name: 'PBKDF2', salt: typeof garam === 'string' ? te.encode(garam) : garam, iterations: putaran, hash: 'SHA-256' }, k, bit); });
     }
-    /* kunci satu servis: nama file publik + kunci AES, dari kode + 4 digit HP (dibuat lambat supaya sulit ditebak) */
+    /* kunci satu catatan publik: nama file + kunci AES, dari kode + 4 digit HP (dibuat lambat supaya sulit ditebak) */
     var kunciCache = {};
     L.kunciServis = function (kode, hp4) {
         var k = String(kode).trim().toUpperCase() + '|' + String(hp4).trim();
@@ -284,8 +294,10 @@
     };
     function kunciFoto(fk) { return aes(unb64(fk)); }
 
-    /* ================= halaman publik: cek status & nota ================= */
+    /* ================= halaman publik ================= */
     var fotoCache = {};
+    function simpanUrl(c, p) { fotoCache[c] = p; p.catch(function () { delete fotoCache[c]; }); return p; }
+    function keUrl(b) { return URL.createObjectURL(b); }
     L.api = {};
     L.api.cekPublik = function (kode, hp4, jenis) {
         return L.kunciServis(kode, hp4).then(function (k) {
@@ -299,21 +311,52 @@
     /* foto pelanggan: diunduh terenkripsi lalu dibuka di HP pelanggan */
     L.api.fotoPublik = function (s, f, besar) {
         var file = besar ? f.file : (f.thumb || f.file), c = 'p:' + file;
-        if (!fotoCache[c]) fotoCache[c] = fetch('data/foto/' + file).then(function (r) { if (!r.ok) throw new Error('Foto belum tersedia'); return r.arrayBuffer(); })
+        return fotoCache[c] || simpanUrl(c, fetch('data/foto/' + file).then(function (r) { if (!r.ok) throw new Error('Foto belum tersedia'); return r.arrayBuffer(); })
             .then(function (buf) { return kunciFoto(s.fk).then(function (key) { return dekripsi(key, buf); }); })
-            .then(function (b) { return URL.createObjectURL(new Blob([b], { type: f.tipe || 'image/webp' })); });
-        return fotoCache[c];
+            .then(function (b) { return keUrl(new Blob([b], { type: f.tipe || 'image/webp' })); }));
     };
     /* isi semua <img data-foto="i"> di dalam el dengan foto terdekripsi */
     L.isiFoto = function (el, s, ambil) {
         [].forEach.call(el.querySelectorAll('img[data-foto]'), function (img) {
             var f = s.foto[+img.dataset.foto]; if (!f) return;
-            (ambil || L.api.fotoPublik)(s, f, false).then(function (u) { img.src = u; }, function () { img.alt = 'Foto belum tersedia'; img.classList.add('ly-nofoto'); });
+            (ambil || L.api.fotoPublik)(s, f, false).then(function (u) { img.src = u; }, function () { img.alt = 'Foto belum tersedia'; });
         });
+    };
+    /* halaman yang dibuka dengan kode + 4 digit HP (nota, surat perjanjian); kode terakhir diingat di perangkat */
+    L.ingatKode = function (kunci, kode) { try { var m = JSON.parse(localStorage.getItem(kunci) || 'null'); return m && (!kode || m.k === kode) ? m : null; } catch (e) { return null; } };
+    L.simpanKode = function (kunci, k, h) { try { localStorage.setItem(kunci, JSON.stringify({ k: k, h: h })); } catch (e) {} };
+    /* o: { isi, kunci, jenis, halaman, judul, labelKode, contoh, tombol, tampil(data) } */
+    L.halamanKode = function (o) {
+        var q = new URLSearchParams(location.search), k = (q.get('k') || '').toUpperCase(), h = q.get('h'), m = L.ingatKode(o.kunci, k);
+        if (!h && m) h = m.h;
+        function gerbang(pesan) {
+            o.isi.innerHTML = '<form class="ly-card ly-f nota-gate" id="f"><h2>' + E(o.judul) + '</h2>' + (pesan ? '<p class="cek-err">' + E(pesan) + '</p>' : '') +
+                '<label>' + E(o.labelKode) + '<input name="k" value="' + E(k) + '" placeholder="' + E(o.contoh) + '" autocapitalize="characters" required></label>' +
+                '<label>4 digit terakhir HP<input name="h" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" required></label>' +
+                '<button class="ly-btn ly-btn--pri">' + E(o.tombol) + '</button></form>';
+            var f = o.isi.querySelector('#f');
+            (k ? f.h : f.k).focus();
+            f.addEventListener('submit', function (e) { e.preventDefault(); k = f.k.value.trim().toUpperCase(); h = f.h.value.replace(/\D/g, ''); muat(); });
+        }
+        function muat() {
+            o.isi.innerHTML = '<p class="ly-kosong">Memuat&hellip;</p>';
+            L.api.cekPublik(k, h, o.jenis).then(function (d) {
+                if (!d) return gerbang('Data tidak ditemukan. Periksa kode dan 4 digit terakhir HP.');
+                L.simpanKode(o.kunci, k, h);
+                if (history.replaceState) history.replaceState(null, '', o.halaman + '?k=' + encodeURIComponent(d.kode));
+                o.tampil(d);
+            }).catch(function () { gerbang('Gagal terhubung. Periksa koneksi internet.'); });
+        }
+        if (k && h) muat(); else gerbang('');
+    };
+    /* kop dokumen (nota servis & surat perjanjian) */
+    L.kopNota = function (judul, kode, cap) {
+        return '<header class="nota-head"><div class="nota-toko"><b>Toko Gitar <span>AYRI</span></b><p>' + E(C.toko.alamat) + '</p><p>WhatsApp +' + E(C.toko.wa) + ' · ayrigitar.com</p></div>' +
+            '<div class="nota-id"><h1>' + E(judul) + '</h1><p>' + E(kode) + '</p>' + (cap || '') + '</div></header>';
     };
 
     /* ================= admin: GitHub sebagai tempat data ================= */
-    var G = C.github || {}, CABANG = G.cabang || 'main', RAW = 'application/vnd.github.raw+json';
+    var G = C.github, CABANG = G.cabang || 'main', RAW = 'application/vnd.github.raw+json';
     var KUNCI_TOKEN = 'ayri-admin-token', KUNCI_SESI = 'ayri-admin-sesi';
     var token = null;
     try { token = sessionStorage.getItem(KUNCI_SESI); } catch (e) {}
@@ -327,19 +370,22 @@
         if (status === 409) return 'Repo masih kosong.';
         return 'GitHub error ' + status + ': ' + String(teks).slice(0, 160);
     }
-    function gh(method, path, body, accept) {
+    /* simpanCache: untuk file yang isinya tidak pernah berubah (foto bernama acak) */
+    function gh(method, path, body, accept, simpanCache) {
         if (!token) return Promise.reject(new Error('Admin terkunci. Masukkan PIN lagi.'));
         var h = { Authorization: 'Bearer ' + token, Accept: accept || 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28' };
         if (body) h['Content-Type'] = 'application/json';
-        return fetch('https://api.github.com/repos/' + path, { method: method, cache: 'no-store', headers: h, body: body ? JSON.stringify(body) : undefined }).then(function (r) {
-            if (r.ok) return accept ? r : r.status === 204 ? null : r.json();
-            return r.text().then(function (t) { var e = new Error(pesanGh(r.status, t)); e.status = r.status; e.detail = t; throw e; });
-        });
+        return fetch('https://api.github.com/repos/' + path, { method: method, cache: simpanCache ? 'default' : 'no-store', headers: h, body: body ? JSON.stringify(body) : undefined })
+            .catch(function () { throw new Error('Koneksi internet bermasalah. Coba lagi.'); })
+            .then(function (r) {
+                if (r.ok) return accept ? r : r.status === 204 ? null : r.json();
+                return r.text().then(function (t) { var e = new Error(pesanGh(r.status, t)); e.status = r.status; e.detail = t; throw e; });
+            });
     }
     function repo(jenis) { return G.pemilik + '/' + (jenis === 'data' ? G.repoData : G.repoSitus); }
     function jalur(p) { return p.split('/').map(encodeURIComponent).join('/'); }
     function bacaFile(jenis, p, biner) {
-        return gh('GET', repo(jenis) + '/contents/' + jalur(p) + '?ref=' + CABANG, null, RAW)
+        return gh('GET', repo(jenis) + '/contents/' + jalur(p) + '?ref=' + CABANG, null, RAW, biner)
             .then(function (r) { return biner ? r.arrayBuffer() : r.text(); }, function (e) { if (e.status === 404) return null; throw e; });
     }
     /* beberapa file sekaligus dalam SATU commit (Git Data API) supaya situs hanya dibangun ulang sekali */
@@ -370,10 +416,10 @@
             return coba(0, false);
         });
     }
-    L._gh = { commit: commit, bacaFile: bacaFile };
+    function commitBila(jenis, files, pesan) { return files.length ? commit(jenis, files, pesan) : Promise.resolve(null); }
 
     /* ---------- token: disimpan di perangkat ini, dikunci PIN ---------- */
-    function kunciPin(pin, garam) { return pbkdf2('ayri-pin|' + pin, garam, 200000, 256).then(function (b) { return aes(b); }); }
+    function kunciPin(pin, garam) { return pbkdf2('ayri-pin|' + pin, garam, 200000, 256).then(aes); }
     L.api.adaToken = function () { try { return !!localStorage.getItem(KUNCI_TOKEN); } catch (e) { return false; } };
     L.api.terbuka = function () { return !!token; };
     L.api.pasangToken = function (tokenBaru, pin) {
@@ -392,29 +438,124 @@
         return kunciPin(pin, unb64(s.g)).then(function (k) { return dekripsi(k, unb64(s.d)); })
             .then(function (b) { token = td.decode(b); try { sessionStorage.setItem(KUNCI_SESI, token); } catch (e) {} }, function () { throw new Error('PIN salah.'); });
     };
-    L.api.tokenDibuat = function () { try { return JSON.parse(localStorage.getItem(KUNCI_TOKEN) || '{}').dibuat || ''; } catch (e) { return ''; } };
     L.api.kunci = function () { token = null; try { sessionStorage.removeItem(KUNCI_SESI); } catch (e) {} return Promise.resolve(); };
     L.api.lupakan = function () { L.api.kunci(); try { localStorage.removeItem(KUNCI_TOKEN); } catch (e) {} return Promise.resolve(); };
 
-    /* ---------- data servis & artikel (repo privat) ---------- */
+    /* ---------- data (repo privat) ---------- */
     var data = { servis: [], artikel: [], tebus: [], stok: [] };
     function salin(o) { return JSON.parse(JSON.stringify(o)); }
+    function cari(list, id) { return list.filter(function (x) { return x.id === id; })[0] || null; }
     function bacaJson(nama) { return bacaFile('data', nama).then(function (t) { return t ? JSON.parse(t) : []; }); }
     L.api.muat = function () {
-        return Promise.all([bacaJson('servis.json'), bacaJson('artikel.json'), bacaJson('tebus.json'), bacaJson('stok.json')]).then(function (r) { data.servis = r[0]; data.artikel = r[1]; data.tebus = r[2]; data.stok = r[3]; return salin(data); });
+        return Promise.all(['servis', 'artikel', 'tebus', 'stok'].map(function (j) { return bacaJson(j + '.json'); })).then(function (r) {
+            data.servis = r[0]; data.artikel = r[1]; data.tebus = r[2]; data.stok = r[3]; return salin(data);
+        });
     };
+    L.api.cadangan = function () { return salin(data); };
     /* simpan satu catatan ke file daftar: baca versi terbaru dulu supaya perubahan dari perangkat lain tidak tertimpa.
        file lain di repo data (mis. foto tebus) ikut dalam commit yang sama */
-    function simpanDaftar(nama, rec, hapus, tambahan) {
+    function simpanDaftar(jenis, rec, hapus, tambahan) {
+        var nama = jenis + '.json';
         return bacaJson(nama).then(function (list) {
             list = list.filter(function (x) { return x.id !== rec.id; });
             if (!hapus) list.unshift(rec);
             list.sort(function (a, b) { return a.created_at < b.created_at ? 1 : -1; });
-            return commit('data', [{ path: nama, teks: JSON.stringify(list, null, 1) + '\n' }].concat(tambahan || []), (hapus ? 'Hapus ' : 'Simpan ') + (rec.kode || rec.slug || rec.id)).then(function () { data[nama.replace('.json', '')] = list; return list; });
+            return commit('data', [{ path: nama, teks: JSON.stringify(list, null, 1) + '\n' }].concat(tambahan || []), (hapus ? 'Hapus ' : 'Simpan ') + (rec.kode || rec.slug || rec.id))
+                .then(function () { data[jenis] = list; return list; });
         });
     }
-    function sebelumnya(id) { return data.servis.filter(function (x) { return x.id === id; })[0] || null; }
+    /* simpan catatan + file pendukungnya di dua repo (files: { situs: [], data: [] }). Repo yang memuat foto baru
+       di-commit lebih dulu, supaya catatan tidak pernah merujuk foto yang belum terunggah. Bila langkah kedua gagal,
+       catatan yang sudah lengkap (e.rec) dikembalikan supaya admin cukup menekan Simpan lagi */
+    function simpanDua(jenis, rec, files, pesanSitus, dataDulu) {
+        function situs() { return commitBila('situs', files.situs, pesanSitus); }
+        function utama() { return simpanDaftar(jenis, rec, false, files.data); }
+        return (dataDulu ? utama : situs)().then(function () {
+            return (dataDulu ? situs : utama)().catch(function (e) {
+                e.sebagian = true; e.rec = salin(rec);
+                e.message = (dataDulu ? 'Data tersimpan, tapi halaman di situs belum diperbarui: ' : 'Halaman di situs sudah diperbarui, tapi data utama gagal disimpan: ') + e.message + ' Tekan Simpan sekali lagi.';
+                throw e;
+            });
+        }).then(function () { return salin(rec); });
+    }
+    function hapusDua(jenis, rec, files, pesanSitus) {
+        return commitBila('situs', files.situs, pesanSitus).then(function () { return simpanDaftar(jenis, rec, true, files.data); });
+    }
+    function idBaru() { return crypto.randomUUID ? crypto.randomUUID() : acakHex(16); }
+    /* catatan baru: id, kode unik (mis. AYR-XXXXXX), waktu dibuat */
+    function siapkanBaru(rec, list, awalan, sekarang) {
+        if (rec.id) return;
+        var dipakai = list.map(function (x) { return x.kode; });
+        do { rec.kode = L.kodeBaru(awalan); } while (dipakai.indexOf(rec.kode) > -1);
+        rec.id = idBaru(); rec.created_at = sekarang;
+    }
 
+    /* ---------- tempat foto ----------
+       servis: terenkripsi di repo situs (data/foto/), tebus: terenkripsi di repo data (foto/), stok: publik di repo situs (foto/stok/) */
+    function lokasiFoto(f, besar) {
+        if (f.repo === 'publik') return { repo: 'situs', path: besar ? f.path : f.thumb_path || f.path, kunci: false };
+        var nama = besar ? f.file : f.thumb || f.file;
+        return f.repo === 'data' ? { repo: 'data', path: 'foto/' + nama, kunci: true } : { repo: 'situs', path: 'data/foto/' + nama, kunci: true };
+    }
+    /* file foto (besar & kecil) yang dihapus, dimasukkan ke daftar file repo masing-masing */
+    function hapusFoto(daftar, files) {
+        daftar.forEach(function (f) { [true, false].forEach(function (b) { var l = lokasiFoto(f, b); files[l.repo].push({ path: l.path, hapus: true }); }); });
+        return files;
+    }
+    function hapusFotoHilang(lama, rec, files) {
+        hapusFoto((lama && lama.foto || []).filter(function (f) { return !rec.foto.some(function (x) { return x.id === f.id; }); }), files);
+    }
+    function fotoMentah(s, f, besar) {
+        var l = lokasiFoto(f, besar);
+        return bacaFile(l.repo, l.path, true).then(function (buf) {
+            if (!buf) throw new Error('Foto tidak ditemukan');
+            return l.kunci ? kunciFoto(s.fk).then(function (k) { return dekripsi(k, buf); }) : buf;
+        }).then(function (b) { return new Blob([b], { type: f.tipe || 'image/webp' }); });
+    }
+    L.api.fotoBlob = fotoMentah;
+    /* foto untuk admin: dibaca langsung dari repo (tidak perlu menunggu situs diperbarui) */
+    L.api.fotoAdmin = function (s, f, besar) {
+        var c = 'a:' + lokasiFoto(f, besar).path;
+        return fotoCache[c] || simpanUrl(c, fotoMentah(s, f, besar).then(keUrl));
+    };
+    /* foto yang baru diunggah langsung dipakai untuk tampilan admin, tanpa diunduh lagi */
+    function pratinjauAdmin(f, kecil) { fotoCache['a:' + lokasiFoto(f, false).path] = Promise.resolve(keUrl(kecil)); }
+    /* foto baru dienkripsi dengan kunci foto catatan; menambah catatan foto ke rec dan file ke files */
+    function unggahTerkunci(rec, fotoBaru, folder, files, meta) {
+        if (!fotoBaru.length) return Promise.resolve();
+        return kunciFoto(rec.fk).then(function (key) {
+            return Promise.all(fotoBaru.map(function (fb) {
+                var nama = acakHex(12);
+                return Promise.all([fb.hasil.besar.arrayBuffer(), fb.hasil.kecil.arrayBuffer()])
+                    .then(function (buf) { return Promise.all([enkripsi(key, buf[0]), enkripsi(key, buf[1])]); })
+                    .then(function (ct) { return { fb: fb, nama: nama, ct: ct }; });
+            }));
+        }).then(function (hasil) {
+            hasil.forEach(function (x) {
+                var f = Object.assign({ id: x.nama, tahap: x.fb.tahap, file: x.nama + '.bin', thumb: x.nama + '-k.bin', tipe: x.fb.hasil.besar.type }, meta(x.fb));
+                files.push({ path: folder + f.file, base64: b64(x.ct[0]) }, { path: folder + f.thumb, base64: b64(x.ct[1]) });
+                rec.foto.push(f); pratinjauAdmin(f, x.fb.hasil.kecil);
+            });
+        });
+    }
+    /* versi publik terenkripsi (data/<folder>/<id>.json): dihapus bila batal, dipindah bila nomor HP (kunci) berubah,
+       dan hanya ditulis bila berbeda dari yang ada di situs (mis. mencatat pengingat WA tidak membangun ulang situs) */
+    function filePublik(folder, rec, lama, proyeksi, files) {
+        return L.kunciServis(rec.kode, L.hp4(rec.hp)).then(function (k) {
+            var p = 'data/' + folder + '/', path = p + k.id + '.json', diSitus = lama && lama.pubId === k.id;
+            if (lama && lama.pubId && !diSitus) files.push({ path: p + lama.pubId + '.json', hapus: true });
+            if (rec.status === 'batal') { if (diSitus) files.push({ path: path, hapus: true }); rec.pubId = null; return; }
+            var teks = JSON.stringify(proyeksi(rec));
+            rec.pubId = k.id;
+            return (diSitus ? bacaFile('situs', path).then(function (ada) {
+                return ada ? dekripsi(k.key, unb64(JSON.parse(ada).d)).then(function (b) { return td.decode(b); }) : null;
+            }).catch(function () { return null; }) : Promise.resolve(null)).then(function (sekarang) {
+                if (sekarang !== teks) return enkripsi(k.key, te.encode(teks)).then(function (ct) { files.push({ path: path, teks: JSON.stringify({ v: 1, d: b64(ct) }) }); });
+            });
+        });
+    }
+
+    /* ---------- servis ---------- */
     /* isi yang boleh dilihat pelanggan (dienkripsi sebelum diunggah ke situs) */
     function versiPublik(s) {
         var beres = L.beres(s), foto = (s.foto || []).filter(function (f) { return f.tampil && (f.tahap !== 'sesudah' || beres); });
@@ -425,135 +566,55 @@
             items: (s.items || []).map(function (i) { return { jenis: i.jenis, nama: i.nama, harga: i.harga, qty: i.qty, garansi: i.garansi || '', garansi_syarat: i.garansi_syarat || '' }; }),
             bayar: (s.bayar || []).map(function (b) { return { tgl: b.tgl, jumlah: b.jumlah, jenis: b.jenis, metode: b.metode }; }),
             foto: foto.map(function (f) { return { tahap: f.tahap, file: f.file, thumb: f.thumb, tipe: f.tipe, keterangan: f.keterangan || '' }; }),
-            fk: foto.length ? s.fk : undefined, diperbarui: s.updated_at
+            fk: foto.length ? s.fk : undefined
         };
     }
-    function tanggalOtomatis(s) {
-        var t = L.hariIni();
-        if (L.beres(s) && !s.tgl_selesai) s.tgl_selesai = t;
-        if (s.status === 'diambil' && !s.tgl_diambil) s.tgl_diambil = t;
-    }
-
     /* simpan servis: (1) foto + versi publik terenkripsi ke situs dalam satu commit, (2) data lengkap ke repo privat */
     L.api.simpanServis = function (rec, fotoBaru) {
-        rec = salin(rec); fotoBaru = fotoBaru || [];
-        var baru = !rec.id, lama = baru ? null : sebelumnya(rec.id), sekarang = new Date().toISOString(), files = [];
-        if (baru) {
-            var dipakai = data.servis.map(function (x) { return x.kode; });
-            do { rec.kode = L.kodeBaru(); } while (dipakai.indexOf(rec.kode) > -1);
-            rec.id = crypto.randomUUID ? crypto.randomUUID() : acakHex(16); rec.created_at = sekarang;
-        }
+        rec = salin(rec);
+        var sekarang = new Date().toISOString(), lama = cari(data.servis, rec.id), files = { situs: [], data: [] }, t = L.hariIni();
+        siapkanBaru(rec, data.servis, 'AYR', sekarang);
+        L.kunciServis(rec.kode, L.hp4(rec.hp)); /* mulai hitung kunci (lambat) bersamaan dengan enkripsi foto */
         if (!rec.fk) rec.fk = b64(crypto.getRandomValues(new Uint8Array(32)));
-        rec.items = rec.items || []; rec.bayar = rec.bayar || []; rec.foto = rec.foto || [];
-        rec.updated_at = sekarang; tanggalOtomatis(rec);
-        return kunciFoto(rec.fk).then(function (fkey) {
-            return fotoBaru.reduce(function (p, fb) {
-                return p.then(function () {
-                    var nama = acakHex(12);
-                    return Promise.all([fb.hasil.besar.arrayBuffer(), fb.hasil.kecil.arrayBuffer()]).then(function (buf) {
-                        return Promise.all([enkripsi(fkey, buf[0]), enkripsi(fkey, buf[1])]);
-                    }).then(function (ct) {
-                        files.push({ path: 'data/foto/' + nama + '.bin', base64: b64(ct[0]) }, { path: 'data/foto/' + nama + '-k.bin', base64: b64(ct[1]) });
-                        rec.foto.push({ id: nama, tahap: fb.tahap, file: nama + '.bin', thumb: nama + '-k.bin', tipe: fb.hasil.besar.type, keterangan: fb.keterangan || '', tampil: fb.tampil !== false, created_at: sekarang });
-                    });
-                });
-            }, Promise.resolve());
-        }).then(function () {
-            /* foto yang dihapus di admin */
-            if (lama) (lama.foto || []).forEach(function (f) {
-                if (!rec.foto.some(function (x) { return x.id === f.id; })) files.push({ path: 'data/foto/' + f.file, hapus: true }, { path: 'data/foto/' + f.thumb, hapus: true });
-            });
-            return L.kunciServis(rec.kode, L.hp4(rec.hp));
-        }).then(function (k) {
-            if (lama && lama.pubId && lama.pubId !== k.id) files.push({ path: 'data/servis/' + lama.pubId + '.json', hapus: true });
-            if (rec.status === 'batal') { if (lama && lama.pubId === k.id) files.push({ path: 'data/servis/' + k.id + '.json', hapus: true }); rec.pubId = null; return; }
-            rec.pubId = k.id;
-            return enkripsi(k.key, te.encode(JSON.stringify(versiPublik(rec)))).then(function (ct) { files.push({ path: 'data/servis/' + k.id + '.json', teks: JSON.stringify({ v: 1, d: b64(ct) }) }); });
-        }).then(function () {
-            return files.length ? commit('situs', files, 'Servis: perbarui data pelanggan') : null;
-        }).then(function () {
-            return simpanDaftar('servis.json', rec).catch(function (e) { e.sebagian = true; e.rec = rec; e.message = 'Halaman pelanggan sudah diperbarui, tapi data utama gagal disimpan: ' + e.message + ' Tekan Simpan sekali lagi.'; throw e; });
-        }).then(function () { return salin(rec); });
+        rec.items = rec.items || []; rec.bayar = rec.bayar || []; rec.foto = rec.foto || []; rec.updated_at = sekarang;
+        if (L.beres(rec) && !rec.tgl_selesai) rec.tgl_selesai = t;
+        if (rec.status === 'diambil' && !rec.tgl_diambil) rec.tgl_diambil = t;
+        return unggahTerkunci(rec, fotoBaru || [], 'data/foto/', files.situs, function (fb) { return { keterangan: fb.keterangan || '', tampil: fb.tampil !== false, created_at: sekarang }; })
+            .then(function () { hapusFotoHilang(lama, rec, files); return filePublik('servis', rec, lama, versiPublik, files.situs); })
+            .then(function () { return simpanDua('servis', rec, files, 'Servis: perbarui data pelanggan'); });
     };
     L.api.hapusServis = function (rec) {
-        var files = [];
-        (rec.foto || []).forEach(function (f) { files.push({ path: 'data/foto/' + f.file, hapus: true }, { path: 'data/foto/' + f.thumb, hapus: true }); });
-        if (rec.pubId) files.push({ path: 'data/servis/' + rec.pubId + '.json', hapus: true });
-        return (files.length ? commit('situs', files, 'Servis: hapus data pelanggan') : Promise.resolve()).then(function () { return simpanDaftar('servis.json', rec, true); });
+        var files = hapusFoto(rec.foto || [], { situs: rec.pubId ? [{ path: 'data/servis/' + rec.pubId + '.json', hapus: true }] : [], data: [] });
+        return hapusDua('servis', rec, files, 'Servis: hapus data pelanggan');
     };
-    /* foto untuk admin: dibaca langsung dari repo (tidak perlu menunggu situs diperbarui) */
-    L.api.fotoAdmin = function (s, f, besar) {
-        var file = besar ? f.file || f.path : (f.thumb || f.thumb_path || f.file || f.path), c = 'a:' + file;
-        /* foto stok bersifat publik (tidak dienkripsi); foto tebus (gitar & KTP) hanya di repo PRIVAT; foto servis terenkripsi di repo situs */
-        if (!fotoCache[c] && f.repo === 'publik') fotoCache[c] = bacaFile('situs', besar ? f.path : f.thumb_path || f.path, true).then(function (buf) {
-            if (!buf) throw new Error('Foto tidak ditemukan');
-            return URL.createObjectURL(new Blob([buf], { type: f.tipe || 'image/webp' }));
-        });
-        if (!fotoCache[c]) fotoCache[c] = (f.repo === 'data' ? bacaFile('data', 'foto/' + file, true) : bacaFile('situs', 'data/foto/' + file, true)).then(function (buf) {
-            if (!buf) throw new Error('Foto tidak ditemukan');
-            return kunciFoto(s.fk).then(function (key) { return dekripsi(key, buf); });
-        }).then(function (b) { return URL.createObjectURL(new Blob([b], { type: f.tipe || 'image/webp' })); });
-        fotoCache[c].catch(function () { delete fotoCache[c]; });
-        return fotoCache[c];
-    };
-    L.api.cadangan = function () { return salin(data); };
 
     /* ---------- beli dengan hak tebus ----------
-       Data lengkap + foto (gitar & KTP) hanya di repo PRIVAT (satu commit).
+       Data lengkap + foto (gitar & KTP) hanya di repo PRIVAT (satu commit, disimpan lebih dulu).
        Surat perjanjian untuk penjual disimpan terenkripsi di situs (data/tebus), dibuka dengan kode + 4 digit HP. */
     function versiPerjanjian(t) {
         return {
             kode: t.kode, nama: t.nama, hp_samar: '••••' + L.hp4(t.hp), nik_samar: t.nik ? '••••••••••••' + String(t.nik).replace(/\D/g, '').slice(-4) : '',
             gitar_jenis: t.gitar_jenis, gitar_merk: t.gitar_merk, warna: t.warna || '', no_seri: t.no_seri || '', kelengkapan: t.kelengkapan || '',
             tgl_beli: t.tgl_beli, harga_beli: t.harga_beli, batas_tebus: t.batas_tebus, metode: t.metode,
-            status: t.status, tgl_tebus: t.tgl_tebus || null, tgl_berakhir: t.tgl_berakhir || null, disetujui: t.disetujui || null, diperbarui: t.updated_at
+            status: t.status, tgl_tebus: t.tgl_tebus || null, tgl_berakhir: t.tgl_berakhir || null, disetujui: t.disetujui || null
         };
     }
     L.api.simpanTebus = function (rec, fotoBaru) {
-        rec = salin(rec); fotoBaru = fotoBaru || [];
-        var baru = !rec.id, lama = baru ? null : data.tebus.filter(function (x) { return x.id === rec.id; })[0] || null, sekarang = new Date().toISOString(), filesData = [];
-        if (baru) {
-            var dipakai = data.tebus.map(function (x) { return x.kode; });
-            do { rec.kode = L.kodeBaru('TBS'); } while (dipakai.indexOf(rec.kode) > -1);
-            rec.id = crypto.randomUUID ? crypto.randomUUID() : acakHex(16); rec.created_at = sekarang;
-        }
+        rec = salin(rec);
+        var sekarang = new Date().toISOString(), lama = cari(data.tebus, rec.id), files = { situs: [], data: [] };
+        siapkanBaru(rec, data.tebus, 'TBS', sekarang);
+        L.kunciServis(rec.kode, L.hp4(rec.hp));
         if (!rec.fk) rec.fk = b64(crypto.getRandomValues(new Uint8Array(32)));
-        rec.foto = rec.foto || []; rec.updated_at = sekarang;
+        rec.foto = rec.foto || []; rec.updated_at = sekarang; delete rec.biaya_admin; /* kebijakan toko: tanpa biaya tambahan */
         if (rec.status === 'ditebus' && !rec.tgl_tebus) rec.tgl_tebus = L.hariIni();
         if (rec.status === 'milik_toko' && !rec.tgl_berakhir) rec.tgl_berakhir = L.hariIni();
-        return kunciFoto(rec.fk).then(function (fkey) {
-            return fotoBaru.reduce(function (p, fb) {
-                return p.then(function () {
-                    var nama = acakHex(12);
-                    return Promise.all([fb.hasil.besar.arrayBuffer(), fb.hasil.kecil.arrayBuffer()]).then(function (buf) { return Promise.all([enkripsi(fkey, buf[0]), enkripsi(fkey, buf[1])]); }).then(function (ct) {
-                        filesData.push({ path: 'foto/' + nama + '.bin', base64: b64(ct[0]) }, { path: 'foto/' + nama + '-k.bin', base64: b64(ct[1]) });
-                        rec.foto.push({ id: nama, tahap: fb.tahap, file: nama + '.bin', thumb: nama + '-k.bin', tipe: fb.hasil.besar.type, repo: 'data', created_at: sekarang });
-                    });
-                });
-            }, Promise.resolve());
-        }).then(function () {
-            if (lama) (lama.foto || []).forEach(function (f) {
-                if (!rec.foto.some(function (x) { return x.id === f.id; })) filesData.push({ path: 'foto/' + f.file, hapus: true }, { path: 'foto/' + f.thumb, hapus: true });
-            });
-            return L.kunciServis(rec.kode, L.hp4(rec.hp));
-        }).then(function (k) {
-            var filesSitus = [];
-            if (lama && lama.pubId && lama.pubId !== k.id) filesSitus.push({ path: 'data/tebus/' + lama.pubId + '.json', hapus: true });
-            var tulis = rec.status === 'batal' ? Promise.resolve(null) : enkripsi(k.key, te.encode(JSON.stringify(versiPerjanjian(rec))));
-            return tulis.then(function (ct) {
-                if (ct) { rec.pubId = k.id; filesSitus.push({ path: 'data/tebus/' + k.id + '.json', teks: JSON.stringify({ v: 1, d: b64(ct) }) }); }
-                else { if (lama && lama.pubId === k.id) filesSitus.push({ path: 'data/tebus/' + k.id + '.json', hapus: true }); rec.pubId = null; }
-                /* data privat dulu (sumber utama), lalu surat perjanjian di situs */
-                return simpanDaftar('tebus.json', rec, false, filesData).then(function () { return filesSitus.length ? commit('situs', filesSitus, 'Tebus: perbarui surat perjanjian') : null; })
-                    .catch(function (e) { if (data.tebus.some(function (x) { return x.id === rec.id && x.updated_at === rec.updated_at; })) { e.sebagian = true; e.rec = rec; e.message = 'Data tersimpan, tapi surat perjanjian di situs belum diperbarui: ' + e.message + ' Tekan Simpan sekali lagi.'; } throw e; });
-            });
-        }).then(function () { return salin(rec); });
+        return unggahTerkunci(rec, fotoBaru || [], 'foto/', files.data, function () { return { repo: 'data', created_at: sekarang }; })
+            .then(function () { hapusFotoHilang(lama, rec, files); return filePublik('tebus', rec, lama, versiPerjanjian, files.situs); })
+            .then(function () { return simpanDua('tebus', rec, files, 'Tebus: perbarui surat perjanjian', true); });
     };
     L.api.hapusTebus = function (rec) {
-        var filesData = [];
-        (rec.foto || []).forEach(function (f) { filesData.push({ path: 'foto/' + f.file, hapus: true }, { path: 'foto/' + f.thumb, hapus: true }); });
-        return (rec.pubId ? commit('situs', [{ path: 'data/tebus/' + rec.pubId + '.json', hapus: true }], 'Tebus: hapus surat perjanjian') : Promise.resolve())
-            .then(function () { return simpanDaftar('tebus.json', rec, true, filesData); });
+        var files = hapusFoto(rec.foto || [], { situs: rec.pubId ? [{ path: 'data/tebus/' + rec.pubId + '.json', hapus: true }] : [], data: [] });
+        return hapusDua('tebus', rec, files, 'Tebus: hapus surat perjanjian');
     };
 
     /* ---------- stok (gitar & aksesoris) ----------
@@ -568,110 +629,96 @@
         var aks = s.kategori === 'aksesoris';
         return {
             kode: s.kode, kategori: aks ? 'aksesoris' : 'gitar', jenis: L.jenisStok(s), kondisi: s.kondisi || 'baru', nama: L.namaStok(s), warna: s.warna || '',
-            deskripsi: s.deskripsi || '', harga: +s.harga_jual, status: s.status, sisa: aks && +s.jumlah <= (C.katalogSisaTampil || 3) ? +s.jumlah : null,
+            deskripsi: s.deskripsi || '', harga: +s.harga_jual, status: s.status, sisa: aks && +s.jumlah <= C.katalogSisaTampil ? +s.jumlah : null,
             foto: (s.foto || []).filter(function (f) { return f.repo === 'publik'; }).map(function (f) { return { src: f.path, kecil: f.thumb_path || f.path }; }),
             masuk: s.tgl_masuk || ''
         };
     }
     L.untungStok = function (s) {
-        var jual = 0, untung = 0, unit = 0;
-        (s.penjualan || []).forEach(function (p) { jual += p.harga * p.qty; untung += (p.harga - (+s.harga_beli || 0)) * p.qty; unit += p.qty; });
-        return { unitTerjual: unit, omzet: jual, untung: untung, potensi: (+s.jumlah || 0) * ((+s.harga_jual || 0) - (+s.harga_beli || 0)) };
+        var untung = 0, unit = 0;
+        (s.penjualan || []).forEach(function (p) { untung += (p.harga - (+s.harga_beli || 0)) * p.qty; unit += p.qty; });
+        return { unitTerjual: unit, untung: untung, potensi: (+s.jumlah || 0) * ((+s.harga_jual || 0) - (+s.harga_beli || 0)) };
     };
-    /* foto (data mentah) untuk dipindahkan, mis. dari tebus ke stok */
-    L.api.fotoBlob = function (s, f, besar) {
-        if (f.repo === 'publik') return bacaFile('situs', besar ? f.path : f.thumb_path || f.path, true).then(function (buf) { if (!buf) throw new Error('Foto tidak ditemukan'); return new Blob([buf], { type: f.tipe || 'image/webp' }); });
-        return (f.repo === 'data' ? bacaFile('data', 'foto/' + (besar ? f.file : f.thumb || f.file), true) : bacaFile('situs', 'data/foto/' + (besar ? f.file : f.thumb || f.file), true))
-            .then(function (buf) { if (!buf) throw new Error('Foto tidak ditemukan'); return kunciFoto(s.fk).then(function (k) { return dekripsi(k, buf); }); })
-            .then(function (b) { return new Blob([b], { type: f.tipe || 'image/webp' }); });
-    };
-    function hapusFotoStok(f, filesSitus, filesData) {
-        if (f.repo === 'publik') filesSitus.push({ path: f.path, hapus: true }, { path: f.thumb_path, hapus: true });
-        else filesData.push({ path: 'foto/' + f.file, hapus: true }, { path: 'foto/' + f.thumb, hapus: true });
-    }
     /* katalog publik dibuat ulang dari seluruh stok terbaru; ditulis hanya bila isinya berubah */
-    function fileKatalog(list) {
-        var item = list.filter(L.diKatalog).sort(function (a, b) { return (b.tgl_masuk || '') < (a.tgl_masuk || '') ? -1 : 1; }).map(versiKatalog);
-        var teks = JSON.stringify({ toko: C.toko && C.toko.nama || 'Toko Gitar AYRI', item: item }, null, 1) + '\n';
-        return bacaFile('situs', 'data/katalog.json').then(function (lama) { return lama === teks ? null : { path: 'data/katalog.json', teks: teks }; });
+    function fileKatalog(ganti, hapus) {
+        return Promise.all([bacaJson('stok.json'), bacaFile('situs', 'data/katalog.json')]).then(function (r) {
+            var list = r[0].filter(function (x) { return x.id !== (ganti || hapus).id; }).concat(ganti ? [ganti] : []);
+            var item = list.filter(L.diKatalog).sort(function (a, b) { return (b.tgl_masuk || '') < (a.tgl_masuk || '') ? -1 : 1; }).map(versiKatalog);
+            var teks = JSON.stringify({ toko: C.toko.nama, item: item }, null, 1) + '\n';
+            return r[1] === teks ? [] : [{ path: 'data/katalog.json', teks: teks }];
+        });
+    }
+    function fotoPublikStok(besar, kecil, tipe, files, sekarang) {
+        var nama = acakHex(10), ext = tipe === 'image/jpeg' ? '.jpg' : '.webp', p = 'foto/stok/' + nama + ext, pk = 'foto/stok/' + nama + '-k' + ext;
+        return Promise.all([besar.arrayBuffer(), kecil.arrayBuffer()]).then(function (buf) {
+            var f = { id: nama, tahap: 'gitar', path: p, thumb_path: pk, tipe: tipe, repo: 'publik', created_at: sekarang };
+            files.push({ path: p, base64: b64(buf[0]) }, { path: pk, base64: b64(buf[1]) });
+            pratinjauAdmin(f, kecil); return f;
+        });
     }
     L.api.simpanStok = function (rec, fotoBaru) {
-        rec = salin(rec); fotoBaru = fotoBaru || [];
-        var baru = !rec.id, lama = baru ? null : data.stok.filter(function (x) { return x.id === rec.id; })[0] || null, sekarang = new Date().toISOString(), filesSitus = [], filesData = [];
-        if (baru) {
-            var dipakai = data.stok.map(function (x) { return x.kode; });
-            do { rec.kode = L.kodeBaru('STK'); } while (dipakai.indexOf(rec.kode) > -1);
-            rec.id = crypto.randomUUID ? crypto.randomUUID() : acakHex(16); rec.created_at = sekarang;
-        }
+        rec = salin(rec);
+        var sekarang = new Date().toISOString(), lama = cari(data.stok, rec.id), files = { situs: [], data: [] };
+        siapkanBaru(rec, data.stok, 'STK', sekarang);
         rec.kategori = rec.kategori || 'gitar';
         rec.foto = rec.foto || []; rec.penjualan = rec.penjualan || []; rec.updated_at = sekarang;
         if (rec.status !== 'ditarik') rec.status = +rec.jumlah > 0 ? (rec.status === 'dipesan' ? 'dipesan' : 'tersedia') : 'terjual';
-        function unggah(besar, kecil, tipe) {
-            var nama = acakHex(10), ext = tipe === 'image/jpeg' ? '.jpg' : '.webp', p = 'foto/stok/' + nama + ext, pk = 'foto/stok/' + nama + '-k' + ext;
-            return Promise.all([besar.arrayBuffer(), kecil.arrayBuffer()]).then(function (buf) {
-                filesSitus.push({ path: p, base64: b64(buf[0]) }, { path: pk, base64: b64(buf[1]) });
-                return { id: nama, tahap: 'gitar', path: p, thumb_path: pk, tipe: tipe, repo: 'publik', created_at: sekarang };
-            });
-        }
-        /* foto lama yang masih terenkripsi (dari versi sebelumnya / dari tebus) dipindah menjadi foto produk publik */
-        return rec.foto.reduce(function (p, f, i) {
-            return p.then(function () {
-                if (f.repo === 'publik') return;
-                return Promise.all([L.api.fotoBlob(rec, f, true), L.api.fotoBlob(rec, f, false)]).then(function (b) { return unggah(b[0], b[1], f.tipe); })
-                    .then(function (baruF) { hapusFotoStok(f, filesSitus, filesData); rec.foto[i] = baruF; });
-            });
-        }, Promise.resolve()).then(function () {
-            return fotoBaru.reduce(function (p, fb) { return p.then(function () { return unggah(fb.hasil.besar, fb.hasil.kecil, fb.hasil.besar.type).then(function (f) { rec.foto.push(f); }); }); }, Promise.resolve());
-        }).then(function () {
-            if (lama) (lama.foto || []).forEach(function (f) {
-                if (!rec.foto.some(function (x) { return x.id === f.id; }) && !filesSitus.concat(filesData).some(function (x) { return x.hapus && (x.path === f.path || x.path === 'foto/' + f.file); })) hapusFotoStok(f, filesSitus, filesData);
-            });
+        /* foto lama yang masih terenkripsi (dari tebus / versi sebelumnya) dijadikan foto produk publik; file lamanya
+           terhapus lewat hapusFotoHilang karena id-nya berganti */
+        return Promise.all(rec.foto.map(function (f) {
+            if (f.repo === 'publik') return f;
+            return Promise.all([fotoMentah(rec, f, true), fotoMentah(rec, f, false)]).then(function (b) { return fotoPublikStok(b[0], b[1], f.tipe, files.situs, sekarang); });
+        })).then(function (foto) {
+            rec.foto = foto;
+            return Promise.all((fotoBaru || []).map(function (fb) { return fotoPublikStok(fb.hasil.besar, fb.hasil.kecil, fb.hasil.besar.type, files.situs, sekarang); }));
+        }).then(function (fotoTambah) {
+            rec.foto = rec.foto.concat(fotoTambah);
+            hapusFotoHilang(lama, rec, files);
             if (rec.foto.every(function (f) { return f.repo === 'publik'; })) delete rec.fk;
-            return bacaJson('stok.json');
-        }).then(function (list) {
-            list = list.filter(function (x) { return x.id !== rec.id; }).concat([rec]);
-            return fileKatalog(list);
+            return fileKatalog(rec);
         }).then(function (kat) {
-            if (kat) filesSitus.push(kat);
             /* foto produk + katalog ke situs dulu (data utama merujuk ke file itu), lalu data utama ke repo privat */
-            return (filesSitus.length ? commit('situs', filesSitus, 'Stok: perbarui katalog') : Promise.resolve()).then(function () { return simpanDaftar('stok.json', rec, false, filesData); });
-        }).then(function () { return salin(rec); });
+            files.situs = files.situs.concat(kat);
+            return simpanDua('stok', rec, files, 'Stok: perbarui katalog');
+        });
     };
     L.api.hapusStok = function (rec) {
-        var filesSitus = [], filesData = [];
-        (rec.foto || []).forEach(function (f) { hapusFotoStok(f, filesSitus, filesData); });
-        return bacaJson('stok.json').then(function (list) { return fileKatalog(list.filter(function (x) { return x.id !== rec.id; })); }).then(function (kat) {
-            if (kat) filesSitus.push(kat);
-            return (filesSitus.length ? commit('situs', filesSitus, 'Stok: perbarui katalog') : Promise.resolve()).then(function () { return simpanDaftar('stok.json', rec, true, filesData); });
-        });
+        var files = hapusFoto(rec.foto || [], { situs: [], data: [] });
+        return fileKatalog(null, rec).then(function (kat) { files.situs = files.situs.concat(kat); return hapusDua('stok', rec, files, 'Stok: perbarui katalog'); });
     };
 
     /* ---------- artikel ---------- */
     L.api.simpanArtikel = function (art) {
-        art = salin(art); var sekarang = new Date().toISOString(), lama = data.artikel.filter(function (x) { return x.id === art.id; })[0] || null;
-        if (data.artikel.some(function (x) { return x.slug === art.slug && x.id !== art.id; })) { var e = new Error('Alamat halaman sudah dipakai artikel lain.'); e.code = 'slug'; return Promise.reject(e); }
-        if (!art.id) { art.id = crypto.randomUUID ? crypto.randomUUID() : acakHex(16); art.created_at = sekarang; }
+        art = salin(art); var sekarang = new Date().toISOString(), lama = cari(data.artikel, art.id);
+        if (data.artikel.some(function (x) { return x.slug === art.slug && x.id !== art.id; })) return Promise.reject(new Error('Alamat halaman sudah dipakai artikel lain.'));
+        if (!art.id) { art.id = idBaru(); art.created_at = sekarang; }
         art.updated_at = sekarang;
         if (art.status === 'terbit' && !art.terbit_at) art.terbit_at = sekarang;
         var perluSitus = art.status === 'terbit' || (lama && lama.status === 'terbit');
-        return (perluSitus ? terbitkan(art, lama) : Promise.resolve()).then(function () { return simpanDaftar('artikel.json', art); }).then(function () { return salin(art); });
+        return (perluSitus ? terbitkan(art, lama) : Promise.resolve()).then(function () { return simpanDaftar('artikel', art); }).then(function () { return salin(art); });
     };
     L.api.hapusArtikel = function (art) {
-        var lama = data.artikel.filter(function (x) { return x.id === art.id; })[0];
-        return (lama && lama.status === 'terbit' ? terbitkan(Object.assign({}, lama, { status: 'draf' }), lama) : Promise.resolve()).then(function () { return simpanDaftar('artikel.json', art, true); });
+        var lama = cari(data.artikel, art.id);
+        return (lama && lama.status === 'terbit' ? terbitkan(Object.assign({}, lama, { status: 'draf' }), lama) : Promise.resolve()).then(function () { return simpanDaftar('artikel', art, true); });
     };
-    /* foto artikel bersifat publik (tidak dienkripsi) */
-    L.api.unggahFotoArtikel = function (hasil) {
-        var p = 'foto/artikel/' + acakHex(10) + (hasil.besar.type === 'image/webp' ? '.webp' : '.jpg');
-        return hasil.besar.arrayBuffer().then(function (buf) { return commit('situs', [{ path: p, base64: b64(buf) }], 'Artikel: unggah foto'); }).then(function () {
-            fotoCache['u:' + p] = Promise.resolve(URL.createObjectURL(hasil.besar));
-            return p;
+    /* foto artikel bersifat publik (tidak dienkripsi); beberapa foto sekaligus dalam satu commit */
+    L.api.unggahFotoArtikel = function (daftarHasil) {
+        var paths = daftarHasil.map(function (h) { return 'foto/artikel/' + acakHex(10) + (h.besar.type === 'image/webp' ? '.webp' : '.jpg'); });
+        return Promise.all(daftarHasil.map(function (h) { return h.besar.arrayBuffer(); })).then(function (bufs) {
+            return commit('situs', bufs.map(function (b, i) { return { path: paths[i], base64: b64(b) }; }), 'Artikel: unggah foto');
+        }).then(function () {
+            daftarHasil.forEach(function (h, i) { fotoCache['u:' + paths[i]] = Promise.resolve(keUrl(h.besar)); });
+            return paths;
         });
     };
+    function fotoServisArtikel(f) {
+        var s = cari(data.servis, f.servis), ff = s && cari(s.foto || [], f.foto);
+        return ff ? { s: s, f: ff } : null;
+    }
     L.api.fotoArtikel = function (f) {
         if (f.path) return fotoCache['u:' + f.path] || Promise.resolve(f.path);
-        var s = data.servis.filter(function (x) { return x.id === f.servis; })[0], ff = s && (s.foto || []).filter(function (x) { return x.id === f.foto; })[0];
-        return ff ? L.api.fotoAdmin(s, ff, false) : Promise.reject(new Error('Foto servis tidak ditemukan'));
+        var x = fotoServisArtikel(f);
+        return x ? L.api.fotoAdmin(x.s, x.f, false) : Promise.reject(new Error('Foto servis tidak ditemukan'));
     };
     /* tulis/hapus halaman artikel + perbarui kartu di beranda dan sitemap, semuanya dalam satu commit */
     function terbitkan(art, lama) {
@@ -682,17 +729,15 @@
             if (!tpl || !beranda || !peta) throw new Error('File template/beranda/sitemap tidak ditemukan di repo situs.');
             if (ada && ada.indexOf(B.PENANDA) < 0) throw new Error('Alamat artikel-' + art.slug + '.html sudah dipakai halaman buatan tangan. Ganti alamatnya.');
             /* foto dari servis (terenkripsi) disalin jadi foto publik saat pertama terbit */
-            return (tampil ? (art.foto || []).reduce(function (p, f, i) {
-                return p.then(function () {
-                    if (f.path) return;
-                    var s = data.servis.filter(function (x) { return x.id === f.servis; })[0], ff = s && (s.foto || []).filter(function (x) { return x.id === f.foto; })[0];
-                    if (!ff) throw new Error('Foto servis untuk artikel tidak ditemukan.');
-                    return bacaFile('situs', 'data/foto/' + ff.file, true).then(function (buf) { return kunciFoto(s.fk).then(function (k) { return dekripsi(k, buf); }); }).then(function (b) {
-                        var p2 = 'foto/artikel/' + acakHex(10) + (ff.tipe === 'image/jpeg' ? '.jpg' : '.webp');
-                        files.push({ path: p2, base64: b64(b) }); art.foto[i] = { path: p2, alt: f.alt || '' };
-                    });
+            return Promise.all((tampil ? art.foto || [] : []).map(function (f, i) {
+                if (f.path) return;
+                var x = fotoServisArtikel(f);
+                if (!x) throw new Error('Foto servis untuk artikel tidak ditemukan.');
+                return fotoMentah(x.s, x.f, true).then(function (b) { return b.arrayBuffer(); }).then(function (buf) {
+                    var p2 = 'foto/artikel/' + acakHex(10) + (x.f.tipe === 'image/jpeg' ? '.jpg' : '.webp');
+                    files.push({ path: p2, base64: b64(buf) }); art.foto[i] = { path: p2, alt: f.alt || '' };
                 });
-            }, Promise.resolve()) : Promise.resolve()).then(function () {
+            })).then(function () {
                 if (lama && lama.status === 'terbit' && lama.slug !== art.slug) files.push({ path: 'artikel-' + lama.slug + '.html', hapus: true });
                 if (tampil) files.push({ path: 'artikel-' + art.slug + '.html', teks: B.halaman(tpl, art, L.situs()) });
                 else if (lama) files.push({ path: 'artikel-' + lama.slug + '.html', hapus: true });

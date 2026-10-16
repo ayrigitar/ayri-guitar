@@ -30,8 +30,9 @@ html[data-theme="dark"] .st-selesai { color: #5CD196; background: rgba(92, 209, 
 .ly-sum > div { display: flex; justify-content: space-between; gap: 12px; }
 .ly-sum > div > span:last-child { font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .ly-sum .ly-total { font-size: 1.0625rem; font-weight: 800; color: var(--ink); }
-.ly-sum .ly-warn { color: #A15C07; }
-html[data-theme="dark"] .ly-sum .ly-warn { color: #F5B65C; }
+.ly-warn { color: #A15C07; }
+html[data-theme="dark"] .ly-warn { color: #F5B65C; }
+.ly-telat { color: var(--danger); }
 .ly-sum .ly-ok { color: var(--wa-ink); }
 
 .ly-foto { display: grid; grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); gap: 8px; }
@@ -48,8 +49,8 @@ body.ly { min-height: 100dvh; background: var(--bg); color: var(--ink); font-fam
 }
 .ly-top b { font: 700 1.0625rem var(--font-display); white-space: nowrap; }
 .ly-top b span { color: var(--accent); }
-.ly-tabs { display: flex; gap: 4px; margin-left: auto; padding: 3px; border-radius: var(--r-pill); background: var(--surface-2); }
-.ly-tabs a { padding: 6px 12px; border-radius: var(--r-pill); font-size: .8125rem; font-weight: 700; color: var(--ink-3); }
+.ly-tabs { display: flex; gap: 4px; margin-left: auto; padding: 3px; border-radius: var(--r-pill); background: var(--surface-2); overflow-x: auto; scrollbar-width: none; }
+.ly-tabs a { flex: none; padding: 6px 12px; border-radius: var(--r-pill); font-size: .8125rem; font-weight: 700; color: var(--ink-3); }
 .ly-tabs a[aria-current="page"] { background: var(--surface); color: var(--ink); box-shadow: var(--shadow-sm); }
 .ly-main { display: grid; gap: 12px; width: min(100% - 24px, 760px); margin: 14px auto 120px; }
 .ly-main > section { display: grid; gap: 12px; }
@@ -58,6 +59,7 @@ body.ly { min-height: 100dvh; background: var(--bg); color: var(--ink); font-fam
 .ly-head h1 { flex: 1 1 auto; }
 .ly-back { font-size: .875rem; font-weight: 700; color: var(--accent); }
 .ly-kode { font: 800 1.25rem/1 ui-monospace, Menlo, Consolas, monospace; letter-spacing: .06em; color: var(--accent); }
+.ly-kode small, .ly-kode a { font: 600 .8rem var(--font-sans); letter-spacing: 0; color: var(--ink-3); }
 
 .ly-f { display: grid; gap: 10px; }
 .ly-f label, .ly-lbl { display: grid; gap: 5px; font-size: .8125rem; font-weight: 700; color: var(--ink-2); }
@@ -102,16 +104,14 @@ body.ly { min-height: 100dvh; background: var(--bg); color: var(--ink); font-fam
 .ly-filter b { margin-left: 4px; opacity: .7; }
 .ly-list { display: grid; gap: 8px; }
 .ly-item {
-  display: grid; grid-template-columns: 1fr auto; gap: 4px 10px; padding: 12px 14px;
+  position: relative; display: grid; grid-template-columns: 1fr auto; gap: 4px 10px; padding: 12px 14px;
   border: 1px solid var(--line); border-radius: var(--r-md); background: var(--surface); color: inherit;
 }
 .ly-item:active { transform: scale(.99); }
 .ly-item__k { font: 800 .8125rem ui-monospace, Menlo, Consolas, monospace; letter-spacing: .04em; color: var(--accent); }
 .ly-item__t { grid-column: 1 / -1; font-weight: 700; }
 .ly-item__m { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: .8125rem; color: var(--ink-3); }
-.ly-item__m .ly-telat { color: var(--danger); font-weight: 700; }
-.ly-item__m .ly-warn { color: #A15C07; font-weight: 700; }
-html[data-theme="dark"] .ly-item__m .ly-warn { color: #F5B65C; }
+.ly-item__m .ly-telat, .ly-item__m .ly-warn { font-weight: 700; }
 .ly-kosong { padding: 30px 10px; text-align: center; color: var(--ink-3); }
 
 /* baris jasa/part */
@@ -174,7 +174,7 @@ html[data-theme="dark"] .ly-item__m .ly-warn { color: #F5B65C; }
 /* ---------- halaman cek status (publik) ---------- */
 .cek-page { padding: calc(var(--header-h) + 24px) 0 calc(var(--tabbar-h) + 48px); }
 .cek-wrap { display: grid; gap: 14px; width: min(100% - 2 * var(--gutter), 640px); margin-inline: auto; }
-.cek-wrap h1 { font: 700 clamp(1.75rem, 5vw, 2.4rem)/1.1 var(--font-display); }
+.cek-wrap h1, .kat-wrap h1 { font: 700 clamp(1.75rem, 5vw, 2.4rem)/1.1 var(--font-display); }
 .cek-form { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .cek-form .ly-btn { grid-column: 1 / -1; min-height: 50px; font-size: 1rem; }
 .cek-err { padding: 12px 14px; border-radius: var(--r-md); background: rgba(180, 35, 24, .08); color: var(--danger); font-weight: 600; }
@@ -183,8 +183,6 @@ html[data-theme="dark"] .ly-item__m .ly-warn { color: #F5B65C; }
 .cek-steps { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; margin: 6px 0 2px; }
 .cek-steps span { height: 6px; border-radius: 3px; background: var(--line-strong); }
 .cek-steps span.on { background: var(--accent); }
-.cek-steps + .cek-steplbl { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; font-size: .625rem; font-weight: 700; color: var(--ink-3); text-align: center; }
-.cek-steplbl span.on { color: var(--accent); }
 .cek-kv { display: grid; grid-template-columns: auto 1fr; gap: 6px 14px; font-size: .9375rem; }
 .cek-kv dt { color: var(--ink-3); }
 .cek-kv dd { margin: 0; font-weight: 600; }
@@ -246,7 +244,6 @@ body.nota-body { background: var(--bg-alt); color: var(--ink); font-family: var(
 .ly-f input[type="date"] { padding-inline: 8px; font-size: .9375rem; }
 
 /* pengingat ambil & kartu daftar dengan tombol */
-.ly-item { position: relative; }
 .ly-item__a { color: inherit; }
 .ly-item__a::after { content: ""; position: absolute; inset: 0; border-radius: inherit; }
 .ly-item__b { grid-column: 1 / -1; position: relative; z-index: 1; display: flex; justify-content: flex-end; margin-top: 4px; }
@@ -255,8 +252,6 @@ body.nota-body { background: var(--bg-alt); color: var(--ink); font-family: var(
 html[data-theme="dark"] .ly-ingat:not(.ly-ingat--info) { border-color: rgba(245, 182, 92, .3); background: rgba(245, 182, 92, .1); color: #F5B65C; }
 
 /* header admin: 4 tab tetap muat di layar HP */
-.ly-tabs { overflow-x: auto; scrollbar-width: none; }
-.ly-tabs a { flex: none; }
 @media (max-width: 460px) {
   .ly-top { gap: 6px; padding-inline: 10px; }
   .ly-top b span { display: none; }
@@ -265,7 +260,6 @@ html[data-theme="dark"] .ly-ingat:not(.ly-ingat--info) { border-color: rgba(245,
 
 /* ---------- katalog publik (katalog.html) ---------- */
 .kat-wrap { display: grid; gap: 14px; width: min(100% - 2 * var(--gutter), 1100px); margin-inline: auto; }
-.kat-wrap h1 { font: 700 clamp(1.75rem, 5vw, 2.4rem)/1.1 var(--font-display); }
 .kat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; }
 @media (min-width: 720px) { .kat-grid { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; } }
 .kat-item { display: flex; flex-direction: column; overflow: hidden; border: 1px solid var(--line); border-radius: var(--r-lg); background: var(--surface); box-shadow: var(--shadow-sm); color: inherit; transition: transform .3s var(--ease-out), box-shadow .3s; }

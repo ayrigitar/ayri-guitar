@@ -93,4 +93,3 @@ var AYRI_LAYANAN = {
         ]
     }
 };
-if (typeof module !== 'undefined') module.exports = AYRI_LAYANAN;

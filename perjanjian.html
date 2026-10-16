@@ -23,45 +23,21 @@
 
     <script>
 (function () {
-    var L = Layanan, C = L.C, E = L.esc, isi = document.getElementById('isi'), KEY = 'ayri-perjanjian';
-    var q = new URLSearchParams(location.search), k = (q.get('k') || '').toUpperCase(), h = q.get('h');
-    try { var m = JSON.parse(localStorage.getItem(KEY) || 'null'); if (!h && m && m.k === k) h = m.h; } catch (e) {}
-
-    function gerbang(pesan) {
-        isi.innerHTML = '<form class="ly-card ly-f nota-gate" id="f"><h2>Surat perjanjian</h2>' + (pesan ? '<p class="cek-err">' + E(pesan) + '</p>' : '') +
-            '<label>Kode<input name="k" value="' + E(k) + '" placeholder="TBS-XXXXXX" autocapitalize="characters" required></label>' +
-            '<label>4 digit terakhir HP<input name="h" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" required></label>' +
-            '<button class="ly-btn ly-btn--pri">Buka</button></form>';
-        var f = document.getElementById('f');
-        (k ? f.h : f.k).focus();
-        f.addEventListener('submit', function (e) { e.preventDefault(); k = f.k.value.trim().toUpperCase(); h = f.h.value.replace(/\D/g, ''); muat(); });
-    }
-    function muat() {
-        isi.innerHTML = '<p class="ly-kosong">Memuat&hellip;</p>';
-        L.api.cekPublik(k, h, 'tebus').then(function (t) {
-            if (!t) return gerbang('Data tidak ditemukan. Periksa kode dan 4 digit terakhir HP.');
-            try { localStorage.setItem(KEY, JSON.stringify({ k: k, h: h })); } catch (e) {}
-            if (history.replaceState) history.replaceState(null, '', 'perjanjian.html?k=' + encodeURIComponent(t.kode));
-            surat(t);
-        }).catch(function () { gerbang('Gagal terhubung. Periksa koneksi internet.'); });
-    }
+    var L = Layanan, C = L.C, E = L.esc, isi = document.getElementById('isi');
 
     function surat(t) {
-        var toko = C.toko || {}, st = L.STATUS_TEBUS[t.status] || { label: t.status }, gitar = [t.gitar_jenis, t.gitar_merk].filter(Boolean).join(' ') || '–';
+        var toko = C.toko;
         var cap = t.status === 'ditebus' ? '<span class="nota-lunas">DIBELI KEMBALI</span>' : t.status === 'milik_toko' ? '<span class="nota-lunas dp">MILIK TOKO</span>' : '';
-        document.title = 'Perjanjian ' + t.kode + ' | ' + (toko.nama || 'Toko Gitar AYRI');
-        isi.innerHTML = '<article class="nota">' +
-            '<header class="nota-head"><div class="nota-toko"><b>Toko Gitar <span>AYRI</span></b><p>' + E(toko.alamat) + '</p><p>WhatsApp +' + E(toko.wa) + ' · ayrigitar.com</p></div>' +
-            '<div class="nota-id"><h1>Bukti Jual Beli</h1><p>' + E(t.kode) + '</p>' + cap + '</div></header>' +
+        document.title = 'Perjanjian ' + t.kode + ' | ' + toko.nama;
+        isi.innerHTML = '<article class="nota">' + L.kopNota('Bukti Jual Beli', t.kode, cap) +
             '<p style="margin:14px 0 0;font-weight:700">Jual beli gitar dengan hak membeli kembali</p>' +
             '<dl class="nota-info">' +
-            '<div><dt>Pembeli</dt><dd>' + E(toko.nama || 'Toko Gitar AYRI') + '</dd></div>' +
+            '<div><dt>Pembeli</dt><dd>' + E(toko.nama) + '</dd></div>' +
             '<div><dt>Penjual</dt><dd>' + E(t.nama) + '</dd></div>' +
             (t.nik_samar ? '<div><dt>NIK</dt><dd>' + E(t.nik_samar) + '</dd></div>' : '') +
-            '<div><dt>No. HP</dt><dd>' + E(t.hp_samar) + '</dd></div>' +
-            '<div><dt>Status</dt><dd>' + E(st.label) + '</dd></div></dl>' +
+            '<div><dt>No. HP</dt><dd>' + E(t.hp_samar) + '</dd></div></dl>' +
             '<h2>Barang</h2><dl class="nota-info" style="padding-top:6px">' +
-            '<div><dt>Gitar</dt><dd>' + E(gitar) + '</dd></div>' + (t.warna ? '<div><dt>Warna</dt><dd>' + E(t.warna) + '</dd></div>' : '') +
+            '<div><dt>Gitar</dt><dd>' + E(L.namaGitar(t, '–')) + '</dd></div>' + (t.warna ? '<div><dt>Warna</dt><dd>' + E(t.warna) + '</dd></div>' : '') +
             (t.no_seri ? '<div><dt>No. seri</dt><dd>' + E(t.no_seri) + '</dd></div>' : '') +
             (t.kelengkapan ? '<div style="grid-column:1/-1"><dt>Kondisi</dt><dd>' + E(t.kelengkapan) + '</dd></div>' : '') + '</dl>' +
             '<div class="nota-tot" style="margin-top:14px">' +
@@ -73,12 +49,12 @@
             (t.status === 'milik_toko' ? '<div><span>Hak membeli kembali berakhir</span><span>' + L.tgl(t.tgl_berakhir || t.batas_tebus) + '</span></div>' : '') + '</div>' +
             '<h2>Ketentuan</h2><ol>' + L.ketentuanTebus(t).map(function (x) { return '<li>' + E(x) + '</li>'; }).join('') + '</ol>' +
             '<p class="nota-foot">' + (t.disetujui ? 'Penjual menyatakan setuju melalui WhatsApp pada ' + L.tglPanjang(t.disetujui) + '.' : 'Menunggu persetujuan penjual melalui WhatsApp (balas SETUJU).') +
-            '<br>Dokumen ini dibuat oleh ' + E(toko.nama || 'Toko Gitar AYRI') + ' dan dapat dibuka kembali di ayrigitar.com/perjanjian.html</p></article>';
+            '<br>Dokumen ini dibuat oleh ' + E(toko.nama) + ' dan dapat dibuka kembali di ayrigitar.com/perjanjian.html</p></article>';
         document.getElementById('bar').hidden = false;
     }
     document.getElementById('cetak').addEventListener('click', function () { window.print(); });
 
-    if (k && h) muat(); else gerbang('');
+    L.halamanKode({ isi: isi, kunci: 'ayri-perjanjian', jenis: 'tebus', halaman: 'perjanjian.html', judul: 'Surat perjanjian', labelKode: 'Kode', contoh: 'TBS-XXXXXX', tombol: 'Buka', tampil: surat });
 })();
     </script>
 </body>

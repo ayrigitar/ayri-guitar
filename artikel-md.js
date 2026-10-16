@@ -1,5 +1,5 @@
 /* Format tulisan artikel sederhana -> HTML.
-   Dipakai halaman admin (pratinjau) dan skrip pembuat halaman artikel (GitHub Action), jadi hasilnya selalu sama.
+   Dipakai halaman admin untuk pratinjau dan untuk membuat halaman artikel (artikel-builder.js), jadi hasilnya selalu sama.
 
    Aturan menulis:
      ## Judul bagian        ### Sub-judul
@@ -43,6 +43,5 @@
         return String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/&/g, ' dan ')
             .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 80).replace(/-+$/, '');
     }
-    var api = { keHtml: keHtml, teksPolos: teksPolos, slug: slug, esc: esc };
-    if (typeof module !== 'undefined' && module.exports) module.exports = api; else root.ArtikelMd = api;
+    root.ArtikelMd = { keHtml: keHtml, teksPolos: teksPolos, slug: slug, esc: esc };
 })(this);
