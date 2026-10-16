@@ -240,7 +240,7 @@
 
             '<fieldset class="ly-card"><legend>Status</legend><div class="ly-status" id="sv-status"></div><div id="sv-titip"></div><p class="ly-hint" style="margin-top:8px">Aturan toko: gitar dikerjakan setelah DP ' + L.dpPersen() + '% jasa + part lunas. Status otomatis pindah ke <b>Antri</b> saat pembayaran awal terpenuhi.</p></fieldset>' +
 
-            '<fieldset class="ly-card"><legend>Foto</legend><div id="sv-foto"></div><p class="ly-hint" style="margin-top:10px">Foto dikecilkan otomatis (WebP ±150 KB) dan dikunci sebelum diunggah. Label <b>Tampil</b> = terlihat pelanggan; ketuk untuk menyembunyikan. Foto sesudah servis baru terlihat pelanggan saat status Selesai.</p></fieldset>' +
+            '<fieldset class="ly-card"><legend>Foto</legend><div id="sv-foto"></div><p class="ly-hint" style="margin-top:10px">Foto dikecilkan otomatis (WebP ±150 KB) dan dikunci sebelum diunggah. Label <b>Tampil</b> = terlihat pelanggan; ketuk untuk menyembunyikan. Foto sesudah servis baru terlihat pelanggan saat status Selesai, berdampingan dengan foto sebelum servis sebagai pembanding.</p></fieldset>' +
 
             '<fieldset class="ly-card ly-f"><legend>Untuk pelanggan</legend>' +
             '<label>Pesan / update (tampil di halaman cek status)<textarea data-f="catatan_publik" rows="3" placeholder="mis. Ditemukan truss rod macet, perlu diganti. Estimasi mundur 2 hari."></textarea></label>' +
@@ -397,7 +397,7 @@
     var qn = 0;
     function tambahFoto(tahap, files) {
         if (!files.length) return;
-        var baru = files.map(function (file) { return { qid: 'q' + (++qn), tahap: tahap, tampil: tahap !== 'sebelum', pratinjau: URL.createObjectURL(file), file: file }; });
+        var baru = files.map(function (file) { return { qid: 'q' + (++qn), tahap: tahap, tampil: true, pratinjau: URL.createObjectURL(file), file: file }; });
         ed.antri = ed.antri.concat(baru); gambarFoto(); setDirty(true);
         baru.reduce(function (p, q) {
             return p.then(function () { return L.kompres(q.file).then(function (hasil) { q.hasil = hasil; q.file = null; if ($('#sv-foto')) gambarFoto(); }); });
