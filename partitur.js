@@ -61,6 +61,8 @@
     /* chord lagu: garis waktu (nama asli) untuk panel & main bersama; ab = titik ulang A/B (tick) */
     var garisChord = [], adaKapo = false, alat = 'gtr', kidal = false, bentukKe = {}, ikut = false, ab = { a: null, b: null };
     /* latihan: kecepatan putar, hitung masuk suara, naik tempo otomatis */
+    /* mode edit (partitur-edit.js): instrumen yang sedang diedit, tab selalu tampil */
+    var editTrack = null, tampilSebelumEdit = null;
     var kecepatan = 1, hitungOn = false, ikutAwal = false, latih = { on: false, mulai: 0.6, naik: 0.05, setiap: 1, sampai: 1, putaran: 0 };
 
     function pesan(t, salah) { msg.textContent = t || ''; msg.hidden = !t; msg.classList.toggle('err', !!salah); }
@@ -69,7 +71,7 @@
 
     var hp = window.innerWidth < 600;
     var at = new alphaTab.AlphaTabApi($('#at'), {
-        core: { fontDirectory: 'vendor/alphatab/font/' },
+        core: { fontDirectory: 'vendor/alphatab/font/', includeNoteBounds: true },
         display: { scale: hp ? 0.8 : 1, padding: hp ? [8, 8, 8, 8] : [20, 20, 20, 20] },
         notation: { elements: { scoreWordsAndMusic: false } },
         /* gulir hanya bila kursor keluar layar, supaya judul & chord tidak tersembunyi saat lagu dibuka */
@@ -197,6 +199,7 @@
                     geserChord(st, nada - kapoIni, nada - kapoIni);
                 } else geserChord(st, nada, 0);
                 aturTampilan(st);
+                if (editTrack === t.index && st.isStringed) st.showTablature = true;
             });
             if (t.staves[0] && t.staves[0].isPercussion) bersenar = true;
             geserPitch[t.index] = bersenar ? 0 : nada;
@@ -223,6 +226,7 @@
     }
     /* o.semua: tampilkan semua instrumen; o.baru: lagu lain (atur ulang nada, kapo, bisu/solo) */
     function muatScore(score, o) {
+        if (editTrack !== null) { editTrack = null; if (window.PartiturEdit) window.PartiturEdit.tutup(true); }
         dasar = JSONC.scoreToJsObject(score);
         if (o.baru) { nada = 0; kapo = 0; bisu = {}; solo = {}; bentukKe = {}; hapusAB(); main.scrollTop = 0; }
         tampilTrack = o.semua ? score.tracks.map(function (t) { return t.index; }) : trackAwal(score);
@@ -643,7 +647,9 @@
     $('#teks-w').addEventListener('toggle', function () { if (this.open && !tex.value.trim()) { tex.value = TEMPLAT.gitar.join('\n'); muatTeks(tex.value, true); } });
     tex.addEventListener('input', function () { clearTimeout(ketik); ketik = setTimeout(function () { muatTeks(tex.value, false); }, 600); });
     $('#templat').addEventListener('change', function () {
-        var t = TEMPLAT[this.value]; this.value = ''; if (!t) return;
+        var v = this.value, t = TEMPLAT[v]; this.value = ''; if (!t) return;
+        /* gitar, bass, ukulele: lagu kosong langsung dibuka di editor ketuk-ketik */
+        if (window.PartiturEdit && /^(gitar|bass|ukulele)$/.test(v)) { tutupLembar(); window.PartiturEdit.baru(v); return; }
         tex.value = t.join('\n'); $('#teks-w').open = true; muatTeks(tex.value, true); tandaiLagu(''); tex.focus();
     });
     $('#tex-ini').addEventListener('click', function () {
@@ -693,6 +699,27 @@
     });
 
     /* lagu awal: band lengkap, supaya terlihat semua instrumen bisa */
+    /* jembatan untuk editor ketuk-ketik (partitur-edit.js) */
+    window.Partitur = {
+        at: at, main: main, $: $, $$: $$, esc: esc, pesan: pesan, tutupLembar: tutupLembar, bukaLembar: bukaLembar,
+        skor: function () { return dasar; },
+        pakai: function (obj) { dasar = obj; gambar(); },
+        mulaiEdit: function (ti, obj) {
+            nada = 0; kapo = 0; kontrolNada(); hapusAB();
+            if (/^(balok|angka|slash)$/.test(tampilan)) { tampilan = 'semua'; $('#profil').value = 'semua'; }
+            if (editTrack === null) tampilSebelumEdit = tampilTrack;
+            editTrack = ti; tampilTrack = [ti]; dasar = obj; gambar();
+        },
+        selesaiEdit: function () {
+            editTrack = null;
+            tampilTrack = tampilSebelumEdit && tampilSebelumEdit.length ? tampilSebelumEdit : [0];
+            if (at.score) tampilTrack = tampilTrack.filter(function (i) { return i < at.score.tracks.length; });
+            gambar();
+        },
+        muatTeksBaru: function (t) { tex.value = t; muatTeks(t, true); tandaiLagu(''); },
+        muatJson: function (obj) { tandaiLagu(''); muatScore(JSONC.jsObjectToScore(obj, at.settings), { semua: true, baru: true }); },
+        aturJudul: function (j) { judulFile = j; $('#judul-lagu').textContent = j; }
+    };
     pulihkan();
     muatContoh('sayange');
 })();
