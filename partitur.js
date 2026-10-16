@@ -72,7 +72,8 @@
         core: { fontDirectory: 'vendor/alphatab/font/' },
         display: { scale: hp ? 0.8 : 1, padding: hp ? [8, 8, 8, 8] : [20, 20, 20, 20] },
         notation: { elements: { scoreWordsAndMusic: false } },
-        player: { playerMode: 'EnabledSynthesizer', soundFont: 'vendor/alphatab/soundfont/sonivox.sf2', scrollElement: main, scrollOffsetY: -150 }
+        /* gulir hanya bila kursor keluar layar, supaya judul & chord tidak tersembunyi saat lagu dibuka */
+        player: { playerMode: 'EnabledSynthesizer', soundFont: 'vendor/alphatab/soundfont/sonivox.sf2', scrollElement: main, scrollMode: 'OffScreen', scrollOffsetY: -180 }
     });
     window.__at = at; /* untuk pengujian */
 
@@ -223,7 +224,7 @@
     /* o.semua: tampilkan semua instrumen; o.baru: lagu lain (atur ulang nada, kapo, bisu/solo) */
     function muatScore(score, o) {
         dasar = JSONC.scoreToJsObject(score);
-        if (o.baru) { nada = 0; kapo = 0; bisu = {}; solo = {}; bentukKe = {}; hapusAB(); }
+        if (o.baru) { nada = 0; kapo = 0; bisu = {}; solo = {}; bentukKe = {}; hapusAB(); main.scrollTop = 0; }
         tampilTrack = o.semua ? score.tracks.map(function (t) { return t.index; }) : trackAwal(score);
         if (score.title) judulFile = score.title;
         $('#kapo-w').hidden = !score.tracks.some(function (t) { return t.staves.some(bisaKapo); });
@@ -274,7 +275,12 @@
         tex.focus(); tex.setSelectionRange(+p[0], Math.max(+p[1], +p[0] + 1));
     });
 
-    at.scoreLoaded.on(function (score) { $('#n-track').textContent = score.tracks.length; gambarTrack(); $('#unduh').disabled = false; tampilBpm(); });
+    at.scoreLoaded.on(function (score) {
+        $('#n-track').textContent = score.tracks.length;
+        $('#judul-lagu').textContent = score.title || judulFile;
+        $('#sub-lagu').textContent = [score.subTitle, score.artist].filter(Boolean).join(' \u00b7 ');
+        gambarTrack(); tampilBpm();
+    });
     at.renderStarted.on(function () { if (!msg.classList.contains('err')) pesan('Menggambar partitur…'); });
     at.renderFinished.on(function () { if (!msg.classList.contains('err')) pesan(''); });
     at.error.on(function (e) {
@@ -301,7 +307,7 @@
     }
     function gambarPanel() {
         var u = ADA_MESIN ? daftarChord() : [];
-        $('#sc-chord').hidden = !u.length;
+        $('#sc-chord').hidden = !u.length; $('#tanpa-chord').hidden = !!u.length;
         $('#ikut-btn').hidden = !u.length;
         if (!u.length) { if (ikut) aturIkut(false); $('#saran').hidden = true; return; }
         if (ikutAwal) { ikutAwal = false; aturIkut(true); }
@@ -387,7 +393,8 @@
         ikut = on && garisChord.length > 0;
         $('#ikut-btn').setAttribute('aria-pressed', ikut);
         $('#ikut').hidden = !ikut;
-        at.settings.player.scrollOffsetY = -($('#lekat').offsetHeight + 70);
+        main.classList.toggle('ikut-on', ikut);
+        at.settings.player.scrollOffsetY = -($('#kepala').offsetHeight + 80);
         at.updateSettings();
         ikutKe = -2; ikutChord(at.tickPosition || 0, true);
     }
@@ -420,18 +427,18 @@
     }
     function hapusAB() {
         ab = { a: null, b: null }; try { at.playbackRange = null; at.clearPlaybackRangeHighlight(); } catch (e) {}
-        var t = $('#ab'); if (t) { t.textContent = 'Titik A'; t.setAttribute('aria-pressed', 'false'); }
+        var t = $('#ab'); if (t) { $('#ab-label').textContent = 'A\u2013B'; t.setAttribute('aria-pressed', 'false'); }
     }
     $('#ab').addEventListener('click', function () {
         if (!at.score) return;
         var mb = birama(at.tickPosition || 0);
-        if (ab.a === null) { ab.a = mb.start; ab.ia = mb.index; this.textContent = 'Titik B'; this.setAttribute('aria-pressed', 'true'); return; }
+        if (ab.a === null) { ab.a = mb.start; ab.ia = mb.index; $('#ab-label').textContent = 'Titik B'; this.setAttribute('aria-pressed', 'true'); return; }
         if (ab.b === null) {
             var awal = Math.min(ab.ia, mb.index), akhir = Math.max(ab.ia, mb.index), m = at.score.masterBars;
             ab.ia = awal; ab.ib = akhir; ab.a = m[awal].start; ab.b = m[akhir].start + m[akhir].calculateDuration();
             at.playbackRange = { startTick: ab.a, endTick: ab.b };
             at.isLooping = true; $('#loop').setAttribute('aria-pressed', 'true');
-            this.textContent = 'A\u2013B \u2715'; tandaiAB();
+            $('#ab-label').textContent = 'A\u2013B \u2715'; tandaiAB();
             if (at.playerState !== alphaTab.synth.PlayerState.Playing) at.tickPosition = ab.a;
             return;
         }
@@ -441,6 +448,7 @@
 
     /* ================= kontrol ================= */
     function kontrolNada() {
+        $('#tb-nada').textContent = (nada > 0 ? '+' + nada : nada < 0 ? '\u2212' + -nada : '\u00b10') + (kapo ? ' \u00b7 K' + kapo : '');
         $('#nada').textContent = 'Nada ' + (nada > 0 ? '+' + nada : nada < 0 ? '−' + -nada : '0');
         $('#kapo').value = String(kapo);
     }
@@ -462,6 +470,11 @@
         waktu.textContent = jam(e.currentTime) + ' / ' + jam(e.endTime);
     });
     at.playerPositionChanged.on(function (e) { ikutChord(e.currentTick); });
+    /* bilah posisi: ikut lagu, bisa digeser untuk pindah */
+    var posisi = $('#posisi'), geserPosisi = false;
+    at.playerPositionChanged.on(function (e) { if (!geserPosisi) { posisi.max = Math.max(1, Math.round(e.endTime)); posisi.value = Math.round(e.currentTime); } });
+    posisi.addEventListener('input', function () { geserPosisi = true; waktu.textContent = jam(+this.value) + ' / ' + jam(+this.max); });
+    posisi.addEventListener('change', function () { at.timePosition = +this.value; geserPosisi = false; });
     /* hitung masuk "one, two, three, four" (rekaman yang sama dengan metronom) sebelum lagu mulai */
     var SUARA = {}, suaraSiap = null, sedangHitung = false;
     function muatSuara() {
@@ -508,7 +521,7 @@
         if (![].some.call(sel.options, function (o) { return +o.value === v; })) {
             var o = document.createElement('option'); o.value = String(v); o.textContent = Math.round(v * 100) + '%'; o.dataset.sendiri = '1'; sel.appendChild(o);
         }
-        sel.value = String(v); tampilBpm(); labelLatih();
+        sel.value = String(v); $('#tb-kec').textContent = Math.round(v * 100) + '%'; tampilBpm(); labelLatih();
         if (!tanpaSimpan) simpan();
     }
     $('#speed').addEventListener('change', function () { aturKecepatan(+this.value); });
@@ -525,17 +538,17 @@
 
     /* naik tempo otomatis: setiap beberapa putaran ulang, kecepatan bertambah sampai target */
     var tickLalu = 0;
-    function labelLatih() { var b = $('#latih'); if (b) b.textContent = latih.on ? 'Naik tempo ' + Math.round(kecepatan * 100) + '\u2192' + Math.round(latih.sampai * 100) + '%' : 'Naik tempo'; }
-    $('#latih').addEventListener('click', function () {
-        if (latih.on) { latih.on = false; this.setAttribute('aria-pressed', 'false'); labelLatih(); return; }
-        $('#dr-latihan').hidden = false;
-    });
+    function labelLatih() {
+        var b = $('#latih'); if (!b) return;
+        b.hidden = !latih.on; b.textContent = 'Hentikan (' + Math.round(kecepatan * 100) + '\u2192' + Math.round(latih.sampai * 100) + '%)';
+        $('[data-lembar="latihan"]').classList.toggle('aktif', latih.on);
+    }
+    $('#latih').addEventListener('click', function () { latih.on = false; labelLatih(); });
     $('#lt-go').addEventListener('click', function () {
         latih.mulai = +$('#lt-mulai').value; latih.naik = +$('#lt-naik').value; latih.setiap = +$('#lt-setiap').value; latih.sampai = +$('#lt-sampai').value;
         latih.putaran = 0; latih.on = true;
         at.isLooping = true; $('#loop').setAttribute('aria-pressed', 'true');
-        $('#latih').setAttribute('aria-pressed', 'true'); aturKecepatan(latih.mulai);
-        $('#dr-latihan').hidden = true;
+        aturKecepatan(latih.mulai); tutupLembar();
     });
     at.playerPositionChanged.on(function (e) {
         /* posisi melompat mundur saat sedang main = satu putaran ulang selesai */
@@ -577,6 +590,10 @@
     /* ---------- instrumen (track) ---------- */
     function gambarTrack() {
         var score = at.score; if (!score) return;
+        $('#chips').innerHTML = score.tracks.length < 2 ? '' : score.tracks.map(function (t) {
+            var i = t.index;
+            return '<button type="button" class="chip' + (bisu[i] ? ' bisu' : '') + '" data-chip="' + i + '" aria-pressed="' + (tampilTrack.indexOf(i) > -1) + '">' + esc(t.name || 'Instrumen ' + (i + 1)) + '</button>';
+        }).join('') + '<button type="button" class="chip" data-lembar="instrumen">Bisu / solo</button>';
         $('#tracks').innerHTML = score.tracks.map(function (t) {
             var i = t.index;
             return '<div class="sc-trk" data-i="' + i + '"><b>' + esc(t.name || 'Instrumen ' + (i + 1)) + '</b>' +
@@ -590,13 +607,25 @@
         var i = +b.closest('[data-i]').dataset.i, t = at.score.tracks[i], on = b.getAttribute('aria-pressed') !== 'true';
         b.setAttribute('aria-pressed', on);
         if (b.hasAttribute('data-mute')) { bisu[i] = on; at.changeTrackMute([t], on); } else { solo[i] = on; at.changeTrackSolo([t], on); }
+        var c = $('[data-chip="' + i + '"]'); if (c) c.classList.toggle('bisu', !!bisu[i]);
+    });
+    function aturTampilTrack(pilih) {
+        tampilTrack = pilih;
+        $$('#tracks [data-tampil]').forEach(function (c) { c.checked = pilih.indexOf(+c.closest('[data-i]').dataset.i) > -1; });
+        $$('[data-chip]').forEach(function (c) { c.setAttribute('aria-pressed', pilih.indexOf(+c.dataset.chip) > -1); });
+        at.renderTracks(pilih.map(function (i) { return at.score.tracks[i]; }));
+    }
+    $('#chips').addEventListener('click', function (e) {
+        var c = e.target.closest('[data-chip]'); if (!c) return;
+        var i = +c.dataset.chip, pilih = tampilTrack.slice(), k = pilih.indexOf(i);
+        if (k > -1) { if (pilih.length === 1) return; pilih.splice(k, 1); } else pilih.push(i);
+        aturTampilTrack(pilih.sort(function (a, b) { return a - b; }));
     });
     $('#tracks').addEventListener('change', function (e) {
         if (!e.target.hasAttribute('data-tampil')) return;
         var pilih = $$('#tracks [data-tampil]').filter(function (c) { return c.checked; }).map(function (c) { return +c.closest('[data-i]').dataset.i; });
         if (!pilih.length) { e.target.checked = true; return; }
-        tampilTrack = pilih;
-        at.renderTracks(pilih.map(function (i) { return at.score.tracks[i]; }));
+        aturTampilTrack(pilih);
     });
 
     /* ---------- unduh & cetak (sesuai yang tampil: sudah ditranspose / pakai kapo) ---------- */
@@ -610,43 +639,60 @@
     $('#dl-tex').addEventListener('click', function () { simpanBlob(new alphaTab.exporter.AlphaTexExporter().exportToString(at.score, at.settings), namaAman() + '.txt', 'text/plain'); });
     $('#cetak').addEventListener('click', function () { at.print(); });
 
-    /* ---------- mode buka / tulis ---------- */
-    function gantiMode(m) {
-        $$('[data-mode]').forEach(function (b) { b.setAttribute('aria-pressed', b.dataset.mode === m); });
-        $('#sc-buka').hidden = m !== 'buka'; $('#sc-tulis').hidden = m !== 'tulis';
-        if (m === 'tulis' && !tex.value.trim()) { tex.value = TEMPLAT.gitar.join('\n'); muatTeks(tex.value, true); }
-    }
-    $$('[data-mode]').forEach(function (b) { b.addEventListener('click', function () { gantiMode(b.dataset.mode); }); });
+    /* ---------- tulis sendiri (mode teks di lembar Lagu) ---------- */
+    $('#teks-w').addEventListener('toggle', function () { if (this.open && !tex.value.trim()) { tex.value = TEMPLAT.gitar.join('\n'); muatTeks(tex.value, true); } });
     tex.addEventListener('input', function () { clearTimeout(ketik); ketik = setTimeout(function () { muatTeks(tex.value, false); }, 600); });
     $('#templat').addEventListener('change', function () {
         var t = TEMPLAT[this.value]; this.value = ''; if (!t) return;
-        tex.value = t.join('\n'); muatTeks(tex.value, true); tex.focus();
+        tex.value = t.join('\n'); $('#teks-w').open = true; muatTeks(tex.value, true); tandaiLagu(''); tex.focus();
     });
     $('#tex-ini').addEventListener('click', function () {
         if (!at.score) return;
         try { tex.value = new alphaTab.exporter.AlphaTexExporter().exportToString(at.score, at.settings); muatTeks(tex.value, true); } catch (e) { tampilErrTeks(e); }
     });
 
-    $('#file').addEventListener('change', function () { bukaFile(this.files[0]); this.value = ''; });
-    $('#contoh').innerHTML = '<option value="">Coba contoh lagu…</option>' + Object.keys(CONTOH).map(function (k) { return '<option value="' + k + '">' + esc(CONTOH[k].nama) + '</option>'; }).join('');
-    $('#contoh').addEventListener('change', function () {
-        var c = CONTOH[this.value]; if (!c) return;
-        tex.value = c.tex; muatTeks(c.tex, true);
-    });
+    $('#file').addEventListener('change', function () { tandaiLagu(''); bukaFile(this.files[0]); this.value = ''; tutupLembar(); });
+    function tandaiLagu(k) { $$('#daftar-lagu [data-lagu]').forEach(function (b) { b.setAttribute('aria-pressed', b.dataset.lagu === k); }); }
+    $('#daftar-lagu').innerHTML = Object.keys(CONTOH).map(function (k) {
+        var n = CONTOH[k].nama.split(':');
+        return '<button type="button" data-lagu="' + k + '" aria-pressed="false"><b>' + esc(n[0].replace(/\s*\(.*\)$/, '')) + '</b><small>' + esc((n[1] || '').trim()) + '</small></button>';
+    }).join('');
+    function muatContoh(k) {
+        var c = CONTOH[k]; if (!c) return;
+        tex.value = c.tex; muatTeks(c.tex, true); tandaiLagu(k);
+    }
+    $('#daftar-lagu').addEventListener('click', function (e) { var b = e.target.closest('[data-lagu]'); if (b) { muatContoh(b.dataset.lagu); tutupLembar(); } });
     /* tarik & lepas file ke halaman */
     main.addEventListener('dragover', function (e) { e.preventDefault(); main.classList.add('drop'); });
     main.addEventListener('dragleave', function (e) { if (e.target === main) main.classList.remove('drop'); });
-    main.addEventListener('drop', function (e) { e.preventDefault(); main.classList.remove('drop'); if (e.dataTransfer.files[0]) { gantiMode('buka'); bukaFile(e.dataTransfer.files[0]); } });
+    main.addEventListener('drop', function (e) { e.preventDefault(); main.classList.remove('drop'); if (e.dataTransfer.files[0]) { tandaiLagu(''); bukaFile(e.dataTransfer.files[0]); } });
 
-    /* laci (drawer) Info, Instrumen, Unduh, Cara menulis */
+    /* lembar pengaturan: dari bawah di HP; di layar lebar semua bagian tampil di panel samping */
+    var samping = $('#samping');
+    function bukaLembar(n) {
+        var isi = $('[data-lembar-isi="' + n + '"]'); if (!isi) return;
+        $$('[data-lembar-isi]').forEach(function (x) { x.classList.toggle('aktif', x === isi); });
+        $('#lembar-judul').textContent = isi.dataset.judul;
+        samping.setAttribute('data-buka', n); samping.scrollTop = 0;
+        document.body.classList.add('lembar-on');
+        if (window.matchMedia('(min-width: 900px) and (min-height: 520px)').matches) isi.scrollIntoView({ block: 'start', behavior: 'smooth' });
+    }
+    function tutupLembar() { samping.removeAttribute('data-buka'); document.body.classList.remove('lembar-on'); }
+    document.addEventListener('click', function (e) {
+        var b = e.target.closest('[data-lembar]');
+        if (b) { if (samping.getAttribute('data-buka') === b.dataset.lembar) tutupLembar(); else bukaLembar(b.dataset.lembar); return; }
+        if (e.target.closest('[data-tutup-lembar]')) tutupLembar();
+    });
+
+    /* laci (drawer) Info dan Cara menulis */
     $$('[data-open]').forEach(function (b) { b.addEventListener('click', function () { $('#' + b.dataset.open).hidden = false; }); });
     $$('.drawer').forEach(function (d) { d.addEventListener('click', function (e) { if (e.target === d || e.target.closest('[data-close]')) d.hidden = true; }); });
     document.addEventListener('keydown', function (e) {
-        if (e.key === 'Escape') $$('.drawer').forEach(function (d) { d.hidden = true; });
+        if (e.key === 'Escape') { $$('.drawer').forEach(function (d) { d.hidden = true; }); tutupLembar(); }
         if (e.key === ' ' && !/INPUT|TEXTAREA|SELECT|BUTTON/.test(document.activeElement.tagName) && !btnPlay.disabled) { e.preventDefault(); at.playPause(); }
     });
 
     /* lagu awal: band lengkap, supaya terlihat semua instrumen bisa */
     pulihkan();
-    $('#contoh').value = 'sayange'; tex.value = CONTOH.sayange.tex; muatTeks(CONTOH.sayange.tex, true);
+    muatContoh('sayange');
 })();
