@@ -56,6 +56,7 @@
     <script src="pwa.js" defer></script>
     <script src="site.js" defer></script>
     <script src="vendor/alphatab/alphaTab.min.js" defer></script>
+    <script src="chord-engine.js" defer></script>
     <script src="partitur.js" defer></script>
 </head>
 <body class="app-page">
@@ -169,6 +170,7 @@
                 </div>
             </div>
         </div>
+        <div class="sc-lekat" id="lekat">
         <div class="t-card sc-player" id="player">
             <button type="button" class="t-btn" id="play" disabled>Memuat suara&hellip;</button>
             <button type="button" class="chip" id="stop">Stop</button>
@@ -177,6 +179,8 @@
                 <option value="0.5">50%</option><option value="0.75">75%</option><option value="0.9">90%</option><option value="1" selected>100%</option><option value="1.25">125%</option><option value="1.5">150%</option>
             </select>
             <button type="button" class="chip" id="loop" aria-pressed="false">Ulang</button>
+            <button type="button" class="chip" id="ab" aria-pressed="false" title="Ketuk di birama awal lalu di birama akhir bagian yang ingin diulang">Titik A</button>
+            <button type="button" class="chip" id="ikut-btn" aria-pressed="false" hidden>Main bersama</button>
             <button type="button" class="chip" id="metro" aria-pressed="false">Metronom</button>
             <button type="button" class="chip" id="countin" aria-pressed="false">Hitung masuk</button>
             <span class="sc-nada" role="group" aria-label="Transpose">
@@ -188,6 +192,22 @@
             </select>
             <button type="button" class="chip" data-open="dr-track">Instrumen (<span id="n-track">0</span>)</button>
             <button type="button" class="chip" id="unduh" data-open="dr-unduh" disabled>Unduh &amp; cetak</button>
+        </div>
+        <div class="sc-ikut" id="ikut" hidden>
+            <div class="sc-ikut-kini"><span>Sekarang</span><b id="ik-now">&ndash;</b><div class="sc-ikut-d" id="ik-now-d"></div></div>
+            <div class="sc-ikut-lanjut"><span>Berikutnya</span><b id="ik-next">&ndash;</b><div class="sc-ikut-d" id="ik-next-d"></div></div>
+        </div>
+        </div>
+        <div class="t-card sc-chord" id="sc-chord" hidden>
+            <div class="sc-row sc-chord-h">
+                <h2>Chord lagu ini <small id="n-chord"></small></h2>
+                <select id="alat" class="sel" aria-label="Diagram untuk alat musik">
+                    <option value="gtr">Gitar</option><option value="uke">Ukulele</option><option value="gll">Guitalele</option><option value="pno">Piano</option>
+                </select>
+                <label class="tgl" id="kidal-w"><input type="checkbox" id="kidal"> Kidal</label>
+            </div>
+            <div class="sc-chords" id="chords"></div>
+            <p class="t-help">Ketuk diagram untuk mendengar bunyinya, &#8635; untuk bentuk lain. Bentuk chord sama dengan halaman <a href="chords.html">Chord</a>.</p>
         </div>
         <div class="sc-paper"><div id="at"></div><p class="sc-msg" id="msg" role="status">Memuat penampil partitur&hellip;</p></div>
     </main>
