@@ -253,3 +253,12 @@ body.nota-body { background: var(--bg-alt); color: var(--ink); font-family: var(
 .ly-ingat { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 12px; padding: 12px 14px; border: 1px solid #F7D9A8; border-radius: var(--r-md); background: #FEF3E2; color: #6B3E08; font-size: .875rem; line-height: 1.45; }
 .ly-ingat--info { margin-top: 10px; border-color: var(--line); background: var(--surface-2); color: var(--ink-2); }
 html[data-theme="dark"] .ly-ingat:not(.ly-ingat--info) { border-color: rgba(245, 182, 92, .3); background: rgba(245, 182, 92, .1); color: #F5B65C; }
+
+/* header admin: 4 tab tetap muat di layar HP */
+.ly-tabs { overflow-x: auto; scrollbar-width: none; }
+.ly-tabs a { flex: none; }
+@media (max-width: 460px) {
+  .ly-top { gap: 6px; padding-inline: 10px; }
+  .ly-top b span { display: none; }
+  .ly-tabs a { padding: 6px 9px; }
+}

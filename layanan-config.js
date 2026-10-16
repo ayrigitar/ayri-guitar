@@ -72,11 +72,10 @@ var AYRI_LAYANAN = {
 
     /* ---------- beli gitar dengan hak tebus (jual beli dengan hak membeli kembali, KUHPerdata Pasal 1519 dst.) ----------
        Toko MEMBELI gitar; penjual boleh membeli kembali sampai batas tebus dengan harga yang SAMA dengan harga beli
-       (boleh ditambah biaya administrasi kecil dan tetap). Jangan menambah "bunga" per bulan: itu menjadikannya pinjaman berbunga. */
+       Kebijakan toko: tanpa biaya tambahan. Menambah "bunga"/biaya per bulan menjadikannya pinjaman berbunga. */
     tebus: {
         batasHari: 30,                 /* batas tebus bawaan (hari sejak beli) */
         maksHari: 90,                  /* batas tebus terpanjang yang boleh dipilih */
-        biayaMaksPersen: 5,            /* admin diberi peringatan bila biaya administrasi melebihi ini */
         pengingatHari: [7, 1],         /* pengingat WA sekian hari sebelum batas tebus */
         fotoKtpMinHarga: 1000000,      /* sarankan foto KTP bila harga beli di atas ini (atau penjual belum dikenal) */
         hapusKtpHari: 90,              /* foto KTP disarankan dihapus sekian hari setelah gitar dibeli kembali */

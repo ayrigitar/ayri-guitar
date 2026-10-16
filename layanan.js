@@ -89,7 +89,7 @@
         milik_toko: { label: 'Milik toko', ket: 'Masa membeli kembali sudah berakhir; gitar sepenuhnya milik toko.' },
         batal: { label: 'Dibatalkan', ket: 'Transaksi dibatalkan.' }
     };
-    L.hargaTebus = function (t) { return (+t.harga_beli || 0) + (+t.biaya_admin || 0); };
+    L.hargaTebus = function (t) { return +t.harga_beli || 0; }; /* kebijakan toko: harga tebus = harga beli */
     /* sisa hari sampai batas tebus (negatif = sudah lewat) */
     L.infoTebus = function (t, hariIni) {
         var kini = hariIni || L.hariIni(), sisa = t.batas_tebus ? L.hariAntara(kini, t.batas_tebus) : null;
@@ -111,7 +111,7 @@
     };
     L.ketentuanTebus = function (t) {
         return (TB.ketentuan || []).map(function (k) {
-            return k.split('{batas}').join(L.tglPanjang(t.batas_tebus)).split('{tebus}').join(L.rupiah(L.hargaTebus(t)) + (+t.biaya_admin ? ' (harga beli ' + L.rupiah(t.harga_beli) + ' + biaya administrasi ' + L.rupiah(t.biaya_admin) + ')' : ' (sama dengan harga beli)'));
+            return k.split('{batas}').join(L.tglPanjang(t.batas_tebus)).split('{tebus}').join(L.rupiah(L.hargaTebus(t)) + ' (sama dengan harga beli, tanpa biaya tambahan)');
         });
     };
     function gitarTebus(t) { return [t.gitar_jenis, t.gitar_merk].filter(Boolean).join(' ') || 'gitar'; }
@@ -397,11 +397,11 @@
     L.api.lupakan = function () { L.api.kunci(); try { localStorage.removeItem(KUNCI_TOKEN); } catch (e) {} return Promise.resolve(); };
 
     /* ---------- data servis & artikel (repo privat) ---------- */
-    var data = { servis: [], artikel: [], tebus: [] };
+    var data = { servis: [], artikel: [], tebus: [], stok: [] };
     function salin(o) { return JSON.parse(JSON.stringify(o)); }
     function bacaJson(nama) { return bacaFile('data', nama).then(function (t) { return t ? JSON.parse(t) : []; }); }
     L.api.muat = function () {
-        return Promise.all([bacaJson('servis.json'), bacaJson('artikel.json'), bacaJson('tebus.json')]).then(function (r) { data.servis = r[0]; data.artikel = r[1]; data.tebus = r[2]; return salin(data); });
+        return Promise.all([bacaJson('servis.json'), bacaJson('artikel.json'), bacaJson('tebus.json'), bacaJson('stok.json')]).then(function (r) { data.servis = r[0]; data.artikel = r[1]; data.tebus = r[2]; data.stok = r[3]; return salin(data); });
     };
     /* simpan satu catatan ke file daftar: baca versi terbaru dulu supaya perubahan dari perangkat lain tidak tertimpa.
        file lain di repo data (mis. foto tebus) ikut dalam commit yang sama */
@@ -501,7 +501,7 @@
         return {
             kode: t.kode, nama: t.nama, hp_samar: '••••' + L.hp4(t.hp), nik_samar: t.nik ? '••••••••••••' + String(t.nik).replace(/\D/g, '').slice(-4) : '',
             gitar_jenis: t.gitar_jenis, gitar_merk: t.gitar_merk, warna: t.warna || '', no_seri: t.no_seri || '', kelengkapan: t.kelengkapan || '',
-            tgl_beli: t.tgl_beli, harga_beli: t.harga_beli, biaya_admin: t.biaya_admin || 0, batas_tebus: t.batas_tebus, metode: t.metode,
+            tgl_beli: t.tgl_beli, harga_beli: t.harga_beli, batas_tebus: t.batas_tebus, metode: t.metode,
             status: t.status, tgl_tebus: t.tgl_tebus || null, tgl_berakhir: t.tgl_berakhir || null, disetujui: t.disetujui || null, diperbarui: t.updated_at
         };
     }
@@ -550,6 +550,54 @@
         (rec.foto || []).forEach(function (f) { filesData.push({ path: 'foto/' + f.file, hapus: true }, { path: 'foto/' + f.thumb, hapus: true }); });
         return (rec.pubId ? commit('situs', [{ path: 'data/tebus/' + rec.pubId + '.json', hapus: true }], 'Tebus: hapus surat perjanjian') : Promise.resolve())
             .then(function () { return simpanDaftar('tebus.json', rec, true, filesData); });
+    };
+
+    /* ---------- stok gitar (baru & bekas): hanya di repo PRIVAT (stok.json + foto terenkripsi) ---------- */
+    L.KONDISI = { baru: 'Baru', bekas: 'Bekas' };
+    L.STATUS_STOK = { tersedia: 'Tersedia', dipesan: 'Dipesan', terjual: 'Terjual', ditarik: 'Ditarik' };
+    L.untungStok = function (s) {
+        var jual = 0, untung = 0, unit = 0;
+        (s.penjualan || []).forEach(function (p) { jual += p.harga * p.qty; untung += (p.harga - (+s.harga_beli || 0)) * p.qty; unit += p.qty; });
+        return { unitTerjual: unit, omzet: jual, untung: untung, potensi: (+s.jumlah || 0) * ((+s.harga_jual || 0) - (+s.harga_beli || 0)) };
+    };
+    /* foto (data mentah) untuk dipindahkan, mis. dari tebus ke stok */
+    L.api.fotoBlob = function (s, f, besar) {
+        return (f.repo === 'data' ? bacaFile('data', 'foto/' + (besar ? f.file : f.thumb || f.file), true) : bacaFile('situs', 'data/foto/' + (besar ? f.file : f.thumb || f.file), true))
+            .then(function (buf) { if (!buf) throw new Error('Foto tidak ditemukan'); return kunciFoto(s.fk).then(function (k) { return dekripsi(k, buf); }); })
+            .then(function (b) { return new Blob([b], { type: f.tipe || 'image/webp' }); });
+    };
+    L.api.simpanStok = function (rec, fotoBaru) {
+        rec = salin(rec); fotoBaru = fotoBaru || [];
+        var baru = !rec.id, lama = baru ? null : data.stok.filter(function (x) { return x.id === rec.id; })[0] || null, sekarang = new Date().toISOString(), files = [];
+        if (baru) {
+            var dipakai = data.stok.map(function (x) { return x.kode; });
+            do { rec.kode = L.kodeBaru('STK'); } while (dipakai.indexOf(rec.kode) > -1);
+            rec.id = crypto.randomUUID ? crypto.randomUUID() : acakHex(16); rec.created_at = sekarang;
+        }
+        if (!rec.fk) rec.fk = b64(crypto.getRandomValues(new Uint8Array(32)));
+        rec.foto = rec.foto || []; rec.penjualan = rec.penjualan || []; rec.updated_at = sekarang;
+        if (rec.status !== 'ditarik') rec.status = +rec.jumlah > 0 ? (rec.status === 'dipesan' ? 'dipesan' : 'tersedia') : 'terjual';
+        return kunciFoto(rec.fk).then(function (fkey) {
+            return fotoBaru.reduce(function (p, fb) {
+                return p.then(function () {
+                    var nama = acakHex(12);
+                    return Promise.all([fb.hasil.besar.arrayBuffer(), fb.hasil.kecil.arrayBuffer()]).then(function (buf) { return Promise.all([enkripsi(fkey, buf[0]), enkripsi(fkey, buf[1])]); }).then(function (ct) {
+                        files.push({ path: 'foto/' + nama + '.bin', base64: b64(ct[0]) }, { path: 'foto/' + nama + '-k.bin', base64: b64(ct[1]) });
+                        rec.foto.push({ id: nama, tahap: 'gitar', file: nama + '.bin', thumb: nama + '-k.bin', tipe: fb.hasil.besar.type, repo: 'data', created_at: sekarang });
+                    });
+                });
+            }, Promise.resolve());
+        }).then(function () {
+            if (lama) (lama.foto || []).forEach(function (f) {
+                if (!rec.foto.some(function (x) { return x.id === f.id; })) files.push({ path: 'foto/' + f.file, hapus: true }, { path: 'foto/' + f.thumb, hapus: true });
+            });
+            return simpanDaftar('stok.json', rec, false, files);
+        }).then(function () { return salin(rec); });
+    };
+    L.api.hapusStok = function (rec) {
+        var files = [];
+        (rec.foto || []).forEach(function (f) { files.push({ path: 'foto/' + f.file, hapus: true }, { path: 'foto/' + f.thumb, hapus: true }); });
+        return simpanDaftar('stok.json', rec, true, files);
     };
 
     /* ---------- artikel ---------- */
