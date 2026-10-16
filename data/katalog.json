@@ -1,0 +1,56 @@
+{
+ "toko": "Toko Gitar AYRI",
+ "item": [
+  {
+   "kode": "STK-QFV3U3",
+   "kategori": "gitar",
+   "jenis": "Bass",
+   "kondisi": "bekas",
+   "nama": "SQOE SBMS200",
+   "warna": "",
+   "deskripsi": "",
+   "harga": 3000000,
+   "status": "tersedia",
+   "sisa": null,
+   "foto": [
+    {
+     "src": "foto/stok/5f1e82cbeddaa8686713.webp",
+     "kecil": "foto/stok/5f1e82cbeddaa8686713-k.webp"
+    },
+    {
+     "src": "foto/stok/07dc4d4a4e52505133db.webp",
+     "kecil": "foto/stok/07dc4d4a4e52505133db-k.webp"
+    },
+    {
+     "src": "foto/stok/83b92db1d0ca070c9d9c.webp",
+     "kecil": "foto/stok/83b92db1d0ca070c9d9c-k.webp"
+    },
+    {
+     "src": "foto/stok/f456fa16df45e2d3510c.webp",
+     "kecil": "foto/stok/f456fa16df45e2d3510c-k.webp"
+    },
+    {
+     "src": "foto/stok/bc6074abfb62e2a7f8fd.webp",
+     "kecil": "foto/stok/bc6074abfb62e2a7f8fd-k.webp"
+    },
+    {
+     "src": "foto/stok/375b810727d71720fb74.webp",
+     "kecil": "foto/stok/375b810727d71720fb74-k.webp"
+    },
+    {
+     "src": "foto/stok/f3a6040f48857f4967a8.webp",
+     "kecil": "foto/stok/f3a6040f48857f4967a8-k.webp"
+    },
+    {
+     "src": "foto/stok/355aaeb2405eef1e9ff5.webp",
+     "kecil": "foto/stok/355aaeb2405eef1e9ff5-k.webp"
+    },
+    {
+     "src": "foto/stok/0193427ecbfb32367b87.webp",
+     "kecil": "foto/stok/0193427ecbfb32367b87-k.webp"
+    }
+   ],
+   "masuk": "2026-10-16"
+  }
+ ]
+}
