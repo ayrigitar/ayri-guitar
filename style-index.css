@@ -331,7 +331,9 @@ html[data-theme="dark"] .hero::after { mix-blend-mode: screen; opacity: .03; }
 html[data-theme="dark"] .section--band { border-block: 1px solid var(--line); }
 
 .tool-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
-@media (min-width: 860px) { .tool-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; } }
+/* alat ganjil di HP: kartu terakhir selebar dua kolom */
+.tool-grid > .tool-tile:last-child:nth-child(odd) { grid-column: 1 / -1; }
+@media (min-width: 860px) { .tool-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 16px; } .tool-grid > .tool-tile:last-child:nth-child(odd) { grid-column: auto; } }
 
 .tool-tile {
   position: relative;

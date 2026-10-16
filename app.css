@@ -50,7 +50,7 @@ main.app > * { min-width: 0; flex: 0 0 auto; }
   border-top: 1px solid var(--line);
   box-shadow: 0 -10px 30px -20px rgba(28, 22, 16, .35);
 }
-.tt { flex: 4 1 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.tt { flex: 5 1 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); }
 .ib { flex: 1 1 0; }
 .tt a,
 .ib {
@@ -487,3 +487,53 @@ main.app.trans-app.fit1 #capohint { display: none; }
 .metro-app #lcdp { text-align: left; }
 .metro-app #lcdx { text-align: right; }
 .metro-app .lcd .boxes { margin-top: 2px; }
+
+/* 9. Baca & tulis tab / partitur (partitur.html)
+   ========================================================================== */
+.sc-top { display: grid; gap: 10px; }
+.sc-mode { display: flex; gap: 6px; }
+.sc-mode .chip { flex: 1 1 0; justify-content: center; }
+.sc-buka, .sc-tulis { display: grid; gap: 8px; }
+.sc-buka[hidden], .sc-tulis[hidden] { display: none; }
+.sc-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.sc-row select.sel { flex: 1 1 220px; width: auto; }
+.sc-file { position: relative; overflow: hidden; min-height: 44px; cursor: pointer; }
+.sc-file input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+.sc-tex {
+  width: 100%; min-height: 190px; padding: 10px 12px; resize: vertical;
+  border: 1px solid var(--line-strong); border-radius: var(--r-md); background: var(--surface-2); color: var(--ink);
+  font: 500 .8125rem/1.55 ui-monospace, Menlo, Consolas, monospace; tab-size: 2;
+}
+.sc-tex:focus-visible { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.sc-err { padding: 8px 10px; border-radius: var(--r-sm); background: rgba(180, 35, 24, .08); color: var(--danger); font-size: .8125rem; font-weight: 600; white-space: pre-line; }
+.sc-err[hidden] { display: none; }
+/* bilah pemutar menempel di atas saat partitur digulir; di HP digeser ke samping */
+.sc-player {
+  position: sticky; top: calc(var(--header-h) + env(safe-area-inset-top) + 4px); z-index: 6;
+  display: flex; align-items: center; gap: 6px; padding: 6px;
+  overflow-x: auto; scrollbar-width: none;
+  border: 1px solid var(--line); border-radius: var(--r-pill); background: var(--surface); box-shadow: var(--shadow-sm);
+}
+.sc-player::-webkit-scrollbar { display: none; }
+.sc-player > * { flex: 0 0 auto; }
+.sc-player .t-btn { min-height: 40px; min-width: 92px; padding: 0 16px; font-size: .9375rem; }
+.sc-player .t-btn.on { background: var(--accent); }
+.sc-player select.sel { width: auto; height: 36px; font-size: .8125rem; }
+.sc-time { min-width: 84px; font: 700 .8125rem var(--font-sans); font-variant-numeric: tabular-nums; color: var(--ink-2); text-align: center; }
+/* kertas partitur selalu terang (juga di mode gelap) supaya not mudah dibaca */
+.sc-paper { position: relative; min-height: 50vh; overflow: hidden; border: 1px solid var(--line); border-radius: var(--r-lg); background: #fff; color: #1c1815; box-shadow: var(--shadow-sm); }
+#at { min-height: 320px; }
+.sc-msg { position: absolute; top: 14px; left: 50%; transform: translateX(-50%); max-width: calc(100% - 24px); padding: 6px 12px; border-radius: var(--r-pill); background: rgba(28, 24, 21, .82); color: #fff; font-size: .8125rem; font-weight: 600; pointer-events: none; }
+.sc-msg[hidden] { display: none; }
+.sc-msg.err { position: static; transform: none; max-width: none; margin: 14px; border-radius: var(--r-md); background: rgba(180, 35, 24, .08); color: #B42318; }
+main.app.drop .sc-paper { outline: 3px dashed var(--accent); outline-offset: 4px; }
+.at-cursor-bar { background: rgba(214, 140, 40, .13); }
+.at-selection div { background: rgba(214, 140, 40, .22); }
+.at-cursor-beat { width: 3px; background: #B5640E; }
+.at-highlight * { fill: #B5640E; stroke: #B5640E; }
+.sc-trks { display: grid; gap: 8px; }
+.sc-trk { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; padding: 10px 12px; border: 1px solid var(--line); border-radius: var(--r-md); }
+.sc-trk b { flex: 1 1 100%; }
+.sc-dl { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
+.sc-cheat { display: grid; gap: 8px; margin: 0 0 12px; padding-left: 1.1em; font-size: .875rem; line-height: 1.5; color: var(--ink-2); }
+.sc-cheat code { padding: 1px 5px; border-radius: 4px; background: var(--surface-2); color: var(--ink); font-size: .8125rem; }
