@@ -163,10 +163,10 @@
                     <label class="t-btn alt sc-file">Buka file Guitar Pro / MusicXML<input type="file" id="file" accept=".gp,.gp3,.gp4,.gp5,.gpx,.musicxml,.xml,.mxl"></label>
                     <p class="t-help">.gp, .gp3&ndash;.gp5, .gpx, .musicxml, .xml, .mxl. Bisa juga tarik file ke halaman ini. File dibuka di perangkat Anda dan tidak diunggah.</p>
                     <h3 class="sc-h3">Tulis sendiri</h3>
-                    <p class="t-help">Gitar, bass, ukulele: ketuk posisi di tab lalu ketik angka fret, seperti Guitar Pro.</p>
+                    <p class="t-help">Seperti Guitar Pro: gitar, bass, ukulele lewat tab (ketuk posisi lalu angka fret), piano dan vokal lewat tuts di layar, drum lewat kisi pukulan. Lirik bisa ditulis per not.</p>
                     <div class="sc-row">
                         <select id="templat" class="sel" aria-label="Mulai lagu baru untuk instrumen">
-                            <option value="">Mulai lagu baru&hellip;</option><option value="gitar">Gitar</option><option value="bass">Bass</option><option value="ukulele">Ukulele</option><option value="piano">Piano / keyboard (mode teks)</option><option value="drum">Drum (mode teks)</option><option value="vokal">Vokal / melodi (mode teks)</option>
+                            <option value="">Mulai lagu baru&hellip;</option><option value="gitar">Gitar</option><option value="bass">Bass</option><option value="ukulele">Ukulele</option><option value="piano">Piano / keyboard</option><option value="vokal">Vokal / melodi (dengan lirik)</option><option value="drum">Drum</option>
                         </select>
                         <button type="button" class="chip" id="ed-lagu-ini">&#9998; Edit lagu ini</button>
                     </div>
@@ -256,7 +256,7 @@
             <!-- editor tab ketuk-ketik (partitur-edit.js): panel bawah di HP, panel samping di layar lebar -->
             <div class="ed-panel" id="editor" hidden>
                 <div class="ed-atas">
-                    <b class="ed-nama">Menulis tab</b>
+                    <b class="ed-nama">Menulis</b>
                     <select id="ed-track" class="sel" aria-label="Instrumen yang ditulis"></select>
                     <span class="ed-alat">
                         <button type="button" class="chip sc-ikon" id="ed-urung" aria-label="Urungkan" title="Urungkan (Ctrl+Z)" disabled>&#8630;</button>
@@ -265,16 +265,41 @@
                     </span>
                     <button type="button" class="t-btn ed-selesai" id="ed-selesai">Selesai</button>
                 </div>
-                <div class="ed-durasi" role="group" aria-label="Panjang not"><button type="button" class="ed-dur" data-dur="1" aria-pressed="false" title="Not penuh"><svg viewBox="0 0 20 26" aria-hidden="true"><ellipse cx="10" cy="15" rx="5.4" ry="3.7" transform="rotate(-20 10 15)" fill="none" stroke="currentColor" stroke-width="2.2"/></svg><small>1</small></button><button type="button" class="ed-dur" data-dur="2" aria-pressed="false" title="Not setengah"><svg viewBox="0 0 20 26" aria-hidden="true"><ellipse cx="8" cy="20" rx="4.4" ry="3.2" transform="rotate(-22 8 20)" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12.1 19.2V3" stroke="currentColor" stroke-width="1.6"/></svg><small>1/2</small></button><button type="button" class="ed-dur" data-dur="4" aria-pressed="false" title="Not seperempat"><svg viewBox="0 0 20 26" aria-hidden="true"><ellipse cx="8" cy="20" rx="4.4" ry="3.2" transform="rotate(-22 8 20)" fill="currentColor"/><path d="M12.1 19.2V3" stroke="currentColor" stroke-width="1.6"/></svg><small>1/4</small></button><button type="button" class="ed-dur" data-dur="8" aria-pressed="false" title="Not seperdelapan"><svg viewBox="0 0 20 26" aria-hidden="true"><ellipse cx="8" cy="20" rx="4.4" ry="3.2" transform="rotate(-22 8 20)" fill="currentColor"/><path d="M12.1 19.2V3" stroke="currentColor" stroke-width="1.6"/><path d="M12.1 3c.5 3 5 3.8 4.3 8.4" fill="none" stroke="currentColor" stroke-width="1.6"/></svg><small>1/8</small></button><button type="button" class="ed-dur" data-dur="16" aria-pressed="false" title="Not 1/16"><svg viewBox="0 0 20 26" aria-hidden="true"><ellipse cx="8" cy="20" rx="4.4" ry="3.2" transform="rotate(-22 8 20)" fill="currentColor"/><path d="M12.1 19.2V3" stroke="currentColor" stroke-width="1.6"/><path d="M12.1 3c.5 3 5 3.8 4.3 8.4" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M12.1 7c.5 3 5 3.8 4.3 8.4" fill="none" stroke="currentColor" stroke-width="1.6"/></svg><small>1/16</small></button><button type="button" class="ed-dur" data-dur="32" aria-pressed="false" title="Not 1/32"><svg viewBox="0 0 20 26" aria-hidden="true"><ellipse cx="8" cy="20" rx="4.4" ry="3.2" transform="rotate(-22 8 20)" fill="currentColor"/><path d="M12.1 19.2V3" stroke="currentColor" stroke-width="1.6"/><path d="M12.1 3c.5 3 5 3.8 4.3 8.4" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M12.1 6.3c.5 3 5 3.8 4.3 8.4" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M12.1 9.6c.5 3 5 3.8 4.3 8.4" fill="none" stroke="currentColor" stroke-width="1.6"/></svg><small>1/32</small></button><button type="button" class="ed-dur" data-aksi="titik" id="ed-titik" aria-pressed="false" title="Not bertitik, panjang &times;1,5 (tombol titik)"><b>&bull;</b><small>titik</small></button><button type="button" class="ed-dur" data-aksi="triol" id="ed-triol" aria-pressed="false" title="Triol (T)"><b>3</b><small>triol</small></button></div>
-                <div class="ed-tengah">
+                <div class="ed-durasi" data-untuk="senar piano" role="group" aria-label="Panjang not"><button type="button" class="ed-dur" data-dur="1" aria-pressed="false" title="Not penuh"><svg viewBox="0 0 20 26" aria-hidden="true"><ellipse cx="10" cy="15" rx="5.4" ry="3.7" transform="rotate(-20 10 15)" fill="none" stroke="currentColor" stroke-width="2.2"/></svg><small>1</small></button><button type="button" class="ed-dur" data-dur="2" aria-pressed="false" title="Not setengah"><svg viewBox="0 0 20 26" aria-hidden="true"><ellipse cx="8" cy="20" rx="4.4" ry="3.2" transform="rotate(-22 8 20)" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12.1 19.2V3" stroke="currentColor" stroke-width="1.6"/></svg><small>1/2</small></button><button type="button" class="ed-dur" data-dur="4" aria-pressed="false" title="Not seperempat"><svg viewBox="0 0 20 26" aria-hidden="true"><ellipse cx="8" cy="20" rx="4.4" ry="3.2" transform="rotate(-22 8 20)" fill="currentColor"/><path d="M12.1 19.2V3" stroke="currentColor" stroke-width="1.6"/></svg><small>1/4</small></button><button type="button" class="ed-dur" data-dur="8" aria-pressed="false" title="Not seperdelapan"><svg viewBox="0 0 20 26" aria-hidden="true"><ellipse cx="8" cy="20" rx="4.4" ry="3.2" transform="rotate(-22 8 20)" fill="currentColor"/><path d="M12.1 19.2V3" stroke="currentColor" stroke-width="1.6"/><path d="M12.1 3c.5 3 5 3.8 4.3 8.4" fill="none" stroke="currentColor" stroke-width="1.6"/></svg><small>1/8</small></button><button type="button" class="ed-dur" data-dur="16" aria-pressed="false" title="Not 1/16"><svg viewBox="0 0 20 26" aria-hidden="true"><ellipse cx="8" cy="20" rx="4.4" ry="3.2" transform="rotate(-22 8 20)" fill="currentColor"/><path d="M12.1 19.2V3" stroke="currentColor" stroke-width="1.6"/><path d="M12.1 3c.5 3 5 3.8 4.3 8.4" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M12.1 7c.5 3 5 3.8 4.3 8.4" fill="none" stroke="currentColor" stroke-width="1.6"/></svg><small>1/16</small></button><button type="button" class="ed-dur" data-dur="32" aria-pressed="false" title="Not 1/32"><svg viewBox="0 0 20 26" aria-hidden="true"><ellipse cx="8" cy="20" rx="4.4" ry="3.2" transform="rotate(-22 8 20)" fill="currentColor"/><path d="M12.1 19.2V3" stroke="currentColor" stroke-width="1.6"/><path d="M12.1 3c.5 3 5 3.8 4.3 8.4" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M12.1 6.3c.5 3 5 3.8 4.3 8.4" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M12.1 9.6c.5 3 5 3.8 4.3 8.4" fill="none" stroke="currentColor" stroke-width="1.6"/></svg><small>1/32</small></button><button type="button" class="ed-dur" data-aksi="titik" id="ed-titik" aria-pressed="false" title="Not bertitik, panjang &times;1,5 (tombol titik)"><b>&bull;</b><small>titik</small></button><button type="button" class="ed-dur" data-aksi="triol" id="ed-triol" aria-pressed="false" title="Triol (T)"><b>3</b><small>triol</small></button></div>
+                <div class="ed-tengah" data-untuk="senar">
                     <div class="ed-senar" id="ed-senar" role="group" aria-label="Pilih senar"></div>
                     <div class="ed-pad" role="group" aria-label="Angka fret"><button type="button" data-angka="7">7</button><button type="button" data-angka="8">8</button><button type="button" data-angka="9">9</button><button type="button" class="ed-fn" data-aksi="hapus" title="Hapus not (Backspace)">&#9003;</button><button type="button" data-angka="4">4</button><button type="button" data-angka="5">5</button><button type="button" data-angka="6">6</button><button type="button" class="ed-fn" data-aksi="kiri" title="Ketukan sebelumnya">&larr;</button><button type="button" data-angka="1">1</button><button type="button" data-angka="2">2</button><button type="button" data-angka="3">3</button><button type="button" class="ed-fn" data-aksi="kanan" title="Ketukan berikutnya">&rarr;</button><button type="button" data-angka="0">0</button><button type="button" class="ed-fn" data-aksi="plus10" title="Tambah 10 ke fret (contoh: 2 lalu +10 = 12)">+10</button><button type="button" class="ed-fn" data-aksi="diam" title="Jadikan tanda diam (R)">Diam</button><button type="button" class="ed-fn" data-aksi="sisip" title="Sisipkan ketukan (Insert)">Sisip</button></div>
                 </div>
-                <div class="ed-efek" role="group" aria-label="Teknik, chord, dan birama"><button type="button" class="chip" data-efek="hammer" aria-pressed="false" title="Hammer-on / pull-off ke not berikutnya (H)">H/P</button><button type="button" class="chip" data-efek="slide" aria-pressed="false" title="Slide ke not berikutnya (S)">Slide</button><button type="button" class="chip" data-efek="bend" aria-pressed="false" title="Bend satu nada (B)">Bend</button><button type="button" class="chip" data-efek="vibrato" aria-pressed="false" title="Vibrato (V)">Vibrato</button><button type="button" class="chip" data-efek="pm" aria-pressed="false" title="Palm mute (P)">Palm mute</button><button type="button" class="chip" data-efek="mati" aria-pressed="false" title="Not mati / dead note (X)">Mati (x)</button><button type="button" class="chip" data-efek="sambung" aria-pressed="false" title="Sambung (tie) dengan not sebelumnya (L)">Sambung</button><button type="button" class="chip" data-efek="ring" aria-pressed="false" title="Biarkan berbunyi (I)">Let ring</button><button type="button" class="chip" id="ed-chord-btn" data-aksi="chord" aria-pressed="false" title="Nama chord di atas ketukan ini (C)">Chord</button><button type="button" class="chip" data-aksi="tambah-birama" title="Birama baru sesudah ini (Ctrl+Enter)">+ Birama</button><button type="button" class="chip" data-aksi="hapus-birama" title="Hapus birama ini di semua instrumen">&minus; Birama</button><button type="button" class="chip ed-info-btn" data-aksi="info" aria-pressed="false">Judul &amp; tempo</button><button type="button" class="chip" id="ed-bunyi" data-aksi="bunyi" aria-pressed="true" title="Bunyikan not saat ditulis">Bunyi</button></div>
+                <div class="ed-piano" data-untuk="piano">
+                    <div class="ed-okt">
+                        <button type="button" class="chip" data-aksi="okt-turun" aria-label="Oktaf lebih rendah" title="Oktaf lebih rendah (Z)">&minus; Oktaf</button>
+                        <b id="ed-okt">C4 &ndash; B5</b>
+                        <button type="button" class="chip" data-aksi="okt-naik" aria-label="Oktaf lebih tinggi" title="Oktaf lebih tinggi (X)">+ Oktaf</button>
+                        <button type="button" class="chip" id="ed-akor" data-aksi="akor" aria-pressed="false" title="Akor: beberapa tuts untuk ketukan yang sama, kursor tidak maju sendiri">Akor</button>
+                    </div>
+                    <div class="ed-tuts" id="ed-tuts" role="group" aria-label="Tuts piano"></div>
+                    <div class="ed-fnrow"><button type="button" class="ed-fn" data-aksi="hapus" title="Hapus not (Backspace)">&#9003;</button><button type="button" class="ed-fn" data-aksi="kiri" title="Ketukan sebelumnya">&larr;</button><button type="button" class="ed-fn" data-aksi="kanan" title="Ketukan berikutnya">&rarr;</button><button type="button" class="ed-fn" data-aksi="diam" title="Tanda diam (R)">Diam</button><button type="button" class="ed-fn" data-aksi="sisip" title="Sisipkan ketukan (Insert)">Sisip</button></div>
+                </div>
+                <div class="ed-drum" data-untuk="drum">
+                    <div class="ed-drum-atas">
+                        <button type="button" class="chip sc-ikon" data-aksi="birama-kiri" aria-label="Birama sebelumnya">&#9664;</button>
+                        <b id="ed-drum-birama"></b>
+                        <button type="button" class="chip sc-ikon" data-aksi="birama-kanan" aria-label="Birama berikutnya">&#9654;</button>
+                        <select id="ed-res" class="sel" aria-label="Kisi ketukan"><option value="480">Kisi 1/8</option><option value="240" selected>Kisi 1/16</option><option value="320">Kisi triol</option></select>
+                    </div>
+                    <div class="ed-kisi" id="ed-kisi" role="group" aria-label="Kisi pukulan drum"></div>
+                </div>
+                <div class="ed-efek" role="group" aria-label="Teknik, chord, dan birama"><button type="button" class="chip" data-efek="hammer" data-untuk="senar" aria-pressed="false" title="Hammer-on / pull-off ke not berikutnya (H)">H/P</button><button type="button" class="chip" data-efek="slide" data-untuk="senar" aria-pressed="false" title="Slide ke not berikutnya (S)">Slide</button><button type="button" class="chip" data-efek="bend" data-untuk="senar" aria-pressed="false" title="Bend satu nada (B)">Bend</button><button type="button" class="chip" data-efek="vibrato" data-untuk="senar piano" aria-pressed="false" title="Vibrato (V)">Vibrato</button><button type="button" class="chip" data-efek="pm" data-untuk="senar" aria-pressed="false" title="Palm mute (P)">Palm mute</button><button type="button" class="chip" data-efek="mati" data-untuk="senar" aria-pressed="false" title="Not mati / dead note (X)">Mati (x)</button><button type="button" class="chip" data-efek="sambung" data-untuk="senar piano" aria-pressed="false" title="Sambung (tie) dengan not sebelumnya (L)">Sambung</button><button type="button" class="chip" data-efek="ring" data-untuk="senar" aria-pressed="false" title="Biarkan berbunyi (I)">Let ring</button><button type="button" class="chip" data-efek="staccato" data-untuk="piano" aria-pressed="false" title="Staccato (pendek)">Staccato</button><button type="button" class="chip" data-efek="aksen" data-untuk="piano" aria-pressed="false" title="Aksen (lebih keras)">Aksen</button><button type="button" class="chip" data-aksi="lirik" data-untuk="senar piano" title="Tulis lirik per not (N)">Lirik</button><button type="button" class="chip" id="ed-chord-btn" data-aksi="chord" data-untuk="senar piano" aria-pressed="false" title="Nama chord di atas ketukan ini (C)">Chord</button><button type="button" class="chip" data-aksi="tambah-birama" title="Birama baru sesudah ini (Ctrl+Enter)">+ Birama</button><button type="button" class="chip" data-aksi="hapus-birama" title="Hapus birama ini di semua instrumen">&minus; Birama</button><button type="button" class="chip" data-aksi="salin" title="Salin isi birama ini ke birama berikutnya">Salin birama</button><button type="button" class="chip ed-info-btn" data-aksi="info" aria-pressed="false">Judul &amp; tempo</button><button type="button" class="chip" id="ed-bunyi" data-aksi="bunyi" aria-pressed="true" title="Bunyikan not saat ditulis">Bunyi</button></div>
                 <div class="ed-chord" id="ed-chord" hidden>
                     <input id="ed-chord-in" class="numin" maxlength="16" placeholder="C, Am, G7&hellip;" aria-label="Nama chord" autocomplete="off" autocapitalize="off" spellcheck="false">
                     <button type="button" class="chip" id="ed-chord-ok">Pasang</button>
                     <button type="button" class="chip" id="ed-chord-x">Hapus chord</button>
+                </div>
+                <div class="ed-lirik" id="ed-lirik" hidden>
+                    <button type="button" class="chip sc-ikon" data-aksi="lirik-kiri" aria-label="Not sebelumnya">&larr;</button>
+                    <input id="ed-lirik-in" class="numin" maxlength="24" placeholder="Suku kata" aria-label="Lirik untuk not ini" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="next">
+                    <button type="button" class="chip" data-aksi="lirik-lanjut">Lanjut &rarr;</button>
+                    <button type="button" class="chip" data-aksi="lirik-tutup">Selesai</button>
                 </div>
                 <div class="ed-lagu">
                     <label class="lb ed-lb-judul">Judul<input id="ed-judul" class="numin" maxlength="80" autocomplete="off"></label>
@@ -283,7 +308,7 @@
                     <p class="t-help">Tanda birama berlaku dari birama yang dipilih sampai akhir lagu.</p>
                 </div>
                 <p class="ed-status" id="ed-posisi"></p>
-                <dl class="ed-kunci">
+                <dl class="ed-kunci" data-untuk="senar">
                     <dt>Klik</dt><dd>pilih ketukan &amp; senar di tab</dd>
                     <dt>0&ndash;9</dt><dd>fret (ketik cepat 1 2 = 12)</dd>
                     <dt>&larr; &rarr;</dt><dd>ketukan sebelum / berikut</dd>
@@ -293,9 +318,30 @@
                     <dt>. &nbsp;T &nbsp;R</dt><dd>titik, triol, diam</dd>
                     <dt>H S B V</dt><dd>hammer, slide, bend, vibrato</dd>
                     <dt>P X L I</dt><dd>palm mute, mati, sambung, let ring</dd>
-                    <dt>C</dt><dd>nama chord</dd>
+                    <dt>C &nbsp;N</dt><dd>nama chord, lirik</dd>
                     <dt>Insert</dt><dd>sisipkan ketukan</dd>
                     <dt>Ctrl+Enter</dt><dd>birama baru</dd>
+                    <dt>Ctrl+Z / Y</dt><dd>urungkan / ulangi</dd>
+                    <dt>Spasi</dt><dd>putar / jeda</dd>
+                </dl>
+                <dl class="ed-kunci" data-untuk="piano">
+                    <dt>A W S E D F T G Y H U J K</dt><dd>tuts C sampai C (seperti keyboard piano)</dd>
+                    <dt>1&ndash;7</dt><dd>not angka: do re mi fa sol la si</dd>
+                    <dt>Z &nbsp;X</dt><dd>oktaf turun / naik</dd>
+                    <dt>&uarr; &darr;</dt><dd>naikkan / turunkan setengah nada (Shift: satu oktaf)</dd>
+                    <dt>&larr; &rarr;</dt><dd>ketukan sebelum / berikut</dd>
+                    <dt>Backspace &nbsp;R</dt><dd>hapus not, tanda diam</dd>
+                    <dt>+ &nbsp;&minus; &nbsp;.</dt><dd>panjang not, titik (Shift+T = triol)</dd>
+                    <dt>L &nbsp;V</dt><dd>sambung, vibrato</dd>
+                    <dt>C &nbsp;N</dt><dd>nama chord, lirik</dd>
+                    <dt>Ctrl+Enter</dt><dd>birama baru</dd>
+                    <dt>Ctrl+Z / Y</dt><dd>urungkan / ulangi</dd>
+                    <dt>Spasi</dt><dd>putar / jeda</dd>
+                </dl>
+                <dl class="ed-kunci" data-untuk="drum">
+                    <dt>Klik kotak</dt><dd>pukul / hapus</dd>
+                    <dt>&larr; &rarr;</dt><dd>birama sebelum / berikut</dd>
+                    <dt>Salin birama</dt><dd>ulangi pola ke birama berikutnya</dd>
                     <dt>Ctrl+Z / Y</dt><dd>urungkan / ulangi</dd>
                     <dt>Spasi</dt><dd>putar / jeda</dd>
                 </dl>
@@ -328,7 +374,7 @@
     <div class="drawer" id="dr-tulis" hidden><div class="drawer-in">
         <button type="button" class="chip drawer-x" data-close>Tutup</button>
         <h2>Cara menulis</h2>
-        <p class="t-help">Paling mudah: pilih <b>Mulai baru untuk&hellip;</b> sesuai instrumen, lalu ubah contohnya.</p>
+        <p class="t-help">Cara paling mudah adalah tombol <b>&#9998; Edit</b> atau <b>Mulai lagu baru</b> (ketuk-ketik, tanpa kode). Mode teks ini untuk yang ingin menulis cepat dengan kode alphaTex.</p>
         <h3 class="sc-h3">Semua instrumen</h3>
         <ul class="sc-cheat">
             <li><code>:4</code> not seperempat, <code>:8</code> seperdelapan, <code>:2</code> setengah, <code>:1</code> penuh. Berlaku untuk not berikutnya.</li>
@@ -366,7 +412,9 @@
         <h2>Putar &amp; latihan</h2>
         <p class="t-help">Ketuk not untuk mulai dari situ, atau seret beberapa birama untuk dipilih lalu nyalakan Ulang untuk melatih bagian itu. Turunkan kecepatan ke 50&ndash;75% untuk bagian yang sulit, atau pakai <b>Naik tempo</b> supaya kecepatannya naik sendiri tiap putaran. <b>Tap</b> = ketuk beberapa kali mengikuti ketukan untuk menyamakan tempo. <b>Hitung masuk</b> memberi aba-aba &ldquo;one, two, three, four&rdquo; sebelum lagu mulai. Bisukan satu instrumen di menu Instrumen untuk latihan mengiringi. Spasi = putar/jeda. Pengaturan terakhir diingat di perangkat ini.</p>
         <h2>Menulis tab</h2>
-        <p class="t-help">Tekan <b>&#9998; Edit</b> (atau <b>Mulai lagu baru</b> di menu Ganti lagu). Ketuk posisi di tab untuk memilih ketukan dan senar, lalu ketuk angka fret. Panjang not dipilih di baris atas; teknik seperti hammer-on, slide, bend, dan nama chord ada di baris bawah. Di komputer bisa langsung pakai keyboard (daftar tombolnya ada di panel). Tulisan disimpan otomatis di perangkat ini dan bisa diunduh sebagai Guitar Pro.</p>
+        <p class="t-help">Tekan <b>&#9998; Edit</b> (atau <b>Mulai lagu baru</b> di menu Ganti lagu), lalu pilih instrumennya di panel.</p>
+        <p class="t-help"><b>Gitar, bass, ukulele:</b> ketuk posisi di tab untuk memilih ketukan dan senar, lalu ketuk angka fret. <b>Piano, vokal, melodi:</b> ketuk tuts; setiap tuts menulis satu not lalu maju (nyalakan <b>Akor</b> untuk beberapa tuts sekaligus). <b>Drum:</b> ketuk kotak di kisi untuk tiap pukulan, lalu <b>Salin birama</b> untuk mengulang polanya. <b>Lirik:</b> tombol Lirik, ketik suku kata, Enter atau spasi untuk lanjut ke not berikutnya.</p>
+        <p class="t-help">Panjang not dipilih di baris atas; teknik dan nama chord di baris bawah. Di komputer bisa langsung pakai keyboard (daftar tombolnya ada di panel). Tulisan disimpan otomatis di perangkat ini dan bisa diunduh sebagai Guitar Pro.</p>
         <h2>Nada, kapo, tampilan</h2>
         <p class="t-help"><b>Nada &minus;/+</b> menaikkan atau menurunkan lagu setengah nada untuk semua instrumen (tab ikut menyesuaikan). <b>Kapo</b> untuk gitar dan ukulele: tab dan chord berubah menjadi bentuk yang dimainkan dengan kapo, bunyinya tetap. Tampilan bisa diganti ke not balok, tab, <b>not angka</b>, atau <b>slash</b> (irama saja, untuk pengiring).</p>
         <h2>Hak cipta</h2>

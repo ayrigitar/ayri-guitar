@@ -648,8 +648,8 @@
     tex.addEventListener('input', function () { clearTimeout(ketik); ketik = setTimeout(function () { muatTeks(tex.value, false); }, 600); });
     $('#templat').addEventListener('change', function () {
         var v = this.value, t = TEMPLAT[v]; this.value = ''; if (!t) return;
-        /* gitar, bass, ukulele: lagu kosong langsung dibuka di editor ketuk-ketik */
-        if (window.PartiturEdit && /^(gitar|bass|ukulele)$/.test(v)) { tutupLembar(); window.PartiturEdit.baru(v); return; }
+        /* lagu kosong langsung dibuka di editor ketuk-ketik */
+        if (window.PartiturEdit) { tutupLembar(); window.PartiturEdit.baru(v); return; }
         tex.value = t.join('\n'); $('#teks-w').open = true; muatTeks(tex.value, true); tandaiLagu(''); tex.focus();
     });
     $('#tex-ini').addEventListener('click', function () {
@@ -718,7 +718,9 @@
         },
         muatTeksBaru: function (t) { tex.value = t; muatTeks(t, true); tandaiLagu(''); },
         muatJson: function (obj) { tandaiLagu(''); muatScore(JSONC.jsObjectToScore(obj, at.settings), { semua: true, baru: true }); },
-        aturJudul: function (j) { judulFile = j; $('#judul-lagu').textContent = j; }
+        aturJudul: function (j) { judulFile = j; $('#judul-lagu').textContent = j; },
+        /* bunyi tuts piano langsung saat diketuk (tanpa menunggu partitur digambar ulang) */
+        bunyiNada: function (m) { try { nadaBunyi(m, audio().currentTime + 0.01, 0.22, true); } catch (e) {} }
     };
     pulihkan();
     muatContoh('sayange');
