@@ -144,106 +144,134 @@
             <button type="button" class="ib" data-open="dr-info" aria-label="Bantuan (info)"><svg class="ic" aria-hidden="true"><use href="#i-info"/></svg><span aria-hidden="true">Info</span></button>
         </div>
         <h1 class="sr-only">Partitur dan tab semua instrumen: buka Guitar Pro dan MusicXML, transpose, kapo, not angka</h1>
-        <div class="t-card sc-top">
-            <div class="sc-mode" role="group" aria-label="Mode">
-                <button type="button" class="chip" data-mode="buka" aria-pressed="true">Buka file</button>
-                <button type="button" class="chip" data-mode="tulis" aria-pressed="false">Tulis sendiri</button>
+        <!-- kepala: judul lagu + instrumen yang ditampilkan (menempel di atas) -->
+        <div class="sc-kepala" id="kepala">
+            <div class="sc-judul"><b id="judul-lagu">Memuat&hellip;</b><small id="sub-lagu"></small></div>
+            <button type="button" class="chip sc-ganti" data-lembar="lagu">Ganti lagu</button>
+            <button type="button" class="chip sc-ikon" data-lembar="lainnya" aria-label="Unduh, cetak, dan lainnya">&middot;&middot;&middot;</button>
+            <div class="sc-chips" id="chips" role="group" aria-label="Instrumen yang ditampilkan"></div>
+        </div>
+        <div class="sc-isi">
+            <!-- pengaturan: lembar dari bawah di HP, panel samping di layar lebar -->
+            <aside class="sc-samping" id="samping" aria-label="Pengaturan partitur">
+                <div class="sc-lembar-kepala"><b id="lembar-judul"></b><button type="button" class="chip" data-tutup-lembar>Tutup</button></div>
+                <section class="sc-lembar" data-lembar-isi="lagu" data-judul="Lagu">
+                    <h2>Lagu</h2>
+                    <div class="sc-lagu" id="daftar-lagu" role="group" aria-label="Contoh lagu"></div>
+                    <label class="t-btn alt sc-file">Buka file Guitar Pro / MusicXML<input type="file" id="file" accept=".gp,.gp3,.gp4,.gp5,.gpx,.musicxml,.xml,.mxl"></label>
+                    <p class="t-help">.gp, .gp3&ndash;.gp5, .gpx, .musicxml, .xml, .mxl. Bisa juga tarik file ke halaman ini. File dibuka di perangkat Anda dan tidak diunggah.</p>
+                    <h3 class="sc-h3">Tulis sendiri</h3>
+                    <div class="sc-row">
+                        <select id="templat" class="sel" aria-label="Mulai baru untuk instrumen">
+                            <option value="">Mulai baru untuk&hellip;</option><option value="gitar">Gitar</option><option value="bass">Bass</option><option value="ukulele">Ukulele</option><option value="piano">Piano / keyboard</option><option value="drum">Drum</option><option value="vokal">Vokal / melodi</option>
+                        </select>
+                    </div>
+                    <details class="sc-teks" id="teks-w">
+                        <summary>Mode teks (alphaTex)</summary>
+                        <textarea id="tex" class="sc-tex" rows="9" spellcheck="false" autocapitalize="off" autocomplete="off" aria-label="Tulis partitur atau tab (format alphaTex)"></textarea>
+                        <p class="sc-err" id="texerr" role="alert" hidden></p>
+                        <div class="sc-row">
+                            <button type="button" class="chip" id="tex-ini">Ubah lagu yang tampil jadi teks</button>
+                            <button type="button" class="chip" data-open="dr-tulis">Cara menulis</button>
+                        </div>
+                    </details>
+                </section>
+                <section class="sc-lembar" data-lembar-isi="instrumen" data-judul="Instrumen">
+                    <h2>Instrumen <small>(<span id="n-track">0</span>)</small></h2>
+                    <p class="t-help">Centang instrumen yang ditampilkan. Semua tetap terdengar; pakai Bisu atau Solo untuk mengatur suaranya.</p>
+                    <div id="tracks" class="sc-trks"></div>
+                </section>
+                <section class="sc-lembar" data-lembar-isi="nada" data-judul="Nada &amp; tampilan">
+                    <h2>Nada &amp; tampilan</h2>
+                    <div class="sc-baris"><span class="sc-label">Transpose</span>
+                        <span class="sc-nada" role="group" aria-label="Transpose">
+                            <button type="button" class="chip" id="nada-turun" aria-label="Turunkan setengah nada">&minus;</button><span id="nada">Nada 0</span><button type="button" class="chip" id="nada-naik" aria-label="Naikkan setengah nada">+</button>
+                        </span>
+                    </div>
+                    <div class="sc-baris" id="kapo-w"><span class="sc-label">Kapo</span><select id="kapo" class="sel" aria-label="Kapo gitar dan ukulele"></select></div>
+                    <div class="sc-baris"><span class="sc-label">Tampilan</span>
+                        <select id="profil" class="sel" aria-label="Tampilan">
+                            <option value="semua">Tampilan asli</option><option value="balok">Not balok saja</option><option value="tab">Tab saja</option><option value="angka">Not angka</option><option value="slash">Slash (irama)</option>
+                        </select>
+                    </div>
+                </section>
+                <section class="sc-lembar" data-lembar-isi="kecepatan" data-judul="Kecepatan">
+                    <h2>Kecepatan</h2>
+                    <div class="sc-baris"><span class="sc-label">Putar</span>
+                        <select id="speed" class="sel" aria-label="Kecepatan putar">
+                            <option value="0.5">50%</option><option value="0.75">75%</option><option value="0.9">90%</option><option value="1" selected>100%</option><option value="1.25">125%</option><option value="1.5">150%</option>
+                        </select>
+                    </div>
+                    <div class="sc-baris"><span class="sc-label">Tempo</span><span class="sc-bpm" id="bpm" aria-label="Tempo">&#9833; = 0</span>
+                        <button type="button" class="chip" id="tap" title="Ketuk beberapa kali mengikuti ketukan untuk menyamakan tempo">Tap tempo</button></div>
+                </section>
+                <section class="sc-lembar" data-lembar-isi="latihan" data-judul="Latihan">
+                    <h2>Latihan</h2>
+                    <div class="sc-saklar">
+                        <button type="button" class="chip" id="loop" aria-pressed="false">Ulang terus</button>
+                        <button type="button" class="chip" id="countin" aria-pressed="false">Hitung masuk</button>
+                        <button type="button" class="chip" id="metro" aria-pressed="false">Metronom</button>
+                    </div>
+                    <h3 class="sc-h3">Naik tempo otomatis</h3>
+                    <p class="t-help">Bagian yang diulang (Titik A&ndash;B, atau seluruh lagu) kecepatannya naik sendiri setiap beberapa putaran.</p>
+                    <div class="sc-latih">
+                        <label class="lb">Mulai dari<select id="lt-mulai" class="sel"><option value="0.5">50%</option><option value="0.6" selected>60%</option><option value="0.7">70%</option><option value="0.8">80%</option><option value="0.9">90%</option></select></label>
+                        <label class="lb">Naik<select id="lt-naik" class="sel"><option value="0.03">+3%</option><option value="0.05" selected>+5%</option><option value="0.1">+10%</option></select></label>
+                        <label class="lb">Setiap<select id="lt-setiap" class="sel"><option value="1" selected>1 putaran</option><option value="2">2 putaran</option><option value="4">4 putaran</option></select></label>
+                        <label class="lb">Sampai<select id="lt-sampai" class="sel"><option value="1" selected>100%</option><option value="1.1">110%</option><option value="1.2">120%</option></select></label>
+                    </div>
+                    <div class="sc-row"><button type="button" class="t-btn" id="lt-go">Mulai naik tempo</button><button type="button" class="chip" id="latih" aria-pressed="true" hidden>Hentikan</button></div>
+                </section>
+                <section class="sc-lembar" data-lembar-isi="chord" data-judul="Chord">
+                    <h2>Chord lagu ini <small id="n-chord"></small></h2>
+                    <div id="sc-chord" class="sc-chord" hidden>
+                        <div class="sc-row">
+                            <button type="button" class="chip" id="ikut-btn" aria-pressed="false" hidden>Main bersama</button>
+                            <select id="alat" class="sel" aria-label="Diagram untuk alat musik">
+                                <option value="gtr">Gitar</option><option value="uke">Ukulele</option><option value="gll">Guitalele</option><option value="pno">Piano</option>
+                            </select>
+                            <label class="tgl" id="kidal-w"><input type="checkbox" id="kidal"> Kidal</label>
+                        </div>
+                        <p class="sc-saran" id="saran" hidden></p>
+                        <div class="sc-chords" id="chords"></div>
+                        <p class="t-help">Ketuk diagram untuk mendengar bunyinya, &#8635; untuk bentuk lain.</p>
+                    </div>
+                    <p class="t-help" id="tanpa-chord">Lagu ini tidak memuat nama chord.</p>
+                </section>
+                <section class="sc-lembar" data-lembar-isi="lainnya" data-judul="Unduh &amp; cetak">
+                    <h2>Unduh &amp; cetak</h2>
+                    <div class="sc-dl">
+                        <button type="button" class="t-btn alt" id="dl-gp">Guitar Pro (.gp)</button>
+                        <button type="button" class="t-btn alt" id="dl-midi">MIDI (.mid)</button>
+                        <button type="button" class="t-btn alt" id="dl-tex">Teks tab (.txt)</button>
+                        <button type="button" class="t-btn alt" id="cetak">Cetak / simpan PDF</button>
+                    </div>
+                </section>
+            </aside>
+            <div class="sc-paper"><div id="at"></div><p class="sc-msg" id="msg" role="status">Memuat penampil partitur&hellip;</p></div>
+        </div>
+        <!-- pemutar di bawah (di atas tab bar alat) -->
+        <div class="sc-transport" id="transport">
+            <div class="sc-ikut" id="ikut" hidden>
+                <div class="sc-ikut-kini"><span>Sekarang</span><b id="ik-now">&ndash;</b><div class="sc-ikut-d" id="ik-now-d"></div></div>
+                <div class="sc-ikut-lanjut"><span>Berikutnya</span><b id="ik-next">&ndash;</b><div class="sc-ikut-d" id="ik-next-d"></div></div>
             </div>
-            <div id="sc-buka" class="sc-buka">
-                <div class="sc-row">
-                    <label class="t-btn sc-file">Pilih file<input type="file" id="file" accept=".gp,.gp3,.gp4,.gp5,.gpx,.musicxml,.xml,.mxl"></label>
-                    <select id="contoh" class="sel" aria-label="Contoh lagu"></select>
-                </div>
-                <p class="t-help">Guitar Pro (.gp, .gp3&ndash;.gp5, .gpx) atau MusicXML (.musicxml, .xml, .mxl). Bisa juga tarik file ke halaman ini. File dibuka di perangkat Anda dan tidak diunggah.</p>
+            <div class="sc-tr1">
+                <button type="button" class="t-btn sc-putar" id="play" disabled>Memuat&hellip;</button>
+                <button type="button" class="chip sc-ikon" id="stop" aria-label="Stop, kembali ke awal">&#9632;</button>
+                <input type="range" class="sc-posisi" id="posisi" min="0" max="1000" value="0" step="1" aria-label="Posisi lagu">
+                <span class="sc-time" id="waktu">0:00 / 0:00</span>
             </div>
-            <div id="sc-tulis" class="sc-tulis" hidden>
-                <div class="sc-row">
-                    <select id="templat" class="sel" aria-label="Mulai baru untuk instrumen">
-                        <option value="">Mulai baru untuk&hellip;</option><option value="gitar">Gitar</option><option value="bass">Bass</option><option value="ukulele">Ukulele</option><option value="piano">Piano / keyboard</option><option value="drum">Drum</option><option value="vokal">Vokal / melodi</option>
-                    </select>
-                    <button type="button" class="chip" data-open="dr-tulis">Cara menulis</button>
-                </div>
-                <textarea id="tex" class="sc-tex" rows="9" spellcheck="false" autocapitalize="off" autocomplete="off" aria-label="Tulis partitur atau tab (format alphaTex)"></textarea>
-                <p class="sc-err" id="texerr" role="alert" hidden></p>
-                <div class="sc-row">
-                    <button type="button" class="chip" id="tex-ini">Ubah lagu yang tampil jadi teks</button>
-                </div>
+            <div class="sc-tr2">
+                <button type="button" class="sc-tb" data-lembar="kecepatan"><b id="tb-kec">100%</b><span>Kecepatan</span></button>
+                <button type="button" class="sc-tb" id="ab" aria-pressed="false" title="Ketuk di birama awal lalu di birama akhir bagian yang ingin diulang"><b id="ab-label">A&ndash;B</b><span>Ulang bagian</span></button>
+                <button type="button" class="sc-tb" data-lembar="latihan"><b>&#9201;</b><span>Latihan</span></button>
+                <button type="button" class="sc-tb" data-lembar="chord"><b>C&nbsp;G</b><span>Chord</span></button>
+                <button type="button" class="sc-tb" data-lembar="nada"><b id="tb-nada">&plusmn;0</b><span>Nada</span></button>
             </div>
         </div>
-        <div class="sc-lekat" id="lekat">
-        <div class="t-card sc-player" id="player">
-            <button type="button" class="t-btn" id="play" disabled>Memuat suara&hellip;</button>
-            <button type="button" class="chip" id="stop">Stop</button>
-            <span class="sc-time" id="waktu">0:00 / 0:00</span>
-            <select id="speed" class="sel" aria-label="Kecepatan putar">
-                <option value="0.5">50%</option><option value="0.75">75%</option><option value="0.9">90%</option><option value="1" selected>100%</option><option value="1.25">125%</option><option value="1.5">150%</option>
-            </select>
-            <span class="sc-bpm" id="bpm" aria-label="Tempo">&#9833; = 0</span>
-            <button type="button" class="chip" id="tap" title="Ketuk beberapa kali mengikuti ketukan untuk menyamakan tempo">Tap</button>
-            <button type="button" class="chip" id="loop" aria-pressed="false">Ulang</button>
-            <button type="button" class="chip" id="latih" aria-pressed="false">Naik tempo</button>
-            <button type="button" class="chip" id="ab" aria-pressed="false" title="Ketuk di birama awal lalu di birama akhir bagian yang ingin diulang">Titik A</button>
-            <button type="button" class="chip" id="ikut-btn" aria-pressed="false" hidden>Main bersama</button>
-            <button type="button" class="chip" id="metro" aria-pressed="false">Metronom</button>
-            <button type="button" class="chip" id="countin" aria-pressed="false">Hitung masuk</button>
-            <span class="sc-nada" role="group" aria-label="Transpose">
-                <button type="button" class="chip" id="nada-turun" aria-label="Turunkan setengah nada">&minus;</button><span id="nada">Nada 0</span><button type="button" class="chip" id="nada-naik" aria-label="Naikkan setengah nada">+</button>
-            </span>
-            <span id="kapo-w"><select id="kapo" class="sel" aria-label="Kapo gitar dan ukulele"></select></span>
-            <select id="profil" class="sel" aria-label="Tampilan">
-                <option value="semua">Tampilan asli</option><option value="balok">Not balok saja</option><option value="tab">Tab saja</option><option value="angka">Not angka</option><option value="slash">Slash (irama)</option>
-            </select>
-            <button type="button" class="chip" data-open="dr-track">Instrumen (<span id="n-track">0</span>)</button>
-            <button type="button" class="chip" id="unduh" data-open="dr-unduh" disabled>Unduh &amp; cetak</button>
-        </div>
-        <div class="sc-ikut" id="ikut" hidden>
-            <div class="sc-ikut-kini"><span>Sekarang</span><b id="ik-now">&ndash;</b><div class="sc-ikut-d" id="ik-now-d"></div></div>
-            <div class="sc-ikut-lanjut"><span>Berikutnya</span><b id="ik-next">&ndash;</b><div class="sc-ikut-d" id="ik-next-d"></div></div>
-        </div>
-        </div>
-        <div class="t-card sc-chord" id="sc-chord" hidden>
-            <div class="sc-row sc-chord-h">
-                <h2>Chord lagu ini <small id="n-chord"></small></h2>
-                <select id="alat" class="sel" aria-label="Diagram untuk alat musik">
-                    <option value="gtr">Gitar</option><option value="uke">Ukulele</option><option value="gll">Guitalele</option><option value="pno">Piano</option>
-                </select>
-                <label class="tgl" id="kidal-w"><input type="checkbox" id="kidal"> Kidal</label>
-            </div>
-            <p class="sc-saran" id="saran" hidden></p>
-            <div class="sc-chords" id="chords"></div>
-            <p class="t-help">Ketuk diagram untuk mendengar bunyinya, &#8635; untuk bentuk lain. Bentuk chord sama dengan halaman <a href="chords.html">Chord</a>.</p>
-        </div>
-        <div class="sc-paper"><div id="at"></div><p class="sc-msg" id="msg" role="status">Memuat penampil partitur&hellip;</p></div>
+        <div class="sc-latar" id="lembar-latar" data-tutup-lembar></div>
     </main>
-    <div class="drawer" id="dr-track" hidden><div class="drawer-in">
-        <button type="button" class="chip drawer-x" data-close>Tutup</button>
-        <h2>Instrumen</h2>
-        <p class="t-help">Centang instrumen yang ingin ditampilkan. Semua instrumen tetap terdengar saat diputar; pakai Bisu atau Solo untuk mengatur suaranya.</p>
-        <div id="tracks" class="sc-trks"></div>
-    </div></div>
-    <div class="drawer" id="dr-latihan" hidden><div class="drawer-in">
-        <button type="button" class="chip drawer-x" data-close>Tutup</button>
-        <h2>Latihan naik tempo</h2>
-        <p class="t-help">Bagian yang diulang (Titik A&ndash;B, atau seluruh lagu) diputar terus dan kecepatannya naik sendiri setiap beberapa putaran sampai target.</p>
-        <div class="sc-latih">
-            <label class="lb">Mulai dari<select id="lt-mulai" class="sel"><option value="0.5">50%</option><option value="0.6" selected>60%</option><option value="0.7">70%</option><option value="0.8">80%</option><option value="0.9">90%</option></select></label>
-            <label class="lb">Naik<select id="lt-naik" class="sel"><option value="0.03">+3%</option><option value="0.05" selected>+5%</option><option value="0.1">+10%</option></select></label>
-            <label class="lb">Setiap<select id="lt-setiap" class="sel"><option value="1" selected>1 putaran</option><option value="2">2 putaran</option><option value="4">4 putaran</option></select></label>
-            <label class="lb">Sampai<select id="lt-sampai" class="sel"><option value="1" selected>100%</option><option value="1.1">110%</option><option value="1.2">120%</option></select></label>
-        </div>
-        <button type="button" class="t-btn" id="lt-go">Mulai latihan</button>
-    </div></div>
-    <div class="drawer" id="dr-unduh" hidden><div class="drawer-in">
-        <button type="button" class="chip drawer-x" data-close>Tutup</button>
-        <h2>Unduh &amp; cetak</h2>
-        <div class="sc-dl">
-            <button type="button" class="t-btn alt" id="dl-gp">Guitar Pro (.gp)</button>
-            <button type="button" class="t-btn alt" id="dl-midi">MIDI (.mid)</button>
-            <button type="button" class="t-btn alt" id="dl-tex">Teks tab (.txt)</button>
-            <button type="button" class="t-btn alt" id="cetak">Cetak / simpan PDF</button>
-        </div>
-        <p class="t-help">File Guitar Pro bisa dibuka lagi di sini, di Guitar Pro, TuxGuitar, atau MuseScore.</p>
-    </div></div>
     <div class="drawer" id="dr-tulis" hidden><div class="drawer-in">
         <button type="button" class="chip drawer-x" data-close>Tutup</button>
         <h2>Cara menulis</h2>
