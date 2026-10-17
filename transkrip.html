@@ -12,14 +12,19 @@
     <meta property="og:title" content="Transkrip Chord Otomatis dari Lagu: Putar, Loop &amp; Cetak | Toko Gitar AYRI">
     <meta property="og:description" content="Pilih file lagu, chord dianalisis otomatis di perangkat Anda lalu tampil berjalan mengikuti musik. Atur kecepatan, loop, hitung masuk, kapo, pilih gitar, ukulele, guitalele atau bass, dan cetak.">
     <meta property="og:url" content="https://ayrigitar.com/transkrip.html">
-    <meta name="twitter:card" content="summary">
+    <meta property="og:image" content="https://ayrigitar.com/og/transkrip.jpg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="Transkrip chord otomatis dari Toko Gitar AYRI">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content="https://ayrigitar.com/og/transkrip.jpg">
     <link rel="manifest" href="manifest.webmanifest">
     <link rel="icon" type="image/png" sizes="48x48" href="favicon-48.png">
     <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-title" content="AYRI Tuner">
+    <meta name="apple-mobile-web-app-title" content="AYRI Gitar">
     <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -182,7 +187,7 @@
         <p class="hint" id="chmsg"></p>
         <h2>Chord lagu ini</h2><p class="hint">Hasil edit tersimpan otomatis untuk lagu ini di browser. <button type="button" class="chip xreset" disabled>Kembalikan semua ke awal</button></p><p class="hint">Ketuk chord untuk lompat ke sana. Chord salah? Ketuk lalu ubah. Tanda * berarti chord dari deteksi otomatis (di luar chart). Saat chart dipakai, tulisan kecil "terdengar: ..." di bawah chord besar dan tanda &ne; di garis waktu menunjukkan chord yang terdeteksi di audio bila berbeda dari chart (untuk membedah lagu).</p>
         <div class="sheet" id="sheet"></div>
-        <div class="t-card" id="edit" hidden style="margin-top:.6rem"><b id="etl"></b><div class="pg-row"><select id="er" class="srch" style="width:auto"></select><select id="et" class="srch" style="width:auto"></select></div><div class="pg-row"><button id="eok" type="button" class="t-btn" style="min-height:46px;font-size:1rem">Terapkan</button><button id="edel" type="button" class="chip">Hapus chord ini</button></div><p class="hint" style="margin:.5rem 0 .2rem">Waktu mulai chord ini salah? Geser satu ketukan:</p><div class="pg-row"><button id="emvl" type="button" class="chip">&#9664; Lebih awal</button><button id="emvr" type="button" class="chip">Lebih akhir &#9654;</button></div></div>
+        <div class="t-card" id="edit" hidden style="margin-top:.6rem"><b id="etl"></b><div class="pg-row"><select id="er" class="srch" style="width:auto" aria-label="Nada dasar chord"></select><select id="et" class="srch" style="width:auto" aria-label="Jenis chord"></select></div><div class="pg-row"><button id="eok" type="button" class="t-btn" style="min-height:46px;font-size:1rem">Terapkan</button><button id="edel" type="button" class="chip">Hapus chord ini</button></div><p class="hint" style="margin:.5rem 0 .2rem">Waktu mulai chord ini salah? Geser satu ketukan:</p><div class="pg-row"><button id="emvl" type="button" class="chip">&#9664; Lebih awal</button><button id="emvr" type="button" class="chip">Lebih akhir &#9654;</button></div></div>
         <h2>Kamus chord</h2><div class="legend" id="legend"></div>
         <div class="chips" style="margin-top:1rem"><button id="prn" type="button" class="chip">Cetak transkrip</button><button id="sav" type="button" class="chip">Simpan hasil (.json)</button></div>
         <p class="hint">Simpan hasil agar tidak perlu menganalisis ulang: lain kali pilih file .json dulu, lalu file audionya.</p>
