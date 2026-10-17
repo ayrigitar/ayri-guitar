@@ -22,7 +22,7 @@
     var L = window.Layanan = { C: C };
 
     /* ---------- tema (sama dengan situs) ---------- */
-    try { if (localStorage.getItem('ayri-theme') === 'dark') document.documentElement.setAttribute('data-theme', 'dark'); } catch (e) {}
+    try { if (window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches) document.documentElement.setAttribute('data-theme', 'dark'); } catch (e) {}
 
     /* ---------- format & tanggal ---------- */
     var BLN = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
