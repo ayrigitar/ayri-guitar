@@ -117,8 +117,19 @@ function genV(inst, root, ti) {
     });
     /* lengkapi dengan bentuk hasil generator (beda posisi / beda senar bass) sampai VMAX bentuk */
     if (inst.n && !inst.loose) genAuto(inst, root, t, VMAX - out.length, out).forEach(function (v) { var k = v.f.join(','); if (seen[k]) return; seen[k] = 1; out.push({ f: v.f, g: autoF(v.f, true), open: v.f.indexOf(0) >= 0 && minF(v) <= 3, gen: true }); });
-    out.sort(function (a, b) { return minF(a) - minF(b); });
+    /* urutan: posisi terendah dulu, tetapi senar mati di tengah (dan di ukulele, senar mati mana pun) dianggap
+       sulit, jadi C ukulele 0003 tampil sebelum 000x dan Em7 gitar 020000 sebelum 0x0000; bila seri, fret
+       tertinggi lebih rendah lalu senar terbuka lebih banyak */
+    out.sort(function (a, b) { return susah(a, inst) - susah(b, inst) || maxF(a) - maxF(b) || terbuka(b) - terbuka(a); });
     return out.slice(0, VMAX);
+}
+function maxF(v) { return Math.max.apply(null, v.f.concat([0])); }
+function terbuka(v) { return v.f.filter(function (x) { return x === 0; }).length; }
+function susah(v, inst) {
+    var f = v.f, first = -1, last = -1, mati = 0, dalam = 0, i;
+    for (i = 0; i < f.length; i++) { if (f[i] >= 0) { if (first < 0) first = i; last = i; } else mati++; }
+    for (i = first; i <= last; i++) if (f[i] < 0) dalam++;
+    return minF(v) + dalam * 4 + (inst.reentrant ? mati * 4 : 0);
 }
 var VMAX = 8;
 /* Generator bentuk jari: telusuri jendela 4 fret di sepanjang leher, pilih kombinasi senar yang memuat nada wajib chord,

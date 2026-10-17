@@ -12,14 +12,19 @@
     <meta property="og:title" content="Partitur &amp; Tab Online Semua Instrumen: Guitar Pro, MusicXML, Not Angka | Toko Gitar AYRI">
     <meta property="og:description" content="Buka file Guitar Pro dan MusicXML untuk semua instrumen (gitar, bass, ukulele, piano, drum, vokal) langsung di browser: not balok, tab, not angka, chord, bisa diputar, transpose, dan kapo. Tulis partitur sendiri dan unduh sebagai Guitar Pro.">
     <meta property="og:url" content="https://ayrigitar.com/partitur.html">
-    <meta name="twitter:card" content="summary">
+    <meta property="og:image" content="https://ayrigitar.com/og/partitur.jpg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="Partitur dan tab semua instrumen dari Toko Gitar AYRI">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content="https://ayrigitar.com/og/partitur.jpg">
     <link rel="manifest" href="manifest.webmanifest">
     <link rel="icon" type="image/png" sizes="48x48" href="favicon-48.png">
     <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-title" content="AYRI Tuner">
+    <meta name="apple-mobile-web-app-title" content="AYRI Gitar">
     <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -133,7 +138,7 @@
     </header>
 
     <!-- BACA & TULIS TAB / PARTITUR -->
-    <main id="konten" class="app score-app">
+    <main id="konten" class="app score-app gulir">
         <!-- Pindah alat: tab bar bawah di HP, segmen di atas pada layar lebar -->
         <div class="apptop">
             <nav class="tt" aria-label="Alat latihan">
@@ -150,8 +155,8 @@
         <!-- kepala: judul lagu + instrumen yang ditampilkan (menempel di atas) -->
         <div class="sc-kepala" id="kepala">
             <div class="sc-judul"><b id="judul-lagu">Memuat&hellip;</b><small id="sub-lagu"></small></div>
-            <button type="button" class="chip sc-edit" id="ed-mulai" title="Tulis atau ubah tab dengan ketuk-ketik">&#9998; Edit</button>
-            <button type="button" class="chip sc-ganti" data-lembar="lagu">Ganti lagu</button>
+            <button type="button" class="chip sc-edit" id="ed-mulai" title="Tulis atau ubah tab dengan ketuk-ketik" aria-label="Edit lagu">&#9998;<span class="sc-tk"> Edit</span></button>
+            <button type="button" class="chip sc-ganti" data-lembar="lagu" aria-label="Ganti lagu"><span class="sc-tk">Ganti lagu</span><span class="sc-tp">Lagu</span></button>
             <button type="button" class="chip sc-ikon" data-lembar="lainnya" aria-label="Unduh, cetak, dan lainnya">&middot;&middot;&middot;</button>
             <div class="sc-chips" id="chips" role="group" aria-label="Instrumen yang ditampilkan"></div>
         </div>
@@ -365,7 +370,7 @@
             </div>
             <div class="sc-tr2">
                 <button type="button" class="sc-tb" data-lembar="kecepatan"><b id="tb-kec">100%</b><span>Kecepatan</span></button>
-                <button type="button" class="sc-tb" id="ab" aria-pressed="false" title="Ketuk di birama awal lalu di birama akhir bagian yang ingin diulang"><b id="ab-label">A&ndash;B</b><span>Ulang bagian</span></button>
+                <button type="button" class="sc-tb" id="ab" aria-pressed="false" title="Ketuk di birama awal lalu di birama akhir bagian yang ingin diulang"><b id="ab-label">A&ndash;B</b><span>Ulang</span></button>
                 <button type="button" class="sc-tb" data-lembar="latihan"><b>&#9201;</b><span>Latihan</span></button>
                 <button type="button" class="sc-tb" data-lembar="chord"><b>C&nbsp;G</b><span>Chord</span></button>
                 <button type="button" class="sc-tb" data-lembar="nada"><b id="tb-nada">&plusmn;0</b><span>Nada</span></button>

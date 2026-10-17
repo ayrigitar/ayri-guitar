@@ -31,7 +31,9 @@
             URL: esc(url),
             TAG: esc(a.tag || 'Hasil Servis'),
             BULAN: esc(bulan(a.terbit_at)),
-            OG_IMAGE: foto.length ? '    <meta property="og:image" content="' + esc(situs + foto[0].path) + '">\n    <meta name="twitter:card" content="summary_large_image">' : '    <meta name="twitter:card" content="summary">',
+            /* artikel tanpa foto memakai gambar pratinjau umum artikel, supaya tetap rapi saat dibagikan di WhatsApp */
+            OG_IMAGE: foto.length ? '    <meta property="og:image" content="' + esc(situs + foto[0].path) + '">\n    <meta name="twitter:card" content="summary_large_image">'
+                : '    <meta property="og:image" content="' + esc(situs + 'og/artikel.jpg') + '">\n    <meta property="og:image:width" content="1200">\n    <meta property="og:image:height" content="630">\n    <meta name="twitter:card" content="summary_large_image">',
             LDJSON: JSON.stringify(ld, null, 2).replace(/</g, '\\u003c'),
             SAMPUL: foto.length ? fig(foto[0], 'article-photo container container--article', false) : '',
             ISI: md.keHtml(a.isi).split('\n').map(function (l) { return '                ' + l; }).join('\n'),

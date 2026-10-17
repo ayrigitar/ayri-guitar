@@ -72,8 +72,8 @@ main.app > * { min-width: 0; flex: 0 0 auto; }
 .tt a[aria-current="page"] { color: var(--accent); }
 .tt a[aria-current="page"]::before { transform: none; opacity: 1; }
 .tt a:active .ic, .ib:active .ic { transform: scale(.86); }
-/* enam alat + Info di layar sangat sempit: label sedikit dikecilkan supaya tidak terpotong */
-@media (max-width: 379.98px) { .tt a, .ib { font-size: .625rem; letter-spacing: 0; } }
+/* enam alat + Info di layar sangat sempit: label dikecilkan dan Info cukup ikon, supaya nama alat tidak terpotong */
+@media (max-width: 379.98px) { .tt a, .ib { font-size: .625rem; letter-spacing: 0; } .ib { flex: 0 0 36px; } .ib span { display: none; } }
 
 /* 3. Laci (bottom sheet) untuk info & opsi jarang dipakai
    ========================================================================== */
@@ -229,6 +229,7 @@ input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; appear
 .mtset2 { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: end; gap: 6px 14px; }
 .mttr { display: grid; grid-template-columns: auto repeat(3, minmax(0, 1fr)); align-items: end; gap: 6px; }
 .mttr .lb { white-space: nowrap; text-transform: none; letter-spacing: 0; font-size: .75rem; }
+.mttr.mati .lb:not(:first-child) { opacity: .45; }
 .mtpre { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 6px; }
 
 /* 5d. Tata letak: Transkrip
@@ -510,6 +511,9 @@ main.score-app.ikut-on { --tr-h: 200px; }
 .sc-judul b { overflow: hidden; font: 700 1.125rem/1.2 var(--font-display); white-space: nowrap; text-overflow: ellipsis; }
 .sc-judul small { overflow: hidden; font-size: .75rem; color: var(--ink-3); white-space: nowrap; text-overflow: ellipsis; }
 .sc-kepala > .chip { flex: none; height: 36px; }
+.sc-tp { display: none; }
+/* HP sempit: tombol kepala diringkas supaya judul lagu tetap terbaca */
+@media (max-width: 399.98px) { .sc-tk { display: none; } .sc-tp { display: inline; } .sc-kepala > .chip { padding: 0 12px; } }
 .sc-ikon { min-width: 38px; justify-content: center; padding: 0 10px; }
 .sc-chips { flex: 1 1 100%; display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; }
 .sc-chips::-webkit-scrollbar { display: none; }
@@ -882,10 +886,10 @@ main.efek-app .ef-preset .chip { flex: none; height: 42px; }
 .ef-papan { display: grid; gap: 10px; min-width: 0; }
 .ef-rantai { display: flex; align-items: center; gap: 16px; overflow-x: auto; padding: 2px 2px 4px; scrollbar-width: none; }
 .ef-rantai::-webkit-scrollbar { display: none; }
-.ef-c { position: relative; display: inline-flex; flex: none; align-items: center; height: 38px; border: 1px solid var(--line-strong); border-radius: var(--r-pill); background: var(--surface); }
+.ef-c { position: relative; display: inline-flex; flex: none; align-items: center; height: 40px; border: 1px solid var(--line-strong); border-radius: var(--r-pill); background: var(--surface); }
 .ef-c + .ef-c::before { content: "\203A"; position: absolute; left: -12px; color: var(--ink-3); font: 800 1rem/1 var(--font-sans); }
 .ef-c.on { border-color: var(--w); }
-.ef-cl { width: 26px; height: 26px; margin-left: 5px; padding: 0; border: 0; border-radius: 50%; background: #4A403A; box-shadow: inset 0 1px 2px rgba(0, 0, 0, .5); cursor: pointer; }
+.ef-cl { width: 30px; height: 30px; margin-left: 4px; padding: 0; border: 0; border-radius: 50%; background: #4A403A; box-shadow: inset 0 1px 2px rgba(0, 0, 0, .5); cursor: pointer; }
 .ef-c.on .ef-cl, .ef-kartu.on .ef-led { background: radial-gradient(circle at 35% 35%, #FF9A8A, #E0281B 55%, #8F1208); box-shadow: 0 0 10px rgba(255, 50, 30, .65); }
 .ef-cn { height: 100%; padding: 0 12px 0 6px; border: 0; background: none; color: var(--ink-2); font: 700 .8125rem var(--font-sans); white-space: nowrap; cursor: pointer; }
 .ef-c.on .ef-cn { color: var(--ink); }
