@@ -1,6 +1,6 @@
 /* Service worker Toko Gitar AYRI.
    Naikkan angka VERSION setiap kali Anda mengubah daftar file di bawah. */
-var VERSION = 'ayri-v18';
+var VERSION = 'ayri-v19';
 var CORE = ['./', 'index.html', 'tuner.html', 'chords.html', 'metronom.html', 'transkrip.html', 'partitur.html', 'partitur.js', 'partitur-edit.js', 'efek.html', 'efek.js', 'efek-worklet.js', 'chord-engine.js', 'artikel-custom-nut.html', 'style-index.css', 'style-artikel.css',
     'theme-dark.css', 'tools.css', 'app.css', 'app.js', 'theme.js', 'pwa.js', 'site.js', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png', 'apple-touch-icon.png', 'favicon-48.png'];
 var FONT_HOSTS = ['fonts.googleapis.com', 'fonts.gstatic.com'];

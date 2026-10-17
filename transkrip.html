@@ -163,7 +163,7 @@
                 <canvas id="ctab" class="ctab" aria-label="Garis waktu chord. Seret ke kiri atau kanan untuk menggeser lagu, ketuk chord untuk mulai dari chord itu."></canvas>
                 <div class="tr-seek"><span id="tpos">0:00</span><input id="seek" class="rg" type="range" min="0" max="100" step="0.1" value="0" aria-label="Posisi lagu"><span id="tdur">0:00</span></div>
                 <div class="tr-bar" role="group" aria-label="Kontrol pemutar">
-                    <button type="button" class="tb tb-ab" id="ab" aria-pressed="false" aria-keyshortcuts="L"><span class="ab-a">A</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h15l-3.5-3.5M20 15H5l3.5 3.5"/></svg><span class="ab-b">B</span></button>
+                    <button type="button" class="tb tb-ab" id="ab" aria-pressed="false" aria-keyshortcuts="L"><span class="ab-a">A</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h15l-3.5-3.5M20 15H5l3.5 3.5"/></svg><span class="ab-b">B</span><span class="ab-w" aria-hidden="true"></span></button>
                     <button type="button" class="tb" id="bk" aria-keyshortcuts="ArrowLeft"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5A8 8 0 1 1 5.07 9M14.5 2.5 12 5l2.5 2.5"/><text x="12" y="16.7" text-anchor="middle">5</text></svg></button>
                     <button type="button" class="tb tb-go" id="go" aria-label="Putar" title="Putar / jeda (Spasi)" aria-keyshortcuts="Space"><svg class="i-pl" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.5 5.6v12.8a.8.8 0 0 0 1.2.7l10-6.4a.8.8 0 0 0 0-1.4l-10-6.4a.8.8 0 0 0-1.2.7z"/></svg><svg class="i-ps" viewBox="0 0 24 24" aria-hidden="true"><rect x="6.5" y="5" width="4" height="14" rx="1.2"/><rect x="13.5" y="5" width="4" height="14" rx="1.2"/></svg></button>
                     <button type="button" class="tb" id="fw" aria-keyshortcuts="ArrowRight"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5a8 8 0 1 0 6.93 4M9.5 2.5 12 5 9.5 7.5"/><text x="12" y="16.7" text-anchor="middle">5</text></svg></button>
@@ -173,10 +173,9 @@
             <div class="ctl">
                 <label class="lb">Instrumen<select id="insts" class="sel"></select></label>
                 <label class="lb">Kecepatan (nada tetap)<select id="rates" class="sel"></select></label>
-                <label class="lb">Kapo<select id="capo" class="sel"></select></label>
+                <label class="lb">Transpose / kapo<select id="capo" class="sel"></select></label>
                 <label class="lb">Klik sebelum mulai &middot; tempo (BPM)<span class="row"><select id="cnts" class="sel" aria-label="Jumlah klik metronom sebelum lagu mulai"></select><input id="bpm" class="numin" type="number" inputmode="numeric" min="40" max="220" aria-label="Tempo lagu dalam BPM (ketukan per menit), untuk kecepatan klik" title="Tempo lagu (ketukan per menit)"><button type="button" class="chip bpmh" id="bpmhalf" title="Bagi dua tempo (bila terbaca dua kali lipat)" aria-label="Bagi dua tempo">&frac12;</button></span></label>
                 <div class="span2" id="modew"><span class="lb">Tingkat kesulitan chord</span><div class="seg" id="modes"></div></div>
-                <div class="span2 tr-lompat"><span id="skipl">Tombol mundur/maju</span><div class="seg" id="skips" role="group" aria-labelledby="skipl"></div></div>
                 <div class="span2 tr-key" id="capohint" hidden></div>
             </div>
         </div>
@@ -223,7 +222,7 @@
         <p class="t-help">Tombol di bawahnya, dari kiri:</p>
         <ul class="t-help">
             <li><b>A&ndash;B</b>: ketuk di awal bagian yang mau dilatih, lalu ketuk lagi di akhirnya, dan bagian itu diulang terus. Ketuk sekali lagi untuk berhenti mengulang. Titik A dan B otomatis menempel ke pergantian chord terdekat.</li>
-            <li><b>Mundur</b> dan <b>maju</b> 5 atau 10 detik; jaraknya diatur di &ldquo;Tombol mundur/maju&rdquo;.</li>
+            <li><b>Mundur</b> dan <b>maju</b> 5 detik.</li>
             <li><b>Putar/jeda</b>.</li>
             <li><b>Stop</b>: kembali ke awal lagu, atau ke titik A bila loop aktif.</li>
         </ul>
@@ -242,11 +241,11 @@
     <script>
 (function () {
     var $ = function (i) { return document.getElementById(i); };
-    var ana = null, akey = null, st = { level: 'asli', inst: 'gtr', capo: 0, rate: 1, count: 0, bpm: 90, skip: 5, a: null, b: null, loop: false, sel: -1 };
-    try { var sv = JSON.parse(localStorage.getItem('ayri-trans') || '{}'); ['inst', 'capo', 'rate', 'count', 'bpm', 'level', 'skip'].forEach(function (k) { if (sv[k] !== undefined) st[k] = sv[k]; }); } catch (e) {}
+    var ana = null, akey = null, st = { level: 'asli', inst: 'gtr', capo: 0, rate: 1, count: 0, bpm: 90, a: null, b: null, loop: false, sel: -1 };
+    try { var sv = JSON.parse(localStorage.getItem('ayri-trans') || '{}'); ['inst', 'capo', 'rate', 'count', 'bpm', 'level'].forEach(function (k) { if (sv[k] !== undefined) st[k] = sv[k]; }); } catch (e) {}
     if (st.level === 'rinci' || ['asli', 'sedang', 'mudah'].indexOf(st.level) < 0) st.level = 'asli';
-    if (!INSTS[st.inst]) st.inst = 'gtr'; I = INSTS[st.inst]; if (st.skip !== 10) st.skip = 5;
-    function save() { try { localStorage.setItem('ayri-trans', JSON.stringify({ inst: st.inst, capo: st.capo, rate: st.rate, count: st.count, bpm: st.bpm, level: st.level, skip: st.skip })); } catch (e) {} }
+    st.capo = Math.max(-11, Math.min(11, Math.round(+st.capo) || 0)); if (!INSTS[st.inst]) st.inst = 'gtr'; I = INSTS[st.inst]; st.skip = 5;
+    function save() { try { localStorage.setItem('ayri-trans', JSON.stringify({ inst: st.inst, capo: st.capo, rate: st.rate, count: st.count, bpm: st.bpm, level: st.level })); } catch (e) {} }
     var au = $('au'), segs = [], dur = 0, fname = '', objUrl = null, cur = -2, raf = 0, pending = null, dragging = false, counting = false, ac2 = null, shown = -1;
     var TT = [['maj', [0, 4, 7], [1, 0.85, 0.85], 0], ['m', [0, 3, 7], [1, 0.85, 0.85], 0], ['7', [0, 4, 7, 10], [1, 0.8, 0.8, 0.55], 0.35], ['m7', [0, 3, 7, 10], [1, 0.8, 0.8, 0.55], 0.35], ['maj7', [0, 4, 7, 11], [1, 0.8, 0.8, 0.55], 0.4], ['sus4', [0, 5, 7], [1, 0.85, 0.85], 0.5], ['dim7', [0, 3, 6, 9], [1, 0.85, 0.85, 0.85], 0.8]];
     var TIDX = TT.map(function (x) { return tIdx(x[0]); });
@@ -289,11 +288,12 @@
     }
     function chartKey() { return 'ayri-chart:' + fname; }
     function fmt(s) { s = Math.max(0, s); return Math.floor(s / 60) + ':' + ('0' + Math.floor(s % 60)).slice(-2); }
-    function sroot(s) { return I.kb ? s.r : (s.r - st.capo + 12) % 12; }
+    function sroot(s) { return I.kb ? s.r : (s.r - st.capo + 24) % 12; }
     /* Dengan kapo, nama utama = bentuk jari yang dimainkan; cname(s, true) = nama bunyi lagu (tanpa kapo). */
-    function capoOn() { return st.capo > 0 && !I.kb; }
+    function capoOn() { return st.capo !== 0 && !I.kb; }
+    function capoTeks() { return st.capo > 0 ? 'kapo fret ' + st.capo : 'transpose +' + (-st.capo); }
     function cname(s, bunyi) {
-        var sh = !bunyi && capoOn() ? st.capo : 0, r = (s.r - sh + 12) % 12;
+        var sh = !bunyi && capoOn() ? st.capo : 0, r = (s.r - sh + 24) % 12;
         if (st.level === 'asli' && typeof s.q === 'string') return disp(NM[r] + s.q + (s.bass >= 0 ? '/' + NM[(s.bass - sh + 12) % 12] : ''));
         return disp(NM[r] + TYPES[lvTi(s)].s);
     }
@@ -767,7 +767,7 @@
         if (idx < 0 || !segs[idx]) { $('cn').textContent = '\u2013'; $('cs').textContent = ''; $('cd').innerHTML = ''; $('nx').textContent = ''; $('nd').innerHTML = ''; return; }
         var s = segs[idx], v = voic(s);
         $('cn').textContent = cname(s);
-        $('cs').textContent = (capoOn() ? 'Bunyi lagu: ' + cname(s, true) + ' \u00b7 kapo fret ' + st.capo : I.name) + diagNote(s);
+        $('cs').textContent = (capoOn() ? 'Bunyi lagu: ' + cname(s, true) + ' \u00b7 ' + capoTeks() : I.name) + diagNote(s);
         $('cd').classList.toggle('kb', !!(v && v.kb));
         $('cd').innerHTML = v ? diagram(v, { alt: 'Diagram ' + cname(s) }) : '<p class="hint">Bentuk belum tersedia untuk ' + I.name + '.</p>';
         var nx = segs[idx + 1]; $('nx').textContent = nx ? cname(nx) : 'selesai';
@@ -788,7 +788,7 @@
     function drawCTab(now) {
         var cv = $('ctab'), dpr = window.devicePixelRatio || 1, W = cv.clientWidth, H = cv.clientHeight; if (!W || !H) return;
         if (cv.width !== Math.round(W * dpr) || cv.height !== Math.round(H * dpr)) { cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); }
-        var g = cv.getContext('2d'), C = col(), ph = W * PH, pps = PPS, pad = 3, shape = st.capo > 0 && !I.kb;
+        var g = cv.getContext('2d'), C = col(), ph = W * PH, pps = PPS, pad = 3, shape = capoOn();
         g.setTransform(dpr, 0, 0, dpr, 0, 0); g.clearRect(0, 0, W, H); g.textBaseline = 'middle';
         segs.forEach(function (sg) {
             var x0 = ph + (sg.t0 - now) * pps, x1 = ph + (sg.t1 - now) * pps; if (x1 < -10 || x0 > W) return;
@@ -809,7 +809,7 @@
                 var mid = (h.t0 + h.t1) / 2, cs = segs[idxAt(mid)], lab = heardDiff(cs, h); if (!lab) return;
                 var on = cs.t0 <= now && now < cs.t1;
                 g.globalAlpha = h.t1 <= now ? 0.45 : 0.9; g.fillStyle = on ? '#fff' : C.sub; g.fillRect(Math.max(x0 + pad + 4, 0), 8, Math.max(4, x1 - x0 - 2 * pad - 8), 2);
-                if (H >= 56 && !(st.capo > 0 && !I.kb) && x1 - x0 >= 34) g.fillText('≠' + lab, x0 + pad + 6, 17);
+                if (H >= 56 && !capoOn() && x1 - x0 >= 34) g.fillText('≠' + lab, x0 + pad + 6, 17);
             });
             g.globalAlpha = 1;
         }
@@ -910,6 +910,7 @@
         b.classList.toggle('on', on); b.classList.toggle('separuh', st.a !== null && !on); b.setAttribute('aria-pressed', on);
         msg = on ? 'Loop A\u2013B aktif ' + fmt(st.a) + ' sampai ' + fmt(st.b) + '. Ketuk untuk hapus loop' : st.a !== null ? 'Titik A di ' + fmt(st.a) + '. Ketuk lagi di akhir bagian untuk titik B' : 'Loop A\u2013B: ketuk di awal bagian yang mau diulang, lalu ketuk lagi di akhirnya';
         b.setAttribute('aria-label', msg); b.title = msg + ' (L)';
+        b.querySelector('.ab-w').innerHTML = on ? 'A ' + fmt(st.a) + '<br>B ' + fmt(st.b) : st.a !== null ? 'A ' + fmt(st.a) + '<br>B ?' : '';
         if (st.a !== null && dur) { sk.classList.add('loop'); sk.style.setProperty('--a', (st.a / dur * 100).toFixed(2) + '%'); sk.style.setProperty('--b', ((on ? st.b : st.a) / dur * 100 + (on ? 0 : 0.6)).toFixed(2) + '%'); } else sk.classList.remove('loop');
         if (au.paused) drawCTab(au.currentTime);
     }
@@ -920,13 +921,12 @@
     function snapB(t) { var i = idxAt(t), s = segs[i]; if (!s || t >= s.t1) return t; return t - s.t0 < 0.3 && i > 0 ? s.t0 : s.t1; }
     function abKetuk() {
         var t = au.currentTime, j;
-        if (st.loop) { st.a = st.b = null; st.loop = false; note('Loop A\u2013B dihapus'); }
-        else if (st.a === null || t <= st.a + 0.05) { st.a = snapA(t); note('Titik A ' + fmt(st.a) + ' \u00b7 ketuk A\u2013B lagi di akhir bagian', 3500); }
-        else { st.b = snapB(t); if (st.b <= st.a + 0.05) { j = segs[idxAt(st.a)]; st.b = j && j.t1 > st.a ? j.t1 : st.a + 2; } st.loop = true; note('Loop ' + fmt(st.a) + ' \u2192 ' + fmt(st.b) + ' diulang terus', 2500); }
+        if (st.loop) { st.a = st.b = null; st.loop = false; }
+        else if (st.a === null || t <= st.a + 0.05) { st.a = snapA(t); }
+        else { st.b = snapB(t); if (st.b <= st.a + 0.05) { j = segs[idxAt(st.a)]; st.b = j && j.t1 > st.a ? j.t1 : st.a + 2; } st.loop = true; }
         loopUi();
     }
     function skipUi() {
-        $('skips').innerHTML = [5, 10].map(function (n) { return '<button type="button" class="chip" data-s="' + n + '" aria-pressed="' + (n === st.skip) + '">' + n + ' dtk</button>'; }).join('');
         [['bk', 'Mundur ', '\u2190'], ['fw', 'Maju ', '\u2192']].forEach(function (x) { var b = $(x[0]); b.querySelector('text').textContent = st.skip; b.setAttribute('aria-label', x[1] + st.skip + ' detik'); b.title = x[1] + st.skip + ' detik (' + x[2] + ')'; });
     }
     function lompat(d) { if (!dur) return; henti(); keWaktu(batas(au.currentTime + d)); }
@@ -948,7 +948,8 @@
         $('insts').innerHTML = ['gtr', 'uke', 'gll', 'bas', 'pno'].map(function (k) { return '<option value="' + k + '"' + (k === st.inst ? ' selected' : '') + '>' + INSTS[k].name + '</option>'; }).join('');
         $('rates').innerHTML = [0.5, 0.6, 0.75, 0.9, 1, 1.15, 1.25].map(function (r) { return '<option value="' + r + '"' + (r === st.rate ? ' selected' : '') + '>' + r + 'x</option>'; }).join('');
         $('cnts').innerHTML = [0, 2, 4].map(function (c) { return '<option value="' + c + '"' + (c === st.count ? ' selected' : '') + '>' + (c ? c + ' klik' : 'Mati') + '</option>'; }).join('');
-        $('capo').innerHTML = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map(function (c) { return '<option value="' + c + '"' + (c === st.capo ? ' selected' : '') + '>' + (c ? 'Fret ' + c : 'Tanpa kapo') + '</option>'; }).join(''); $('capo').disabled = !!I.kb;
+        var tp = []; for (var v = 11; v >= -11; v--) tp.push(v);
+        $('capo').innerHTML = tp.map(function (v) { var c = -v; return '<option value="' + c + '"' + (c === st.capo ? ' selected' : '') + '>' + (v === 0 ? 'Asli (0)' : v > 0 ? '+' + v : '\u2212' + (-v) + (c <= 9 ? ' \u00b7 kapo ' + c : '')) + '</option>'; }).join(''); $('capo').disabled = !!I.kb;
         $('modes').innerHTML = [['asli', 'Asli'], ['sedang', 'Sedang'], ['mudah', 'Mudah']].map(function (m) { return '<button type="button" class="chip" data-m="' + m[0] + '" aria-pressed="' + (m[0] === st.level) + '">' + m[1] + '</button>'; }).join(''); $('modew').hidden = !segs.length;
         $('bpm').value = st.bpm; au.playbackRate = st.rate; au.preservesPitch = true; au.webkitPreservesPitch = true; au.mozPreservesPitch = true;
         var cs = capoSuggest(), h = $('capohint');
@@ -994,7 +995,6 @@
     $('bk').addEventListener('click', function () { lompat(-st.skip); });
     $('fw').addEventListener('click', function () { lompat(st.skip); });
     $('ab').addEventListener('click', abKetuk);
-    $('skips').addEventListener('click', function (e) { var b = e.target.closest('[data-s]'); if (!b) return; st.skip = +b.dataset.s; save(); skipUi(); });
     $('seek').addEventListener('input', function () { henti(); dragging = true; keWaktu(+this.value); }); $('seek').addEventListener('change', function () { dragging = false; });
     $('insts').addEventListener('change', function () { st.inst = this.value; I = INSTS[st.inst]; save(); chips(); sheet(); });
     /* ganti tingkat: hanya nama chord yang berubah, waktu dan suntingan tetap */
@@ -1043,7 +1043,7 @@
     [].forEach.call(document.querySelectorAll('.xreset'), function (b) { b.addEventListener('click', resetAll); });
     $('er').innerHTML = NM.map(function (n, i) { return '<option value="' + i + '">' + disp(n) + '</option>'; }).join('');
     $('et').innerHTML = TYPES.map(function (t, i) { return '<option value="' + i + '">' + (t.s || 'Mayor') + '</option>'; }).join('');
-    $('eok').addEventListener('click', function () { editOp(function () { var s = segs[st.sel]; if (!s) return; s.r = (+$('er').value + (capoOn() ? st.capo : 0)) % 12; s.ti = +$('et').value; delete s.q; delete s.bass; sheet(); }); });
+    $('eok').addEventListener('click', function () { editOp(function () { var s = segs[st.sel]; if (!s) return; s.r = (+$('er').value + (capoOn() ? st.capo : 0) + 12) % 12; s.ti = +$('et').value; delete s.q; delete s.bass; sheet(); }); });
     /* geser awal chord yang dipilih satu ketukan (mengikuti ketukan lagu bila terdeteksi, jika tidak 0,25 detik) */
     function shiftStart(idx, dir) {
         var s = segs[idx]; if (!s) return null;
@@ -1076,7 +1076,7 @@
     /* edit chord dari layar utama: ganti, tambah (sisipkan mulai posisi lagu), hapus */
     var xIdx = -1, xT = 0;
     function snapBeat(t) { var bs = ana && (ana._bs || ana._bs2), i, b = -1; if (!bs || !bs.t.length) return t; for (i = 0; i < bs.t.length; i++) if (b < 0 || Math.abs(bs.t[i] - t) < Math.abs(bs.t[b] - t)) b = i; return Math.max(0, bs.t[b] - 0.02); }
-    function xPick() { return { r: (+$('xr').value + (capoOn() ? st.capo : 0)) % 12, ti: +$('xt').value }; }
+    function xPick() { return { r: (+$('xr').value + (capoOn() ? st.capo : 0) + 12) % 12, ti: +$('xt').value }; }
     function xDone(msg) { st.sel = -1; $('edit').hidden = true; sheet(); $('dr-edit').hidden = true; var m = $('adjm'); m.textContent = msg; clearTimeout(adjT); adjT = setTimeout(function () { m.textContent = ''; }, 1800); }
     $('xr').innerHTML = NM.map(function (n, i) { return '<option value="' + i + '">' + disp(n) + '</option>'; }).join('');
     $('xt').innerHTML = TYPES.map(function (t, i) { return '<option value="' + i + '">' + (t.s ? disp(t.s) : 'Mayor') + '</option>'; }).join('');
@@ -1138,7 +1138,7 @@
         rebuild(); afterRebuild(); try { localStorage.removeItem(editKey()); } catch (e) {} startHistory(false); $('chmsg').textContent = 'Kembali memakai deteksi otomatis.';
     });
     $('prn').addEventListener('click', function () {
-        $('pinfo') && 0; $('pa').innerHTML = '<h2>' + fname.replace(/</g, '&lt;') + ' \u00b7 ' + I.name + (st.capo && !I.kb ? ' \u00b7 kapo fret ' + st.capo : '') + ' \u00b7 ' + fmt(dur) + '</h2><div class="sheet">' + $('sheet').innerHTML + '</div><h2>Kamus chord</h2><div class="legend">' + $('legend').innerHTML + '</div>';
+        $('pinfo') && 0; $('pa').innerHTML = '<h2>' + fname.replace(/</g, '&lt;') + ' \u00b7 ' + I.name + (capoOn() ? ' \u00b7 ' + capoTeks() : '') + ' \u00b7 ' + fmt(dur) + '</h2><div class="sheet">' + $('sheet').innerHTML + '</div><h2>Kamus chord</h2><div class="legend">' + $('legend').innerHTML + '</div>';
         window.print();
     });
     $('sav').addEventListener('click', function () {

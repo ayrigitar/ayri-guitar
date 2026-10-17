@@ -673,6 +673,11 @@ canvas.ctab.seret { cursor: grabbing; }
 .tb-ab.separuh { border-color: var(--wa); }
 .tb-ab.separuh .ab-a { color: var(--wa); }
 .tb-ab.on, .tb-ab.on:hover { border-color: var(--wa); background: var(--wa); color: #fff; }
+/* titik yang terpasang ditulis di dalam tombol */
+.tb-ab .ab-w { display: none; font: 800 .625rem/1.2 var(--font-sans); font-variant-numeric: tabular-nums; text-align: left; white-space: nowrap; }
+.tb-ab.on > :not(.ab-w), .tb-ab.separuh > :not(.ab-w) { display: none; }
+.tb-ab.on .ab-w, .tb-ab.separuh .ab-w { display: block; }
+.tb-ab.separuh .ab-w { color: var(--ink-2); }
 @media (max-width: 359.98px) { .tr-bar { --tb: 40px; --go: 54px; } }
 
 /* Lompatan tombol mundur/maju */
