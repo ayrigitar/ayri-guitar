@@ -15,7 +15,7 @@ var AYRI_LAYANAN = {
         repoData: 'ayri-servis-data',    /* repo PRIVAT berisi data pelanggan. Setelah dipisah: KHUSUS OWNER (tebus, KTP, modal stok) */
         /* repo PRIVAT bersama owner + karyawan (servis, stok tanpa modal, penjualan, artikel), riwayatnya baru.
            Kosong = belum dipisah: semua yang membuka admin dianggap owner. Lihat panduan-admin.md, bagian Karyawan. */
-        repoBersama: '',
+        repoBersama: 'ayri-toko-data',
         cabang: 'main'
     },
 
