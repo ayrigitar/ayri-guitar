@@ -519,3 +519,11 @@ html[data-theme="dark"] .kb-selesai { border-color: rgba(92, 209, 150, .25); bac
 .kb-k__c { display: flex; flex-wrap: wrap; gap: 6px; }
 .kb-k__c .ly-btn { flex: 1 1 auto; }
 .kb-kosong { margin: 0; padding: 18px 8px; border: 1.5px dashed var(--line-strong); border-radius: var(--r-md); color: var(--ink-3); font-size: .75rem; text-align: center; }
+
+/* peran: owner / karyawan */
+.ly-peran { padding: 4px 10px; border-radius: var(--r-pill); background: var(--accent-soft); color: var(--accent); font-size: .75rem; font-weight: 800; }
+.ly-peran.karyawan { background: #E8F0FC; color: #2659A8; }
+html[data-theme="dark"] .ly-peran.karyawan { background: rgba(140, 180, 245, .12); color: #8CB4F5; }
+.ly-peran[hidden] { display: none; }
+body.ly-karyawan .owner-saja { display: none !important; }
+@media (max-width: 899.98px) { body.ly-karyawan .ly-tabs { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
