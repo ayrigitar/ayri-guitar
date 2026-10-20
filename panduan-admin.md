@@ -115,6 +115,46 @@ Barang yang **tersedia**, **ada harga jual**, dan dicentang **🌐 Tampilkan di 
 - Semua foto tampil ke pelanggan secara bawaan (label **Tampil**); ketuk labelnya di admin bila ada foto yang ingin disembunyikan. Setelah servis selesai, pelanggan melihat bagian **Sebelum & sesudah** berdampingan.
 - Kalau nomor HP pelanggan diubah, 4 digit untuk cek status ikut berubah. Kirim ulang tautan lewat WA.
 
+## Karyawan & tablet toko (owner / karyawan)
+
+Admin bisa dipakai dua peran:
+
+| | Owner (HP/laptop Anda) | Karyawan (tablet toko) |
+|---|---|---|
+| Kasir, Servis, Stok, Jual | ✅ | ✅ |
+| Harga modal, asal barang, untung | ✅ | ❌ tidak terlihat |
+| Tebus (termasuk foto KTP), Artikel | ✅ | ❌ menu tersembunyi |
+| Menghapus data | ✅ | ❌ |
+
+Pembatasan ini **bukan hanya disembunyikan di layar**. Data rahasia ada di repo yang memang tidak bisa dibuka token tablet. Caranya:
+
+- `ayri-servis-data` (repo yang sudah ada) menjadi repo **khusus owner**: tebus, foto KTP, harga modal, dan seluruh riwayat lama.
+- Repo baru `ayri-toko-data` menjadi repo **bersama**: servis, stok **tanpa harga modal**, penjualan, artikel. Riwayatnya baru, jadi tidak ada data rahasia lama di dalamnya.
+
+### Langkah A: buat repo bersama
+1. Buka **https://github.com/new** (masuk sebagai `ayrigitar`).
+2. **Repository name**: `ayri-toko-data`, pilih **Private**, centang **Add a README file**, lalu **Create repository**.
+
+### Langkah B: beri token owner akses ke repo baru
+1. Buka **https://github.com/settings/personal-access-tokens**, lalu pilih token **Admin servis AYRI** di HP Anda.
+2. **Repository access** → tambahkan **ayri-toko-data** (sehingga ada tiga: ayri-guitar, ayri-servis-data, ayri-toko-data) → **Update**.
+3. Ulangi untuk token laptop bila ada. Token tidak berubah, jadi tidak perlu dipasang ulang.
+
+### Langkah C: minta Claude mengaktifkan pemisahan
+Kabari Claude bahwa langkah A dan B sudah selesai. Claude mengisi `repoBersama: 'ayri-toko-data'` di `layanan-config.js`.
+Setelah situs diperbarui, buka admin di HP owner. Akan muncul layar **Pisahkan data owner & karyawan** → tekan **Pindahkan sekarang** (sekali saja).
+
+### Langkah D: pasang di tablet toko
+1. Di tablet, buat token baru di **https://github.com/settings/personal-access-tokens/new**:
+   - **Token name**: `Tablet toko AYRI`
+   - **Expiration**: 1 tahun (atau No expiration, asal dicabut bila tablet hilang)
+   - **Repository access** → **Only select repositories** → **ayri-guitar** dan **ayri-toko-data** saja (**jangan** pilih ayri-servis-data)
+   - **Contents**: **Read and write**
+2. Buka **https://ayrigitar.com/admin.html** di tablet, tempel token, buat PIN khusus tablet, lalu **Pasang**. Di header akan tertulis **Karyawan**.
+
+> Karyawan yang keluar kerja: ganti PIN tablet (Hapus token dari perangkat ini → pasang ulang dengan PIN baru), atau cabut token tablet dan buat yang baru.
+> Token tablet tetap bisa mengubah situs (karena nota servis disimpan di sana), jadi berikan hanya kepada karyawan yang dipercaya.
+
 ## Keamanan & perawatan
 
 - **HP hilang?** Buka https://github.com/settings/personal-access-tokens → token **Admin servis AYRI** → **Revoke**. Buat token baru (langkah 2) dan pasang di HP baru. Data tidak hilang karena tersimpan di GitHub.

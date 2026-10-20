@@ -383,7 +383,13 @@
                 return r.text().then(function (t) { var e = new Error(pesanGh(r.status, t)); e.status = r.status; e.detail = t; throw e; });
             });
     }
-    function repo(jenis) { return G.pemilik + '/' + (jenis === 'data' ? G.repoData : G.repoSitus); }
+    /* repo: 'situs' (publik), 'data' (daftar servis/stok/jual/artikel), 'owner' (khusus owner: tebus, KTP, modal stok).
+       Sebelum dipisah (repoBersama kosong), 'data' dan 'owner' adalah repo yang sama. */
+    var PISAH = !!G.repoBersama, peran = 'owner';
+    function repo(jenis) { return G.pemilik + '/' + (jenis === 'situs' ? G.repoSitus : jenis === 'data' && PISAH ? G.repoBersama : G.repoData); }
+    function repoJenis(jenis) { return PISAH && jenis === 'tebus' ? 'owner' : 'data'; }
+    L.api.peran = function () { return peran; };
+    L.api.pisah = function () { return PISAH; };
     function jalur(p) { return p.split('/').map(encodeURIComponent).join('/'); }
     function bacaFile(jenis, p, biner) {
         return gh('GET', repo(jenis) + '/contents/' + jalur(p) + '?ref=' + CABANG, null, RAW, biner)
@@ -426,7 +432,7 @@
     L.api.pasangToken = function (tokenBaru, pin) {
         tokenBaru = String(tokenBaru || '').trim(); token = tokenBaru;
         return Promise.all([gh('GET', repo('data')), gh('GET', repo('situs'))]).then(function (r) {
-            if (!r[0].private) throw new Error('Repo data "' + G.repoData + '" masih PUBLIK. Ubah jadi Private dulu (Settings → Danger Zone → Change visibility).');
+            if (!r[0].private) throw new Error('Repo data "' + (PISAH ? G.repoBersama : G.repoData) + '" masih PUBLIK. Ubah jadi Private dulu (Settings → Danger Zone → Change visibility).');
             var garam = crypto.getRandomValues(new Uint8Array(16));
             return kunciPin(pin, garam).then(function (k) { return enkripsi(k, te.encode(tokenBaru)); }).then(function (ct) {
                 localStorage.setItem(KUNCI_TOKEN, JSON.stringify({ v: 1, g: b64(garam), d: b64(ct), dibuat: L.hariIni() }));
@@ -443,26 +449,82 @@
     L.api.lupakan = function () { L.api.kunci(); try { localStorage.removeItem(KUNCI_TOKEN); } catch (e) {} return Promise.resolve(); };
 
     /* ---------- data (repo privat) ---------- */
-    var data = { servis: [], artikel: [], tebus: [], stok: [], jual: [] };
+    var data = { servis: [], artikel: [], tebus: [], stok: [], jual: [] }, rahasia = {}, statusPisah = null;
     function salin(o) { return JSON.parse(JSON.stringify(o)); }
     function cari(list, id) { return list.filter(function (x) { return x.id === id; })[0] || null; }
-    function bacaJson(nama) { return bacaFile('data', nama).then(function (t) { return t ? JSON.parse(t) : []; }); }
+    function bacaJson(nama, rp) { return bacaFile(rp || 'data', nama).then(function (t) { return t ? JSON.parse(t) : []; }); }
+    /* modal & asal barang: setelah dipisah, disimpan di repo owner (stok-rahasia.json), bukan di stok.json bersama */
+    var RAHASIA_STOK = ['harga_beli', 'asal'];
+    function bersihStok(s) { var x = Object.assign({}, s); RAHASIA_STOK.forEach(function (k) { delete x[k]; }); return x; }
+    function gabungStok(list) { return PISAH ? list.map(function (s) { return rahasia[s.id] ? Object.assign({}, s, rahasia[s.id]) : s; }) : list; }
+    function isiRahasia(s) { return { harga_beli: +s.harga_beli || 0, asal: s.asal || '' }; }
+    /* peran ditentukan dari akses token: bisa membuka repo owner = owner, tidak bisa = karyawan */
+    function cekPeran() {
+        if (!PISAH) { peran = 'owner'; return Promise.resolve(); }
+        return gh('GET', repo('owner')).then(function () { peran = 'owner'; }, function (e) { if (e.status === 404 || e.status === 403) { peran = 'karyawan'; return; } throw e; });
+    }
     L.api.muat = function () {
-        return Promise.all(['servis', 'artikel', 'tebus', 'stok', 'jual'].map(function (j) { return bacaJson(j + '.json'); })).then(function (r) {
-            data.servis = r[0]; data.artikel = r[1]; data.tebus = r[2]; data.stok = r[3]; data.jual = r[4]; return salin(data);
+        return cekPeran().then(function () {
+            var owner = peran === 'owner';
+            return Promise.all([
+                Promise.all(['servis', 'artikel', 'stok', 'jual'].map(function (j) { return bacaFile('data', j + '.json'); })),
+                owner ? bacaJson('tebus.json', repoJenis('tebus')) : Promise.resolve([]),
+                owner && PISAH ? bacaFile('owner', 'stok-rahasia.json') : Promise.resolve(null),
+                owner && PISAH ? bacaFile('owner', 'servis.json') : Promise.resolve(null)
+            ]);
+        }).then(function (r) {
+            var b = r[0], json = function (t) { return t ? JSON.parse(t) : []; };
+            /* data belum dipindah ke repo bersama: owner diminta memindahkan, karyawan menunggu */
+            statusPisah = PISAH && !b[0] ? (peran === 'owner' && r[3] ? 'pindah' : 'kosong') : null;
+            rahasia = r[2] ? JSON.parse(r[2]) : {};
+            data.servis = json(b[0]); data.artikel = json(b[1]); data.stok = gabungStok(json(b[2])); data.jual = json(b[3]); data.tebus = r[1];
+            return salin(data);
         });
     };
-    L.api.cadangan = function () { return salin(data); };
+    L.api.statusPisah = function () { return statusPisah; };
+    /* cadangan: hanya data yang boleh dilihat pemegang token ini */
+    L.api.cadangan = function () { var c = salin(data); if (peran !== 'owner') { delete c.tebus; c.stok = c.stok.map(bersihStok); } return c; };
+    /* pindahkan data dari repo owner (repo data lama) ke repo bersama, sekali saja:
+       (1) modal stok ke stok-rahasia.json di repo owner, (2) daftar ke repo bersama tanpa modal, (3) salinan lama di repo owner dihapus
+       (tetap ada di riwayat repo owner sebagai arsip). Bila terputus di tengah, menekan Pindahkan lagi aman. */
+    L.api.pindahkanData = function () {
+        if (!PISAH || peran !== 'owner') return Promise.reject(new Error('Hanya owner yang bisa memindahkan data.'));
+        var nama = ['servis', 'artikel', 'stok', 'jual'];
+        return Promise.all(nama.map(function (j) { return bacaFile('owner', j + '.json'); })).then(function (r) {
+            var stok = r[2] ? JSON.parse(r[2]) : [], rh = {};
+            stok.forEach(function (s) { if (+s.harga_beli || s.asal) rh[s.id] = isiRahasia(s); });
+            var keBersama = [];
+            nama.forEach(function (j, i) { if (r[i] != null) keBersama.push({ path: j + '.json', teks: j === 'stok' ? JSON.stringify(stok.map(bersihStok), null, 1) + '\n' : r[i] }); });
+            return commit('owner', [{ path: 'stok-rahasia.json', teks: JSON.stringify(rh, null, 1) + '\n' }], 'Pisahkan modal stok (khusus owner)')
+                .then(function () { return commitBila('data', keBersama, 'Pindahan data dari repo owner'); })
+                .then(function () {
+                    return commit('owner', nama.filter(function (j, i) { return r[i] != null; }).map(function (j) { return { path: j + '.json', hapus: true }; }).concat([{ path: 'PINDAH.md', teks: 'Sejak ' + L.hariIni() + ', servis, stok (tanpa modal), penjualan, dan artikel disimpan di repo ' + G.repoBersama + '.\nRepo ini khusus owner: tebus, foto KTP, dan modal stok (stok-rahasia.json). Versi lama ada di riwayat commit.\n' }]), 'Data dipindah ke repo bersama');
+                });
+        });
+    };
     /* simpan satu catatan ke file daftar: baca versi terbaru dulu supaya perubahan dari perangkat lain tidak tertimpa.
        file lain di repo data (mis. foto tebus) ikut dalam commit yang sama */
     function simpanDaftar(jenis, rec, hapus, tambahan) {
-        var nama = jenis + '.json';
-        return bacaJson(nama).then(function (list) {
+        var nama = jenis + '.json', rp = repoJenis(jenis), stokPisah = PISAH && jenis === 'stok';
+        return bacaJson(nama, rp).then(function (list) {
             list = list.filter(function (x) { return x.id !== rec.id; });
-            if (!hapus) list.unshift(rec);
+            if (!hapus) list.unshift(stokPisah ? bersihStok(rec) : rec);
             list.sort(function (a, b) { return a.created_at < b.created_at ? 1 : -1; });
-            return commit('data', [{ path: nama, teks: JSON.stringify(list, null, 1) + '\n' }].concat(tambahan || []), (hapus ? 'Hapus ' : 'Simpan ') + (rec.kode || rec.slug || rec.id))
-                .then(function () { data[jenis] = list; return list; });
+            return commit(rp, [{ path: nama, teks: JSON.stringify(list, null, 1) + '\n' }].concat(tambahan || []), (hapus ? 'Hapus ' : 'Simpan ') + (rec.kode || rec.slug || rec.id))
+                .then(function () { data[jenis] = stokPisah ? gabungStok(list) : list; return stokPisah && !hapus ? simpanRahasia(rec) : null; })
+                .then(function () { return data[jenis]; });
+        });
+    }
+    /* owner menyimpan stok: modal & asal ke repo owner bila berubah (karyawan tidak pernah melihat atau menulisnya) */
+    function simpanRahasia(rec) {
+        if (peran !== 'owner') return null;
+        var baru = isiRahasia(rec);
+        if (JSON.stringify(rahasia[rec.id] || isiRahasia({})) === JSON.stringify(baru)) return null;
+        return bacaFile('owner', 'stok-rahasia.json').then(function (t) {
+            var rh = t ? JSON.parse(t) : {}; rh[rec.id] = baru;
+            return commit('owner', [{ path: 'stok-rahasia.json', teks: JSON.stringify(rh, null, 1) + '\n' }], 'Modal ' + (rec.kode || rec.id)).then(function () {
+                rahasia = rh; data.stok = gabungStok(data.stok.map(bersihStok));
+            });
         });
     }
     /* simpan catatan + file pendukungnya di dua repo (files: { situs: [], data: [] }). Repo yang memuat foto baru
@@ -470,7 +532,7 @@
        catatan yang sudah lengkap (e.rec) dikembalikan supaya admin cukup menekan Simpan lagi */
     function simpanDua(jenis, rec, files, pesanSitus, dataDulu) {
         function situs() { return commitBila('situs', files.situs, pesanSitus); }
-        function utama() { return simpanDaftar(jenis, rec, false, files.data); }
+        function utama() { return simpanDaftar(jenis, rec, false, files[repoJenis(jenis)]); }
         return (dataDulu ? utama : situs)().then(function () {
             return (dataDulu ? situs : utama)().catch(function (e) {
                 e.sebagian = true; e.rec = salin(rec);
@@ -480,7 +542,7 @@
         }).then(function () { return salin(rec); });
     }
     function hapusDua(jenis, rec, files, pesanSitus) {
-        return commitBila('situs', files.situs, pesanSitus).then(function () { return simpanDaftar(jenis, rec, true, files.data); });
+        return commitBila('situs', files.situs, pesanSitus).then(function () { return simpanDaftar(jenis, rec, true, files[repoJenis(jenis)]); });
     }
     function idBaru() { return crypto.randomUUID ? crypto.randomUUID() : acakHex(16); }
     /* catatan baru: id, kode unik (mis. AYR-XXXXXX), waktu dibuat */
@@ -496,11 +558,11 @@
     function lokasiFoto(f, besar) {
         if (f.repo === 'publik') return { repo: 'situs', path: besar ? f.path : f.thumb_path || f.path, kunci: false };
         var nama = besar ? f.file : f.thumb || f.file;
-        return f.repo === 'data' ? { repo: 'data', path: 'foto/' + nama, kunci: true } : { repo: 'situs', path: 'data/foto/' + nama, kunci: true };
+        return f.repo === 'data' ? { repo: PISAH ? 'owner' : 'data', path: 'foto/' + nama, kunci: true } : { repo: 'situs', path: 'data/foto/' + nama, kunci: true };
     }
     /* file foto (besar & kecil) yang dihapus, dimasukkan ke daftar file repo masing-masing */
     function hapusFoto(daftar, files) {
-        daftar.forEach(function (f) { [true, false].forEach(function (b) { var l = lokasiFoto(f, b); files[l.repo].push({ path: l.path, hapus: true }); }); });
+        daftar.forEach(function (f) { [true, false].forEach(function (b) { var l = lokasiFoto(f, b); (files[l.repo] = files[l.repo] || []).push({ path: l.path, hapus: true }); }); });
         return files;
     }
     function hapusFotoHilang(lama, rec, files) {
@@ -602,19 +664,20 @@
     }
     L.api.simpanTebus = function (rec, fotoBaru) {
         rec = salin(rec);
-        var sekarang = new Date().toISOString(), lama = cari(data.tebus, rec.id), files = { situs: [], data: [] };
+        var sekarang = new Date().toISOString(), lama = cari(data.tebus, rec.id), files = { situs: [], data: [], owner: [] };
+        if (peran !== 'owner') return Promise.reject(new Error('Tebus hanya untuk owner.'));
         siapkanBaru(rec, data.tebus, 'TBS', sekarang);
         L.kunciServis(rec.kode, L.hp4(rec.hp));
         if (!rec.fk) rec.fk = b64(crypto.getRandomValues(new Uint8Array(32)));
         rec.foto = rec.foto || []; rec.updated_at = sekarang; delete rec.biaya_admin; /* kebijakan toko: tanpa biaya tambahan */
         if (rec.status === 'ditebus' && !rec.tgl_tebus) rec.tgl_tebus = L.hariIni();
         if (rec.status === 'milik_toko' && !rec.tgl_berakhir) rec.tgl_berakhir = L.hariIni();
-        return unggahTerkunci(rec, fotoBaru || [], 'foto/', files.data, function () { return { repo: 'data', created_at: sekarang }; })
+        return unggahTerkunci(rec, fotoBaru || [], 'foto/', files[repoJenis('tebus')], function () { return { repo: 'data', created_at: sekarang }; })
             .then(function () { hapusFotoHilang(lama, rec, files); return filePublik('tebus', rec, lama, versiPerjanjian, files.situs); })
             .then(function () { return simpanDua('tebus', rec, files, 'Tebus: perbarui surat perjanjian', true); });
     };
     L.api.hapusTebus = function (rec) {
-        var files = hapusFoto(rec.foto || [], { situs: rec.pubId ? [{ path: 'data/tebus/' + rec.pubId + '.json', hapus: true }] : [], data: [] });
+        var files = hapusFoto(rec.foto || [], { situs: rec.pubId ? [{ path: 'data/tebus/' + rec.pubId + '.json', hapus: true }] : [], data: [], owner: [] });
         return hapusDua('tebus', rec, files, 'Tebus: hapus surat perjanjian');
     };
 
@@ -797,7 +860,7 @@
         var files = [{ path: 'jual.json', teks: JSON.stringify(jualBaru, null, 1) + '\n' }];
         if (adaStok) files.push({ path: 'stok.json', teks: JSON.stringify(stokBaru, null, 1) + '\n' });
         return commit('data', files, pesan).then(function () {
-            data.jual = jualBaru; if (adaStok) data.stok = stokBaru;
+            data.jual = jualBaru; if (adaStok) data.stok = gabungStok(stokBaru);
             return commitBila('situs', filesSitus, 'Jual: perbarui nota & katalog').catch(function (e) {
                 e.sebagian = true; e.rec = salin(rec);
                 e.message = 'Data tersimpan, tapi nota/katalog di situs belum diperbarui: ' + e.message + ' Tekan Simpan sekali lagi.';
