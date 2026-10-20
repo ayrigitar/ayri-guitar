@@ -319,6 +319,10 @@ body.ly { --pos-max: 1240px; }
 .ly-net { padding: 4px 10px; border-radius: var(--r-pill); background: #FEF3E2; color: #A15C07; font-size: .75rem; font-weight: 800; }
 .ly-net[hidden] { display: none; }
 .ly-main.ly-lebar { width: min(100% - 24px, var(--pos-max)); }
+/* halaman form: ruang di bawah supaya isi terakhir tidak tertutup bilah Simpan */
+body.ly-detail .ly-main { margin-bottom: calc(150px + env(safe-area-inset-bottom)); }
+html:has(body.ly-detail) { scroll-padding-bottom: 110px; }
+.ks-p.habis { opacity: .75; }
 
 /* navigasi: PC = baris tab di bawah header, HP = bilah bawah (disembunyikan di halaman detail yang punya tombol Simpan) */
 .ly-tabs[hidden] { display: none !important; }

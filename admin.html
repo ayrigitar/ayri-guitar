@@ -289,7 +289,7 @@
         $('#ks-hp').addEventListener('input', function () { kr.hp = this.value; });
         $('#ks-isi').addEventListener('click', function (e) {
             var b = e.target.closest('button'); if (!b) return; var i = +b.dataset.i, it = kr.items[i]; if (!it) return;
-            if (b.dataset.q) { it.qty = Math.max(1, Math.min(it.maks, it.qty + +b.dataset.q)); }
+            if (b.dataset.q) { if (it.qty + +b.dataset.q < 1) kr.items.splice(i, 1); else it.qty = Math.min(it.maks, it.qty + +b.dataset.q); }
             else if (b.hasAttribute('data-hapus')) kr.items.splice(i, 1);
             gambarKeranjang(); gambarProduk();
         });
@@ -328,7 +328,7 @@
         }).map(function (s) {
             var kel = kelStok(s), f = (s.foto || []).filter(function (x) { return x.repo === 'publik'; })[0], di = kr.items.filter(function (i) { return i.jenis === 'stok' && i.id === s.id; })[0];
             var habis = di && di.qty >= +s.jumlah, tanpaHarga = !(+s.harga_jual > 0);
-            return '<button type="button" class="ks-p" data-tambah="stok:' + s.id + '"' + (habis ? ' disabled' : '') + (di ? ' aria-pressed="true"' : '') + '>' +
+            return '<button type="button" class="ks-p' + (habis ? ' habis' : '') + '" data-tambah="stok:' + s.id + '"' + (di ? ' aria-pressed="true"' : '') + (habis && +s.jumlah === 1 ? ' title="Ketuk lagi untuk membatalkan"' : '') + '>' +
                 '<span class="ks-p__img">' + (f ? '<img src="' + E(f.thumb_path || f.path) + '" alt="" loading="lazy" onerror="this.remove()">' : '') + SVG.gitar + '</span>' +
                 '<span class="ks-p__top"><span class="ks-tag ks-tag--' + kel + '">' + (kel === 'aksesoris' ? E(s.sub || 'Aksesoris') : kel === 'baru' ? 'Baru' : 'Seken') + '</span><span class="ks-p__stok' + (+s.jumlah <= 1 ? ' sedikit' : '') + '">Stok ' + s.jumlah + (s.status === 'dipesan' ? ' · ada DP' : '') + '</span></span>' +
                 '<b class="ks-p__nama">' + E(kel === 'aksesoris' ? L.namaStok(s) : L.jenisStok(s) + ' · ' + L.namaStok(s)) + '</b>' +
@@ -340,13 +340,17 @@
     function tambahKr(kunci) {
         var p = kunci.split(':'), jenis = p[0], id = p[1];
         if (jenis === 'servis') {
-            if (kr.items.some(function (i) { return i.jenis === 'servis' && i.id === id; })) return;
+            if (kr.items.some(function (i) { return i.jenis === 'servis' && i.id === id; })) { kr.items = kr.items.filter(function (i) { return !(i.jenis === 'servis' && i.id === id); }); toast('Dibatalkan dari keranjang.'); gambarKeranjang(); gambarProduk(); return; }
             var s = cariId('servis', id), h = L.hitung(s, s.items, s.bayar);
             kr.items.push({ jenis: 'servis', id: id, kode: s.kode, nama: 'Pelunasan servis ' + L.namaGitar(s, 'gitar'), qty: 1, maks: 1, harga: h.sisa, ambil: true });
             if (!kr.nama && !kr.hp) { kr.nama = s.nama; kr.hp = s.hp; if ($('#ks-nama')) { $('#ks-nama').value = s.nama; $('#ks-hp').value = s.hp; } }
         } else {
             var st = cariId('stok', id), ada = kr.items.filter(function (i) { return i.jenis === 'stok' && i.id === id; })[0];
-            if (ada) ada.qty = Math.min(ada.maks, ada.qty + 1);
+            if (ada && ada.qty >= ada.maks) {
+                /* stok sudah habis di keranjang: ketuk lagi = batalkan (barang 1 unit), atau beri tahu sisa stok */
+                if (ada.maks === 1) { kr.items = kr.items.filter(function (i) { return i !== ada; }); toast('Dibatalkan dari keranjang.'); }
+                else toast('Stok ' + st.kode + ' hanya ' + ada.maks + ' unit.', true);
+            } else if (ada) ada.qty += 1;
             else kr.items.push({ jenis: 'stok', id: id, kode: st.kode, nama: namaBarang(st), qty: 1, maks: +st.jumlah, harga: +st.harga_jual || 0, modal: +st.harga_beli || 0 });
         }
         gambarKeranjang(); gambarProduk();
@@ -358,7 +362,7 @@
         var tot = totalKr(), n = nKr();
         $('#ks-isi').innerHTML = kr.items.length ? kr.items.map(function (it, i) {
             return '<div class="ks-it"><div class="ks-it__a"><b>' + E(it.nama) + '</b><small>' + E(it.kode) + '</small></div><button type="button" class="ly-x" data-hapus data-i="' + i + '" aria-label="Hapus dari keranjang">×</button>' +
-                '<div class="ks-it__b">' + (it.jenis === 'stok' ? '<span class="ks-qty"><button type="button" data-q="-1" data-i="' + i + '" aria-label="Kurangi">−</button><b>' + it.qty + '</b><button type="button" data-q="1" data-i="' + i + '" aria-label="Tambah"' + (it.qty >= it.maks ? ' disabled' : '') + '>+</button></span>' +
+                '<div class="ks-it__b">' + (it.jenis === 'stok' ? '<span class="ks-qty"><button type="button" data-q="-1" data-i="' + i + '" aria-label="' + (it.qty > 1 ? 'Kurangi' : 'Hapus dari keranjang') + '">' + (it.qty > 1 ? '−' : '🗑') + '</button><b>' + it.qty + '</b><button type="button" data-q="1" data-i="' + i + '" aria-label="Tambah"' + (it.qty >= it.maks ? ' disabled' : '') + '>+</button></span>' +
                     '<label class="ks-harga">@<input type="number" inputmode="numeric" min="0" step="1000" data-harga data-i="' + i + '" value="' + it.harga + '" aria-label="Harga per unit"></label>'
                     : '<label class="ks-ambil"><input type="checkbox" data-ambil data-i="' + i + '"' + (it.ambil ? ' checked' : '') + '> Gitar diambil sekarang</label>') +
                 '<b class="ks-it__sub">' + L.rupiah(it.harga * it.qty) + '</b></div></div>';
@@ -635,8 +639,8 @@
             app.innerHTML = '<section id="ak" class="ly-f"><div class="ly-head"><a class="ly-back" href="#jam">‹ Jam masuk</a></div><div class="ly-head"><h1>Karyawan &amp; shift</h1></div>' +
                 '<fieldset class="ly-card ly-f"><legend>Aturan</legend><label>Toleransi terlambat (menit)<input type="number" min="0" max="120" id="ak-tol" value="' + (+atur.toleransi || 0) + '"></label>' +
                 '<p class="ly-hint" style="margin:0">Jam masuk dibandingkan dengan jadwal masing-masing; lewat dari toleransi = Terlambat. Kosongkan "Masuk hari Jumat" bila sama dengan hari lain.</p></fieldset>' +
-                '<fieldset class="ly-card ly-f"><legend>Karyawan</legend><div class="ly-f" id="ak-list">' + (atur.staf.length ? atur.staf.map(baris).join('') : '<p class="ly-muted" style="margin:0">Belum ada. Tekan + Tambah karyawan.</p>') + '</div>' +
-                '<button type="button" class="ly-btn" id="ak-tambah">+ Tambah karyawan</button></fieldset>' +
+                '<fieldset class="ly-card ly-f"><legend>Karyawan</legend><button type="button" class="ly-btn ly-btn--pri" id="ak-tambah" style="justify-self:start">+ Tambah karyawan</button>' +
+                '<div class="ly-f" id="ak-list">' + (atur.staf.length ? atur.staf.map(baris).join('') : '<p class="ly-muted" style="margin:0">Belum ada karyawan.</p>') + '</div></fieldset>' +
                 '<div class="ly-save"><span class="ly-dirty" id="dirty" hidden>Belum disimpan</span><button type="button" class="ly-btn ly-btn--pri" id="ak-simpan">Simpan</button></div></section>';
         }
         gambar(); setDirty(false);
@@ -646,7 +650,10 @@
         };
         app.onclick = function (e) {
             var b = e.target.closest('button'); if (!b) return;
-            if (b.id === 'ak-tambah') { atur.staf.push({ id: idAcak(), nama: '', masuk: '12:00', pulang: '19:00', masuk_jumat: '13:00', aktif: true }); gambar(); setDirty(true); }
+            if (b.id === 'ak-tambah') {
+                atur.staf.push({ id: idAcak(), nama: '', masuk: '12:00', pulang: '19:00', masuk_jumat: '13:00', aktif: true }); gambar(); setDirty(true);
+                var baru = $('[data-i="' + (atur.staf.length - 1) + '"][data-k="nama"]'); if (baru) { baru.scrollIntoView({ block: 'center', behavior: 'smooth' }); baru.focus({ preventScroll: true }); }
+            }
             else if (b.dataset.hapus != null) { var s = atur.staf[+b.dataset.hapus]; if (confirm('Hapus ' + (s.nama || 'karyawan ini') + ' dari daftar? Riwayat absennya tetap tersimpan.')) { atur.staf.splice(+b.dataset.hapus, 1); gambar(); setDirty(true); } }
             else if (b.id === 'ak-simpan') {
                 atur.staf = atur.staf.map(function (s) { return Object.assign(s, { nama: String(s.nama || '').trim() }); });
