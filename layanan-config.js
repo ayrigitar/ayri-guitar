@@ -91,5 +91,22 @@ var AYRI_LAYANAN = {
             'Bila sampai tanggal {batas} penjual tidak membeli kembali, hak membeli kembali berakhir dan gitar sepenuhnya menjadi milik toko, tanpa kewajiban lain di antara kedua pihak.',
             'Perubahan batas waktu hanya berlaku bila disepakati kedua pihak secara tertulis (WhatsApp).'
         ]
+    },
+
+    /* ---------- jual stok dengan DP lalu pelunasan ----------
+       Biaya pembatalan berupa potongan wajar yang disepakati di awal (pembeli membalas SETUJU di WhatsApp).
+       Klausula "DP hangus / uang tidak dapat dikembalikan" sengaja tidak dipakai (UU 8/1999 Pasal 18). */
+    jual: {
+        batasHari: 30,                 /* barang ditahan sekian hari sejak DP */
+        potonganPersen: 10,            /* biaya pembatalan oleh pembeli: % harga barang, paling banyak sebesar uang yang sudah dibayar */
+        pengingatHari: [7, 1],         /* pengingat pelunasan sekian hari sebelum batas */
+        /* tercetak di nota pesanan; {batas}, {potongan} diganti otomatis */
+        ketentuan: [
+            'Barang ditahan untuk pembeli sampai tanggal {batas} dan selama itu tidak dijual kepada pihak lain.',
+            'Sisa pembayaran dilunasi paling lambat tanggal {batas}. Barang diserahkan setelah lunas.',
+            'Bila pembeli membatalkan pesanan, atau sampai tanggal {batas} belum melunasi tanpa kesepakatan baru, pesanan batal dan uang yang sudah dibayar dikembalikan setelah dipotong biaya pembatalan {potongan}% dari harga barang (paling banyak sebesar uang yang sudah dibayar).',
+            'Bila toko yang membatalkan (misalnya barang rusak atau tidak dapat diserahkan), seluruh uang dikembalikan tanpa potongan.',
+            'Pembayaran hanya sah bila tunai di toko atau transfer ke rekening yang tercantum di nota ini. Perubahan batas waktu berlaku bila disepakati kedua pihak secara tertulis (WhatsApp).'
+        ]
     }
 };

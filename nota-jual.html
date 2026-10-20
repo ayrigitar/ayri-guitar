@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Nota Pembelian | Toko Gitar AYRI</title>
+    <link rel="icon" type="image/png" sizes="48x48" href="favicon-48.png">
+    <meta name="theme-color" content="#15100c">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500..700&family=Plus+Jakarta+Sans:wght@400..800&display=swap">
+    <link rel="stylesheet" href="theme-dark.css">
+    <link rel="stylesheet" href="layanan.css">
+    <script src="layanan-config.js"></script>
+    <script src="layanan.js"></script>
+</head>
+<body class="nota-body">
+    <div class="nota-bar" id="bar" hidden>
+        <button type="button" class="ly-btn ly-btn--pri" id="cetak">Simpan PDF / Cetak</button>
+    </div>
+    <main id="isi"><p class="ly-kosong">Memuat&hellip;</p></main>
+
+    <script>
+(function () {
+    var L = Layanan, C = L.C, E = L.esc, isi = document.getElementById('isi');
+    var NAMA = { dp: 'DP', tambahan: 'Pembayaran', pelunasan: 'Pelunasan', refund: 'Dikembalikan' }, METODE = { tunai: 'tunai', transfer: 'transfer', qris: 'QRIS' };
+
+    function nota(j) {
+        var t = C.toko, h = L.hitungJual(j), i = L.infoJual(j);
+        var cap = j.status === 'batal' ? '<span class="nota-lunas dp">BATAL</span>' : h.lunas ? '<span class="nota-lunas">LUNAS</span>' : '<span class="nota-lunas dp">DP</span>';
+        document.title = 'Nota ' + j.kode + ' | ' + t.nama;
+        isi.innerHTML = '<article class="nota">' + L.kopNota(j.status === 'dp' ? 'Bukti Pesanan' : 'Nota Pembelian', j.kode, cap) +
+            '<dl class="nota-info">' +
+            '<div><dt>Pembeli</dt><dd>' + E(j.nama) + '</dd></div><div><dt>No. HP</dt><dd>' + E(j.hp_samar) + '</dd></div>' +
+            '<div><dt>Tanggal</dt><dd>' + L.tgl(j.tgl) + '</dd></div>' +
+            '<div><dt>Status</dt><dd>' + E(L.STATUS_JUAL[j.status] || j.status) + '</dd></div>' +
+            (j.status === 'dp' ? '<div><dt>Ditahan sampai</dt><dd>' + L.tgl(j.batas_lunas) + (i.lewat ? ' (lewat)' : '') + '</dd></div>' : '') +
+            (j.tgl_selesai ? '<div><dt>Diserahkan</dt><dd>' + L.tgl(j.tgl_selesai) + '</dd></div>' : '') +
+            (j.tgl_batal ? '<div><dt>Dibatalkan</dt><dd>' + L.tgl(j.tgl_batal) + (j.batal_oleh === 'toko' ? ' (oleh toko)' : '') + '</dd></div>' : '') + '</dl>' +
+
+            '<table><thead><tr><th>Barang</th><th class="r">Jml</th><th class="r">Harga</th><th class="r">Subtotal</th></tr></thead><tbody>' +
+            (j.items || []).map(function (it) { return '<tr><td>' + E(it.nama) + '</td><td class="r">' + (it.qty || 1) + '</td><td class="r">' + L.rupiah(it.harga) + '</td><td class="r">' + L.rupiah(it.harga * (it.qty || 1)) + '</td></tr>'; }).join('') +
+            '</tbody></table>' +
+
+            '<div class="nota-tot"><div class="t"><span>Total</span><span>' + L.rupiah(h.total) + '</span></div>' +
+            (j.bayar || []).map(function (b) { return '<div><span>' + NAMA[b.jenis] + ' ' + L.tgl(b.tgl) + ' (' + (METODE[b.metode] || b.metode) + ')</span><span>' + (b.jenis === 'refund' ? '−' : '') + L.rupiah(b.jumlah) + '</span></div>'; }).join('') +
+            (j.status === 'batal' ? '<div><span>Biaya pembatalan</span><span>' + L.rupiah(h.potongan) + '</span></div><div class="s"><span>Dikembalikan ke pembeli</span><span>' + L.rupiah(h.kembali || h.harusKembali) + '</span></div>'
+                : '<div class="s"><span>Sisa pembayaran</span><span>' + L.rupiah(h.sisa) + '</span></div>') + '</div>' +
+
+            (j.status === 'dp' && h.sisa ? '<h2>Pelunasan</h2><div class="nota-rek">Tunai di toko atau transfer ke:<br>' + t.rekening.map(function (r) { return '<b>' + E(r.bank) + ' ' + E(r.nomor) + '</b> a.n. ' + E(r.atasNama); }).join('<br>') + '<br><small>Kirim bukti transfer ke WhatsApp +' + E(t.wa) + '.</small></div>' : '') +
+
+            (j.status === 'dp' || j.status === 'batal' ? '<h2>Ketentuan pesanan</h2><ol>' + L.ketentuanJual(j).map(function (x) { return '<li>' + E(x) + '</li>'; }).join('') + '</ol>' : '') +
+            '<p class="nota-foot">' + (j.status === 'dp' ? (j.disetujui ? 'Pembeli menyatakan setuju melalui WhatsApp pada ' + L.tglPanjang(j.disetujui) + '.' : 'Menunggu persetujuan pembeli melalui WhatsApp (balas SETUJU).') + '<br>' : '') +
+            'Terima kasih sudah berbelanja di ' + E(t.nama) + '.<br>Nota ini dapat dibuka kembali di ayrigitar.com/nota-jual.html</p></article>';
+        document.getElementById('bar').hidden = false;
+    }
+    document.getElementById('cetak').addEventListener('click', function () { window.print(); });
+    L.halamanKode({ isi: isi, kunci: 'ayri-nota-jual', jenis: 'jual', halaman: 'nota-jual.html', judul: 'Nota pembelian', labelKode: 'Kode pesanan', contoh: 'JUL-XXXXXX', tombol: 'Buka nota', tampil: nota });
+})();
+    </script>
+</body>
+</html>
