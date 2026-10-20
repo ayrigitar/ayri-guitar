@@ -9,7 +9,8 @@
         dpJasaPersen: 50, bulatkanKe: 1000, gratisTitipHari: 14, biayaTitipPerHari: 5000, garansiHangusHari: 30, penyimpananLamaHari: 90,
         pengingatHari: [7, 12], katalogSisaTampil: 3, jenisGitar: ['Akustik'], kategoriAksesoris: ['Lainnya'], katalogJasa: [], ketentuan: [], syaratJatuh: '',
         github: {}, toko: { nama: 'Toko Gitar AYRI', alamat: '', jam: '', wa: '', rekening: [] },
-        tebus: { batasHari: 30, maksHari: 90, pengingatHari: [7, 1], fotoKtpMinHarga: 1000000, hapusKtpHari: 90, ketentuan: [] }
+        tebus: { batasHari: 30, maksHari: 90, pengingatHari: [7, 1], fotoKtpMinHarga: 1000000, hapusKtpHari: 90, ketentuan: [] },
+        jual: { batasHari: 30, potonganPersen: 10, pengingatHari: [7, 1], ketentuan: [] }
     };
     function lengkapi(c, d) {
         Object.keys(d).forEach(function (k) {
@@ -442,13 +443,13 @@
     L.api.lupakan = function () { L.api.kunci(); try { localStorage.removeItem(KUNCI_TOKEN); } catch (e) {} return Promise.resolve(); };
 
     /* ---------- data (repo privat) ---------- */
-    var data = { servis: [], artikel: [], tebus: [], stok: [] };
+    var data = { servis: [], artikel: [], tebus: [], stok: [], jual: [] };
     function salin(o) { return JSON.parse(JSON.stringify(o)); }
     function cari(list, id) { return list.filter(function (x) { return x.id === id; })[0] || null; }
     function bacaJson(nama) { return bacaFile('data', nama).then(function (t) { return t ? JSON.parse(t) : []; }); }
     L.api.muat = function () {
-        return Promise.all(['servis', 'artikel', 'tebus', 'stok'].map(function (j) { return bacaJson(j + '.json'); })).then(function (r) {
-            data.servis = r[0]; data.artikel = r[1]; data.tebus = r[2]; data.stok = r[3]; return salin(data);
+        return Promise.all(['servis', 'artikel', 'tebus', 'stok', 'jual'].map(function (j) { return bacaJson(j + '.json'); })).then(function (r) {
+            data.servis = r[0]; data.artikel = r[1]; data.tebus = r[2]; data.stok = r[3]; data.jual = r[4]; return salin(data);
         });
     };
     L.api.cadangan = function () { return salin(data); };
@@ -540,11 +541,11 @@
     }
     /* versi publik terenkripsi (data/<folder>/<id>.json): dihapus bila batal, dipindah bila nomor HP (kunci) berubah,
        dan hanya ditulis bila berbeda dari yang ada di situs (mis. mencatat pengingat WA tidak membangun ulang situs) */
-    function filePublik(folder, rec, lama, proyeksi, files) {
+    function filePublik(folder, rec, lama, proyeksi, files, simpanBatal) {
         return L.kunciServis(rec.kode, L.hp4(rec.hp)).then(function (k) {
             var p = 'data/' + folder + '/', path = p + k.id + '.json', diSitus = lama && lama.pubId === k.id;
             if (lama && lama.pubId && !diSitus) files.push({ path: p + lama.pubId + '.json', hapus: true });
-            if (rec.status === 'batal') { if (diSitus) files.push({ path: path, hapus: true }); rec.pubId = null; return; }
+            if (rec.status === 'batal' && !simpanBatal) { if (diSitus) files.push({ path: path, hapus: true }); rec.pubId = null; return; }
             var teks = JSON.stringify(proyeksi(rec));
             rec.pubId = k.id;
             return (diSitus ? bacaFile('situs', path).then(function (ada) {
@@ -641,11 +642,15 @@
     };
     /* katalog publik dibuat ulang dari seluruh stok terbaru; ditulis hanya bila isinya berubah */
     function fileKatalog(ganti, hapus) {
-        return Promise.all([bacaJson('stok.json'), bacaFile('situs', 'data/katalog.json')]).then(function (r) {
-            var list = r[0].filter(function (x) { return x.id !== (ganti || hapus).id; }).concat(ganti ? [ganti] : []);
+        return bacaJson('stok.json').then(function (list) {
+            return fileKatalogDari(list.filter(function (x) { return x.id !== (ganti || hapus).id; }).concat(ganti ? [ganti] : []));
+        });
+    }
+    function fileKatalogDari(list) {
+        return bacaFile('situs', 'data/katalog.json').then(function (lama) {
             var item = list.filter(L.diKatalog).sort(function (a, b) { return (b.tgl_masuk || '') < (a.tgl_masuk || '') ? -1 : 1; }).map(versiKatalog);
             var teks = JSON.stringify({ toko: C.toko.nama, item: item }, null, 1) + '\n';
-            return r[1] === teks ? [] : [{ path: 'data/katalog.json', teks: teks }];
+            return lama === teks ? [] : [{ path: 'data/katalog.json', teks: teks }];
         });
     }
     function fotoPublikStok(besar, kecil, tipe, files, sekarang) {
@@ -662,7 +667,8 @@
         siapkanBaru(rec, data.stok, 'STK', sekarang);
         rec.kategori = rec.kategori || 'gitar';
         rec.foto = rec.foto || []; rec.penjualan = rec.penjualan || []; rec.updated_at = sekarang;
-        if (rec.status !== 'ditarik') rec.status = +rec.jumlah > 0 ? (rec.status === 'dipesan' ? 'dipesan' : 'tersedia') : 'terjual';
+        /* habis tapi masih ditahan pesanan DP: tetap Dipesan */
+        if (rec.status !== 'ditarik') rec.status = +rec.jumlah > 0 ? (rec.status === 'dipesan' ? 'dipesan' : 'tersedia') : (rec.status === 'dipesan' ? 'dipesan' : 'terjual');
         /* foto lama yang masih terenkripsi (dari tebus / versi sebelumnya) dijadikan foto produk publik; file lamanya
            terhapus lewat hapusFotoHilang karena id-nya berganti */
         return Promise.all(rec.foto.map(function (f) {
@@ -686,6 +692,158 @@
         var files = hapusFoto(rec.foto || [], { situs: [], data: [] });
         return fileKatalog(null, rec).then(function (kat) { files.situs = files.situs.concat(kat); return hapusDua('stok', rec, files, 'Stok: perbarui katalog'); });
     };
+
+    /* ---------- jual stok (lunas, atau DP lalu pelunasan) ----------
+       Satu transaksi = pembeli + barang dari stok + pembayaran bertahap. Saat dibuat, jumlah stok langsung dikurangi
+       (barang ditahan dan hilang dari katalog); bila batal, stok dikembalikan. Data lengkap di repo privat (jual.json);
+       nota untuk pembeli disimpan terenkripsi di situs (data/jual), dibuka dengan kode + 4 digit HP. */
+    L.STATUS_JUAL = { dp: 'Dipesan (DP)', lunas: 'Lunas, belum diambil', selesai: 'Selesai', batal: 'Batal' };
+    L.urlNotaJual = function (kode) { return L.situs() + 'nota-jual.html?k=' + encodeURIComponent(kode); };
+    L.hitungJual = function (j) {
+        var total = 0, dibayar = 0, kembali = 0, bulat = C.bulatkanKe;
+        (j.items || []).forEach(function (i) { total += (+i.harga || 0) * (+i.qty || 1); });
+        (j.bayar || []).forEach(function (b) { if (b.jenis === 'refund') kembali += +b.jumlah || 0; else dibayar += +b.jumlah || 0; });
+        /* biaya pembatalan oleh pembeli: % harga barang, paling banyak sebesar uang yang sudah dibayar; batal oleh toko tanpa potongan */
+        var potongan = j.batal_oleh === 'toko' ? 0 : Math.min(dibayar, Math.round(total * C.jual.potonganPersen / 100 / bulat) * bulat);
+        return {
+            total: total, dibayar: dibayar, kembali: kembali, sisa: Math.max(0, total - dibayar), lunas: total > 0 && dibayar >= total,
+            potongan: potongan, harusKembali: Math.max(0, dibayar - potongan)
+        };
+    };
+    L.infoJual = function (j, hariIni) {
+        var sisa = j.status === 'dp' && j.batas_lunas ? L.hariAntara(hariIni || L.hariIni(), j.batas_lunas) : null;
+        return { sisa: sisa, lewat: sisa != null && sisa < 0 };
+    };
+    L.perluIngatJual = function (j, hariIni) {
+        var i = L.infoJual(j, hariIni), terakhir = (j.pengingat || []).slice(-1)[0] || '';
+        if (i.sisa == null) return false;
+        if (i.lewat) return true;
+        return C.jual.pengingatHari.some(function (d) { return i.sisa <= d && terakhir < L.tambahHari(j.batas_lunas, -d); });
+    };
+    L.namaJual = function (j) { return (j.items || []).map(function (i) { return i.nama + (i.qty > 1 ? ' ×' + i.qty : ''); }).join(', ') || 'Barang'; };
+    L.ketentuanJual = function (j) {
+        return C.jual.ketentuan.map(function (k) {
+            return k.split('{batas}').join(j.batas_lunas ? L.tglPanjang(j.batas_lunas) : 'batas yang disepakati').split('{potongan}').join(String(C.jual.potonganPersen));
+        });
+    };
+    function barisBarang(j) { return (j.items || []).map(function (i) { return '• ' + i.nama + (i.qty > 1 ? ' ×' + i.qty : '') + ' – ' + L.rupiah(i.harga * (i.qty || 1)); }).join('\n'); }
+    L.pesanJual = {
+        /* bukti pesanan dengan DP: pembeli diminta membalas SETUJU atas ketentuan */
+        dp: function (j) {
+            var h = L.hitungJual(j);
+            return 'Halo Kak ' + j.nama + ', terima kasih sudah memesan di ' + C.toko.nama + ' 🙏\n\n' + barisBarang(j) + '\n\n' +
+                'Kode pesanan: *' + j.kode + '*\nTotal: *' + L.rupiah(h.total) + '*\nSudah dibayar (DP): ' + L.rupiah(h.dibayar) + '\nSisa: *' + L.rupiah(h.sisa) + '*\n' +
+                'Barang kami tahan sampai *' + L.tgl(j.batas_lunas) + '*. Pelunasan tunai di toko atau transfer ke ' + L.rekeningTeks() + '.\n\n' +
+                'Bila batal atau belum lunas sampai tanggal tersebut, DP dikembalikan dipotong biaya pembatalan ' + C.jual.potonganPersen + '% dari harga barang (paling banyak sebesar DP' + (h.potongan ? ', yaitu ' + L.rupiah(h.potongan) : '') + ').\n\n' +
+                'Nota & ketentuan lengkap: ' + L.urlNotaJual(j.kode) + '\n(masukkan 4 digit terakhir no. HP Kakak)\n\nMohon balas *SETUJU* bila ketentuan di atas sudah sesuai.';
+        },
+        pengingat: function (j) {
+            var h = L.hitungJual(j), i = L.infoJual(j);
+            return 'Halo Kak ' + j.nama + ', kami mengingatkan pesanan ' + L.namaJual(j) + ' (kode *' + j.kode + '*) masih kami tahan.\n\n' +
+                'Sisa pembayaran: *' + L.rupiah(h.sisa) + '*\nBatas pelunasan: *' + L.tgl(j.batas_lunas) + '*' + (i.lewat ? ' (sudah lewat)' : i.sisa ? ' (' + i.sisa + ' hari lagi)' : ' (hari ini)') + '\n' +
+                'Pelunasan tunai di toko atau transfer ke ' + L.rekeningTeks() + '.\n' + jamBuka() + '\nNota: ' + L.urlNotaJual(j.kode);
+        },
+        lunas: function (j) {
+            return 'Halo Kak ' + j.nama + ', pembayaran ' + L.namaJual(j) + ' (kode *' + j.kode + '*) sudah *LUNAS* ✅ Terima kasih!\n' +
+                (j.status === 'selesai' ? '' : 'Barang bisa diambil di toko.\n' + jamBuka()) + '\nNota: ' + L.urlNotaJual(j.kode) + '\n(masukkan 4 digit terakhir no. HP Kakak)\n\nSelamat bermain musik 🎸';
+        },
+        batal: function (j) {
+            var h = L.hitungJual(j);
+            return 'Halo Kak ' + j.nama + ', pesanan ' + L.namaJual(j) + ' (kode *' + j.kode + '*) sudah kami batalkan' + (j.tgl_batal ? ' pada ' + L.tgl(j.tgl_batal) : '') + '.\n\n' +
+                'Uang yang sudah dibayar: ' + L.rupiah(h.dibayar) + '\n' + (h.potongan ? 'Biaya pembatalan (' + C.jual.potonganPersen + '% dari harga barang, paling banyak sebesar DP): ' + L.rupiah(h.potongan) + '\n' : 'Tanpa potongan.\n') +
+                'Dikembalikan: *' + L.rupiah(h.kembali || h.harusKembali) + '*\n\nNota: ' + L.urlNotaJual(j.kode);
+        }
+    };
+    function versiNotaJual(j) {
+        return {
+            kode: j.kode, nama: j.nama, hp_samar: '••••' + L.hp4(j.hp), tgl: j.tgl, status: j.status, batas_lunas: j.batas_lunas || null,
+            tgl_lunas: j.tgl_lunas || null, tgl_selesai: j.tgl_selesai || null, tgl_batal: j.tgl_batal || null, batal_oleh: j.batal_oleh || null, disetujui: j.disetujui || null,
+            items: (j.items || []).map(function (i) { return { nama: i.nama, qty: i.qty, harga: i.harga }; }),
+            bayar: (j.bayar || []).map(function (b) { return { tgl: b.tgl, jumlah: b.jumlah, jenis: b.jenis, metode: b.metode }; })
+        };
+    }
+    /* status barang setelah transaksi berubah: habis + masih ada pesanan berjalan = Dipesan, habis saja = Terjual */
+    function statusStokDari(s, jualList) {
+        if (s.status === 'ditarik') return 'ditarik';
+        if (+s.jumlah > 0) return s.status === 'dipesan' ? 'dipesan' : 'tersedia';
+        var ditahan = jualList.some(function (j) { return (j.status === 'dp' || j.status === 'lunas') && (j.items || []).some(function (i) { return i.stok_id === s.id; }); });
+        return ditahan ? 'dipesan' : 'terjual';
+    }
+    /* terapkan transaksi ke daftar stok (jumlah + catatan penjualan). aktif = transaksi masih menahan barang */
+    function terapkanStok(rec, stokList, aktifLama, aktifBaru) {
+        var diubah = {};
+        (rec.items || []).forEach(function (it, n) {
+            var s = stokList.filter(function (x) { return x.id === it.stok_id; })[0];
+            if (!s) { if (!aktifLama && aktifBaru) throw new Error('Barang ' + it.nama + ' tidak ada lagi di stok.'); return; }
+            s.penjualan = s.penjualan || [];
+            if (!aktifLama && aktifBaru) {
+                if ((+s.jumlah || 0) < it.qty) throw new Error('Stok ' + it.nama + ' tinggal ' + (+s.jumlah || 0) + ' unit.');
+                s.jumlah = (+s.jumlah || 0) - it.qty;
+                s.penjualan.push({ id: rec.id + '-' + n, tgl: rec.tgl, qty: it.qty, harga: it.harga, catatan: rec.kode + (rec.nama ? ' · ' + rec.nama : ''), jual_id: rec.id });
+            } else if (aktifLama && !aktifBaru) {
+                s.jumlah = (+s.jumlah || 0) + it.qty;
+                s.penjualan = s.penjualan.filter(function (p) { return p.jual_id !== rec.id; });
+            }
+            diubah[s.id] = s;
+        });
+        return diubah;
+    }
+    function aturStatusStok(diubah, jualList, sekarang) {
+        Object.keys(diubah).forEach(function (id) { var s = diubah[id]; s.status = statusStokDari(s, jualList); s.updated_at = sekarang; });
+    }
+    function urutBaru(list) { return list.sort(function (a, b) { return a.created_at < b.created_at ? 1 : -1; }); }
+    /* jual.json + stok.json dalam satu commit di repo privat, lalu nota + katalog di situs */
+    function simpanJualStok(rec, jualBaru, stokBaru, adaStok, filesSitus, pesan) {
+        var files = [{ path: 'jual.json', teks: JSON.stringify(jualBaru, null, 1) + '\n' }];
+        if (adaStok) files.push({ path: 'stok.json', teks: JSON.stringify(stokBaru, null, 1) + '\n' });
+        return commit('data', files, pesan).then(function () {
+            data.jual = jualBaru; if (adaStok) data.stok = stokBaru;
+            return commitBila('situs', filesSitus, 'Jual: perbarui nota & katalog').catch(function (e) {
+                e.sebagian = true; e.rec = salin(rec);
+                e.message = 'Data tersimpan, tapi nota/katalog di situs belum diperbarui: ' + e.message + ' Tekan Simpan sekali lagi.';
+                throw e;
+            });
+        });
+    }
+    L.api.simpanJual = function (rec) {
+        rec = salin(rec);
+        var sekarang = new Date().toISOString(), t = L.hariIni(), situs = [];
+        siapkanBaru(rec, data.jual, 'JUL', sekarang);
+        rec.items = rec.items || []; rec.bayar = rec.bayar || []; rec.updated_at = sekarang; rec.tgl = rec.tgl || t;
+        var h = L.hitungJual(rec);
+        if (rec.status !== 'batal' && rec.status !== 'selesai') rec.status = h.lunas ? 'lunas' : 'dp';
+        if (rec.status === 'dp' && !rec.batas_lunas) rec.batas_lunas = L.tambahHari(rec.tgl, C.jual.batasHari);
+        if (h.lunas && !rec.tgl_lunas) rec.tgl_lunas = t;
+        if (rec.status === 'selesai' && !rec.tgl_selesai) rec.tgl_selesai = t;
+        if (rec.status === 'batal' && !rec.tgl_batal) rec.tgl_batal = t;
+        if (L.hp4(rec.hp)) L.kunciServis(rec.kode, L.hp4(rec.hp));
+        return Promise.all([bacaJson('jual.json'), bacaJson('stok.json')]).then(function (r) {
+            /* versi di repo (bukan di memori) yang menentukan apakah stok sudah dikurangi: aman bila Simpan diulang */
+            var diFile = cari(r[0], rec.id), aktifLama = !!diFile && diFile.status !== 'batal', aktifBaru = rec.status !== 'batal';
+            var jualBaru = urutBaru(r[0].filter(function (x) { return x.id !== rec.id; }).concat([rec]));
+            var stokBaru = r[1], diubah = terapkanStok(rec, stokBaru, aktifLama, aktifBaru);
+            aturStatusStok(diubah, jualBaru, sekarang);
+            var adaStok = Object.keys(diubah).length > 0;
+            var langkah;
+            if (L.hp4(rec.hp)) langkah = filePublik('jual', rec, diFile, versiNotaJual, situs, true);
+            else { if (diFile && diFile.pubId) situs.push({ path: 'data/jual/' + diFile.pubId + '.json', hapus: true }); rec.pubId = null; langkah = Promise.resolve(); }
+            return langkah.then(function () { return adaStok ? fileKatalogDari(stokBaru) : []; }).then(function (kat) {
+                return simpanJualStok(rec, jualBaru, stokBaru, adaStok, situs.concat(kat), 'Simpan ' + rec.kode);
+            });
+        }).then(function () { return salin(rec); });
+    };
+    L.api.hapusJual = function (rec) {
+        return Promise.all([bacaJson('jual.json'), bacaJson('stok.json')]).then(function (r) {
+            var diFile = cari(r[0], rec.id), situs = [], sekarang = new Date().toISOString();
+            var jualBaru = r[0].filter(function (x) { return x.id !== rec.id; }), stokBaru = r[1];
+            var diubah = diFile ? terapkanStok(diFile, stokBaru, diFile.status !== 'batal', false) : {};
+            aturStatusStok(diubah, jualBaru, sekarang);
+            if (diFile && diFile.pubId) situs.push({ path: 'data/jual/' + diFile.pubId + '.json', hapus: true });
+            var adaStok = Object.keys(diubah).length > 0;
+            return (adaStok ? fileKatalogDari(stokBaru) : Promise.resolve([])).then(function (kat) { return simpanJualStok(rec, jualBaru, stokBaru, adaStok, situs.concat(kat), 'Hapus ' + rec.kode); });
+        });
+    };
+    L.api.daftar = function (jenis) { return salin(data[jenis] || []); };
 
     /* ---------- artikel ---------- */
     L.api.simpanArtikel = function (art) {
