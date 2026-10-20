@@ -449,7 +449,7 @@
     L.api.lupakan = function () { L.api.kunci(); try { localStorage.removeItem(KUNCI_TOKEN); } catch (e) {} return Promise.resolve(); };
 
     /* ---------- data (repo privat) ---------- */
-    var data = { servis: [], artikel: [], tebus: [], stok: [], jual: [], absen: [], opname: [], pengaturan: {} }, rahasia = {}, statusPisah = null;
+    var data = { servis: [], artikel: [], tebus: [], stok: [], jual: [], absen: [], opname: [], pengaturan: {}, kas: [] }, rahasia = {}, statusPisah = null;
     function salin(o) { return JSON.parse(JSON.stringify(o)); }
     function cari(list, id) { return list.filter(function (x) { return x.id === id; })[0] || null; }
     function bacaJson(nama, rp) { return bacaFile(rp || 'data', nama).then(function (t) { return t ? JSON.parse(t) : []; }); }
@@ -467,7 +467,7 @@
         return cekPeran().then(function () {
             var owner = peran === 'owner';
             return Promise.all([
-                Promise.all(['servis', 'artikel', 'stok', 'jual', 'absen', 'opname', 'pengaturan'].map(function (j) { return bacaFile('data', j + '.json'); })),
+                Promise.all(['servis', 'artikel', 'stok', 'jual', 'absen', 'opname', 'pengaturan', 'kas'].map(function (j) { return bacaFile('data', j + '.json'); })),
                 owner ? bacaJson('tebus.json', repoJenis('tebus')) : Promise.resolve([]),
                 owner && PISAH ? bacaFile('owner', 'stok-rahasia.json') : Promise.resolve(null),
                 owner && PISAH ? bacaFile('owner', 'servis.json') : Promise.resolve(null)
@@ -478,7 +478,7 @@
             statusPisah = PISAH && !b[0] ? (peran === 'owner' && r[3] ? 'pindah' : 'kosong') : null;
             rahasia = r[2] ? JSON.parse(r[2]) : {};
             data.servis = json(b[0]); data.artikel = json(b[1]); data.stok = gabungStok(json(b[2])); data.jual = json(b[3]); data.tebus = r[1];
-            data.absen = json(b[4]); data.opname = json(b[5]); data.pengaturan = b[6] ? JSON.parse(b[6]) : {};
+            data.absen = json(b[4]); data.opname = json(b[5]); data.pengaturan = b[6] ? JSON.parse(b[6]) : {}; data.kas = json(b[7]);
             return salin(data);
         });
     };
@@ -933,6 +933,21 @@
         if (!rec.id) { rec.id = idBaru(); rec.created_at = sekarang; }
         rec.updated_at = sekarang;
         return simpanDaftar('absen', rec).then(function () { return salin(rec); });
+    };
+
+    /* ---------- kas harian: buka kasir (saldo awal), pengeluaran, tutup kasir (hitung uang laci) ----------
+       Satu catatan per tanggal di kas.json (repo bersama). Perubahan selalu diterapkan ke versi terbaru di repo,
+       supaya pengeluaran yang dicatat dari dua perangkat tidak saling menimpa. */
+    L.KATEGORI_KELUAR = ['Part & bahan servis', 'Perlengkapan toko', 'Transport & ongkir', 'Makan & minum', 'Gaji & bonus', 'Listrik, internet, sewa', 'Lainnya'];
+    L.api.ubahKas = function (tgl, ubah) {
+        return bacaJson('kas.json').then(function (list) {
+            var sekarang = new Date().toISOString(), rec = list.filter(function (x) { return x.tgl === tgl; })[0];
+            if (!rec) { rec = { id: idBaru(), tgl: tgl, created_at: sekarang, pengeluaran: [] }; list.push(rec); }
+            rec.pengeluaran = rec.pengeluaran || [];
+            ubah(rec); rec.updated_at = sekarang;
+            list.sort(function (a, b) { return a.tgl < b.tgl ? 1 : -1; });
+            return commit('data', [{ path: 'kas.json', teks: JSON.stringify(list, null, 1) + '\n' }], 'Kas ' + tgl).then(function () { data.kas = list; return salin(rec); });
+        });
     };
 
     /* ---------- stock opname ----------

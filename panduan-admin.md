@@ -155,6 +155,16 @@ Setelah situs diperbarui, buka admin di HP owner. Akan muncul layar **Pisahkan d
 > Karyawan yang keluar kerja: ganti PIN tablet (Hapus token dari perangkat ini → pasang ulang dengan PIN baru), atau cabut token tablet dan buat yang baru.
 > Token tablet tetap bisa mengubah situs (karena nota servis disimpan di sana), jadi berikan hanya kepada karyawan yang dipercaya.
 
+## Hari ini & kas harian
+
+- **Hari ini** adalah halaman pertama admin. Isinya hal yang perlu ditindak hari itu: DP barang yang lewat atau tinggal ≤3 hari, servis lewat estimasi, gitar selesai yang perlu diingatkan, tebus jatuh tempo, karyawan yang belum absen, laporan opname, aksesoris hampir habis, dan pengingat cadangan (tiap 7 hari).
+- **Kas harian**:
+  - **Buka kasir** pagi hari dengan saldo awal laci.
+  - Catat **pengeluaran** (dari laci atau rekening) dengan kategorinya.
+  - Malam hari hitung uang laci, lalu **Tutup kasir**.
+  - Admin menghitung uang yang *seharusnya* ada (saldo awal + tunai masuk dari transaksi − pengeluaran tunai) dan menampilkan selisihnya.
+- **Riwayat kas & pengeluaran** per bulan. Pengeluaran juga masuk **Rekap** sebagai perkiraan laba.
+
 ## Jam masuk, stock opname, rekap
 
 - **Jam masuk** (menu Jam, di HP lewat **Lainnya**): karyawan memilih namanya, lalu tekan **Masuk sekarang** dan **Keluar** saat pulang. Status *Tepat waktu* / *Terlambat* dihitung dari jadwal masing-masing.
