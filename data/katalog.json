@@ -2,6 +2,25 @@
  "toko": "Toko Gitar AYRI",
  "item": [
   {
+   "kode": "STK-752B52",
+   "kategori": "gitar",
+   "jenis": "Akustik",
+   "kondisi": "bekas",
+   "nama": "Yamaha APX 500",
+   "warna": "Natural",
+   "deskripsi": "",
+   "harga": 1350000,
+   "status": "dipesan",
+   "sisa": null,
+   "foto": [
+    {
+     "src": "foto/stok/fb9c3ed85508bc64f82f.webp",
+     "kecil": "foto/stok/fb9c3ed85508bc64f82f-k.webp"
+    }
+   ],
+   "masuk": "2026-10-18"
+  },
+  {
    "kode": "STK-QFV3U3",
    "kategori": "gitar",
    "jenis": "Bass",
