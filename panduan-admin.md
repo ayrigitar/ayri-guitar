@@ -155,6 +155,20 @@ Setelah situs diperbarui, buka admin di HP owner. Akan muncul layar **Pisahkan d
 > Karyawan yang keluar kerja: ganti PIN tablet (Hapus token dari perangkat ini → pasang ulang dengan PIN baru), atau cabut token tablet dan buat yang baru.
 > Token tablet tetap bisa mengubah situs (karena nota servis disimpan di sana), jadi berikan hanya kepada karyawan yang dipercaya.
 
+## Jam masuk, stock opname, rekap
+
+- **Jam masuk** (menu Jam, di HP lewat **Lainnya**): karyawan memilih namanya, lalu tekan **Masuk sekarang** dan **Keluar** saat pulang. Status *Tepat waktu* / *Terlambat* dihitung dari jadwal masing-masing.
+  - Owner mengatur nama karyawan, jam masuk–pulang, jam masuk Jumat, dan toleransi terlambat di **Atur karyawan & shift**.
+  - Waktu diambil dari jam perangkat, jadi pastikan jam tablet benar (otomatis dari internet).
+- **Stock opname** (tombol di halaman Stok, atau **Lainnya** di HP): isi jumlah fisik yang berbeda dari sistem, beserta alasannya.
+  - Laporan dari karyawan *menunggu owner*; owner menekan **Setujui & sesuaikan stok**.
+  - Owner yang menghitung sendiri langsung menyesuaikan stok.
+  - Nilai rupiah selisih hanya terlihat oleh owner.
+- **Rekap bulanan** (khusus owner):
+  - uang masuk menurut tanggal bayar (barang, servis, tebus), uang keluar (beli gitar tebus, uang kembali karena batal);
+  - untung kotor barang (harga deal − modal) dan rincian tunai/transfer untuk dicocokkan dengan kas dan mutasi rekening;
+  - grafik, barang terlaris, log transaksi, dan **Unduh CSV** untuk Excel.
+
 ## Keamanan & perawatan
 
 - **HP hilang?** Buka https://github.com/settings/personal-access-tokens → token **Admin servis AYRI** → **Revoke**. Buat token baru (langkah 2) dan pasang di HP baru. Data tidak hilang karena tersimpan di GitHub.

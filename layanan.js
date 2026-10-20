@@ -449,7 +449,7 @@
     L.api.lupakan = function () { L.api.kunci(); try { localStorage.removeItem(KUNCI_TOKEN); } catch (e) {} return Promise.resolve(); };
 
     /* ---------- data (repo privat) ---------- */
-    var data = { servis: [], artikel: [], tebus: [], stok: [], jual: [] }, rahasia = {}, statusPisah = null;
+    var data = { servis: [], artikel: [], tebus: [], stok: [], jual: [], absen: [], opname: [], pengaturan: {} }, rahasia = {}, statusPisah = null;
     function salin(o) { return JSON.parse(JSON.stringify(o)); }
     function cari(list, id) { return list.filter(function (x) { return x.id === id; })[0] || null; }
     function bacaJson(nama, rp) { return bacaFile(rp || 'data', nama).then(function (t) { return t ? JSON.parse(t) : []; }); }
@@ -467,7 +467,7 @@
         return cekPeran().then(function () {
             var owner = peran === 'owner';
             return Promise.all([
-                Promise.all(['servis', 'artikel', 'stok', 'jual'].map(function (j) { return bacaFile('data', j + '.json'); })),
+                Promise.all(['servis', 'artikel', 'stok', 'jual', 'absen', 'opname', 'pengaturan'].map(function (j) { return bacaFile('data', j + '.json'); })),
                 owner ? bacaJson('tebus.json', repoJenis('tebus')) : Promise.resolve([]),
                 owner && PISAH ? bacaFile('owner', 'stok-rahasia.json') : Promise.resolve(null),
                 owner && PISAH ? bacaFile('owner', 'servis.json') : Promise.resolve(null)
@@ -478,6 +478,7 @@
             statusPisah = PISAH && !b[0] ? (peran === 'owner' && r[3] ? 'pindah' : 'kosong') : null;
             rahasia = r[2] ? JSON.parse(r[2]) : {};
             data.servis = json(b[0]); data.artikel = json(b[1]); data.stok = gabungStok(json(b[2])); data.jual = json(b[3]); data.tebus = r[1];
+            data.absen = json(b[4]); data.opname = json(b[5]); data.pengaturan = b[6] ? JSON.parse(b[6]) : {};
             return salin(data);
         });
     };
@@ -907,6 +908,65 @@
         });
     };
     L.api.daftar = function (jenis) { return salin(data[jenis] || []); };
+
+    /* ---------- karyawan & jam masuk ----------
+       pengaturan.json (repo bersama): daftar karyawan + jam shift, diatur owner. absen.json: catatan masuk/keluar. */
+    L.api.pengaturan = function () { return salin(data.pengaturan || {}); };
+    L.api.simpanPengaturan = function (atur) {
+        if (peran !== 'owner') return Promise.reject(new Error('Pengaturan karyawan hanya untuk owner.'));
+        atur = salin(atur); atur.updated_at = new Date().toISOString();
+        return commit('data', [{ path: 'pengaturan.json', teks: JSON.stringify(atur, null, 1) + '\n' }], 'Pengaturan karyawan & shift').then(function () { data.pengaturan = atur; return salin(atur); });
+    };
+    /* jadwal masuk hari itu: Jumat boleh beda jam */
+    L.jadwalStaf = function (st, tgl) {
+        var d = L.tglObj(tgl) || new Date(), jumat = d.getDay() === 5;
+        return { masuk: (jumat && st.masuk_jumat) || st.masuk || '12:00', pulang: st.pulang || '19:00' };
+    };
+    function menit(hhmm) { var m = /^(\d{1,2})[:.](\d{2})/.exec(hhmm || ''); return m ? +m[1] * 60 + +m[2] : null; }
+    L.telatMenit = function (jamMasuk, jadwal) { var a = menit(jamMasuk), b = menit(jadwal); return a == null || b == null ? 0 : Math.max(0, a - b); };
+    L.statusAbsen = function (a, toleransi) {
+        var t = a.telat || 0;
+        return t > (toleransi || 0) ? { telat: true, label: 'Terlambat ' + t + ' menit' } : { telat: false, label: 'Tepat waktu' };
+    };
+    L.api.simpanAbsen = function (rec) {
+        rec = salin(rec); var sekarang = new Date().toISOString();
+        if (!rec.id) { rec.id = idBaru(); rec.created_at = sekarang; }
+        rec.updated_at = sekarang;
+        return simpanDaftar('absen', rec).then(function () { return salin(rec); });
+    };
+
+    /* ---------- stock opname ----------
+       Karyawan menghitung fisik dan mengirim laporan; owner menyesuaikan stok (langsung, atau menyetujui laporan karyawan).
+       Laporan tidak menyimpan rupiah: nilai selisih dihitung dari modal saat ditampilkan, hanya untuk owner. */
+    L.api.simpanOpname = function (rec, sesuaikan) {
+        rec = salin(rec);
+        var sekarang = new Date().toISOString(), t = L.hariIni();
+        if (sesuaikan && peran !== 'owner') return Promise.reject(new Error('Penyesuaian stok hanya oleh owner.'));
+        siapkanBaru(rec, data.opname, 'OPN', sekarang);
+        rec.updated_at = sekarang; rec.tgl = rec.tgl || t;
+        rec.status = sesuaikan ? 'disesuaikan' : rec.status === 'disesuaikan' ? 'disesuaikan' : 'menunggu';
+        if (sesuaikan && !rec.tgl_sesuai) rec.tgl_sesuai = t;
+        return Promise.all([bacaJson('opname.json'), bacaJson('stok.json')]).then(function (r) {
+            var diFile = cari(r[0], rec.id), sudah = diFile && diFile.status === 'disesuaikan', list = urutBaru(r[0].filter(function (x) { return x.id !== rec.id; }).concat([rec]));
+            var stok = r[1], ubah = false;
+            if (sesuaikan && !sudah) (rec.items || []).forEach(function (it) {
+                var s = stok.filter(function (x) { return x.id === it.stok_id; })[0];
+                if (!s || it.fisik === it.sistem) return;
+                /* dihitung ulang dari jumlah di repo saat ini: penjualan sejak hitung fisik tetap terhitung */
+                var beda = it.fisik - it.sistem; s.jumlah = Math.max(0, (+s.jumlah || 0) + beda); s.updated_at = sekarang;
+                s.catatan_admin = ((s.catatan_admin ? s.catatan_admin + '\n' : '') + 'Opname ' + rec.kode + ' ' + L.tgl(t) + ': ' + (beda > 0 ? '+' : '') + beda + (it.catatan ? ' (' + it.catatan + ')' : '')).slice(-600);
+                if (+s.jumlah > 0 && (s.status === 'terjual')) s.status = 'tersedia';
+                if (!(+s.jumlah > 0) && s.status === 'tersedia') s.status = 'ditarik';
+                ubah = true;
+            });
+            var files = [{ path: 'opname.json', teks: JSON.stringify(list, null, 1) + '\n' }];
+            if (ubah) files.push({ path: 'stok.json', teks: JSON.stringify(PISAH ? stok.map(bersihStok) : stok, null, 1) + '\n' });
+            return commit('data', files, (sesuaikan ? 'Opname disesuaikan ' : 'Opname ') + rec.kode).then(function () {
+                data.opname = list; if (ubah) data.stok = gabungStok(stok);
+                return ubah ? fileKatalogDari(stok).then(function (kat) { return commitBila('situs', kat, 'Opname: perbarui katalog'); }) : null;
+            });
+        }).then(function () { return salin(rec); });
+    };
 
     /* ---------- artikel ---------- */
     L.api.simpanArtikel = function (art) {
