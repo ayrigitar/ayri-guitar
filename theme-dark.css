@@ -305,11 +305,11 @@ address { font-style: normal; }
   font-size: 1.0625rem; font-weight: 800; letter-spacing: -.01em; color: var(--ink);
 }
 .brand__mark {
-  width: 32px; height: 32px; flex: none;
-  filter: drop-shadow(0 4px 8px rgba(158, 90, 12, .3));
+  display: inline-block; flex: none; width: 28px; height: 33px;
+  background: linear-gradient(135deg, #E9B567, #9E5A0C);
+  -webkit-mask: url("logo/ayri-ikon.svg") center / contain no-repeat; mask: url("logo/ayri-ikon.svg") center / contain no-repeat;
   transition: transform .6s var(--spring);
 }
-.brand__mark text { font: 700 13px/1 var(--font-display); fill: #fff; }
 .brand__name { white-space: nowrap; }
 @media (hover: hover) { .brand:hover .brand__mark { transform: rotate(-14deg) scale(1.06); } }
 @media (min-width: 640px) { .brand { font-size: 1.1875rem; } }
