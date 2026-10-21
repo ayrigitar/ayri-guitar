@@ -316,7 +316,8 @@ body.ly { --pos-max: 1240px; }
 .ly-ikon svg, .ly-tabs svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 .ly-ikon.putar svg { animation: ly-putar .9s linear infinite; }
 @keyframes ly-putar { to { transform: rotate(360deg); } }
-.ly-net { padding: 4px 10px; border-radius: var(--r-pill); background: #FEF3E2; color: #A15C07; font-size: .75rem; font-weight: 800; }
+.ly-net { padding: 4px 10px; border: 0; border-radius: var(--r-pill); background: #FEF3E2; color: #A15C07; font: inherit; font-size: .75rem; font-weight: 800; cursor: pointer; white-space: nowrap; }
+.ly-net.err { background: #FDE8E8; color: #B42318; }
 .ly-net[hidden] { display: none; }
 .ly-main.ly-lebar { width: min(100% - 24px, var(--pos-max)); }
 /* halaman form: ruang di bawah supaya isi terakhir tidak tertutup bilah Simpan */
@@ -545,7 +546,7 @@ body.ly-karyawan .owner-saja { display: none !important; }
 .ly-lembar { position: fixed; inset: 0; z-index: 30; display: flex; align-items: flex-end; background: rgba(15, 10, 6, .45); }
 .ly-lembar[hidden] { display: none; }
 .ly-lembar__in { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; width: 100%; margin: 0 0 calc(64px + env(safe-area-inset-bottom)); padding: 14px; border-radius: 20px 20px 0 0; }
-.ly-lembar__in a { display: grid; justify-items: center; gap: 6px; padding: 14px 6px; border: 1px solid var(--line); border-radius: var(--r-md); background: var(--surface-2); color: var(--ink-2); font-size: .8125rem; font-weight: 700; text-align: center; }
+.ly-lembar__in a, .ly-lembar__in button { display: grid; justify-items: center; gap: 6px; padding: 14px 6px; border: 1px solid var(--line); border-radius: var(--r-md); background: var(--surface-2); color: var(--ink-2); font-size: .8125rem; font-weight: 700; text-align: center; }
 .ly-lembar__in svg { width: 24px; height: 24px; fill: none; stroke: var(--accent); stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 @media (max-width: 899.98px) {
   .ly-tabs { grid-template-columns: repeat(6, minmax(0, 1fr)); }
