@@ -746,6 +746,18 @@ canvas.ctab.seret { cursor: grabbing; }
 .tr-lagu .hint { margin: 0; }
 .tr-lagu .sheet { max-height: 30vh; }
 .tr-lagu #edit { padding: 12px; border: 1px solid var(--line); border-radius: var(--r-lg); background: var(--surface-2); }
+.tr-tampil { order: -2; display: flex; gap: 6px; }
+.tr-tampil .chip { flex: 1 1 0; justify-content: center; height: 34px; font-weight: 700; }
+.tr-tampil .chip[aria-pressed="true"] { border-color: var(--accent); background: var(--accent); color: var(--on-accent); }
+/* HP: satu tampilan saja. Panggung = seperti biasa; Daftar = daftar chord di atas, kontrol pemutar tetap di bawah */
+@media (max-width: 899.98px), (max-height: 519.98px) {
+  .trans-app .tapp[data-tampil="panggung"] > .tr-lagu { display: none; }
+  .trans-app .tapp[data-tampil="daftar"] > .tr-lagu { order: -1; flex: 1 1 0; min-height: 120px; }
+  .trans-app .tapp[data-tampil="daftar"] .tr-lagu .sheet { flex: 1 1 0; max-height: none; min-height: 0; align-content: flex-start; }
+  .trans-app .tapp[data-tampil="daftar"] > .tr-stage { flex: 0 0 auto; }
+  .trans-app .tapp[data-tampil="daftar"] .tr-stage > :is(.tr-ttl, .tr-now, .tr-adj, .tr-next, .ctab) { display: none; }
+}
+@media (min-width: 900px) and (min-height: 520px) { .tr-tampil { display: none; } }
 @media (min-width: 900px) and (min-height: 520px) {
   .trans-app .tapp { flex-direction: row; align-items: stretch; }
   .trans-app .tapp > .tr-stage { flex: 1 1 0; min-width: 0; }

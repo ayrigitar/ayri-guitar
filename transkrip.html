@@ -155,6 +155,7 @@
         <div class="prgb" id="prog" hidden><div class="prgt"><div id="bar"></div></div><span id="ptxt"></span></div>
         <div class="tapp" id="app" hidden>
             <audio id="au" preload="auto"></audio>
+            <div class="tr-tampil" role="group" aria-label="Pilih tampilan"><button type="button" class="chip" data-tampil="panggung" aria-pressed="true">Panggung</button><button type="button" class="chip" data-tampil="daftar" aria-pressed="false">Daftar chord</button></div>
             <div class="t-card tr-stage">
                 <div class="tr-ttl" id="ttl"></div>
                 <div class="tr-now"><div><div class="tr-cn" id="cn">&ndash;</div><div class="tr-cs" id="cs"></div><div class="tr-hd" id="hd"></div></div><div class="tr-cd" id="cd"></div></div>
@@ -1017,6 +1018,14 @@
     $('bpm').addEventListener('change', function () { st.bpm = Math.max(40, Math.min(220, +this.value || 90)); save(); chips(); });
     /* tempo sering terbaca dua kali lipat (dihitung per setengah ketukan): bagi dua */
     $('bpmhalf').addEventListener('click', function (e) { e.preventDefault(); st.bpm = Math.max(40, Math.round(st.bpm / 2)); save(); chips(); });
+    /* HP: pilih tampilan, panggung chord atau daftar chord lagu (layar lebar menampilkan keduanya) */
+    (function () {
+        var app = $('app'), tb = document.querySelectorAll('.tr-tampil [data-tampil]'), v = 'panggung';
+        try { v = localStorage.getItem('ayri-tr-tampil') === 'daftar' ? 'daftar' : 'panggung'; } catch (e) {}
+        function pasang(x) { v = x; app.setAttribute('data-tampil', x); [].forEach.call(tb, function (b) { b.setAttribute('aria-pressed', b.getAttribute('data-tampil') === x); }); try { localStorage.setItem('ayri-tr-tampil', x); } catch (e) {} }
+        [].forEach.call(tb, function (b) { b.addEventListener('click', function () { pasang(b.getAttribute('data-tampil')); }); });
+        pasang(v);
+    })();
     $('sheet').addEventListener('click', function (e) {
         var b = e.target.closest('[data-i]'); if (!b) return; var i = +b.dataset.i, s = segs[i]; st.sel = i; au.currentTime = s.t0; mark(s.t0, true);
         $('edit').hidden = false; $('er').value = sroot(s); $('et').value = s.ti; $('etl').textContent = 'Ubah chord di ' + fmt(s.t0) + ' (sekarang ' + cname(s) + ')';
