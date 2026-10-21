@@ -118,6 +118,6 @@ test('service worker: semua file daftar CORE ada, VERSION berformat benar', () =
 
 test('service worker: data pelanggan dan unduhan tidak pernah disimpan di cache perangkat', () => {
     const { JANGAN_SIMPAN: pola } = muatSw();
-    for (const p of ['data/servis/abc.json', 'data/tebus/abc.json', 'data/jual/abc.json', 'data/foto/abc.bin', 'unduh/ayri-alat-latihan.apk', 'x/file.apk']) assert.ok(pola.test(p), p + ' harus dikecualikan');
+    for (const p of ['data/servis/abc.json', 'data/tebus/abc.json', 'data/jual/abc.json', 'data/foto/abc.bin', 'data/folder-baru/x.json', 'unduh/ayri-alat-latihan.apk', 'x/file.apk']) assert.ok(pola.test(p), p + ' harus dikecualikan');
     for (const p of ['index.html', 'data/katalog.json', 'foto/stok/abc.webp', 'layanan.js', 'admin.html']) assert.ok(!pola.test(p), p + ' boleh disimpan');
 });

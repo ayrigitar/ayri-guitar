@@ -5,8 +5,8 @@ var CORE = ['./', 'index.html', 'tuner.html', 'chords.html', 'metronom.html', 't
     'theme-dark.css', 'tools.css', 'app.css', 'app.js', 'theme.js', 'pwa.js', 'site.js', 'util.js', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png', 'apple-touch-icon.png', 'favicon-48.png', 'favicon.svg', 'logo/ayri-ikon.svg',
     'admin.html', 'admin.js', 'admin.webmanifest', 'layanan.js', 'layanan.css', 'layanan-config.js', 'artikel-md.js', 'artikel-builder.js'];
 var FONT_HOSTS = ['fonts.googleapis.com', 'fonts.gstatic.com'];
-/* Tidak pernah disimpan di cache perangkat: data pelanggan (terenkripsi) dan foto servis/tebus/nota, serta file unduhan besar. */
-var JANGAN_SIMPAN = /^(data\/(servis|tebus|jual|foto)\/|unduh\/)|\.(apk|zip|pdf)$/i;
+/* Tidak pernah disimpan di cache perangkat: apa pun di data/ kecuali katalog publik (data pelanggan terenkripsi, foto servis, nota), serta file unduhan besar. */
+var JANGAN_SIMPAN = /^(data\/(?!katalog\.json$)|unduh\/)|\.(apk|zip|pdf)$/i;
 var MAKS_TAMBAHAN = 80; /* file di luar CORE yang boleh ikut tersimpan; yang paling lama dibuang */
 var AWAL = new URL('./', self.registration.scope);
 var CORE_URL = CORE.map(function (p) { return new URL(p, AWAL).href; });
