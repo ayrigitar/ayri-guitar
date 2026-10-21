@@ -3,7 +3,7 @@
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', function () { navigator.serviceWorker.register('sw.js').catch(function () {}); });
     }
-    var standalone = (window.matchMedia && matchMedia('(display-mode: standalone)').matches) || navigator.standalone;
+    var standalone = (window.matchMedia && matchMedia('(display-mode: standalone)').matches) || navigator.standalone || /AyriApp\//.test(navigator.userAgent);
     if (standalone) return;
     var btns = document.querySelectorAll('[data-install]'), hints = document.querySelectorAll('[data-install-ios]'), ev = null;
     function show(list, on) { for (var i = 0; i < list.length; i++) list[i].style.display = on ? '' : 'none'; }

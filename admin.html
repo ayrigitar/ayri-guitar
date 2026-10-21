@@ -519,7 +519,8 @@
         var el = $('#struk-cetak'); if (!el) { el = document.createElement('div'); el.id = 'struk-cetak'; document.body.appendChild(el); }
         el.innerHTML = htmlStruk(s); document.body.classList.add('cetak-struk');
         var lepas = function () { document.body.classList.remove('cetak-struk'); window.removeEventListener('afterprint', lepas); };
-        window.addEventListener('afterprint', lepas); window.print(); setTimeout(lepas, 1500);
+        window.addEventListener('afterprint', lepas); window.print();
+        if (!window.AyriApp) setTimeout(lepas, 1500); /* di aplikasi Android: dilepas saat cetak selesai (event afterprint) */
     }
     function tampilStruk(s) {
         var m = $('#ks-modal'); if (!m) return;
