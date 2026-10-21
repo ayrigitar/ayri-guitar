@@ -163,6 +163,61 @@
    "masuk": "2026-10-21"
   },
   {
+   "kode": "STK-752B52",
+   "kategori": "gitar",
+   "jenis": "Akustik",
+   "kondisi": "bekas",
+   "nama": "Yamaha APX 500 XT",
+   "warna": "Natural",
+   "deskripsi": "",
+   "harga": 1350000,
+   "status": "tersedia",
+   "sisa": null,
+   "foto": [
+    {
+     "src": "foto/stok/b6cfcfe568bfb832edd5.webp",
+     "kecil": "foto/stok/b6cfcfe568bfb832edd5-k.webp"
+    },
+    {
+     "src": "foto/stok/492c69316fe1183520df.webp",
+     "kecil": "foto/stok/492c69316fe1183520df-k.webp"
+    },
+    {
+     "src": "foto/stok/8ec5f7c1f46025ff8d78.webp",
+     "kecil": "foto/stok/8ec5f7c1f46025ff8d78-k.webp"
+    },
+    {
+     "src": "foto/stok/a81fe8c0b923d4f8cc42.webp",
+     "kecil": "foto/stok/a81fe8c0b923d4f8cc42-k.webp"
+    },
+    {
+     "src": "foto/stok/d97ff545b1e9368a9479.webp",
+     "kecil": "foto/stok/d97ff545b1e9368a9479-k.webp"
+    },
+    {
+     "src": "foto/stok/656de3eb00a43e1e2df4.webp",
+     "kecil": "foto/stok/656de3eb00a43e1e2df4-k.webp"
+    },
+    {
+     "src": "foto/stok/8188bfda73738f8bb89f.webp",
+     "kecil": "foto/stok/8188bfda73738f8bb89f-k.webp"
+    },
+    {
+     "src": "foto/stok/891add5030e73be32946.webp",
+     "kecil": "foto/stok/891add5030e73be32946-k.webp"
+    },
+    {
+     "src": "foto/stok/da8e52012bd18b7ae618.webp",
+     "kecil": "foto/stok/da8e52012bd18b7ae618-k.webp"
+    },
+    {
+     "src": "foto/stok/e7844f12235295e49a13.webp",
+     "kecil": "foto/stok/e7844f12235295e49a13-k.webp"
+    }
+   ],
+   "masuk": "2026-10-18"
+  },
+  {
    "kode": "STK-QFV3U3",
    "kategori": "gitar",
    "jenis": "Bass",
