@@ -1780,49 +1780,52 @@
     function buatPoster(s) {
         var fp = (s.foto || []).filter(function (f) { return f.repo === 'publik'; })[0];
         var judul = s.kategori === 'aksesoris' ? L.namaStok(s) : 'Gitar ' + L.jenisStok(s) + ' ' + L.namaStok(s);
-        var fonts = Promise.all(['700 70px Fraunces', '700 40px "Plus Jakarta Sans"'].map(function (f) { return document.fonts && document.fonts.load ? document.fonts.load(f) : null; })).catch(function () {});
+        var fonts = Promise.all(['700 70px Fraunces', '700 40px "Plus Jakarta Sans"'].map(function (f) { return document.fonts && document.fonts.load ? document.fonts.load(f) : null; }));
+        fonts = Promise.race([fonts, new Promise(function (ok) { setTimeout(ok, 1200); })]).catch(function () {});
         var foto = fp ? muatGambar(L.situs() + fp.path).catch(function () { return null; }) : Promise.resolve(null);
         return Promise.all([foto, muatGambar(L.situs() + 'logo/ayri-logo-putih.svg').catch(function () { return null; }), fonts]).then(function (r) {
             var cv = document.createElement('canvas'), W = 1080, H = 1920, EMAS = '#E0A95C', SERIF = 'Fraunces, Georgia, serif', SANS = '"Plus Jakarta Sans", system-ui, sans-serif';
             cv.width = W; cv.height = H;
             var c = cv.getContext('2d'), g = c.createLinearGradient(0, 0, 0, H);
             g.addColorStop(0, '#1d1812'); g.addColorStop(1, '#0f0c09'); c.fillStyle = g; c.fillRect(0, 0, W, H);
-            /* kepala: logo + nama toko */
-            if (r[1]) c.drawImage(r[1], 60, 62, 56, 56 * r[1].height / r[1].width);
-            c.fillStyle = '#fff'; c.textBaseline = 'alphabetic'; c.font = '700 40px ' + SERIF; c.fillText('AYRI', 136, 112);
-            c.fillStyle = EMAS; c.fillText('GITAR', 136 + c.measureText('AYRI ').width, 112);
-            /* foto */
-            var fx = 60, fy = 190, fw = 960, fh = 880;
+            /* foto: muat utuh (tidak terpotong), sisi kosong diisi versi buram dari foto yang sama. Area teks Story: sisakan ±250 px atas & bawah */
+            var fx = 60, fy = 250, fw = 960, fh = 740;
             c.save(); rect(c, fx, fy, fw, fh, 40); c.clip(); c.fillStyle = '#2a231b'; c.fillRect(fx, fy, fw, fh);
-            if (r[0]) { var k = Math.max(fw / r[0].width, fh / r[0].height), w = r[0].width * k, h = r[0].height * k; c.drawImage(r[0], fx + (fw - w) / 2, fy + (fh - h) / 2, w, h); }
+            if (r[0]) {
+                var im = r[0], k = Math.max(fw / im.width, fh / im.height);
+                c.filter = 'blur(28px) brightness(.6)'; c.drawImage(im, fx + (fw - im.width * k) / 2, fy + (fh - im.height * k) / 2, im.width * k, im.height * k); c.filter = 'none';
+                k = Math.min(fw / im.width, fh / im.height); c.drawImage(im, fx + (fw - im.width * k) / 2, fy + (fh - im.height * k) / 2, im.width * k, im.height * k);
+            }
             else if (r[1]) { var lw = 240, lh = lw * r[1].height / r[1].width; c.globalAlpha = .25; c.drawImage(r[1], fx + (fw - lw) / 2, fy + (fh - lh) / 2, lw, lh); c.globalAlpha = 1; }
             c.restore();
             /* lencana kondisi */
             var kond = s.kondisi === 'bekas' ? 'BEKAS' : 'BARU'; c.font = '800 32px ' + SANS;
-            var bw = c.measureText(kond).width + 56; rect(c, 60, 1116, bw, 62, 31); c.fillStyle = EMAS; c.fill(); c.fillStyle = '#1a1510'; c.fillText(kond, 88, 1159);
+            var bw = c.measureText(kond).width + 56; rect(c, 60, 1028, bw, 58, 29); c.fillStyle = EMAS; c.fill(); c.fillStyle = '#1a1510'; c.fillText(kond, 88, 1068);
             /* nama + warna */
-            c.fillStyle = '#fff'; c.font = '700 70px ' + SERIF;
-            var y = 1266; barisTeks(c, judul, 960, 2).forEach(function (b) { c.fillText(b, 60, y); y += 82; });
-            if (s.warna) { c.fillStyle = '#c9bfb2'; c.font = '600 36px ' + SANS; c.fillText(s.warna, 60, y - 8); y += 50; }
+            c.fillStyle = '#fff'; c.font = '700 64px ' + SERIF;
+            var y = 1160; barisTeks(c, judul, 960, 2).forEach(function (b) { c.fillText(b, 60, y); y += 74; });
+            if (s.warna) { c.fillStyle = '#c9bfb2'; c.font = '600 34px ' + SANS; c.fillText(s.warna, 60, y - 8); y += 50; }
             /* harga */
-            c.fillStyle = EMAS; c.font = '700 104px ' + SERIF; c.fillText(L.rupiah(s.harga_jual), 60, y + 70); y += 100;
+            c.fillStyle = EMAS; c.font = '700 92px ' + SERIF; c.fillText(L.rupiah(s.harga_jual), 60, y + 66); y += 92;
             /* deskripsi */
-            if (s.deskripsi) { c.fillStyle = '#d8cfc3'; c.font = '500 34px ' + SANS; barisTeks(c, s.deskripsi, 960, Math.max(1, Math.min(3, Math.floor((1690 - y) / 50)))).forEach(function (b) { y += 50; c.fillText(b, 60, y + 14); }); }
-            /* kaki */
-            c.fillStyle = 'rgba(224,169,92,.35)'; c.fillRect(60, 1728, 960, 2);
-            c.fillStyle = '#fff'; c.font = '700 38px ' + SANS; c.fillText(C.toko.nama, 60, 1790);
-            c.fillStyle = '#c9bfb2'; c.font = '500 30px ' + SANS; c.fillText(barisTeks(c, C.toko.alamat, 960, 1)[0], 60, 1838);
+            if (s.deskripsi) { c.fillStyle = '#d8cfc3'; c.font = '500 34px ' + SANS; barisTeks(c, s.deskripsi, 960, Math.max(0, Math.min(3, Math.floor((1545 - y) / 48)))).forEach(function (b) { y += 48; c.fillText(b, 60, y + 10); }); }
+            /* kaki (di atas zona bawah Story) */
+            c.fillStyle = 'rgba(224,169,92,.35)'; c.fillRect(60, 1585, 960, 2);
+            var lx = 60; if (r[1]) { var lh2 = 46, lw2 = lh2 * r[1].width / r[1].height; c.drawImage(r[1], 60, 1604, lw2, lh2); lx = 60 + lw2 + 16; }
+            c.fillStyle = '#fff'; c.font = '700 36px ' + SANS; c.fillText(C.toko.nama, lx, 1640);
             var wa = '0' + String(C.toko.wa).slice(2); wa = wa.replace(/^(\d{4})(\d{4})(\d+)$/, '$1-$2-$3');
-            c.fillStyle = EMAS; c.font = '700 34px ' + SANS; c.fillText('WA ' + wa, 60, 1886);
-            return new Promise(function (ok, gagal) { cv.toBlob(function (b) { b ? ok(b) : gagal(new Error('Gagal membuat gambar.')); }, 'image/jpeg', .92); });
+            c.fillStyle = EMAS; c.font = '700 32px ' + SANS; c.textAlign = 'right'; c.fillText('WA ' + wa, 1020, 1640); c.textAlign = 'left';
+            c.fillStyle = '#c9bfb2'; c.font = '500 28px ' + SANS; c.fillText(barisTeks(c, C.toko.alamat, 960, 1)[0], 60, 1686);
+            return new Promise(function (ok, gagal) { cv.toBlob(function (b) { b ? ok(b) : gagal(new Error('Gagal membuat gambar.')); }, 'image/jpeg', .85); });
         });
     }
     function blobBase64(b) { return new Promise(function (ok) { var f = new FileReader(); f.onload = function () { ok(String(f.result).split(',')[1] || ''); }; f.readAsDataURL(b); }); }
     /* Bagikan: poster + teks lewat menu bagikan HP (WA, Status WA, Instagram, Threads, X, dll). Di PC/browser tanpa menu bagikan: poster diunduh, teks disalin. */
     function bagikanStok(s, tombol) {
         var teks = teksTawar(s), nama = 'ayri-' + String(s.kode || 'barang').toLowerCase() + '.jpg';
-        if (tombol) { tombol.disabled = true; }
-        function lepas() { if (tombol) tombol.disabled = false; }
+        var label = tombol && tombol.textContent;
+        if (tombol) { tombol.disabled = true; tombol.textContent = 'Menyiapkan…'; }
+        function lepas() { if (tombol) { tombol.disabled = false; tombol.textContent = label; } }
         buatPoster(s).then(function (blob) {
             if (window.AyriApp && AyriApp.bagikan) return blobBase64(blob).then(function (b64) { AyriApp.bagikan(nama, 'image/jpeg', b64, teks); });
             var f = new File([blob], nama, { type: 'image/jpeg' });
