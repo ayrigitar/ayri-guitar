@@ -1803,7 +1803,6 @@
             var kond = s.kondisi === 'bekas' ? 'BEKAS' : 'BARU', cy = 1040; c.font = '800 28px ' + SANS;
             var bw = c.measureText(kond).width + 52; rect(c, 60, cy, bw, 56, 28); c.fillStyle = EMAS; c.fill(); c.fillStyle = '#1a1510'; c.fillText(kond, 86, cy + 38);
             c.font = '700 28px ' + SANS; var jw = c.measureText(jenis.toUpperCase()).width + 52; rect(c, 60 + bw + 12, cy, jw, 56, 28); c.strokeStyle = 'rgba(224,169,92,.7)'; c.lineWidth = 2; c.stroke(); c.fillStyle = EMAS; c.fillText(jenis.toUpperCase(), 86 + bw + 12, cy + 38);
-            if (r[1]) { var lh1 = 60, lw1 = lh1 * r[1].width / r[1].height; c.drawImage(r[1], 1020 - lw1, cy - 2, lw1, lh1); }
             /* nama + warna */
             c.fillStyle = '#fff'; c.font = '700 66px ' + SERIF;
             var y = 1176; barisTeks(c, judul, 960, 2).forEach(function (b) { c.fillText(b, 60, y); y += 76; });
@@ -1814,13 +1813,15 @@
             c.font = '700 108px ' + SERIF; c.fillText(angka, 60 + rw, y + 76); y += 100;
             /* deskripsi */
             if (String(s.deskripsi || '').trim()) { c.fillStyle = '#d8cfc3'; c.font = '500 32px ' + SANS; barisTeks(c, s.deskripsi, 960, Math.max(0, Math.min(2, Math.floor((1528 - y) / 44)))).forEach(function (b) { y += 44; c.fillText(b, 60, y + 6); }); }
-            /* kontak: gambar tidak bisa diketuk, jadi bukan tombol; ikon WhatsApp + nomor sebagai teks biasa */
-            c.fillStyle = 'rgba(224,169,92,.35)'; c.fillRect(60, 1545, 960, 2);
-            var ky = 1566; c.fillStyle = '#25D366'; c.beginPath(); c.arc(60 + 32, ky + 32, 32, 0, 7); c.fill();
-            c.save(); c.translate(60 + 32 - 18, ky + 32 - 18); c.scale(36 / 24, 36 / 24); c.fillStyle = '#fff'; c.fill(new Path2D(WA_IKON.match(/ d="([^"]+)"/)[1])); c.restore();
-            c.fillStyle = '#fff'; c.font = '800 46px ' + SANS; c.fillText(wa, 60 + 84, ky + 47);
-            /* alamat */
-            c.fillStyle = '#b9ad9d'; c.font = '500 26px ' + SANS; c.fillText(barisTeks(c, C.toko.nama + ' · ' + C.toko.alamat, 960, 1)[0], 60, 1668);
+            /* penutup: logo besar di kiri; di kanannya nomor WhatsApp, ajakan ke situs, dan alamat (gambar tidak bisa diketuk, jadi semuanya teks biasa) */
+            c.fillStyle = 'rgba(224,169,92,.35)'; c.fillRect(60, 1528, 960, 2);
+            var tx = 60; if (r[1]) { var lh1 = 120, lw1 = lh1 * r[1].width / r[1].height; c.drawImage(r[1], 60, 1546, lw1, lh1); tx = 60 + lw1 + 32; }
+            c.fillStyle = '#25D366'; c.beginPath(); c.arc(tx + 24, 1584, 24, 0, 7); c.fill();
+            c.save(); c.translate(tx + 24 - 14, 1584 - 14); c.scale(28 / 24, 28 / 24); c.fillStyle = '#fff'; c.fill(new Path2D(WA_IKON.match(/ d="([^"]+)"/)[1])); c.restore();
+            c.fillStyle = '#fff'; c.font = '800 42px ' + SANS; c.fillText(wa, tx + 64, 1598);
+            var web = L.situs().replace(/^https?:\/\//, '').replace(/\/$/, '');
+            c.fillStyle = EMAS; c.font = '700 30px ' + SANS; c.fillText('Lihat koleksi lengkap di ' + web, tx, 1642);
+            c.fillStyle = '#b9ad9d'; c.font = '500 24px ' + SANS; c.fillText(barisTeks(c, C.toko.alamat, 1020 - tx, 1)[0], tx, 1672);
             return new Promise(function (ok, gagal) { cv.toBlob(function (b) { b ? ok(b) : gagal(new Error('Gagal membuat gambar.')); }, 'image/jpeg', .85); });
         });
     }
