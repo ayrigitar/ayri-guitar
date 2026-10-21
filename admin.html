@@ -1788,22 +1788,20 @@
             cv.width = W; cv.height = H;
             var c = cv.getContext('2d'), g = c.createLinearGradient(0, 0, 0, H);
             g.addColorStop(0, '#1d1812'); g.addColorStop(1, '#0f0c09'); c.fillStyle = g; c.fillRect(0, 0, W, H);
-            /* foto: muat utuh (tidak terpotong), sisi kosong diisi versi buram dari foto yang sama. Area teks Story: sisakan ±250 px atas & bawah */
-            var fx = 60, fy = 250, fw = 960, fh = 740;
-            c.save(); rect(c, fx, fy, fw, fh, 40); c.clip(); c.fillStyle = '#2a231b'; c.fillRect(fx, fy, fw, fh);
+            /* foto: muat utuh (tidak terpotong), dipusatkan. Area teks Story: sisakan ±250 px atas & bawah */
+            var fx = 60, fy = 250, fw = 960, fh = 780;
             if (r[0]) {
-                var im = r[0], k = Math.max(fw / im.width, fh / im.height);
-                c.filter = 'blur(28px) brightness(.6)'; c.drawImage(im, fx + (fw - im.width * k) / 2, fy + (fh - im.height * k) / 2, im.width * k, im.height * k); c.filter = 'none';
-                k = Math.min(fw / im.width, fh / im.height); c.drawImage(im, fx + (fw - im.width * k) / 2, fy + (fh - im.height * k) / 2, im.width * k, im.height * k);
+                var im = r[0], k = Math.min(fw / im.width, fh / im.height), w = im.width * k, h = im.height * k, x0 = fx + (fw - w) / 2, y0 = fy + (fh - h) / 2;
+                c.save(); rect(c, x0, y0, w, h, 36); c.clip(); c.drawImage(im, x0, y0, w, h); c.restore();
+                rect(c, x0, y0, w, h, 36); c.strokeStyle = 'rgba(224,169,92,.45)'; c.lineWidth = 3; c.stroke();
             }
             else if (r[1]) { var lw = 240, lh = lw * r[1].height / r[1].width; c.globalAlpha = .25; c.drawImage(r[1], fx + (fw - lw) / 2, fy + (fh - lh) / 2, lw, lh); c.globalAlpha = 1; }
-            c.restore();
             /* lencana kondisi */
             var kond = s.kondisi === 'bekas' ? 'BEKAS' : 'BARU'; c.font = '800 32px ' + SANS;
-            var bw = c.measureText(kond).width + 56; rect(c, 60, 1028, bw, 58, 29); c.fillStyle = EMAS; c.fill(); c.fillStyle = '#1a1510'; c.fillText(kond, 88, 1068);
+            var bw = c.measureText(kond).width + 56; rect(c, 60, 1068, bw, 58, 29); c.fillStyle = EMAS; c.fill(); c.fillStyle = '#1a1510'; c.fillText(kond, 88, 1108);
             /* nama + warna */
             c.fillStyle = '#fff'; c.font = '700 64px ' + SERIF;
-            var y = 1160; barisTeks(c, judul, 960, 2).forEach(function (b) { c.fillText(b, 60, y); y += 74; });
+            var y = 1200; barisTeks(c, judul, 960, 2).forEach(function (b) { c.fillText(b, 60, y); y += 74; });
             if (s.warna) { c.fillStyle = '#c9bfb2'; c.font = '600 34px ' + SANS; c.fillText(s.warna, 60, y - 8); y += 50; }
             /* harga */
             c.fillStyle = EMAS; c.font = '700 92px ' + SERIF; c.fillText(L.rupiah(s.harga_jual), 60, y + 66); y += 92;
@@ -1814,7 +1812,11 @@
             var lx = 60; if (r[1]) { var lh2 = 46, lw2 = lh2 * r[1].width / r[1].height; c.drawImage(r[1], 60, 1604, lw2, lh2); lx = 60 + lw2 + 16; }
             c.fillStyle = '#fff'; c.font = '700 36px ' + SANS; c.fillText(C.toko.nama, lx, 1640);
             var wa = '0' + String(C.toko.wa).slice(2); wa = wa.replace(/^(\d{4})(\d{4})(\d+)$/, '$1-$2-$3');
-            c.fillStyle = EMAS; c.font = '700 32px ' + SANS; c.textAlign = 'right'; c.fillText('WA ' + wa, 1020, 1640); c.textAlign = 'left';
+            /* WhatsApp: ikon bulat hijau + nomor */
+            c.font = '700 34px ' + SANS; c.textAlign = 'right'; c.fillStyle = '#fff'; c.fillText(wa, 1020, 1640); c.textAlign = 'left';
+            var wx = 1020 - c.measureText(wa).width - 62;
+            c.fillStyle = '#25D366'; c.beginPath(); c.arc(wx + 24, 1629, 24, 0, 7); c.fill();
+            c.save(); c.translate(wx + 24 - 14, 1629 - 14); c.scale(28 / 24, 28 / 24); c.fillStyle = '#fff'; c.fill(new Path2D(WA_IKON.match(/ d="([^"]+)"/)[1])); c.restore();
             c.fillStyle = '#c9bfb2'; c.font = '500 28px ' + SANS; c.fillText(barisTeks(c, C.toko.alamat, 960, 1)[0], 60, 1686);
             return new Promise(function (ok, gagal) { cv.toBlob(function (b) { b ? ok(b) : gagal(new Error('Gagal membuat gambar.')); }, 'image/jpeg', .85); });
         });
