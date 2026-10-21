@@ -117,6 +117,7 @@ test('antrian offline yang bentrok dengan perubahan perangkat lain masuk daftar 
     a.offline(true);
     const q = await a.A.simpanServis(Object.assign({}, r, { keluhan: 'diubah offline' }), []);
     assert.equal(q._antri, true);
+    await tidur(5);   /* penyimpanan offline tanpa jeda jaringan: pastikan cap waktu B berbeda milidetik dari A (di CI yang cepat bisa sama) */
     await b.A.simpanServis(Object.assign({}, b.A.daftar('servis')[0], { status: 'dikerjakan' }), []);   /* B online mengubah lebih dulu */
     a.offline(false);
     await a.A.kirimAntrian();

@@ -581,7 +581,9 @@
     }
     function tandaiRec(rec, dasar) { return function (e) { if (e && e.offline && !e.rec) { e.rec = salin(rec); e.rec._dasar = dasar === undefined ? null : dasar; } throw e; }; }
     /* bentrok bila versi di GitHub bukan versi yang dibuka di layar (dasar) dan bukan versi yang sedang akan ditulis
-       (simpanan yang sudah masuk sebelumnya lalu diulang tetap aman). Catatan lama tanpa updated_at tidak bisa dibandingkan. */
+       (simpanan yang sudah masuk sebelumnya lalu diulang tetap aman). Catatan lama tanpa updated_at tidak bisa dibandingkan.
+       Batas yang diketahui: dua perangkat yang menyimpan catatan yang sama pada MILIDETIK yang persis sama dianggap tulisan sendiri (praktis mustahil
+       untuk dua orang; tes gagal-sebagian/offline sengaja memberi jeda beberapa milidetik). */
     function cekVersi(list, rec, dasar) {
         var ada = cari(list, rec.id);
         if (ada && ada.updated_at != null && ada.updated_at !== dasar && ada.updated_at !== rec.updated_at) throw bentrok();
