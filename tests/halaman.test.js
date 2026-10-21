@@ -15,6 +15,14 @@ function semua(dir, hasil) {
     return hasil;
 }
 const rel = (p) => path.relative(AKAR, p).split(path.sep).join('/');
+/* ada DENGAN huruf besar-kecil yang persis sama: Windows/macOS tidak membedakan, GitHub Pages (Linux) membedakan */
+function adaPersis(p) {
+    const bagian = path.relative(AKAR, path.resolve(p)).split(path.sep).filter(Boolean);
+    if (bagian[0] === '..') return false;
+    let dir = AKAR;
+    for (const b of bagian) { if (!fs.existsSync(dir) || !fs.readdirSync(dir).includes(b)) return false; dir = path.join(dir, b); }
+    return true;
+}
 const berkas = semua(AKAR), html = berkas.filter((p) => p.endsWith('.html')), js = berkas.filter((p) => p.endsWith('.js'));
 const SKRIP = /<script\b([^>]*)>([\s\S]*?)<\/script>/gi;
 function skripDi(teks) {
@@ -55,7 +63,7 @@ test('semua tautan/skrip/gambar lokal di HTML menunjuk ke file yang ada', () => 
             /* scripts/artikel-template.html dicetak jadi halaman di akar situs, jadi tautannya dihitung dari akar */
             const dasar = rel(f) === 'scripts/artikel-template.html' ? AKAR : path.dirname(f);
             const tujuan = file.startsWith('/') ? path.join(AKAR, file) : path.resolve(dasar, file);
-            assert.ok(fs.existsSync(tujuan) || fs.existsSync(tujuan.replace(/[\\/]$/, '') + '.html'), rel(f) + ' menunjuk ke "' + u + '" yang tidak ada');
+            assert.ok(adaPersis(tujuan) || adaPersis(tujuan.replace(/[\\/]$/, '') + '.html'), rel(f) + ' menunjuk ke "' + u + '" yang tidak ada (periksa juga huruf besar-kecilnya)');
         }
     }
 });
@@ -88,7 +96,7 @@ test('sitemap.xml: setiap halaman ada, tanggal lastmod benar bentuknya', () => {
     assert.ok(locs.length >= 8);
     for (const [, loc, tgl] of locs) {
         const berkas = loc.replace(/^https:\/\/ayrigitar\.com\//, '') || 'index.html';
-        assert.ok(fs.existsSync(path.join(AKAR, berkas)), 'sitemap menunjuk ke ' + berkas + ' yang tidak ada');
+        assert.ok(adaPersis(path.join(AKAR, berkas)), 'sitemap menunjuk ke ' + berkas + ' yang tidak ada');
         assert.match(tgl, /^\d{4}-\d{2}-\d{2}$/);
         assert.ok(!Number.isNaN(Date.parse(tgl)), tgl);
     }
@@ -104,7 +112,7 @@ function muatSw() {
 test('service worker: semua file daftar CORE ada, VERSION berformat benar', () => {
     const sw = muatSw();
     assert.match(sw.VERSION, /^ayri-v\d+$/);
-    for (const p of sw.CORE) if (p !== './') assert.ok(fs.existsSync(path.join(AKAR, p)), 'CORE menyebut ' + p + ' yang tidak ada');
+    for (const p of sw.CORE) if (p !== './') assert.ok(adaPersis(path.join(AKAR, p)), 'CORE menyebut ' + p + ' yang tidak ada');
     for (const wajib of ['util.js', 'admin.js', 'layanan.js', 'admin.html']) assert.ok(sw.CORE.includes(wajib), wajib + ' harus ada di CORE');
 });
 
