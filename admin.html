@@ -1820,19 +1820,18 @@
         });
     }
     function blobBase64(b) { return new Promise(function (ok) { var f = new FileReader(); f.onload = function () { ok(String(f.result).split(',')[1] || ''); }; f.readAsDataURL(b); }); }
-    /* Bagikan: poster + teks lewat menu bagikan HP (WA, Status WA, Instagram, Threads, X, dll). Di PC/browser tanpa menu bagikan: poster diunduh, teks disalin. */
+    /* Bagikan: poster + teks lewat menu bagikan HP (WA, Status WA, Instagram, Threads, X, dll). Di PC tanpa menu bagikan berkas: hanya teks, lewat menu bagikan atau WhatsApp. */
     function bagikanStok(s, tombol) {
         var teks = teksTawar(s), nama = 'ayri-' + String(s.kode || 'barang').toLowerCase() + '.jpg';
         var label = tombol && tombol.textContent;
         if (tombol) { tombol.disabled = true; tombol.textContent = 'Menyiapkan…'; }
         function lepas() { if (tombol) { tombol.disabled = false; tombol.textContent = label; } }
+        /* PC / browser tanpa menu bagikan berkas: tanpa unduhan gambar, kirim teks penawaran lewat WhatsApp */
+        var cobaBerkas = !!(window.AyriApp && AyriApp.bagikan) || !!(navigator.canShare && navigator.canShare({ files: [new File([''], nama, { type: 'image/jpeg' })] }));
+        if (!cobaBerkas) { lepas(); if (navigator.share) { navigator.share({ text: teks, title: C.toko.nama }).catch(function () {}); } else bukaWa('', teks); return; }
         buatPoster(s).then(function (blob) {
             if (window.AyriApp && AyriApp.bagikan) return blobBase64(blob).then(function (b64) { AyriApp.bagikan(nama, 'image/jpeg', b64, teks); });
-            var f = new File([blob], nama, { type: 'image/jpeg' });
-            if (navigator.canShare && navigator.canShare({ files: [f] })) return navigator.share({ files: [f], text: teks, title: C.toko.nama });
-            var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = nama; document.body.appendChild(a); a.click(); a.remove();
-            try { navigator.clipboard.writeText(teks); } catch (e) {}
-            toast('Gambar poster diunduh, teks penawaran disalin. Tempel di aplikasi tujuan.');
+            return navigator.share({ files: [new File([blob], nama, { type: 'image/jpeg' })], text: teks, title: C.toko.nama });
         }).catch(function (e) { if (e && e.name !== 'AbortError') toast('Gagal membagikan: ' + (e.message || e), true); }).then(lepas);
     }
     function stokKosong() {
