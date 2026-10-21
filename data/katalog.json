@@ -2,6 +2,61 @@
  "toko": "Toko Gitar AYRI",
  "item": [
   {
+   "kode": "STK-SCYBYR",
+   "kategori": "gitar",
+   "jenis": "Akustik Elektrik",
+   "kondisi": "bekas",
+   "nama": "Cort SFX ME-OP",
+   "warna": "",
+   "deskripsi": "Include\n- Tas Gitar\n- Senar Baru",
+   "harga": 1500000,
+   "status": "tersedia",
+   "sisa": null,
+   "foto": [
+    {
+     "src": "foto/stok/64bef5e22a235ba0f4b6.webp",
+     "kecil": "foto/stok/64bef5e22a235ba0f4b6-k.webp"
+    },
+    {
+     "src": "foto/stok/04f84bbf17ba6c0b5a6b.webp",
+     "kecil": "foto/stok/04f84bbf17ba6c0b5a6b-k.webp"
+    },
+    {
+     "src": "foto/stok/f533373caa361c453fdf.webp",
+     "kecil": "foto/stok/f533373caa361c453fdf-k.webp"
+    },
+    {
+     "src": "foto/stok/aff49339c5c0e085de70.webp",
+     "kecil": "foto/stok/aff49339c5c0e085de70-k.webp"
+    },
+    {
+     "src": "foto/stok/3788a3b707305ff22354.webp",
+     "kecil": "foto/stok/3788a3b707305ff22354-k.webp"
+    },
+    {
+     "src": "foto/stok/f5f887b14da52efbf5c6.webp",
+     "kecil": "foto/stok/f5f887b14da52efbf5c6-k.webp"
+    },
+    {
+     "src": "foto/stok/d7794d8d4278425538d5.webp",
+     "kecil": "foto/stok/d7794d8d4278425538d5-k.webp"
+    },
+    {
+     "src": "foto/stok/b17e292ed8a73ebc98f5.webp",
+     "kecil": "foto/stok/b17e292ed8a73ebc98f5-k.webp"
+    },
+    {
+     "src": "foto/stok/097f335dbf45b1de0627.webp",
+     "kecil": "foto/stok/097f335dbf45b1de0627-k.webp"
+    },
+    {
+     "src": "foto/stok/c2b9361bb099ddc1e1eb.webp",
+     "kecil": "foto/stok/c2b9361bb099ddc1e1eb-k.webp"
+    }
+   ],
+   "masuk": "2026-10-21"
+  },
+  {
    "kode": "STK-QFV3U3",
    "kategori": "gitar",
    "jenis": "Bass",
