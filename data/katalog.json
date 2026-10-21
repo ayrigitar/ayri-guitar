@@ -2,6 +2,61 @@
  "toko": "Toko Gitar AYRI",
  "item": [
   {
+   "kode": "STK-6PQCDA",
+   "kategori": "gitar",
+   "jenis": "Akustik Elektrik",
+   "kondisi": "bekas",
+   "nama": "APX 600M",
+   "warna": "",
+   "deskripsi": "",
+   "harga": 2300000,
+   "status": "tersedia",
+   "sisa": null,
+   "foto": [
+    {
+     "src": "foto/stok/e49f41e0f51890df18e9.webp",
+     "kecil": "foto/stok/e49f41e0f51890df18e9-k.webp"
+    },
+    {
+     "src": "foto/stok/49e2639f61d17b150d54.webp",
+     "kecil": "foto/stok/49e2639f61d17b150d54-k.webp"
+    },
+    {
+     "src": "foto/stok/6f586744c56f5ad6010e.webp",
+     "kecil": "foto/stok/6f586744c56f5ad6010e-k.webp"
+    },
+    {
+     "src": "foto/stok/729b108a3dfe626af92a.webp",
+     "kecil": "foto/stok/729b108a3dfe626af92a-k.webp"
+    },
+    {
+     "src": "foto/stok/603751db54b22fbf2039.webp",
+     "kecil": "foto/stok/603751db54b22fbf2039-k.webp"
+    },
+    {
+     "src": "foto/stok/587b486d77b486c57bef.webp",
+     "kecil": "foto/stok/587b486d77b486c57bef-k.webp"
+    },
+    {
+     "src": "foto/stok/49e5c88345b1e0e23332.webp",
+     "kecil": "foto/stok/49e5c88345b1e0e23332-k.webp"
+    },
+    {
+     "src": "foto/stok/8e661ad3ad3d9d5db53d.webp",
+     "kecil": "foto/stok/8e661ad3ad3d9d5db53d-k.webp"
+    },
+    {
+     "src": "foto/stok/ee9b8d8133c22fd83498.webp",
+     "kecil": "foto/stok/ee9b8d8133c22fd83498-k.webp"
+    },
+    {
+     "src": "foto/stok/45cb1176733acefe0a42.webp",
+     "kecil": "foto/stok/45cb1176733acefe0a42-k.webp"
+    }
+   ],
+   "masuk": "2026-10-21"
+  },
+  {
    "kode": "STK-SCYBYR",
    "kategori": "gitar",
    "jenis": "Akustik Elektrik",
@@ -57,56 +112,52 @@
    "masuk": "2026-10-21"
   },
   {
-   "kode": "STK-6PQCDA",
+   "kode": "STK-M62RNY",
    "kategori": "gitar",
-   "jenis": "Akustik Elektrik",
+   "jenis": "Elektrik",
    "kondisi": "bekas",
-   "nama": "APX 600M",
+   "nama": "Donner ST Standard Series",
    "warna": "",
    "deskripsi": "",
-   "harga": 2300000,
+   "harga": 900000,
    "status": "tersedia",
    "sisa": null,
    "foto": [
     {
-     "src": "foto/stok/e49f41e0f51890df18e9.webp",
-     "kecil": "foto/stok/e49f41e0f51890df18e9-k.webp"
+     "src": "foto/stok/6e0bb26958ff50b2b47b.webp",
+     "kecil": "foto/stok/6e0bb26958ff50b2b47b-k.webp"
     },
     {
-     "src": "foto/stok/49e2639f61d17b150d54.webp",
-     "kecil": "foto/stok/49e2639f61d17b150d54-k.webp"
+     "src": "foto/stok/97cf0d1764bc433e3c23.webp",
+     "kecil": "foto/stok/97cf0d1764bc433e3c23-k.webp"
     },
     {
-     "src": "foto/stok/6f586744c56f5ad6010e.webp",
-     "kecil": "foto/stok/6f586744c56f5ad6010e-k.webp"
+     "src": "foto/stok/43f6a9110561c7bcf22e.webp",
+     "kecil": "foto/stok/43f6a9110561c7bcf22e-k.webp"
     },
     {
-     "src": "foto/stok/729b108a3dfe626af92a.webp",
-     "kecil": "foto/stok/729b108a3dfe626af92a-k.webp"
+     "src": "foto/stok/c37e1c4d7c863fd9370d.webp",
+     "kecil": "foto/stok/c37e1c4d7c863fd9370d-k.webp"
     },
     {
-     "src": "foto/stok/603751db54b22fbf2039.webp",
-     "kecil": "foto/stok/603751db54b22fbf2039-k.webp"
+     "src": "foto/stok/4090ea9d5f673f922c8b.webp",
+     "kecil": "foto/stok/4090ea9d5f673f922c8b-k.webp"
     },
     {
-     "src": "foto/stok/587b486d77b486c57bef.webp",
-     "kecil": "foto/stok/587b486d77b486c57bef-k.webp"
+     "src": "foto/stok/e27b0425fae6ea2727a0.webp",
+     "kecil": "foto/stok/e27b0425fae6ea2727a0-k.webp"
     },
     {
-     "src": "foto/stok/49e5c88345b1e0e23332.webp",
-     "kecil": "foto/stok/49e5c88345b1e0e23332-k.webp"
+     "src": "foto/stok/df3f9f5e4ab4e32a1205.webp",
+     "kecil": "foto/stok/df3f9f5e4ab4e32a1205-k.webp"
     },
     {
-     "src": "foto/stok/8e661ad3ad3d9d5db53d.webp",
-     "kecil": "foto/stok/8e661ad3ad3d9d5db53d-k.webp"
+     "src": "foto/stok/684b5e2eda354aa61c5d.webp",
+     "kecil": "foto/stok/684b5e2eda354aa61c5d-k.webp"
     },
     {
-     "src": "foto/stok/ee9b8d8133c22fd83498.webp",
-     "kecil": "foto/stok/ee9b8d8133c22fd83498-k.webp"
-    },
-    {
-     "src": "foto/stok/45cb1176733acefe0a42.webp",
-     "kecil": "foto/stok/45cb1176733acefe0a42-k.webp"
+     "src": "foto/stok/d327a608512fb74e0986.webp",
+     "kecil": "foto/stok/d327a608512fb74e0986-k.webp"
     }
    ],
    "masuk": "2026-10-21"
