@@ -32,6 +32,7 @@
     <link rel="stylesheet" href="layanan.css">
     <script>document.documentElement.classList.add('js');</script>
     <script src="theme.js"></script>
+    <script src="util.js"></script>
     <script src="pwa.js" defer></script>
     <script src="site.js" defer></script>
     <script src="layanan-config.js" defer></script>
@@ -88,7 +89,6 @@
             </ul>
 
             <div class="nav__actions">
-                <span id="themeslot" class="theme-slot"></span>
                 <a href="https://wa.me/6285795738637" target="_blank" rel="noopener" class="btn btn--wa btn--sm nav__cta">
                     <svg class="ic ic--fill" aria-hidden="true"><use href="#i-wa"/></svg> <span class="nav__cta-label">Chat WhatsApp</span>
                 </a>
@@ -133,8 +133,7 @@
 document.addEventListener('DOMContentLoaded', function () {
     var C = window.AYRI_LAYANAN || {}, toko = C.toko || {}, grid = document.getElementById('kat-grid'), dlg = document.getElementById('kat-dlg');
     var item = [], filter = 'semua', cari = '';
-    function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
-    function rupiah(n) { return 'Rp' + Math.round(+n || 0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.'); }
+    var esc = AYRI_UTIL.esc, rupiah = AYRI_UTIL.rupiah;
     function judul(x) { return x.kategori === 'gitar' ? 'Gitar ' + x.jenis + ' ' + x.nama : x.nama; }
     function waPesan(x) {
         return 'https://wa.me/' + (toko.wa || '') + '?text=' + encodeURIComponent('Halo AYRI, saya tertarik dengan ' + judul(x) + (x.warna ? ' (' + x.warna + ')' : '') + ' kode ' + x.kode + ' harga ' + rupiah(x.harga) + '. Apakah masih tersedia?');

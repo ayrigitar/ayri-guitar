@@ -20,7 +20,7 @@
         return c;
     }
     var C = lengkapi(window.AYRI_LAYANAN || {}, BAWAAN), TB = C.tebus, E;
-    var L = window.Layanan = { C: C };
+    var L = window.Layanan = { C: C }, salin = AYRI_UTIL.salin;
 
     /* ---------- tema (sama dengan situs) ---------- */
     try { if (window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches) document.documentElement.setAttribute('data-theme', 'dark'); } catch (e) {}
@@ -28,8 +28,8 @@
     /* ---------- format & tanggal ---------- */
     var BLN = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
     var BULAN = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
-    E = L.esc = function (s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
-    L.rupiah = function (n) { n = Math.round(+n || 0); return (n < 0 ? '−' : '') + 'Rp' + Math.abs(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.'); };
+    E = L.esc = AYRI_UTIL.esc;
+    L.rupiah = AYRI_UTIL.rupiah;
     /* tanggal disimpan 'YYYY-MM-DD'; dibaca sebagai tanggal lokal supaya tidak bergeser zona waktu */
     L.tglObj = function (s) { if (!s) return null; var m = /^(\d{4})-(\d{2})-(\d{2})/.exec(s); return m ? new Date(+m[1], +m[2] - 1, +m[3]) : null; };
     L.tglStr = function (d) { return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2); };
@@ -88,8 +88,11 @@
     /* ---------- kode & tautan ---------- */
     var ABJAD = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789'; /* tanpa I, L, O, 0, 1 yang mudah tertukar */
     L.kodeBaru = function (awalan) {
-        var r = new Uint8Array(6), s = (awalan || 'AYR') + '-'; crypto.getRandomValues(r);
-        for (var i = 0; i < 6; i++) s += ABJAD[r[i] % ABJAD.length];
+        var s = (awalan || 'AYR') + '-', batas = 256 - 256 % ABJAD.length, r = new Uint8Array(32), i = r.length, n = 0, b;
+        while (n < 6) { /* byte di atas batas dibuang supaya tiap huruf punya peluang sama */
+            if (i >= r.length) { crypto.getRandomValues(r); i = 0; }
+            b = r[i++]; if (b < batas) { s += ABJAD[b % ABJAD.length]; n++; }
+        }
         return s;
     };
     L.hp4 = function (hp) { return String(hp || '').replace(/\D/g, '').slice(-4); };
@@ -152,7 +155,6 @@
     };
 
     /* ---------- penitipan gitar yang sudah selesai (dihitung dari tanggal status Selesai) ---------- */
-    L.gratisHari = function () { return C.gratisTitipHari; };
     L.biayaTitip = function () { return C.biayaTitipPerHari; };
     L.biayaTitipTeks = function () { return L.rupiah(C.biayaTitipPerHari) + ' per hari'; };
     /* keadaan penitipan: null bila belum selesai. lama = hari sejak selesai (sampai diambil atau hari ini) */
@@ -358,9 +360,10 @@
 
     /* ================= admin: GitHub sebagai tempat data ================= */
     var G = C.github, CABANG = G.cabang || 'main', RAW = 'application/vnd.github.raw+json';
-    var KUNCI_TOKEN = 'ayri-admin-token', KUNCI_SESI = 'ayri-admin-sesi';
+    var KUNCI_TOKEN = 'ayri-admin-token', KUNCI_SESI = 'ayri-admin-sesi', KUNCI_GAGAL = 'ayri-pin-gagal';
+    /* token hanya hidup di memori halaman ini (tidak lagi disalin ke sessionStorage): muat ulang halaman = masukkan PIN lagi */
     var token = null;
-    try { token = sessionStorage.getItem(KUNCI_SESI); } catch (e) {}
+    try { sessionStorage.removeItem(KUNCI_SESI); } catch (e) {} /* sisa dari versi lama */
     L.siapAdmin = !!(G.pemilik && G.repoSitus && G.repoData);
 
     function pesanGh(status, teks) {
@@ -375,7 +378,7 @@
     function gh(method, path, body, accept, simpanCache) {
         if (!token) return Promise.reject(new Error('Admin terkunci. Masukkan PIN lagi.'));
         function putus() { var e = new Error('Koneksi internet bermasalah. Coba lagi.'); e.offline = true; throw e; }
-        if (navigator.onLine === false) return Promise.reject().catch(putus);
+        if (navigator.onLine === false) { try { putus(); } catch (e) { return Promise.reject(e); } }
         var h = { Authorization: 'Bearer ' + token, Accept: accept || 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28' };
         if (body) h['Content-Type'] = 'application/json';
         return fetch('https://api.github.com/repos/' + path, { method: method, cache: simpanCache ? 'default' : 'no-store', headers: h, body: body ? JSON.stringify(body) : undefined })
@@ -397,62 +400,110 @@
         return gh('GET', repo(jenis) + '/contents/' + jalur(p) + '?ref=' + CABANG, null, RAW, biner)
             .then(function (r) { return biner ? r.arrayBuffer() : r.text(); }, function (e) { if (e.status === 404) return null; throw e; });
     }
-    /* beberapa file sekaligus dalam SATU commit (Git Data API) supaya situs hanya dibangun ulang sekali */
-    function commit(jenis, files, pesan) {
-        var rp = repo(jenis);
-        return Promise.all(files.map(function (f) {
-            if (f.hapus) return null;
-            return gh('POST', rp + '/git/blobs', { content: f.base64 != null ? f.base64 : b64(te.encode(f.teks)), encoding: 'base64' }).then(function (b) { return b.sha; });
-        })).then(function (sha) {
-            function coba(n, tanpaHapus) {
-                return gh('GET', rp + '/git/ref/heads/' + CABANG).catch(function (e) {
-                    if ((e.status === 409 || e.status === 404) && n < 2) return gh('PUT', rp + '/contents/README.md', { message: 'Mulai repo', content: b64(te.encode('Data layanan Toko Gitar AYRI\n')), branch: CABANG }).then(function () { return gh('GET', rp + '/git/ref/heads/' + CABANG); });
-                    throw e;
-                }).then(function (ref) {
-                    var kepala = ref.object.sha;
-                    return gh('GET', rp + '/git/commits/' + kepala).then(function (c) {
-                        var pohon = [];
-                        files.forEach(function (f, i) { if (!f.hapus) pohon.push({ path: f.path, mode: '100644', type: 'blob', sha: sha[i] }); else if (!tanpaHapus) pohon.push({ path: f.path, mode: '100644', type: 'blob', sha: null }); });
-                        return gh('POST', rp + '/git/trees', { base_tree: c.tree.sha, tree: pohon });
-                    }).then(function (t) { return gh('POST', rp + '/git/commits', { message: pesan, tree: t.sha, parents: [kepala] }); })
-                        .then(function (nc) { return gh('PATCH', rp + '/git/refs/heads/' + CABANG, { sha: nc.sha }).then(function () { return nc.sha; }); });
-                }).catch(function (e) {
-                    if (e.status === 422 && /tree|path/i.test(e.detail || '') && !tanpaHapus) return coba(n, true); /* file yang mau dihapus ternyata sudah tidak ada */
-                    if (e.status === 422 && n < 6) return new Promise(function (ok) { setTimeout(ok, 500 * (n + 1)); }).then(function () { return coba(n + 1, tanpaHapus); }); /* ada commit lain di saat yang sama / GitHub belum sinkron: tunggu sebentar, ulangi */
-                    throw e;
-                });
-            }
-            return coba(0, false);
+    /* ---------- menulis ke GitHub tanpa saling menimpa ----------
+       Satu penulisan = SATU commit (situs hanya dibangun ulang sekali) di atas "kepala" repo yang barusan dibaca.
+       Bila perangkat lain sempat menyimpan di antaranya, GitHub menolak (422 "not a fast forward") dan SELURUH langkah
+       baca-hitung-tulis diulang dengan data terbaru, sehingga perubahan perangkat lain tidak pernah tertimpa. */
+    function tunda(ms) { return new Promise(function (ok) { setTimeout(ok, ms); }); }
+    function bentrok(pesan) { var e = new Error(pesan || 'Data ini baru diubah di perangkat lain. Muat ulang data (tombol ⟳ di atas), lalu ulangi.'); e.bentrok = true; return e; }
+    function ambilKepala(rp, bolehMulai) {
+        return gh('GET', rp + '/git/ref/heads/' + CABANG).catch(function (e) {
+            if ((e.status === 409 || e.status === 404) && bolehMulai) return gh('PUT', rp + '/contents/README.md', { message: 'Mulai repo', content: b64(te.encode('Data layanan Toko Gitar AYRI\n')), branch: CABANG }).then(function () { return gh('GET', rp + '/git/ref/heads/' + CABANG); });
+            throw e;
+        }).then(function (ref) { return ref.object.sha; });
+    }
+    /* blob dibuat sekali per berkas (foto besar tidak diunggah ulang saat commit diulang) */
+    function blobDari(rp, f) {
+        if (f.hapus) return Promise.resolve(null);
+        if (f._sha) return Promise.resolve(f._sha);
+        return gh('POST', rp + '/git/blobs', { content: f.base64 != null ? f.base64 : b64(te.encode(f.teks)), encoding: 'base64' }).then(function (b) { f._sha = b.sha; return b.sha; });
+    }
+    function tulisDi(rp, kepala, files, pesan, tanpaHapus) {
+        return Promise.all(files.map(function (f) { return blobDari(rp, f); })).then(function (sha) {
+            var pohon = [];
+            files.forEach(function (f, i) { if (!f.hapus) pohon.push({ path: f.path, mode: '100644', type: 'blob', sha: sha[i] }); else if (!tanpaHapus) pohon.push({ path: f.path, mode: '100644', type: 'blob', sha: null }); });
+            if (!pohon.length) return kepala;
+            return gh('GET', rp + '/git/commits/' + kepala).then(function (c) { return gh('POST', rp + '/git/trees', { base_tree: c.tree.sha, tree: pohon }); })
+                .then(function (t) { return gh('POST', rp + '/git/commits', { message: pesan, tree: t.sha, parents: [kepala] }); })
+                .then(function (nc) { return gh('PATCH', rp + '/git/refs/heads/' + CABANG, { sha: nc.sha }).then(function () { return nc.sha; }); });
         });
     }
+    /* hitung(baca) mengembalikan Promise berisi array file, atau { files: [...], hasil: ... }. baca(path) membaca isi file (teks, atau
+       null bila belum ada) PADA kepala yang sama dengan yang akan ditulisi. hitung boleh dipanggil lebih dari sekali (tiap bentrok),
+       jadi tidak boleh punya efek samping yang tidak bisa diulang. Hasil: nilai `hasil`, atau sha commit untuk array file biasa. */
+    function ubahAtomik(jenis, hitung, pesan) {
+        var rp = repo(jenis);
+        function coba(n, tanpaHapus) {
+            return ambilKepala(rp, n < 2).then(function (kepala) {
+                function baca(path) { return gh('GET', rp + '/contents/' + jalur(path) + '?ref=' + kepala, null, RAW).then(function (r) { return r.text(); }, function (e) { if (e.status === 404) return null; throw e; }); }
+                return Promise.resolve(hitung(baca)).then(function (h) {
+                    var biasa = Array.isArray(h), files = biasa ? h : (h && h.files) || [];
+                    return tulisDi(rp, kepala, files, pesan, tanpaHapus).then(function (sha) { return biasa ? sha : h && h.hasil; });
+                });
+            }).catch(function (e) {
+                var d = e && e.detail || '';
+                if (e && e.status === 422 && /tree|path/i.test(d) && !/fast forward/i.test(d) && !tanpaHapus) return coba(n, true); /* file yang mau dihapus ternyata sudah tidak ada */
+                if (e && e.status === 422 && n < 6) return tunda(300 * (n + 1) + Math.random() * 300).then(function () { return coba(n + 1, tanpaHapus); }); /* commit lain masuk di saat yang sama: ulangi dari membaca */
+                throw e;
+            });
+        }
+        return coba(0, false);
+    }
+    /* tulis file baru/hapus tanpa membaca isi lama (foto, halaman publik, katalog) */
+    function commit(jenis, files, pesan) { return ubahAtomik(jenis, function () { return files; }, pesan); }
     function commitBila(jenis, files, pesan) { return files.length ? commit(jenis, files, pesan) : Promise.resolve(null); }
 
-    /* ---------- token: disimpan di perangkat ini, dikunci PIN ---------- */
-    function kunciPin(pin, garam) { return pbkdf2('ayri-pin|' + pin, garam, 200000, 256).then(aes); }
+    /* ---------- token: disimpan di perangkat ini, dikunci PIN ----------
+       PIN minimal 6 karakter (angka atau huruf), kunci diturunkan dengan 600.000 putaran PBKDF2 (versi lama: 200.000, tetap bisa dibuka
+       lalu otomatis ditingkatkan). Salah PIN 5 kali berturut-turut: dikunci sementara, makin lama bila terus salah. */
+    var PIN_MIN = 6, PIN_PUTARAN = 600000, PIN_PUTARAN_LAMA = 200000, SALAH_MAKS = 5;
+    L.api.PIN_MIN = PIN_MIN;
+    function kunciPin(pin, garam, putaran) { return pbkdf2('ayri-pin|' + pin, garam, putaran || PIN_PUTARAN_LAMA, 256).then(aes); }
+    function bacaGagal() { try { var g = JSON.parse(localStorage.getItem(KUNCI_GAGAL) || 'null'); return g && typeof g.n === 'number' ? g : { n: 0, sampai: 0 }; } catch (e) { return { n: 0, sampai: 0 }; } }
+    function bersihkanGagal() { try { localStorage.removeItem(KUNCI_GAGAL); } catch (e) {} }
+    function simpanBlobToken(pin, tokenIni) {
+        var garam = crypto.getRandomValues(new Uint8Array(16));
+        return kunciPin(pin, garam, PIN_PUTARAN).then(function (k) { return enkripsi(k, te.encode(tokenIni)); }).then(function (ct) {
+            localStorage.setItem(KUNCI_TOKEN, JSON.stringify({ v: 2, it: PIN_PUTARAN, g: b64(garam), d: b64(ct), dibuat: L.hariIni() }));
+            bersihkanGagal();
+        });
+    }
+    function cekPin(pin) { return String(pin || '').length >= PIN_MIN ? null : new Error('PIN minimal ' + PIN_MIN + ' karakter (angka atau huruf).'); }
     L.api.adaToken = function () { try { return !!localStorage.getItem(KUNCI_TOKEN); } catch (e) { return false; } };
     L.api.terbuka = function () { return !!token; };
     L.api.pasangToken = function (tokenBaru, pin) {
+        var salah = cekPin(pin); if (salah) return Promise.reject(salah);
         tokenBaru = String(tokenBaru || '').trim(); token = tokenBaru;
         return Promise.all([gh('GET', repo('data')), gh('GET', repo('situs'))]).then(function (r) {
             if (!r[0].private) throw new Error('Repo data "' + (PISAH ? G.repoBersama : G.repoData) + '" masih PUBLIK. Ubah jadi Private dulu (Settings → Danger Zone → Change visibility).');
-            var garam = crypto.getRandomValues(new Uint8Array(16));
-            return kunciPin(pin, garam).then(function (k) { return enkripsi(k, te.encode(tokenBaru)); }).then(function (ct) {
-                localStorage.setItem(KUNCI_TOKEN, JSON.stringify({ v: 1, g: b64(garam), d: b64(ct), dibuat: L.hariIni() }));
-                try { sessionStorage.setItem(KUNCI_SESI, tokenBaru); } catch (e) {}
-            });
+            return simpanBlobToken(String(pin), tokenBaru);
         }).catch(function (e) { token = null; throw e; });
     };
     L.api.buka = function (pin) {
-        var s = JSON.parse(localStorage.getItem(KUNCI_TOKEN) || 'null'); if (!s) return Promise.reject(new Error('Token belum dipasang.'));
-        return kunciPin(pin, unb64(s.g)).then(function (k) { return dekripsi(k, unb64(s.d)); })
-            .then(function (b) { token = td.decode(b); try { sessionStorage.setItem(KUNCI_SESI, token); } catch (e) {} }, function () { throw new Error('PIN salah.'); });
+        var s = null; try { s = JSON.parse(localStorage.getItem(KUNCI_TOKEN) || 'null'); } catch (e) {}
+        if (!s || !s.g || !s.d) return Promise.reject(new Error('Token belum dipasang.'));
+        var g = bacaGagal(), kini = Date.now(); pin = String(pin || '');
+        if (g.sampai > kini) return Promise.reject(new Error('Terlalu banyak PIN yang salah. Coba lagi dalam ' + Math.ceil((g.sampai - kini) / 60000) + ' menit.'));
+        return kunciPin(pin, unb64(s.g), s.it).then(function (k) { return dekripsi(k, unb64(s.d)); }).then(function (b) {
+            token = td.decode(b); bersihkanGagal();
+            if (s.v !== 2) simpanBlobToken(pin, token).catch(function () {}); /* tingkatkan blob lama ke 600.000 putaran, diam-diam */
+        }, function () {
+            var n = g.n + 1, menit = Math.min(60, 5 * (n - SALAH_MAKS + 1));
+            try { localStorage.setItem(KUNCI_GAGAL, JSON.stringify({ n: n, sampai: n >= SALAH_MAKS ? kini + menit * 60000 : 0 })); } catch (e) {}
+            throw new Error(n >= SALAH_MAKS ? 'PIN salah. Terlalu banyak percobaan: coba lagi dalam ' + menit + ' menit.' : 'PIN salah. Sisa percobaan: ' + (SALAH_MAKS - n) + '.');
+        });
+    };
+    /* ganti PIN perangkat ini (admin harus sedang terbuka) */
+    L.api.gantiPin = function (pinBaru) {
+        if (!token) return Promise.reject(new Error('Admin terkunci. Masukkan PIN dulu.'));
+        var salah = cekPin(pinBaru); if (salah) return Promise.reject(salah);
+        return simpanBlobToken(String(pinBaru), token);
     };
     L.api.kunci = function () { token = null; try { sessionStorage.removeItem(KUNCI_SESI); } catch (e) {} return Promise.resolve(); };
-    L.api.lupakan = function () { L.api.kunci(); try { localStorage.removeItem(KUNCI_TOKEN); } catch (e) {} return Promise.resolve(); };
+    L.api.lupakan = function () { L.api.kunci(); bersihkanGagal(); try { localStorage.removeItem(KUNCI_TOKEN); } catch (e) {} return Promise.resolve(); };
 
     /* ---------- data (repo privat) ---------- */
     var data = { servis: [], artikel: [], tebus: [], stok: [], jual: [], absen: [], opname: [], pengaturan: {}, kas: [] }, rahasia = {}, statusPisah = null;
-    function salin(o) { return JSON.parse(JSON.stringify(o)); }
     function cari(list, id) { return list.filter(function (x) { return x.id === id; })[0] || null; }
     function bacaJson(nama, rp) { return bacaFile(rp || 'data', nama).then(function (t) { return t ? JSON.parse(t) : []; }); }
     /* modal & asal barang: setelah dipisah, disimpan di repo owner (stok-rahasia.json), bukan di stok.json bersama */
@@ -487,6 +538,21 @@
     L.api.statusPisah = function () { return statusPisah; };
     /* cadangan: hanya data yang boleh dilihat pemegang token ini */
     L.api.cadangan = function () { var c = salin(data); if (peran !== 'owner') { delete c.tebus; c.stok = c.stok.map(bersihStok); } return c; };
+    /* cadangan terenkripsi: berisi data pelanggan (dan kunci foto), jadi dikunci dengan sandi pilihan pemilik (AES-GCM, PBKDF2 600.000 putaran) */
+    var CAD_PUTARAN = 600000;
+    L.api.cadanganTerenkripsi = function (sandi) {
+        sandi = String(sandi || '');
+        if (sandi.length < PIN_MIN) return Promise.reject(new Error('Sandi cadangan minimal ' + PIN_MIN + ' karakter.'));
+        var garam = crypto.getRandomValues(new Uint8Array(16)), isi = te.encode(JSON.stringify(L.api.cadangan()));
+        return pbkdf2('ayri-cadangan|' + sandi, garam, CAD_PUTARAN, 256).then(aes).then(function (k) { return enkripsi(k, isi); })
+            .then(function (ct) { return JSON.stringify({ app: 'ayri-cadangan', v: 1, it: CAD_PUTARAN, g: b64(garam), d: b64(ct), dibuat: new Date().toISOString() }); });
+    };
+    L.api.bukaCadangan = function (teks, sandi) {
+        var j = null; try { j = JSON.parse(teks); } catch (e) {}
+        if (!j || j.app !== 'ayri-cadangan' || !j.g || !j.d) return Promise.reject(new Error('Berkas ini bukan cadangan AYRI.'));
+        return pbkdf2('ayri-cadangan|' + String(sandi || ''), unb64(j.g), j.it || CAD_PUTARAN, 256).then(aes).then(function (k) { return dekripsi(k, unb64(j.d)); })
+            .then(function (b) { return td.decode(b); }, function () { throw new Error('Sandi salah, atau berkas rusak.'); });
+    };
     /* pindahkan data dari repo owner (repo data lama) ke repo bersama, sekali saja:
        (1) modal stok ke stok-rahasia.json di repo owner, (2) daftar ke repo bersama tanpa modal, (3) salinan lama di repo owner dihapus
        (tetap ada di riwayat repo owner sebagai arsip). Bila terputus di tengah, menekan Pindahkan lagi aman. */
@@ -505,40 +571,65 @@
                 });
         });
     };
-    /* simpan satu catatan ke file daftar: baca versi terbaru dulu supaya perubahan dari perangkat lain tidak tertimpa.
-       file lain di repo data (mis. foto tebus) ikut dalam commit yang sama */
-    function simpanDaftar(jenis, rec, hapus, tambahan) {
-        var nama = jenis + '.json', rp = repoJenis(jenis), stokPisah = PISAH && jenis === 'stok';
-        return bacaJson(nama, rp).then(function (list) {
-            list = list.filter(function (x) { return x.id !== rec.id; });
-            if (!hapus) list.unshift(stokPisah ? bersihStok(rec) : rec);
-            list.sort(function (a, b) { return a.created_at < b.created_at ? 1 : -1; });
-            return commit(rp, [{ path: nama, teks: JSON.stringify(list, null, 1) + '\n' }].concat(tambahan || []), (hapus ? 'Hapus ' : 'Simpan ') + (rec.kode || rec.slug || rec.id))
-                .then(function () { data[jenis] = stokPisah ? gabungStok(list) : list; return stokPisah && !hapus ? simpanRahasia(rec) : null; })
-                .then(function () { return data[jenis]; });
-        });
+    /* ---------- catatan di layar yang basi ----------
+       dasar = updated_at catatan saat dibuka di layar. Bila di GitHub versinya sudah lain (perangkat lain menyimpan lebih dulu),
+       simpanan ditolak (bentrok) daripada menimpa perubahan itu. Antrian offline membawa dasar aslinya di rec._dasar. */
+    function ambilDasar(rec) {
+        var ulang = rec._dasar !== undefined, d = ulang ? rec._dasar : rec.updated_at;
+        delete rec._dasar;
+        return { d: d == null ? undefined : d, ulang: ulang };
+    }
+    function tandaiRec(rec, dasar) { return function (e) { if (e && e.offline && !e.rec) { e.rec = salin(rec); e.rec._dasar = dasar === undefined ? null : dasar; } throw e; }; }
+    /* bentrok bila versi di GitHub bukan versi yang dibuka di layar (dasar) dan bukan versi yang sedang akan ditulis
+       (simpanan yang sudah masuk sebelumnya lalu diulang tetap aman). Catatan lama tanpa updated_at tidak bisa dibandingkan. */
+    function cekVersi(list, rec, dasar) {
+        var ada = cari(list, rec.id);
+        if (ada && ada.updated_at != null && ada.updated_at !== dasar && ada.updated_at !== rec.updated_at) throw bentrok();
+        return ada;
+    }
+    /* pemeriksaan awal sebelum foto/halaman publik ditulis ke situs (urutan situs dulu, baru data utama); lama = catatan ini sudah ada di layar */
+    function cekBentrok(jenis, rec, dasar, lama) {
+        if (!rec.id || (dasar === undefined && !lama)) return Promise.resolve();
+        return bacaJson(jenis + '.json', repoJenis(jenis)).then(function (list) { cekVersi(list, rec, dasar); });
+    }
+    function urutTerbaru(a, b) { var x = a.created_at || '', y = b.created_at || ''; return x < y ? 1 : x > y ? -1 : 0; }
+    /* simpan satu catatan ke file daftar, ATOMIK: dibaca & ditulis di atas kepala yang sama (lihat ubahAtomik), jadi perubahan perangkat
+       lain pada catatan LAIN tidak tertimpa. file lain di repo data (mis. foto tebus) ikut dalam commit yang sama */
+    function simpanDaftar(jenis, rec, hapus, tambahan, dasar) {
+        var nama = jenis + '.json', rp = repoJenis(jenis), stokPisah = PISAH && jenis === 'stok', list, simpan = salin(rec);
+        delete simpan._dasar;
+        return ubahAtomik(rp, function (baca) {
+            return baca(nama).then(function (t) {
+                var l = t ? JSON.parse(t) : [];
+                if (!hapus) cekVersi(l, rec, dasar);
+                l = l.filter(function (x) { return x.id !== rec.id; });
+                if (!hapus) l.unshift(stokPisah ? bersihStok(simpan) : simpan);
+                l.sort(urutTerbaru); list = l;
+                return { files: [{ path: nama, teks: JSON.stringify(l, null, 1) + '\n' }].concat(tambahan || []) };
+            });
+        }, (hapus ? 'Hapus ' : 'Simpan ') + (rec.kode || rec.slug || rec.id)).then(function () {
+            data[jenis] = stokPisah ? gabungStok(list) : list; return stokPisah && !hapus ? simpanRahasia(rec) : null;
+        }).then(function () { return data[jenis]; });
     }
     /* owner menyimpan stok: modal & asal ke repo owner bila berubah (karyawan tidak pernah melihat atau menulisnya) */
     function simpanRahasia(rec) {
         if (peran !== 'owner') return null;
-        var baru = isiRahasia(rec);
+        var baru = isiRahasia(rec), rh;
         if (JSON.stringify(rahasia[rec.id] || isiRahasia({})) === JSON.stringify(baru)) return null;
-        return bacaFile('owner', 'stok-rahasia.json').then(function (t) {
-            var rh = t ? JSON.parse(t) : {}; rh[rec.id] = baru;
-            return commit('owner', [{ path: 'stok-rahasia.json', teks: JSON.stringify(rh, null, 1) + '\n' }], 'Modal ' + (rec.kode || rec.id)).then(function () {
-                rahasia = rh; data.stok = gabungStok(data.stok.map(bersihStok));
-            });
-        });
+        return ubahAtomik('owner', function (baca) {
+            return baca('stok-rahasia.json').then(function (t) { rh = t ? JSON.parse(t) : {}; rh[rec.id] = baru; return [{ path: 'stok-rahasia.json', teks: JSON.stringify(rh, null, 1) + '\n' }]; });
+        }, 'Modal ' + (rec.kode || rec.id)).then(function () { rahasia = rh; data.stok = gabungStok(data.stok.map(bersihStok)); });
     }
     /* simpan catatan + file pendukungnya di dua repo (files: { situs: [], data: [] }). Repo yang memuat foto baru
        di-commit lebih dulu, supaya catatan tidak pernah merujuk foto yang belum terunggah. Bila langkah kedua gagal,
        catatan yang sudah lengkap (e.rec) dikembalikan supaya admin cukup menekan Simpan lagi */
-    function simpanDua(jenis, rec, files, pesanSitus, dataDulu) {
+    function simpanDua(jenis, rec, files, pesanSitus, dataDulu, dasar) {
         function situs() { return commitBila('situs', files.situs, pesanSitus); }
-        function utama() { return simpanDaftar(jenis, rec, false, files[repoJenis(jenis)]); }
+        function utama() { return simpanDaftar(jenis, rec, false, files[repoJenis(jenis)], dasar); }
         return (dataDulu ? utama : situs)().then(function () {
             return (dataDulu ? situs : utama)().catch(function (e) {
                 e.sebagian = true; e.rec = salin(rec);
+                if (!dataDulu) { if (dasar === undefined) delete e.rec.updated_at; else e.rec.updated_at = dasar; } /* data utama belum berubah: versinya tetap yang lama */
                 e.message = (dataDulu ? 'Data tersimpan, tapi halaman di situs belum diperbarui: ' : 'Halaman di situs sudah diperbarui, tapi data utama gagal disimpan: ') + e.message + ' Tekan Simpan sekali lagi.';
                 throw e;
             });
@@ -638,16 +729,17 @@
     /* simpan servis: (1) foto + versi publik terenkripsi ke situs dalam satu commit, (2) data lengkap ke repo privat */
     L.api.simpanServis = function (rec, fotoBaru) {
         rec = salin(rec);
-        var sekarang = new Date().toISOString(), lama = cari(data.servis, rec.id), files = { situs: [], data: [] }, t = L.hariIni();
+        var dv = ambilDasar(rec), dasar = dv.d, sekarang = new Date().toISOString(), lama = cari(data.servis, rec.id), files = { situs: [], data: [] }, t = L.hariIni();
         siapkanBaru(rec, data.servis, 'AYR', sekarang);
         L.kunciServis(rec.kode, L.hp4(rec.hp)); /* mulai hitung kunci (lambat) bersamaan dengan enkripsi foto */
         if (!rec.fk) rec.fk = b64(crypto.getRandomValues(new Uint8Array(32)));
-        rec.items = rec.items || []; rec.bayar = rec.bayar || []; rec.foto = rec.foto || []; rec.updated_at = sekarang;
+        rec.items = rec.items || []; rec.bayar = rec.bayar || []; rec.foto = rec.foto || []; rec.updated_at = dv.ulang && rec.updated_at ? rec.updated_at : sekarang;
         if (L.beres(rec) && !rec.tgl_selesai) rec.tgl_selesai = t;
         if (rec.status === 'diambil' && !rec.tgl_diambil) rec.tgl_diambil = t;
-        return unggahTerkunci(rec, fotoBaru || [], 'data/foto/', files.situs, function (fb) { return { keterangan: fb.keterangan || '', tampil: fb.tampil !== false, created_at: sekarang }; })
+        return cekBentrok('servis', rec, dasar, lama)
+            .then(function () { return unggahTerkunci(rec, fotoBaru || [], 'data/foto/', files.situs, function (fb) { return { keterangan: fb.keterangan || '', tampil: fb.tampil !== false, created_at: sekarang }; }); })
             .then(function () { hapusFotoHilang(lama, rec, files); return filePublik('servis', rec, lama, versiPublik, files.situs); })
-            .then(function () { return simpanDua('servis', rec, files, 'Servis: perbarui data pelanggan'); }).catch(tandaiRec(rec));
+            .then(function () { return simpanDua('servis', rec, files, 'Servis: perbarui data pelanggan', false, dasar); }).catch(tandaiRec(rec, dasar));
     };
     L.api.hapusServis = function (rec) {
         var files = hapusFoto(rec.foto || [], { situs: rec.pubId ? [{ path: 'data/servis/' + rec.pubId + '.json', hapus: true }] : [], data: [] });
@@ -667,7 +759,7 @@
     }
     L.api.simpanTebus = function (rec, fotoBaru) {
         rec = salin(rec);
-        var sekarang = new Date().toISOString(), lama = cari(data.tebus, rec.id), files = { situs: [], data: [], owner: [] };
+        var dasar = ambilDasar(rec).d, sekarang = new Date().toISOString(), lama = cari(data.tebus, rec.id), files = { situs: [], data: [], owner: [] };
         if (peran !== 'owner') return Promise.reject(new Error('Tebus hanya untuk owner.'));
         siapkanBaru(rec, data.tebus, 'TBS', sekarang);
         L.kunciServis(rec.kode, L.hp4(rec.hp));
@@ -675,9 +767,10 @@
         rec.foto = rec.foto || []; rec.updated_at = sekarang; delete rec.biaya_admin; /* kebijakan toko: tanpa biaya tambahan */
         if (rec.status === 'ditebus' && !rec.tgl_tebus) rec.tgl_tebus = L.hariIni();
         if (rec.status === 'milik_toko' && !rec.tgl_berakhir) rec.tgl_berakhir = L.hariIni();
-        return unggahTerkunci(rec, fotoBaru || [], 'foto/', files[repoJenis('tebus')], function () { return { repo: 'data', created_at: sekarang }; })
+        return cekBentrok('tebus', rec, dasar, lama)
+            .then(function () { return unggahTerkunci(rec, fotoBaru || [], 'foto/', files[repoJenis('tebus')], function () { return { repo: 'data', created_at: sekarang }; }); })
             .then(function () { hapusFotoHilang(lama, rec, files); return filePublik('tebus', rec, lama, versiPerjanjian, files.situs); })
-            .then(function () { return simpanDua('tebus', rec, files, 'Tebus: perbarui surat perjanjian', true); });
+            .then(function () { return simpanDua('tebus', rec, files, 'Tebus: perbarui surat perjanjian', true, dasar); });
     };
     L.api.hapusTebus = function (rec) {
         var files = hapusFoto(rec.foto || [], { situs: rec.pubId ? [{ path: 'data/tebus/' + rec.pubId + '.json', hapus: true }] : [], data: [], owner: [] });
@@ -729,7 +822,7 @@
     }
     L.api.simpanStok = function (rec, fotoBaru) {
         rec = salin(rec);
-        var sekarang = new Date().toISOString(), lama = cari(data.stok, rec.id), files = { situs: [], data: [] };
+        var dasar = ambilDasar(rec).d, sekarang = new Date().toISOString(), lama = cari(data.stok, rec.id), files = { situs: [], data: [] };
         siapkanBaru(rec, data.stok, 'STK', sekarang);
         rec.kategori = rec.kategori || 'gitar';
         rec.foto = rec.foto || []; rec.penjualan = rec.penjualan || []; rec.updated_at = sekarang;
@@ -737,10 +830,12 @@
         if (rec.status !== 'ditarik') rec.status = +rec.jumlah > 0 ? (rec.status === 'dipesan' ? 'dipesan' : 'tersedia') : (rec.status === 'dipesan' ? 'dipesan' : 'terjual');
         /* foto lama yang masih terenkripsi (dari tebus / versi sebelumnya) dijadikan foto produk publik; file lamanya
            terhapus lewat hapusFotoHilang karena id-nya berganti */
-        return Promise.all(rec.foto.map(function (f) {
-            if (f.repo === 'publik') return f;
-            return Promise.all([fotoMentah(rec, f, true), fotoMentah(rec, f, false)]).then(function (b) { return fotoPublikStok(b[0], b[1], f.tipe, files.situs, sekarang); });
-        })).then(function (foto) {
+        return cekBentrok('stok', rec, dasar, lama).then(function () {
+            return Promise.all(rec.foto.map(function (f) {
+                if (f.repo === 'publik') return f;
+                return Promise.all([fotoMentah(rec, f, true), fotoMentah(rec, f, false)]).then(function (b) { return fotoPublikStok(b[0], b[1], f.tipe, files.situs, sekarang); });
+            }));
+        }).then(function (foto) {
             rec.foto = foto;
             return Promise.all((fotoBaru || []).map(function (fb) { return fotoPublikStok(fb.hasil.besar, fb.hasil.kecil, fb.hasil.besar.type, files.situs, sekarang); }));
         }).then(function (fotoTambah) {
@@ -751,7 +846,7 @@
         }).then(function (kat) {
             /* foto produk + katalog ke situs dulu (data utama merujuk ke file itu), lalu data utama ke repo privat */
             files.situs = files.situs.concat(kat);
-            return simpanDua('stok', rec, files, 'Stok: perbarui katalog');
+            return simpanDua('stok', rec, files, 'Stok: perbarui katalog', false, dasar);
         });
     };
     L.api.hapusStok = function (rec) {
@@ -831,8 +926,9 @@
     /* status barang setelah transaksi berubah: habis + masih ada pesanan berjalan = Dipesan, habis saja = Terjual */
     function statusStokDari(s, jualList) {
         if (s.status === 'ditarik') return 'ditarik';
-        if (+s.jumlah > 0) return s.status === 'dipesan' ? 'dipesan' : 'tersedia';
         var ditahan = jualList.some(function (j) { return (j.status === 'dp' || j.status === 'lunas') && (j.items || []).some(function (i) { return i.stok_id === s.id; }); });
+        /* masih ada unit: tetap "Dipesan" hanya selama memang ada pesanan berjalan; pesanan batal/dihapus mengembalikannya jadi Tersedia */
+        if (+s.jumlah > 0) return s.status === 'dipesan' && ditahan ? 'dipesan' : 'tersedia';
         return ditahan ? 'dipesan' : 'terjual';
     }
     /* terapkan transaksi ke daftar stok (jumlah + catatan penjualan). aktif = transaksi masih menahan barang */
@@ -857,14 +953,23 @@
     function aturStatusStok(diubah, jualList, sekarang) {
         Object.keys(diubah).forEach(function (id) { var s = diubah[id]; s.status = statusStokDari(s, jualList); s.updated_at = sekarang; });
     }
-    function urutBaru(list) { return list.sort(function (a, b) { return a.created_at < b.created_at ? 1 : -1; }); }
-    /* jual.json + stok.json dalam satu commit di repo privat, lalu nota + katalog di situs */
-    function simpanJualStok(rec, jualBaru, stokBaru, adaStok, filesSitus, pesan) {
-        var files = [{ path: 'jual.json', teks: JSON.stringify(jualBaru, null, 1) + '\n' }];
-        if (adaStok) files.push({ path: 'stok.json', teks: JSON.stringify(stokBaru, null, 1) + '\n' });
-        return commit('data', files, pesan).then(function () {
-            data.jual = jualBaru; if (adaStok) data.stok = gabungStok(stokBaru);
-            return commitBila('situs', filesSitus, 'Jual: perbarui nota & katalog').catch(function (e) {
+    function urutBaru(list) { return list.sort(urutTerbaru); }
+    /* jual.json + stok.json dalam SATU commit atomik di repo privat (dihitung ulang dari data terbaru bila ada bentrok), lalu nota + katalog di situs.
+       hitung({ jual, stok }) -> Promise { jualBaru, stokBaru, adaStok, situs } */
+    function simpanJualStok(rec, hitung, pesan) {
+        var h;
+        return ubahAtomik('data', function (baca) {
+            return Promise.all([baca('jual.json'), baca('stok.json')]).then(function (r) {
+                return hitung({ jual: r[0] ? JSON.parse(r[0]) : [], stok: r[1] ? JSON.parse(r[1]) : [] });
+            }).then(function (x) {
+                h = x;
+                var files = [{ path: 'jual.json', teks: JSON.stringify(x.jualBaru, null, 1) + '\n' }];
+                if (x.adaStok) files.push({ path: 'stok.json', teks: JSON.stringify(x.stokBaru, null, 1) + '\n' });
+                return files;
+            });
+        }, pesan).then(function () {
+            data.jual = h.jualBaru; if (h.adaStok) data.stok = gabungStok(h.stokBaru);
+            return commitBila('situs', h.situs, 'Jual: perbarui nota & katalog').catch(function (e) {
                 e.sebagian = true; e.rec = salin(rec);
                 e.message = 'Data tersimpan, tapi nota/katalog di situs belum diperbarui: ' + e.message + ' Tekan Simpan sekali lagi.';
                 throw e;
@@ -873,9 +978,9 @@
     }
     L.api.simpanJual = function (rec) {
         rec = salin(rec);
-        var sekarang = new Date().toISOString(), t = L.hariIni(), situs = [];
+        var dv = ambilDasar(rec), dasar = dv.d, sekarang = new Date().toISOString(), t = L.hariIni();
         siapkanBaru(rec, data.jual, 'JUL', sekarang);
-        rec.items = rec.items || []; rec.bayar = rec.bayar || []; rec.updated_at = sekarang; rec.tgl = rec.tgl || t;
+        rec.items = rec.items || []; rec.bayar = rec.bayar || []; rec.updated_at = dv.ulang && rec.updated_at ? rec.updated_at : sekarang; rec.tgl = rec.tgl || t;
         var h = L.hitungJual(rec);
         if (rec.status !== 'batal' && rec.status !== 'selesai') rec.status = h.lunas ? 'lunas' : 'dp';
         if (rec.status === 'dp' && !rec.batas_lunas) rec.batas_lunas = L.tambahHari(rec.tgl, C.jual.batasHari);
@@ -883,31 +988,31 @@
         if (rec.status === 'selesai' && !rec.tgl_selesai) rec.tgl_selesai = t;
         if (rec.status === 'batal' && !rec.tgl_batal) rec.tgl_batal = t;
         if (L.hp4(rec.hp)) L.kunciServis(rec.kode, L.hp4(rec.hp));
-        return Promise.all([bacaJson('jual.json'), bacaJson('stok.json')]).then(function (r) {
+        return simpanJualStok(rec, function (b) {
             /* versi di repo (bukan di memori) yang menentukan apakah stok sudah dikurangi: aman bila Simpan diulang */
-            var diFile = cari(r[0], rec.id), aktifLama = !!diFile && diFile.status !== 'batal', aktifBaru = rec.status !== 'batal';
-            var jualBaru = urutBaru(r[0].filter(function (x) { return x.id !== rec.id; }).concat([rec]));
-            var stokBaru = r[1], diubah = terapkanStok(rec, stokBaru, aktifLama, aktifBaru);
+            var diFile = cekVersi(b.jual, rec, dasar), aktifLama = !!diFile && diFile.status !== 'batal', aktifBaru = rec.status !== 'batal', situs = [];
+            var jualBaru = urutBaru(b.jual.filter(function (x) { return x.id !== rec.id; }).concat([rec]));
+            var stokBaru = b.stok, diubah = terapkanStok(rec, stokBaru, aktifLama, aktifBaru);
             aturStatusStok(diubah, jualBaru, sekarang);
-            var adaStok = Object.keys(diubah).length > 0;
-            var langkah;
+            var adaStok = Object.keys(diubah).length > 0, langkah;
             if (L.hp4(rec.hp)) langkah = filePublik('jual', rec, diFile, versiNotaJual, situs, true);
             else { if (diFile && diFile.pubId) situs.push({ path: 'data/jual/' + diFile.pubId + '.json', hapus: true }); rec.pubId = null; langkah = Promise.resolve(); }
-            return langkah.then(function () { return adaStok ? fileKatalogDari(stokBaru) : []; }).then(function (kat) {
-                return simpanJualStok(rec, jualBaru, stokBaru, adaStok, situs.concat(kat), 'Simpan ' + rec.kode);
+            /* katalog selalu dicocokkan dengan stok terbaru (file ditulis hanya bila isinya beda): kalau simpanan sebelumnya gagal di langkah ini, ulangan Simpan yang menuntaskannya */
+            return langkah.then(function () { return fileKatalogDari(stokBaru); }).then(function (kat) {
+                return { jualBaru: jualBaru, stokBaru: stokBaru, adaStok: adaStok, situs: situs.concat(kat) };
             });
-        }).then(function () { return salin(rec); }, tandaiRec(rec));
+        }, 'Simpan ' + rec.kode).then(function () { return salin(rec); }, tandaiRec(rec, dasar));
     };
     L.api.hapusJual = function (rec) {
-        return Promise.all([bacaJson('jual.json'), bacaJson('stok.json')]).then(function (r) {
-            var diFile = cari(r[0], rec.id), situs = [], sekarang = new Date().toISOString();
-            var jualBaru = r[0].filter(function (x) { return x.id !== rec.id; }), stokBaru = r[1];
+        var sekarang = new Date().toISOString();
+        return simpanJualStok(rec, function (b) {
+            var diFile = cari(b.jual, rec.id), situs = [], jualBaru = b.jual.filter(function (x) { return x.id !== rec.id; }), stokBaru = b.stok;
             var diubah = diFile ? terapkanStok(diFile, stokBaru, diFile.status !== 'batal', false) : {};
             aturStatusStok(diubah, jualBaru, sekarang);
             if (diFile && diFile.pubId) situs.push({ path: 'data/jual/' + diFile.pubId + '.json', hapus: true });
             var adaStok = Object.keys(diubah).length > 0;
-            return (adaStok ? fileKatalogDari(stokBaru) : Promise.resolve([])).then(function (kat) { return simpanJualStok(rec, jualBaru, stokBaru, adaStok, situs.concat(kat), 'Hapus ' + rec.kode); });
-        });
+            return fileKatalogDari(stokBaru).then(function (kat) { return { jualBaru: jualBaru, stokBaru: stokBaru, adaStok: adaStok, situs: situs.concat(kat) }; });
+        }, 'Hapus ' + rec.kode);
     };
     L.api.daftar = function (jenis) { return salin(data[jenis] || []); };
 
@@ -916,8 +1021,14 @@
     L.api.pengaturan = function () { return salin(data.pengaturan || {}); };
     L.api.simpanPengaturan = function (atur) {
         if (peran !== 'owner') return Promise.reject(new Error('Pengaturan karyawan hanya untuk owner.'));
-        atur = salin(atur); atur.updated_at = new Date().toISOString();
-        return commit('data', [{ path: 'pengaturan.json', teks: JSON.stringify(atur, null, 1) + '\n' }], 'Pengaturan karyawan & shift').then(function () { data.pengaturan = atur; return salin(atur); });
+        atur = salin(atur); var dasar = atur.updated_at; atur.updated_at = new Date().toISOString();
+        return ubahAtomik('data', function (baca) {
+            return baca('pengaturan.json').then(function (t) {
+                var ada = t ? JSON.parse(t) : null;
+                if (ada && ada.updated_at != null && ada.updated_at !== dasar && ada.updated_at !== atur.updated_at) throw bentrok();
+                return [{ path: 'pengaturan.json', teks: JSON.stringify(atur, null, 1) + '\n' }];
+            });
+        }, 'Pengaturan karyawan & shift').then(function () { data.pengaturan = atur; return salin(atur); });
     };
     /* jadwal masuk hari itu: Jumat boleh beda jam */
     L.jadwalStaf = function (st, tgl) {
@@ -931,25 +1042,29 @@
         return t > (toleransi || 0) ? { telat: true, label: 'Terlambat ' + t + ' menit' } : { telat: false, label: 'Tepat waktu' };
     };
     L.api.simpanAbsen = function (rec) {
-        rec = salin(rec); var sekarang = new Date().toISOString();
+        rec = salin(rec); var dv = ambilDasar(rec), sekarang = new Date().toISOString();
         if (!rec.id) { rec.id = idBaru(); rec.created_at = sekarang; }
-        rec.updated_at = sekarang;
-        return simpanDaftar('absen', rec).then(function () { return salin(rec); }, tandaiRec(rec));
+        rec.updated_at = dv.ulang && rec.updated_at ? rec.updated_at : sekarang;
+        return simpanDaftar('absen', rec, false, undefined, dv.d).then(function () { return salin(rec); }, tandaiRec(rec, dv.d));
     };
 
     /* ---------- kas harian: buka kasir (saldo awal), pengeluaran, tutup kasir (hitung uang laci) ----------
        Satu catatan per tanggal di kas.json (repo bersama). Perubahan selalu diterapkan ke versi terbaru di repo,
        supaya pengeluaran yang dicatat dari dua perangkat tidak saling menimpa. */
     L.KATEGORI_KELUAR = ['Part & bahan servis', 'Perlengkapan toko', 'Transport & ongkir', 'Makan & minum', 'Gaji & bonus', 'Listrik, internet, sewa', 'Lainnya'];
-    L.api.ubahKas = function ubahKasOnline(tgl, ubah) {
-        return bacaJson('kas.json').then(function (list) {
-            var sekarang = new Date().toISOString(), rec = list.filter(function (x) { return x.tgl === tgl; })[0];
-            if (!rec) { rec = { id: idBaru(), tgl: tgl, created_at: sekarang, pengeluaran: [] }; list.push(rec); }
-            rec.pengeluaran = rec.pengeluaran || [];
-            ubah(rec); rec.updated_at = sekarang;
-            list.sort(function (a, b) { return a.tgl < b.tgl ? 1 : -1; });
-            return commit('data', [{ path: 'kas.json', teks: JSON.stringify(list, null, 1) + '\n' }], 'Kas ' + tgl).then(function () { data.kas = list; return salin(rec); });
-        });
+    L.api.ubahKas = function (tgl, ubah) {
+        var hasil;
+        return ubahAtomik('data', function (baca) {
+            return baca('kas.json').then(function (t) {
+                var list = t ? JSON.parse(t) : [], sekarang = new Date().toISOString(), rec = list.filter(function (x) { return x.tgl === tgl; })[0];
+                if (!rec) { rec = { id: idBaru(), tgl: tgl, created_at: sekarang, pengeluaran: [] }; list.push(rec); }
+                rec.pengeluaran = rec.pengeluaran || [];
+                ubah(rec); rec.updated_at = sekarang;
+                list.sort(function (a, b) { return a.tgl < b.tgl ? 1 : -1; });
+                hasil = { list: list, rec: rec };
+                return [{ path: 'kas.json', teks: JSON.stringify(list, null, 1) + '\n' }];
+            });
+        }, 'Kas ' + tgl).then(function () { data.kas = hasil.list; return salin(hasil.rec); });
     };
 
     /* ---------- stock opname ----------
@@ -957,43 +1072,51 @@
        Laporan tidak menyimpan rupiah: nilai selisih dihitung dari modal saat ditampilkan, hanya untuk owner. */
     L.api.simpanOpname = function (rec, sesuaikan) {
         rec = salin(rec);
-        var sekarang = new Date().toISOString(), t = L.hariIni();
+        var dasar = ambilDasar(rec).d, sekarang = new Date().toISOString(), t = L.hariIni(), h;
         if (sesuaikan && peran !== 'owner') return Promise.reject(new Error('Penyesuaian stok hanya oleh owner.'));
         siapkanBaru(rec, data.opname, 'OPN', sekarang);
         rec.updated_at = sekarang; rec.tgl = rec.tgl || t;
         rec.status = sesuaikan ? 'disesuaikan' : rec.status === 'disesuaikan' ? 'disesuaikan' : 'menunggu';
         if (sesuaikan && !rec.tgl_sesuai) rec.tgl_sesuai = t;
-        return Promise.all([bacaJson('opname.json'), bacaJson('stok.json')]).then(function (r) {
-            var diFile = cari(r[0], rec.id), sudah = diFile && diFile.status === 'disesuaikan', list = urutBaru(r[0].filter(function (x) { return x.id !== rec.id; }).concat([rec]));
-            var stok = r[1], ubah = false;
-            if (sesuaikan && !sudah) (rec.items || []).forEach(function (it) {
-                var s = stok.filter(function (x) { return x.id === it.stok_id; })[0];
-                if (!s || it.fisik === it.sistem) return;
-                /* dihitung ulang dari jumlah di repo saat ini: penjualan sejak hitung fisik tetap terhitung */
-                var beda = it.fisik - it.sistem; s.jumlah = Math.max(0, (+s.jumlah || 0) + beda); s.updated_at = sekarang;
-                s.catatan_admin = ((s.catatan_admin ? s.catatan_admin + '\n' : '') + 'Opname ' + rec.kode + ' ' + L.tgl(t) + ': ' + (beda > 0 ? '+' : '') + beda + (it.catatan ? ' (' + it.catatan + ')' : '')).slice(-600);
-                if (+s.jumlah > 0 && (s.status === 'terjual')) s.status = 'tersedia';
-                if (!(+s.jumlah > 0) && s.status === 'tersedia') s.status = 'ditarik';
-                ubah = true;
+        return ubahAtomik('data', function (baca) {
+            return Promise.all([baca('opname.json'), baca('stok.json')]).then(function (r) {
+                var lama = r[0] ? JSON.parse(r[0]) : [], stok = r[1] ? JSON.parse(r[1]) : [], ubah = false;
+                var diFile = cari(lama, rec.id), sudah = diFile && diFile.status === 'disesuaikan', list = urutBaru(lama.filter(function (x) { return x.id !== rec.id; }).concat([rec]));
+                if (sesuaikan && !sudah) (rec.items || []).forEach(function (it) {
+                    var s = stok.filter(function (x) { return x.id === it.stok_id; })[0];
+                    if (!s || it.fisik === it.sistem) return;
+                    /* dihitung ulang dari jumlah di repo saat ini: penjualan sejak hitung fisik tetap terhitung */
+                    var beda = it.fisik - it.sistem; s.jumlah = Math.max(0, (+s.jumlah || 0) + beda); s.updated_at = sekarang;
+                    s.catatan_admin = ((s.catatan_admin ? s.catatan_admin + '\n' : '') + 'Opname ' + rec.kode + ' ' + L.tgl(t) + ': ' + (beda > 0 ? '+' : '') + beda + (it.catatan ? ' (' + it.catatan + ')' : '')).slice(-600);
+                    if (+s.jumlah > 0 && (s.status === 'terjual')) s.status = 'tersedia';
+                    if (!(+s.jumlah > 0) && s.status === 'tersedia') s.status = 'ditarik';
+                    ubah = true;
+                });
+                h = { list: list, stok: stok, ubah: ubah };
+                var files = [{ path: 'opname.json', teks: JSON.stringify(list, null, 1) + '\n' }];
+                if (ubah) files.push({ path: 'stok.json', teks: JSON.stringify(PISAH ? stok.map(bersihStok) : stok, null, 1) + '\n' });
+                return files;
             });
-            var files = [{ path: 'opname.json', teks: JSON.stringify(list, null, 1) + '\n' }];
-            if (ubah) files.push({ path: 'stok.json', teks: JSON.stringify(PISAH ? stok.map(bersihStok) : stok, null, 1) + '\n' });
-            return commit('data', files, (sesuaikan ? 'Opname disesuaikan ' : 'Opname ') + rec.kode).then(function () {
-                data.opname = list; if (ubah) data.stok = gabungStok(stok);
-                return ubah ? fileKatalogDari(stok).then(function (kat) { return commitBila('situs', kat, 'Opname: perbarui katalog'); }) : null;
-            });
-        }).then(function () { return salin(rec); });
+        }, (sesuaikan ? 'Opname disesuaikan ' : 'Opname ') + rec.kode).then(function () {
+            data.opname = h.list; if (h.ubah) data.stok = gabungStok(h.stok);
+            return h.ubah ? fileKatalogDari(h.stok).then(function (kat) { return commitBila('situs', kat, 'Opname: perbarui katalog'); }).catch(function (e) {
+                e.sebagian = true; e.rec = salin(rec);
+                e.message = 'Opname tersimpan dan stok sudah disesuaikan, tapi katalog di situs belum diperbarui: ' + e.message + ' Tekan Simpan sekali lagi.';
+                throw e;
+            }) : null;
+        }).then(function () { return salin(rec); }, tandaiRec(rec, dasar));
     };
 
     /* ---------- artikel ---------- */
     L.api.simpanArtikel = function (art) {
-        art = salin(art); var sekarang = new Date().toISOString(), lama = cari(data.artikel, art.id);
+        art = salin(art); var dasar = ambilDasar(art).d, sekarang = new Date().toISOString(), lama = cari(data.artikel, art.id);
+        if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(String(art.slug || ''))) return Promise.reject(new Error('Alamat halaman hanya boleh huruf kecil, angka, dan tanda minus (contoh: setup-gitar-akustik).'));
         if (data.artikel.some(function (x) { return x.slug === art.slug && x.id !== art.id; })) return Promise.reject(new Error('Alamat halaman sudah dipakai artikel lain.'));
         if (!art.id) { art.id = idBaru(); art.created_at = sekarang; }
         art.updated_at = sekarang;
         if (art.status === 'terbit' && !art.terbit_at) art.terbit_at = sekarang;
         var perluSitus = art.status === 'terbit' || (lama && lama.status === 'terbit');
-        return (perluSitus ? terbitkan(art, lama) : Promise.resolve()).then(function () { return simpanDaftar('artikel', art); }).then(function () { return salin(art); });
+        return cekBentrok('artikel', art, dasar, lama).then(function () { return perluSitus ? terbitkan(art, lama) : null; }).then(function () { return simpanDaftar('artikel', art, false, undefined, dasar); }).then(function () { return salin(art); });
     };
     L.api.hapusArtikel = function (art) {
         var lama = cari(data.artikel, art.id);
@@ -1020,31 +1143,32 @@
     };
     /* tulis/hapus halaman artikel + perbarui kartu di beranda dan sitemap, semuanya dalam satu commit */
     function terbitkan(art, lama) {
-        var B = window.ArtikelBuilder, files = [], tampil = art.status === 'terbit';
-        return Promise.all([bacaFile('situs', 'scripts/artikel-template.html'), bacaFile('situs', 'index.html'), bacaFile('situs', 'sitemap.xml'),
-            tampil ? bacaFile('situs', 'artikel-' + art.slug + '.html') : null]).then(function (r) {
-            var tpl = r[0], beranda = r[1], peta = r[2], ada = r[3];
-            if (!tpl || !beranda || !peta) throw new Error('File template/beranda/sitemap tidak ditemukan di repo situs.');
-            if (ada && ada.indexOf(B.PENANDA) < 0) throw new Error('Alamat artikel-' + art.slug + '.html sudah dipakai halaman buatan tangan. Ganti alamatnya.');
-            /* foto dari servis (terenkripsi) disalin jadi foto publik saat pertama terbit */
-            return Promise.all((tampil ? art.foto || [] : []).map(function (f, i) {
-                if (f.path) return;
-                var x = fotoServisArtikel(f);
-                if (!x) throw new Error('Foto servis untuk artikel tidak ditemukan.');
-                return fotoMentah(x.s, x.f, true).then(function (b) { return b.arrayBuffer(); }).then(function (buf) {
-                    var p2 = 'foto/artikel/' + acakHex(10) + (x.f.tipe === 'image/jpeg' ? '.jpg' : '.webp');
-                    files.push({ path: p2, base64: b64(buf) }); art.foto[i] = { path: p2, alt: f.alt || '' };
-                });
-            })).then(function () {
-                if (lama && lama.status === 'terbit' && lama.slug !== art.slug) files.push({ path: 'artikel-' + lama.slug + '.html', hapus: true });
-                if (tampil) files.push({ path: 'artikel-' + art.slug + '.html', teks: B.halaman(tpl, art, L.situs()) });
-                else if (lama) files.push({ path: 'artikel-' + lama.slug + '.html', hapus: true });
-                var semua = data.artikel.filter(function (x) { return x.id !== art.id && x.status === 'terbit'; }).concat(tampil ? [art] : [])
-                    .sort(function (a, b) { return a.terbit_at < b.terbit_at ? 1 : -1; });
-                files.push({ path: 'index.html', teks: B.gantiBlok(beranda, semua.slice(0, 12).map(B.kartu).join('\n'), 'index.html') });
-                files.push({ path: 'sitemap.xml', teks: B.gantiBlok(peta, semua.map(function (a) { return B.entriSitemap(a, L.situs()); }).join('\n'), 'sitemap.xml') });
-                return commit('situs', files, (tampil ? 'Artikel: terbitkan ' : 'Artikel: tarik ') + art.slug);
+        var B = window.ArtikelBuilder, tampil = art.status === 'terbit', fotoFile = [];
+        /* foto dari servis (terenkripsi) disalin jadi foto publik saat pertama terbit (sekali saja, tidak ikut diulang saat bentrok) */
+        return Promise.all((tampil ? art.foto || [] : []).map(function (f, i) {
+            if (f.path) return;
+            var x = fotoServisArtikel(f);
+            if (!x) throw new Error('Foto servis untuk artikel tidak ditemukan.');
+            return fotoMentah(x.s, x.f, true).then(function (b) { return b.arrayBuffer(); }).then(function (buf) {
+                var p2 = 'foto/artikel/' + acakHex(10) + (x.f.tipe === 'image/jpeg' ? '.jpg' : '.webp');
+                fotoFile.push({ path: p2, base64: b64(buf) }); art.foto[i] = { path: p2, alt: f.alt || '' };
             });
+        })).then(function () {
+            return ubahAtomik('situs', function (baca) {
+                return Promise.all([baca('scripts/artikel-template.html'), baca('index.html'), baca('sitemap.xml'), tampil ? baca('artikel-' + art.slug + '.html') : null]).then(function (r) {
+                    var tpl = r[0], beranda = r[1], peta = r[2], ada = r[3], files = fotoFile.slice();
+                    if (!tpl || !beranda || !peta) throw new Error('File template/beranda/sitemap tidak ditemukan di repo situs.');
+                    if (ada && ada.indexOf(B.PENANDA) < 0) throw new Error('Alamat artikel-' + art.slug + '.html sudah dipakai halaman buatan tangan. Ganti alamatnya.');
+                    if (lama && lama.status === 'terbit' && lama.slug !== art.slug) files.push({ path: 'artikel-' + lama.slug + '.html', hapus: true });
+                    if (tampil) files.push({ path: 'artikel-' + art.slug + '.html', teks: B.halaman(tpl, art, L.situs()) });
+                    else if (lama) files.push({ path: 'artikel-' + lama.slug + '.html', hapus: true });
+                    var semua = data.artikel.filter(function (x) { return x.id !== art.id && x.status === 'terbit'; }).concat(tampil ? [art] : [])
+                        .sort(function (a, b) { return a.terbit_at < b.terbit_at ? 1 : -1; });
+                    files.push({ path: 'index.html', teks: B.gantiBlok(beranda, semua.slice(0, 12).map(B.kartu).join('\n'), 'index.html') });
+                    files.push({ path: 'sitemap.xml', teks: B.gantiBlok(peta, semua.map(function (a) { return B.entriSitemap(a, L.situs()); }).join('\n'), 'sitemap.xml') });
+                    return files;
+                });
+            }, (tampil ? 'Artikel: terbitkan ' : 'Artikel: tarik ') + art.slug);
         });
     }
 
@@ -1053,7 +1177,6 @@
        setelah PIN dibuka. Saat internet putus, transaksi kasir (jual, servis tanpa foto baru, kas, jam masuk) masuk
        antrian lalu dikirim otomatis begitu online lagi. Simpan ulang aman: setiap fungsi simpan membaca versi terbaru di repo. */
     var antrian = [], gagalKirim = [], offline = false, pantau = [], lokalSiap = null, mengirim = null, jedaSalinan = null, adaMemori = false;
-    function tandaiRec(rec) { return function (e) { if (e && e.offline && !e.rec) e.rec = salin(rec); throw e; }; }
     function idb(mode, kerja) {
         return new Promise(function (ok, gagal) {
             var r = indexedDB.open('ayri-admin', 1);
@@ -1109,7 +1232,7 @@
                 if (!e || !e.offline || !e.rec) throw e;
                 if (fotoBaru && fotoBaru.length) throw new Error(pesanFoto);
                 terapkan(e.rec);
-                return antrikan(nama, [e.rec]).then(function () { var r = salin(e.rec); r._antri = true; return r; });
+                return antrikan(nama, [e.rec]).then(function () { var r = salin(e.rec); delete r._dasar; r._antri = true; return r; });
             });
         };
     }
