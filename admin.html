@@ -1712,7 +1712,7 @@
         $('#cari').value = cariSk;
         $('#cari').addEventListener('input', function () { cariSk = this.value; gambarDaftarStok(); });
         $('#filter').addEventListener('click', function (e) { var b = e.target.closest('[data-f]'); if (b) { filterSk = b.dataset.f; gambarDaftarStok(); } });
-        $('#list').addEventListener('click', function (e) { var b = e.target.closest('[data-tawar]'); if (b) { e.preventDefault(); bukaWa('', teksTawar(cariId('stok', b.dataset.tawar))); } });
+        $('#list').addEventListener('click', function (e) { var b = e.target.closest('[data-tawar]'); if (b) { e.preventDefault(); bagikanStok(cariId('stok', b.dataset.tawar), b); } });
         gambarDaftarStok();
     }
     function adaStok(s) { return s.status === 'tersedia' || s.status === 'dipesan'; }
@@ -1754,17 +1754,84 @@
                 '<span class="ly-item__m">' + (owner() ? '<span>Modal ' + L.rupiah(s.harga_beli) + '</span>' : '') + '<span>Jual ' + (s.harga_jual ? L.rupiah(s.harga_jual) : '<span class="ly-warn">belum diisi</span>') + '</span>' +
                 (adaStok(s) ? '<span>Stok ' + s.jumlah + '</span><span' + (lama > 90 ? ' class="ly-telat"' : '') + '>Masuk ' + (lama > 0 ? lama + ' hari lalu' : 'hari ini') + '</span>' : '') +
                 (u.unitTerjual ? '<span>Terjual ' + u.unitTerjual + (owner() ? ' · untung ' + L.rupiah(u.untung) : '') + '</span>' : '') + '</span>' +
-                (adaStok(s) && s.harga_jual ? '<span class="ly-item__b"><button type="button" class="ly-btn ly-btn--sm" data-tawar="' + s.id + '">Tawarkan via WA</button></span>' : '') + '</div>';
+                (adaStok(s) && s.harga_jual ? '<span class="ly-item__b"><button type="button" class="ly-btn ly-btn--sm" data-tawar="' + s.id + '">Bagikan</button></span>' : '') + '</div>';
         }).join('') : '<p class="ly-kosong">' + (rows.length ? 'Tidak ada di kategori ini.' : 'Belum ada stok. Tekan “+ Tambah stok”.') + '</p>';
     }
     function teksTawar(s) {
         var judul = s.kategori === 'aksesoris' ? L.namaStok(s) : 'Gitar ' + L.jenisStok(s) + ' ' + L.namaStok(s);
         return judul + (s.warna ? ' (' + s.warna + ')' : '') + ' – ' + (s.kondisi === 'bekas' ? 'bekas' : 'BARU') + '\n' +
-            (s.deskripsi ? s.deskripsi + '\n' : '') + 'Harga: *' + L.rupiah(s.harga_jual) + '*\n\nTersedia di ' + C.toko.nama + ', ' + C.toko.alamat +
+            (s.deskripsi ? s.deskripsi + '\n' : '') + 'Harga: ' + L.rupiah(s.harga_jual) + '\n\nTersedia di ' + C.toko.nama + ', ' + C.toko.alamat +
             (L.diKatalog(s) ? '\nLihat foto: ' + L.situs() + 'katalog.html#' + s.kode : '') +
             '\nTanya / pesan: https://wa.me/' + C.toko.wa;
     }
-    /* teks penawaran dibuka dengan bukaWa('', ...): tanpa nomor tujuan, WhatsApp membuka pilihan kontak/grup/status */
+    /* ---------- poster penawaran (gambar 1080×1920, pas untuk Story) + menu Bagikan ---------- */
+    function muatGambar(url) {
+        return fetch(url, { cache: 'force-cache' }).then(function (r) { if (!r.ok) throw new Error('foto'); return r.blob(); })
+            .then(function (b) { return new Promise(function (ok, gagal) { var u = URL.createObjectURL(b), im = new Image(); im.onload = function () { ok(im); }; im.onerror = gagal; im.src = u; }); });
+    }
+    function barisTeks(c, teks, lebar, maks) {
+        var kata = String(teks || '').replace(/\s+/g, ' ').trim().split(' '), baris = [], cur = '';
+        kata.forEach(function (k) { var t = cur ? cur + ' ' + k : k; if (c.measureText(t).width > lebar && cur) { baris.push(cur); cur = k; } else cur = t; });
+        if (cur) baris.push(cur);
+        if (baris.length > maks) { baris = baris.slice(0, maks); var l = baris[maks - 1]; while (l.length > 1 && c.measureText(l + '…').width > lebar) l = l.slice(0, -1); baris[maks - 1] = l + '…'; }
+        return baris;
+    }
+    function rect(c, x, y, w, h, r) { c.beginPath(); c.moveTo(x + r, y); c.arcTo(x + w, y, x + w, y + h, r); c.arcTo(x + w, y + h, x, y + h, r); c.arcTo(x, y + h, x, y, r); c.arcTo(x, y, x + w, y, r); c.closePath(); }
+    function buatPoster(s) {
+        var fp = (s.foto || []).filter(function (f) { return f.repo === 'publik'; })[0];
+        var judul = s.kategori === 'aksesoris' ? L.namaStok(s) : 'Gitar ' + L.jenisStok(s) + ' ' + L.namaStok(s);
+        var fonts = Promise.all(['700 70px Fraunces', '700 40px "Plus Jakarta Sans"'].map(function (f) { return document.fonts && document.fonts.load ? document.fonts.load(f) : null; })).catch(function () {});
+        var foto = fp ? muatGambar(L.situs() + fp.path).catch(function () { return null; }) : Promise.resolve(null);
+        return Promise.all([foto, muatGambar(L.situs() + 'logo/ayri-logo-putih.svg').catch(function () { return null; }), fonts]).then(function (r) {
+            var cv = document.createElement('canvas'), W = 1080, H = 1920, EMAS = '#E0A95C', SERIF = 'Fraunces, Georgia, serif', SANS = '"Plus Jakarta Sans", system-ui, sans-serif';
+            cv.width = W; cv.height = H;
+            var c = cv.getContext('2d'), g = c.createLinearGradient(0, 0, 0, H);
+            g.addColorStop(0, '#1d1812'); g.addColorStop(1, '#0f0c09'); c.fillStyle = g; c.fillRect(0, 0, W, H);
+            /* kepala: logo + nama toko */
+            if (r[1]) c.drawImage(r[1], 60, 62, 56, 56 * r[1].height / r[1].width);
+            c.fillStyle = '#fff'; c.textBaseline = 'alphabetic'; c.font = '700 40px ' + SERIF; c.fillText('AYRI', 136, 112);
+            c.fillStyle = EMAS; c.fillText('GITAR', 136 + c.measureText('AYRI ').width, 112);
+            /* foto */
+            var fx = 60, fy = 190, fw = 960, fh = 880;
+            c.save(); rect(c, fx, fy, fw, fh, 40); c.clip(); c.fillStyle = '#2a231b'; c.fillRect(fx, fy, fw, fh);
+            if (r[0]) { var k = Math.max(fw / r[0].width, fh / r[0].height), w = r[0].width * k, h = r[0].height * k; c.drawImage(r[0], fx + (fw - w) / 2, fy + (fh - h) / 2, w, h); }
+            else if (r[1]) { var lw = 240, lh = lw * r[1].height / r[1].width; c.globalAlpha = .25; c.drawImage(r[1], fx + (fw - lw) / 2, fy + (fh - lh) / 2, lw, lh); c.globalAlpha = 1; }
+            c.restore();
+            /* lencana kondisi */
+            var kond = s.kondisi === 'bekas' ? 'BEKAS' : 'BARU'; c.font = '800 32px ' + SANS;
+            var bw = c.measureText(kond).width + 56; rect(c, 60, 1116, bw, 62, 31); c.fillStyle = EMAS; c.fill(); c.fillStyle = '#1a1510'; c.fillText(kond, 88, 1159);
+            /* nama + warna */
+            c.fillStyle = '#fff'; c.font = '700 70px ' + SERIF;
+            var y = 1266; barisTeks(c, judul, 960, 2).forEach(function (b) { c.fillText(b, 60, y); y += 82; });
+            if (s.warna) { c.fillStyle = '#c9bfb2'; c.font = '600 36px ' + SANS; c.fillText(s.warna, 60, y - 8); y += 50; }
+            /* harga */
+            c.fillStyle = EMAS; c.font = '700 104px ' + SERIF; c.fillText(L.rupiah(s.harga_jual), 60, y + 70); y += 100;
+            /* deskripsi */
+            if (s.deskripsi) { c.fillStyle = '#d8cfc3'; c.font = '500 34px ' + SANS; barisTeks(c, s.deskripsi, 960, Math.max(1, Math.min(3, Math.floor((1690 - y) / 50)))).forEach(function (b) { y += 50; c.fillText(b, 60, y + 14); }); }
+            /* kaki */
+            c.fillStyle = 'rgba(224,169,92,.35)'; c.fillRect(60, 1728, 960, 2);
+            c.fillStyle = '#fff'; c.font = '700 38px ' + SANS; c.fillText(C.toko.nama, 60, 1790);
+            c.fillStyle = '#c9bfb2'; c.font = '500 30px ' + SANS; c.fillText(barisTeks(c, C.toko.alamat, 960, 1)[0], 60, 1838);
+            var wa = '0' + String(C.toko.wa).slice(2); wa = wa.replace(/^(\d{4})(\d{4})(\d+)$/, '$1-$2-$3');
+            c.fillStyle = EMAS; c.font = '700 34px ' + SANS; c.fillText('WA ' + wa, 60, 1886);
+            return new Promise(function (ok, gagal) { cv.toBlob(function (b) { b ? ok(b) : gagal(new Error('Gagal membuat gambar.')); }, 'image/jpeg', .92); });
+        });
+    }
+    function blobBase64(b) { return new Promise(function (ok) { var f = new FileReader(); f.onload = function () { ok(String(f.result).split(',')[1] || ''); }; f.readAsDataURL(b); }); }
+    /* Bagikan: poster + teks lewat menu bagikan HP (WA, Status WA, Instagram, Threads, X, dll). Di PC/browser tanpa menu bagikan: poster diunduh, teks disalin. */
+    function bagikanStok(s, tombol) {
+        var teks = teksTawar(s), nama = 'ayri-' + String(s.kode || 'barang').toLowerCase() + '.jpg';
+        if (tombol) { tombol.disabled = true; }
+        function lepas() { if (tombol) tombol.disabled = false; }
+        buatPoster(s).then(function (blob) {
+            if (window.AyriApp && AyriApp.bagikan) return blobBase64(blob).then(function (b64) { AyriApp.bagikan(nama, 'image/jpeg', b64, teks); });
+            var f = new File([blob], nama, { type: 'image/jpeg' });
+            if (navigator.canShare && navigator.canShare({ files: [f] })) return navigator.share({ files: [f], text: teks, title: C.toko.nama });
+            var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = nama; document.body.appendChild(a); a.click(); a.remove();
+            try { navigator.clipboard.writeText(teks); } catch (e) {}
+            toast('Gambar poster diunduh, teks penawaran disalin. Tempel di aplikasi tujuan.');
+        }).catch(function (e) { if (e && e.name !== 'AbortError') toast('Gagal membagikan: ' + (e.message || e), true); }).then(lepas);
+    }
     function stokKosong() {
         return { kategori: 'gitar', kondisi: 'bekas', gitar_jenis: C.jenisGitar[0], gitar_merk: '', sub: C.kategoriAksesoris[0], nama: '', warna: '', no_seri: '', deskripsi: '', jumlah: 1, harga_beli: 0, harga_jual: 0, tgl_masuk: L.hariIni(), asal: '', status: 'tersedia', tampil: true, penjualan: [], foto: [], catatan_admin: '' };
     }
@@ -1797,7 +1864,7 @@
                 (+s.jumlah > 0 && s.status !== 'ditarik' ? '<div class="ly-btns" style="margin-top:10px"><button type="button" class="ly-btn ly-btn--pri" id="sk-jual-baru">Jual / pesan dengan DP</button></div>' +
                     '<p class="ly-hint" style="margin:8px 0 0">Bayar penuh = langsung terjual. Bayar sebagian = DP: barang ditahan ' + C.jual.batasHari + ' hari, nota & pengingat pelunasan dikirim lewat WA.</p>' : '') + '</fieldset>') +
             '<fieldset class="ly-card ly-f"><legend>Status</legend><div class="ly-status" id="sk-status"></div><label>Catatan internal<textarea data-s="catatan_admin" rows="2"></textarea></label></fieldset>' +
-            (sk.baru ? '' : '<fieldset class="ly-card"><legend>Lainnya</legend><div class="ly-btns">' + (s.harga_jual && adaStok(s) ? '<button type="button" class="ly-btn ly-btn--wa" id="sk-tawar">Tawarkan via WA</button>' : '') +
+            (sk.baru ? '' : '<fieldset class="ly-card"><legend>Lainnya</legend><div class="ly-btns">' + (s.harga_jual && adaStok(s) ? '<button type="button" class="ly-btn ly-btn--pri" id="sk-tawar">Bagikan poster &amp; penawaran</button>' : '') +
                 (owner() ? '<button type="button" class="ly-btn ly-btn--del" id="sk-hapus">Hapus data</button>' : '') + '</div></fieldset>') +
             '<div class="ly-save"><span class="ly-dirty" id="dirty" hidden>Belum disimpan</span><button type="button" class="ly-btn ly-btn--pri" id="sk-simpan">' + (sk.baru ? 'Simpan stok' : 'Simpan perubahan') + '</button></div></section>';
         $$('[data-s]', app).forEach(function (el) { var v = s[el.dataset.s]; el.value = v == null ? '' : v; });
@@ -1826,7 +1893,7 @@
             else if (d.hapusfoto) { if (confirm('Hapus foto ini? (terhapus permanen saat Simpan)')) { s.foto = s.foto.filter(function (f) { return f.id !== d.hapusfoto; }); gambarFotoStok(); setDirty(true); } }
             else if (d.hapusq) { sk.antri = buangQ(sk.antri, d.hapusq); gambarFotoStok(); }
             else if (b.id === 'sk-jual-baru') { if (dirty) return toast('Simpan perubahan stok dulu.', true); pindah('#jual/baru/' + s.id); }
-            else if (b.id === 'sk-tawar') { if (dirty) return toast('Simpan perubahan dulu.', true); bukaWa('', teksTawar(s)); }
+            else if (b.id === 'sk-tawar') { if (dirty) return toast('Simpan perubahan dulu.', true); bagikanStok(s, b); }
         });
         pilihFoto($('#sk-foto'), function (tahap, files) { antriFoto(sk.antri, files, {}, gambarFotoStok); });
         $('#sk-simpan').addEventListener('click', simpanStok);
