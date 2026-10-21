@@ -155,6 +155,7 @@
         <div class="prgb" id="prog" hidden><div class="prgt"><div id="bar"></div></div><span id="ptxt"></span></div>
         <div class="tapp" id="app" hidden>
             <audio id="au" preload="auto"></audio>
+            <div class="tr-tampil" role="group" aria-label="Pilih tampilan"><button type="button" class="chip" data-tampil="panggung" aria-pressed="true">Panggung</button><button type="button" class="chip" data-tampil="daftar" aria-pressed="false">Daftar chord</button></div>
             <div class="t-card tr-stage">
                 <div class="tr-ttl" id="ttl"></div>
                 <div class="tr-now"><div><div class="tr-cn" id="cn">&ndash;</div><div class="tr-cs" id="cs"></div><div class="tr-hd" id="hd"></div></div><div class="tr-cd" id="cd"></div></div>
@@ -183,6 +184,12 @@
                     <div class="tr-saran" id="capohint" hidden></div>
                 </div>
             </div>
+            <div class="t-card tr-lagu" id="lagu">
+                <div class="tr-lagu__h"><h2>Chord lagu ini</h2><button type="button" class="chip xreset" disabled>Kembalikan semua ke awal</button></div>
+                <p class="hint">Ketuk chord untuk lompat ke sana. Salah? Ketuk lalu ubah. Tanda * = chord dari deteksi otomatis. Hasil edit tersimpan otomatis di browser ini.</p>
+                <div class="sheet" id="sheet"></div>
+                <div class="t-card" id="edit" hidden style="margin-top:.6rem"><b id="etl"></b><div class="pg-row"><select id="er" class="srch" style="width:auto" aria-label="Nada dasar chord"></select><select id="et" class="srch" style="width:auto" aria-label="Jenis chord"></select></div><div class="pg-row"><button id="eok" type="button" class="t-btn" style="min-height:46px;font-size:1rem">Terapkan</button><button id="edel" type="button" class="chip">Hapus chord ini</button></div><p class="hint" style="margin:.5rem 0 .2rem">Waktu mulai chord ini salah? Geser satu ketukan:</p><div class="pg-row"><button id="emvl" type="button" class="chip">&#9664; Lebih awal</button><button id="emvr" type="button" class="chip">Lebih akhir &#9654;</button></div></div>
+            </div>
         </div>
     </main>
     <div class="drawer" id="dr-list" hidden><div class="drawer-in">
@@ -195,9 +202,6 @@
         <textarea id="chart" class="srch" rows="7" style="width:100%;font-family:ui-monospace,Consolas,monospace" placeholder="Intro: D Bm G A 4x&#10;  F#m   G   Bm   C&#10;Di dalam hari-harimu bersama lagi" aria-label="Chart chord"></textarea>
         <div class="pg-row"><button id="chpaste" type="button" class="chip">Tempel dari clipboard</button><button id="chgo" type="button" class="t-btn" style="min-height:46px;font-size:1rem">Sinkronkan ke lagu</button><button id="chclr" type="button" class="chip">Pakai deteksi otomatis</button></div>
         <p class="hint" id="chmsg"></p>
-        <h2>Chord lagu ini</h2><p class="hint">Hasil edit tersimpan otomatis untuk lagu ini di browser. <button type="button" class="chip xreset" disabled>Kembalikan semua ke awal</button></p><p class="hint">Ketuk chord untuk lompat ke sana. Chord salah? Ketuk lalu ubah. Tanda * berarti chord dari deteksi otomatis (di luar chart). Saat chart dipakai, tulisan kecil "terdengar: ..." di bawah chord besar dan tanda &ne; di garis waktu menunjukkan chord yang terdeteksi di audio bila berbeda dari chart (untuk membedah lagu).</p>
-        <div class="sheet" id="sheet"></div>
-        <div class="t-card" id="edit" hidden style="margin-top:.6rem"><b id="etl"></b><div class="pg-row"><select id="er" class="srch" style="width:auto" aria-label="Nada dasar chord"></select><select id="et" class="srch" style="width:auto" aria-label="Jenis chord"></select></div><div class="pg-row"><button id="eok" type="button" class="t-btn" style="min-height:46px;font-size:1rem">Terapkan</button><button id="edel" type="button" class="chip">Hapus chord ini</button></div><p class="hint" style="margin:.5rem 0 .2rem">Waktu mulai chord ini salah? Geser satu ketukan:</p><div class="pg-row"><button id="emvl" type="button" class="chip">&#9664; Lebih awal</button><button id="emvr" type="button" class="chip">Lebih akhir &#9654;</button></div></div>
         <h2>Kamus chord</h2><div class="legend" id="legend"></div>
         <div class="chips" style="margin-top:1rem"><button id="prn" type="button" class="chip">Cetak transkrip</button><button id="sav" type="button" class="chip">Simpan hasil (.json)</button></div>
         <p class="hint">Simpan hasil agar tidak perlu menganalisis ulang: lain kali pilih file .json dulu, lalu file audionya.</p>
@@ -891,7 +895,7 @@
         if (i !== cur || force) {
             cur = i; var ch = $('sheet').children, k; for (k = 0; k < ch.length; k++) ch[k].className = 'sc' + (k === i ? ' on' : '') + (k === st.sel ? ' sel' : '');
             if (i !== shown || force) { shown = i; drawChord(i); }
-            if (ch[i] && !au.paused && !$('dr-list').hidden) $('sheet').scrollTop = ch[i].offsetTop - $('sheet').clientHeight / 2 + 20;
+            if (ch[i] && !au.paused && $('sheet').offsetParent) $('sheet').scrollTop = ch[i].offsetTop - $('sheet').clientHeight / 2 + 20;
         }
         var hl = chartOn && heard ? heardDiff(segs[i], heard[idxIn(heard, t)]) : '', ht = hl ? 'terdengar: ' + hl : ''; if ($('hd').textContent !== ht) $('hd').textContent = ht;
         var nx = segs[i + 1]; if (nx && !counting) $('nt').textContent = 'dalam ' + Math.max(0, (nx.t0 - t) / st.rate).toFixed(1) + ' dtk';
@@ -1014,6 +1018,14 @@
     $('bpm').addEventListener('change', function () { st.bpm = Math.max(40, Math.min(220, +this.value || 90)); save(); chips(); });
     /* tempo sering terbaca dua kali lipat (dihitung per setengah ketukan): bagi dua */
     $('bpmhalf').addEventListener('click', function (e) { e.preventDefault(); st.bpm = Math.max(40, Math.round(st.bpm / 2)); save(); chips(); });
+    /* HP: pilih tampilan, panggung chord atau daftar chord lagu (layar lebar menampilkan keduanya) */
+    (function () {
+        var app = $('app'), tb = document.querySelectorAll('.tr-tampil [data-tampil]'), v = 'panggung';
+        try { v = localStorage.getItem('ayri-tr-tampil') === 'daftar' ? 'daftar' : 'panggung'; } catch (e) {}
+        function pasang(x) { v = x; app.setAttribute('data-tampil', x); [].forEach.call(tb, function (b) { b.setAttribute('aria-pressed', b.getAttribute('data-tampil') === x); }); try { localStorage.setItem('ayri-tr-tampil', x); } catch (e) {} }
+        [].forEach.call(tb, function (b) { b.addEventListener('click', function () { pasang(b.getAttribute('data-tampil')); }); });
+        pasang(v);
+    })();
     $('sheet').addEventListener('click', function (e) {
         var b = e.target.closest('[data-i]'); if (!b) return; var i = +b.dataset.i, s = segs[i]; st.sel = i; au.currentTime = s.t0; mark(s.t0, true);
         $('edit').hidden = false; $('er').value = sroot(s); $('et').value = s.ti; $('etl').textContent = 'Ubah chord di ' + fmt(s.t0) + ' (sekarang ' + cname(s) + ')';
