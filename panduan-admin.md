@@ -185,6 +185,8 @@ Setelah situs diperbarui, buka admin di HP owner. Akan muncul layar **Pisahkan d
 - **Internet putus**: admin tetap terbuka dengan data terakhir di perangkat. Penjualan di kasir, pelunasan servis, buka/tutup kasir, pengeluaran, dan jam masuk tetap bisa dicatat. Di atas tampil **Offline · N antri**.
 - Begitu online lagi, antrian **dikirim otomatis** (atau ketuk label itu untuk mengirim sekarang). Yang perlu internet: foto baru, stok, tebus, artikel, opname, pengaturan karyawan.
 - Bila ada transaksi yang ditolak saat dikirim (mis. barang yang sama sudah terjual dari perangkat lain), label berubah merah **gagal terkirim**. Ketuk untuk melihat rinciannya, lalu catat ulang.
+- **Aplikasi Android (APK)**: ada dua aplikasi. **AYRI Alat Latihan** bisa diunduh siapa saja di ayrigitar.com/unduh/ayri-alat-latihan.apk (tombol di beranda, hanya tampil di HP Android). **AYRI POS** hanya ada di Releases repo privat `ayri-aplikasi`. Pasang di HP owner dan tablet toko, lalu pasang token dan PIN seperti biasa. Saat memasang, Android akan meminta izin "instal dari sumber ini". Izinkan sekali untuk Chrome atau File Manager.
+- Fitur baru di situs langsung ada di aplikasi, jadi tidak perlu memasang ulang APK. APK baru hanya dibuat bila bagian aplikasinya berubah. Kunci tanda tangan APK ada di folder `Documentsyri-kunci-aplikasi` di PC. Simpan salinannya, karena tanpa kunci itu update APK tidak bisa dipasang.
 - Salinan data di perangkat terkunci PIN. Jangan **Pasang ulang token** selagi masih ada antrian, karena antrian ikut terhapus.
 
 ## Keamanan & perawatan

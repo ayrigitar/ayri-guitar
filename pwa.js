@@ -5,6 +5,8 @@
     }
     var standalone = (window.matchMedia && matchMedia('(display-mode: standalone)').matches) || navigator.standalone || /AyriApp\//.test(navigator.userAgent);
     if (standalone) return;
+    /* HP Android: tawarkan juga APK (aplikasi Android buatan sendiri, tidak lewat Play Store) */
+    if (/Android/i.test(navigator.userAgent)) { var apk = document.querySelectorAll('[data-apk]'); for (var a = 0; a < apk.length; a++) apk[a].style.display = ''; }
     var btns = document.querySelectorAll('[data-install]'), hints = document.querySelectorAll('[data-install-ios]'), ev = null;
     function show(list, on) { for (var i = 0; i < list.length; i++) list[i].style.display = on ? '' : 'none'; }
     window.addEventListener('beforeinstallprompt', function (e) { e.preventDefault(); ev = e; show(btns, true); });
