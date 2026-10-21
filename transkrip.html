@@ -155,9 +155,8 @@
         <div class="prgb" id="prog" hidden><div class="prgt"><div id="bar"></div></div><span id="ptxt"></span></div>
         <div class="tapp" id="app" hidden>
             <audio id="au" preload="auto"></audio>
-            <div class="tr-tampil" role="group" aria-label="Pilih tampilan"><button type="button" class="chip" data-tampil="panggung" aria-pressed="true">Panggung</button><button type="button" class="chip" data-tampil="daftar" aria-pressed="false">Daftar chord</button></div>
             <div class="t-card tr-stage">
-                <div class="tr-ttl" id="ttl"></div>
+                <div class="tr-top"><div class="tr-ttl" id="ttl"></div><div class="tr-tampil" role="group" aria-label="Pilih tampilan"><button type="button" class="tt-b" data-tampil="panggung" aria-pressed="true" aria-label="Tampilan panggung" title="Panggung"><svg class="ic" aria-hidden="true"><use href="#i-wave"/></svg></button><button type="button" class="tt-b" data-tampil="daftar" aria-pressed="false" aria-label="Daftar chord lagu" title="Daftar chord"><svg class="ic" aria-hidden="true"><use href="#i-list"/></svg></button></div></div>
                 <div class="tr-lagu" id="lagu"><h2 class="sr-only">Chord lagu ini</h2>
                 <div class="sheet" id="sheet"></div>
                 <div class="t-card" id="edit" hidden style="margin-top:.6rem"><b id="etl"></b><div class="pg-row"><select id="er" class="srch" style="width:auto" aria-label="Nada dasar chord"></select><select id="et" class="srch" style="width:auto" aria-label="Jenis chord"></select></div><div class="pg-row"><button id="eok" type="button" class="t-btn" style="min-height:46px;font-size:1rem">Terapkan</button><button id="edel" type="button" class="chip">Hapus chord ini</button><button id="ebatal" type="button" class="chip">Batal</button></div><p class="hint" style="margin:.5rem 0 .2rem">Waktu mulai chord ini salah? Geser satu ketukan:</p><div class="pg-row"><button id="emvl" type="button" class="chip">&#9664; Lebih awal</button><button id="emvr" type="button" class="chip">Lebih akhir &#9654;</button></div></div>
@@ -186,8 +185,8 @@
                         <label class="ts" title="Instrumen"><svg class="ic" aria-hidden="true"><use href="#i-chord"/></svg><span class="ts-k">Instrumen</span><span class="ts-s"><b class="ts-v" aria-hidden="true"></b><select id="insts" aria-label="Instrumen"></select></span></label>
                         <span class="ts" title="Klik metronom sebelum lagu mulai"><svg class="ic" aria-hidden="true"><use href="#i-metronome"/></svg><span class="ts-s"><b class="ts-v" aria-hidden="true"></b><select id="cnts" aria-label="Jumlah klik metronom sebelum lagu mulai"></select></span><span class="ts-bpm" id="bpmw"><input id="bpm" class="numin" type="number" inputmode="numeric" min="40" max="220" aria-label="Tempo lagu dalam BPM (ketukan per menit), untuk kecepatan klik" title="Tempo lagu (ketukan per menit)"><span class="ts-k">BPM</span><button type="button" id="bpmhalf" title="Bagi dua tempo (bila terbaca dua kali lipat)" aria-label="Bagi dua tempo">&frac12;</button></span></span>
                         <label class="ts" id="modew" title="Tingkat kesulitan chord"><span class="ts-k">Chord</span><span class="ts-s"><b class="ts-v" aria-hidden="true"></b><select id="modes" aria-label="Tingkat kesulitan chord"></select></span></label>
+                        <div class="tr-saran" id="capohint" hidden></div>
                     </div>
-                    <div class="tr-saran" id="capohint" hidden></div>
                 </div>
                 </div>
             </div>
