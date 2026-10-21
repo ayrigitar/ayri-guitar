@@ -179,6 +179,14 @@ Setelah situs diperbarui, buka admin di HP owner. Akan muncul layar **Pisahkan d
   - untung kotor barang (harga deal − modal) dan rincian tunai/transfer untuk dicocokkan dengan kas dan mutasi rekening;
   - grafik, barang terlaris, log transaksi, dan **Unduh CSV** untuk Excel.
 
+## Aplikasi di HP/PC & mode offline
+
+- **Pasang sebagai aplikasi**: buka admin di Chrome (HP/tablet) atau Edge (PC), lalu pilih **Pasang aplikasi** (menu Lainnya, atau ikon pasang di bilah alamat). Ikon **AYRI POS** muncul di layar utama dan terbuka tanpa bilah browser.
+- **Internet putus**: admin tetap terbuka dengan data terakhir di perangkat. Penjualan di kasir, pelunasan servis, buka/tutup kasir, pengeluaran, dan jam masuk tetap bisa dicatat. Di atas tampil **Offline · N antri**.
+- Begitu online lagi, antrian **dikirim otomatis** (atau ketuk label itu untuk mengirim sekarang). Yang perlu internet: foto baru, stok, tebus, artikel, opname, pengaturan karyawan.
+- Bila ada transaksi yang ditolak saat dikirim (mis. barang yang sama sudah terjual dari perangkat lain), label berubah merah **gagal terkirim**. Ketuk untuk melihat rinciannya, lalu catat ulang.
+- Salinan data di perangkat terkunci PIN. Jangan **Pasang ulang token** selagi masih ada antrian, karena antrian ikut terhapus.
+
 ## Keamanan & perawatan
 
 - **HP hilang?** Buka https://github.com/settings/personal-access-tokens → token **Admin servis AYRI** → **Revoke**. Buat token baru (langkah 2) dan pasang di HP baru. Data tidak hilang karena tersimpan di GitHub.

@@ -374,10 +374,12 @@
     /* simpanCache: untuk file yang isinya tidak pernah berubah (foto bernama acak) */
     function gh(method, path, body, accept, simpanCache) {
         if (!token) return Promise.reject(new Error('Admin terkunci. Masukkan PIN lagi.'));
+        function putus() { var e = new Error('Koneksi internet bermasalah. Coba lagi.'); e.offline = true; throw e; }
+        if (navigator.onLine === false) return Promise.reject().catch(putus);
         var h = { Authorization: 'Bearer ' + token, Accept: accept || 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28' };
         if (body) h['Content-Type'] = 'application/json';
         return fetch('https://api.github.com/repos/' + path, { method: method, cache: simpanCache ? 'default' : 'no-store', headers: h, body: body ? JSON.stringify(body) : undefined })
-            .catch(function () { throw new Error('Koneksi internet bermasalah. Coba lagi.'); })
+            .catch(putus)
             .then(function (r) {
                 if (r.ok) return accept ? r : r.status === 204 ? null : r.json();
                 return r.text().then(function (t) { var e = new Error(pesanGh(r.status, t)); e.status = r.status; e.detail = t; throw e; });
@@ -463,7 +465,7 @@
         if (!PISAH) { peran = 'owner'; return Promise.resolve(); }
         return gh('GET', repo('owner')).then(function () { peran = 'owner'; }, function (e) { if (e.status === 404 || e.status === 403) { peran = 'karyawan'; return; } throw e; });
     }
-    L.api.muat = function () {
+    function muatOnline() {
         return cekPeran().then(function () {
             var owner = peran === 'owner';
             return Promise.all([
@@ -481,7 +483,7 @@
             data.absen = json(b[4]); data.opname = json(b[5]); data.pengaturan = b[6] ? JSON.parse(b[6]) : {}; data.kas = json(b[7]);
             return salin(data);
         });
-    };
+    }
     L.api.statusPisah = function () { return statusPisah; };
     /* cadangan: hanya data yang boleh dilihat pemegang token ini */
     L.api.cadangan = function () { var c = salin(data); if (peran !== 'owner') { delete c.tebus; c.stok = c.stok.map(bersihStok); } return c; };
@@ -645,7 +647,7 @@
         if (rec.status === 'diambil' && !rec.tgl_diambil) rec.tgl_diambil = t;
         return unggahTerkunci(rec, fotoBaru || [], 'data/foto/', files.situs, function (fb) { return { keterangan: fb.keterangan || '', tampil: fb.tampil !== false, created_at: sekarang }; })
             .then(function () { hapusFotoHilang(lama, rec, files); return filePublik('servis', rec, lama, versiPublik, files.situs); })
-            .then(function () { return simpanDua('servis', rec, files, 'Servis: perbarui data pelanggan'); });
+            .then(function () { return simpanDua('servis', rec, files, 'Servis: perbarui data pelanggan'); }).catch(tandaiRec(rec));
     };
     L.api.hapusServis = function (rec) {
         var files = hapusFoto(rec.foto || [], { situs: rec.pubId ? [{ path: 'data/servis/' + rec.pubId + '.json', hapus: true }] : [], data: [] });
@@ -894,7 +896,7 @@
             return langkah.then(function () { return adaStok ? fileKatalogDari(stokBaru) : []; }).then(function (kat) {
                 return simpanJualStok(rec, jualBaru, stokBaru, adaStok, situs.concat(kat), 'Simpan ' + rec.kode);
             });
-        }).then(function () { return salin(rec); });
+        }).then(function () { return salin(rec); }, tandaiRec(rec));
     };
     L.api.hapusJual = function (rec) {
         return Promise.all([bacaJson('jual.json'), bacaJson('stok.json')]).then(function (r) {
@@ -932,14 +934,14 @@
         rec = salin(rec); var sekarang = new Date().toISOString();
         if (!rec.id) { rec.id = idBaru(); rec.created_at = sekarang; }
         rec.updated_at = sekarang;
-        return simpanDaftar('absen', rec).then(function () { return salin(rec); });
+        return simpanDaftar('absen', rec).then(function () { return salin(rec); }, tandaiRec(rec));
     };
 
     /* ---------- kas harian: buka kasir (saldo awal), pengeluaran, tutup kasir (hitung uang laci) ----------
        Satu catatan per tanggal di kas.json (repo bersama). Perubahan selalu diterapkan ke versi terbaru di repo,
        supaya pengeluaran yang dicatat dari dua perangkat tidak saling menimpa. */
     L.KATEGORI_KELUAR = ['Part & bahan servis', 'Perlengkapan toko', 'Transport & ongkir', 'Makan & minum', 'Gaji & bonus', 'Listrik, internet, sewa', 'Lainnya'];
-    L.api.ubahKas = function (tgl, ubah) {
+    L.api.ubahKas = function ubahKasOnline(tgl, ubah) {
         return bacaJson('kas.json').then(function (list) {
             var sekarang = new Date().toISOString(), rec = list.filter(function (x) { return x.tgl === tgl; })[0];
             if (!rec) { rec = { id: idBaru(), tgl: tgl, created_at: sekarang, pengeluaran: [] }; list.push(rec); }
@@ -1045,4 +1047,161 @@
             });
         });
     }
+
+    /* ---------- mode offline ----------
+       Salinan data terakhir disimpan di perangkat ini (IndexedDB), terenkripsi dengan kunci dari token: hanya terbaca
+       setelah PIN dibuka. Saat internet putus, transaksi kasir (jual, servis tanpa foto baru, kas, jam masuk) masuk
+       antrian lalu dikirim otomatis begitu online lagi. Simpan ulang aman: setiap fungsi simpan membaca versi terbaru di repo. */
+    var antrian = [], gagalKirim = [], offline = false, pantau = [], lokalSiap = null, mengirim = null, jedaSalinan = null, adaMemori = false;
+    function tandaiRec(rec) { return function (e) { if (e && e.offline && !e.rec) e.rec = salin(rec); throw e; }; }
+    function idb(mode, kerja) {
+        return new Promise(function (ok, gagal) {
+            var r = indexedDB.open('ayri-admin', 1);
+            r.onupgradeneeded = function () { r.result.createObjectStore('kv'); };
+            r.onerror = function () { gagal(r.error); };
+            r.onsuccess = function () {
+                var db = r.result, tx = db.transaction('kv', mode), q = kerja(tx.objectStore('kv'));
+                tx.oncomplete = function () { db.close(); ok(q && q.result); };
+                tx.onerror = tx.onabort = function () { db.close(); gagal(tx.error); };
+            };
+        });
+    }
+    function kunciLokal() { return crypto.subtle.digest('SHA-256', te.encode('ayri-lokal|' + token)).then(aes); }
+    function tulisLokal(nama, isi) {
+        if (!token || !window.indexedDB) return Promise.resolve();
+        return kunciLokal().then(function (k) { return enkripsi(k, te.encode(JSON.stringify(isi))); })
+            .then(function (ct) { return idb('readwrite', function (st) { return st.put(ct, nama); }); }).catch(function () {});
+    }
+    function bacaLokal(nama) {
+        if (!token || !window.indexedDB) return Promise.resolve(null);
+        return idb('readonly', function (st) { return st.get(nama); }).then(function (ct) {
+            return ct ? kunciLokal().then(function (k) { return dekripsi(k, ct); }).then(function (b) { return JSON.parse(td.decode(b)); }) : null;
+        }).catch(function () { return null; });
+    }
+    function simpanSalinan() {
+        clearTimeout(jedaSalinan);
+        jedaSalinan = setTimeout(function () { tulisLokal('data', { peran: peran, statusPisah: statusPisah, rahasia: rahasia, data: data, waktu: new Date().toISOString() }); }, 300);
+    }
+    function kabari(terkirim) { var s = L.api.statusOffline(); s.terkirim = terkirim || 0; pantau.forEach(function (fn) { try { fn(s); } catch (e) {} }); }
+    function simpanAntrian() { return tulisLokal('antrian', { antri: antrian, gagal: gagalKirim }).then(function () { kabari(); }); }
+    /* antrian dibaca sekali per token yang dibuka */
+    function siapkanLokal() {
+        var t = token;
+        if (!lokalSiap || lokalSiap.t !== t) {
+            lokalSiap = bacaLokal('antrian').then(function (a) { antrian = (a && a.antri) || []; gagalKirim = (a && a.gagal) || []; });
+            lokalSiap.t = t;
+        }
+        return lokalSiap;
+    }
+    function taruhLokal(list, rec) { var i = list.map(function (x) { return x.id; }).indexOf(rec.id); if (i > -1) list[i] = rec; else list.unshift(rec); return list; }
+    function antrikan(op, args) {
+        antrian.push({ id: idBaru(), op: op, args: args, waktu: new Date().toISOString() }); offline = true;
+        return simpanAntrian();
+    }
+    var ASLI = {};
+    /* fungsi simpan yang boleh diantrikan: bila gagal karena internet, catatan diterapkan di perangkat lalu diantrikan */
+    function bisaAntri(nama, terapkan) {
+        var asli = ASLI[nama] = L.api[nama];
+        L.api[nama] = function (rec, fotoBaru) {
+            var pesanFoto = 'Tidak ada internet. Foto baru perlu internet untuk diunggah: simpan dulu tanpa foto baru, tambahkan fotonya setelah online.';
+            if (fotoBaru && fotoBaru.length && navigator.onLine === false) return Promise.reject(new Error(pesanFoto));
+            return asli.apply(null, arguments).catch(function (e) {
+                if (!e || !e.offline || !e.rec) throw e;
+                if (fotoBaru && fotoBaru.length) throw new Error(pesanFoto);
+                terapkan(e.rec);
+                return antrikan(nama, [e.rec]).then(function () { var r = salin(e.rec); r._antri = true; return r; });
+            });
+        };
+    }
+    bisaAntri('simpanServis', function (rec) { taruhLokal(data.servis, rec); });
+    bisaAntri('simpanAbsen', function (rec) { taruhLokal(data.absen, rec); });
+    bisaAntri('simpanJual', function (rec) {
+        /* stok di perangkat ikut dikurangi/dikembalikan supaya barang yang sama tidak terjual dua kali saat offline */
+        var lama = cari(data.jual, rec.id), stok = salin(data.stok);
+        var diubah = terapkanStok(rec, stok, !!lama && lama.status !== 'batal', rec.status !== 'batal');
+        data.jual = urutBaru(taruhLokal(data.jual, rec)); data.stok = stok;
+        aturStatusStok(diubah, data.jual, rec.updated_at);
+    });
+    /* kas: perubahan dicatat sebagai selisih (kolom yang berubah + pengeluaran tambah/hapus), lalu diterapkan ke versi terbaru saat dikirim */
+    function bedaKas(a, b) {
+        var set = {}, abaikan = ['id', 'tgl', 'created_at', 'updated_at', 'pengeluaran'];
+        Object.keys(Object.assign({}, a, b)).forEach(function (k) { if (abaikan.indexOf(k) < 0 && JSON.stringify(a[k]) !== JSON.stringify(b[k])) set[k] = k in b ? b[k] : null; });
+        var pa = a.pengeluaran || [], pb = b.pengeluaran || [];
+        return {
+            set: set,
+            tambah: pb.filter(function (p) { var x = cari(pa, p.id); return !x || JSON.stringify(x) !== JSON.stringify(p); }),
+            hapus: pa.filter(function (p) { return !cari(pb, p.id); }).map(function (p) { return p.id; })
+        };
+    }
+    function terapkanBedaKas(rec, d) {
+        Object.keys(d.set).forEach(function (k) { if (d.set[k] === null) delete rec[k]; else rec[k] = d.set[k]; });
+        rec.pengeluaran = (rec.pengeluaran || []).filter(function (p) { return d.hapus.indexOf(p.id) < 0 && !cari(d.tambah, p.id); }).concat(d.tambah);
+    }
+    ASLI.ubahKas = L.api.ubahKas;
+    L.api.ubahKas = function (tgl, ubah) {
+        return ASLI.ubahKas(tgl, ubah).catch(function (e) {
+            if (!e || !e.offline) throw e;
+            var sekarang = new Date().toISOString(), lama = data.kas.filter(function (x) { return x.tgl === tgl; })[0];
+            var sebelum = lama ? salin(lama) : { id: idBaru(), tgl: tgl, created_at: sekarang, pengeluaran: [] }, rec = salin(sebelum);
+            rec.pengeluaran = rec.pengeluaran || [];
+            ubah(rec); rec.updated_at = sekarang;
+            data.kas = data.kas.filter(function (x) { return x.tgl !== tgl; }).concat([rec]).sort(function (a, b) { return a.tgl < b.tgl ? 1 : -1; });
+            return antrikan('ubahKas', [tgl, bedaKas(sebelum, rec)]).then(function () { var r = salin(rec); r._antri = true; return r; });
+        });
+    };
+    function jalankan(x) {
+        if (x.op === 'ubahKas') return ASLI.ubahKas(x.args[0], function (rec) { terapkanBedaKas(rec, x.args[1]); });
+        return ASLI[x.op](x.args[0], []);
+    }
+    var LABEL_OP = { simpanJual: 'Penjualan', simpanServis: 'Servis', simpanAbsen: 'Jam masuk', ubahKas: 'Kas' };
+    /* kirim antrian berurutan. Putus lagi: berhenti (dicoba lagi nanti). Ditolak (mis. stok sudah terjual dari perangkat lain): pindah ke daftar gagal */
+    function kirimAntrian() {
+        if (mengirim) return mengirim;
+        if (!token || !antrian.length) return Promise.resolve(0);
+        var n = 0;
+        function lanjut() {
+            if (!antrian.length) return Promise.resolve();
+            var x = antrian[0];
+            return jalankan(x).then(function () { n++; }, function (e) {
+                if (e && e.offline) throw e;
+                var a = x.args[0] || {};
+                gagalKirim.push({ id: x.id, jenis: LABEL_OP[x.op] || x.op, ket: x.op === 'ubahKas' ? 'tanggal ' + a : [a.kode, a.nama].filter(Boolean).join(' · '), pesan: pesanError(e), waktu: x.waktu, isi: x });
+            }).then(function () { antrian.shift(); return simpanAntrian(); }).then(lanjut);
+        }
+        mengirim = lanjut().then(function () { mengirim = null; offline = false; kabari(n); return n; }, function (e) { mengirim = null; offline = true; kabari(n); throw e; });
+        return mengirim;
+    }
+    function pesanError(e) { return (e && e.message) || String(e); }
+    L.api.muat = function () {
+        return siapkanLokal().then(kirimAntrian).then(muatOnline).then(function (d) {
+            adaMemori = true; offline = false; simpanSalinan(); kabari(); return d;
+        }, function (e) {
+            if (!e || !e.offline) throw e;
+            /* tanpa internet: pakai data di memori (sudah termasuk perubahan offline), atau salinan terakhir di perangkat */
+            return (adaMemori ? Promise.resolve(null) : bacaLokal('data')).then(function (s) {
+                if (!adaMemori && !s) throw new Error('Tidak ada internet, dan belum ada salinan data di perangkat ini. Sambungkan internet sekali dulu.');
+                if (s) { peran = s.peran; statusPisah = s.statusPisah; rahasia = s.rahasia || {}; data = s.data; adaMemori = true; }
+                offline = true; kabari(); return salin(data);
+            });
+        });
+    };
+    L.api.statusOffline = function () {
+        return { offline: offline, antri: antrian.length, gagal: salin(gagalKirim), daftar: antrian.map(function (x) { var a = x.args[0] || {}; return { jenis: LABEL_OP[x.op] || x.op, ket: x.op === 'ubahKas' ? 'tanggal ' + a : [a.kode, a.nama].filter(Boolean).join(' · '), waktu: x.waktu }; }) };
+    };
+    L.api.pantauOffline = function (fn) { pantau.push(fn); };
+    L.api.kirimAntrian = function () { return siapkanLokal().then(kirimAntrian); };
+    L.api.buangGagal = function () { gagalKirim = []; return simpanAntrian(); };
+    /* setiap simpan yang berhasil (atau diantrikan) memperbarui salinan di perangkat */
+    Object.keys(L.api).forEach(function (n) {
+        if (!/^(simpan|hapus|ubah|pindahkan)/.test(n)) return;
+        var f = L.api[n];
+        L.api[n] = function () { return f.apply(null, arguments).then(function (r) { simpanSalinan(); return r; }); };
+    });
+    /* kunci: data di memori dibuang, antrian dibaca ulang saat dibuka lagi */
+    var kunciAsli = L.api.kunci, lupakanAsli = L.api.lupakan;
+    L.api.kunci = function () { adaMemori = false; lokalSiap = null; return kunciAsli(); };
+    L.api.lupakan = function () { adaMemori = false; lokalSiap = null; if (window.indexedDB) try { indexedDB.deleteDatabase('ayri-admin'); } catch (e) {} return lupakanAsli(); };
+    function cobaKirim() { if (token && antrian.length && navigator.onLine !== false) kirimAntrian().catch(function () {}); }
+    window.addEventListener('online', cobaKirim);
+    setInterval(cobaKirim, 60000);
 })();
