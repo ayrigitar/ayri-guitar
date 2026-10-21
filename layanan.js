@@ -418,7 +418,7 @@
                         .then(function (nc) { return gh('PATCH', rp + '/git/refs/heads/' + CABANG, { sha: nc.sha }).then(function () { return nc.sha; }); });
                 }).catch(function (e) {
                     if (e.status === 422 && /tree|path/i.test(e.detail || '') && !tanpaHapus) return coba(n, true); /* file yang mau dihapus ternyata sudah tidak ada */
-                    if (e.status === 422 && n < 3) return coba(n + 1, tanpaHapus); /* ada commit lain di saat yang sama: ulangi */
+                    if (e.status === 422 && n < 6) return new Promise(function (ok) { setTimeout(ok, 500 * (n + 1)); }).then(function () { return coba(n + 1, tanpaHapus); }); /* ada commit lain di saat yang sama / GitHub belum sinkron: tunggu sebentar, ulangi */
                     throw e;
                 });
             }
