@@ -767,6 +767,9 @@ canvas.ctab.seret { cursor: grabbing; }
   .trans-app .tr-stage > .tr-seek { grid-area: seek; }
   .trans-app .tr-stage > .tr-kontrol { grid-area: ktl; }
   .tr-lagu .sheet { flex: 1 1 0; max-height: none; align-content: flex-start; min-height: 0; }
+  /* panel ubah chord melayang di atas bagian bawah daftar: tidak mengubah tinggi halaman */
+  .tr-lagu { position: relative; }
+  .tr-lagu #edit { position: absolute; left: 8px; right: 8px; bottom: 8px; z-index: 3; box-shadow: var(--shadow-md); }
   /* kontrol: tombol pemutar di atas, semua pengaturan satu baris di bawahnya (bukan dua kolom sempit yang membungkus) */
   .trans-app .tr-kontrol { grid-template-columns: auto auto; justify-content: center; gap: 6px 14px; }
   .trans-app .tr-kontrol .tr-bar { grid-column: 1 / -1; grid-row: 1; }
