@@ -230,12 +230,15 @@ html[data-theme="dark"] .hero::after { mix-blend-mode: screen; opacity: .03; }
 @media (min-width: 900px) {
   .price-grid {
     grid-template-columns: 1fr 1fr; gap: 24px;
-    grid-template-areas: "setup custom" "setup listrik" "repair repair";
+    grid-template-areas: "setup custom" "setup listrik" "fret fret" "repair repair";
   }
   .price-card--setup { grid-area: setup; }
   .price-card--custom { grid-area: custom; }
   .price-card--listrik { grid-area: listrik; }
+  .price-card--fret { grid-area: fret; }
   .price-card--repair { grid-area: repair; }
+  .price-card--fret .price-list { display: grid; grid-template-columns: 1fr 1fr; column-gap: 40px; }
+  .price-card--fret .price-item + .price-item { border-top: 0; }
   .price-card--repair .price-list { display: grid; grid-template-columns: 1fr 1fr; column-gap: 40px; }
   .price-card--repair .price-item + .price-item { border-top: 0; }
 }
