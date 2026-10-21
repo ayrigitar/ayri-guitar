@@ -805,7 +805,7 @@
     }
 
     /* tulisan terakhir disimpan di perangkat ini */
-    var tDraf = 0;
+    var tDraf = 0, beritaDraf = false;
     function simpanDraf() {
         clearTimeout(tDraf);
         tDraf = setTimeout(function () {
@@ -813,7 +813,10 @@
             try {
                 localStorage.setItem(KUNCI_DRAF, JSON.stringify({ v: 1, ti: ed.ti, si: ed.si, s: ed.s }));
                 localStorage.setItem(KUNCI_INFO, JSON.stringify({ judul: ed.s.title || 'Lagu saya', waktu: Date.now() }));
-            } catch (e) { try { localStorage.removeItem(KUNCI_DRAF); localStorage.removeItem(KUNCI_INFO); } catch (e2) {} }
+            } catch (e) {
+                /* penyimpanan penuh atau diblokir: draf lama DIBIARKAN (itu salinan terakhir yang masih ada) dan penulis diberi tahu sekali */
+                if (!beritaDraf) { beritaDraf = true; kabar('Tulisan tidak bisa disimpan otomatis (penyimpanan perangkat penuh). Unduh lagunya lewat tombol ··· supaya tidak hilang.'); }
+            }
             tampilDraf();
         }, 800);
     }

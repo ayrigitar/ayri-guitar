@@ -278,7 +278,6 @@
 .cd-fr { fill: var(--ink); font: 700 15px var(--font-sans); }
 .cd-hit { fill: transparent; cursor: pointer; }
 .cd-hit:hover { fill: rgba(128, 128, 128, .12); }
-.cd-lit { fill: var(--accent-soft); }
 /* Piano */
 .pk-w { fill: #FFFDF8; stroke: #CDBFAE; stroke-width: 1; }
 .pk-b { fill: #1F1A16; stroke: #0E0B09; }
@@ -713,7 +712,6 @@ canvas.ctab.seret { cursor: grabbing; }
 .ts-bpm #bpmhalf:hover { color: var(--accent); }
 .tr-saran { flex: 1 0 100%; display: flex; justify-content: center; }
 .tr-saran[hidden] { display: none; }
-.tr-key { font-size: .8125rem; font-weight: 700; color: var(--ink-2); }
 #capoapply { height: auto; min-height: 30px; padding: 5px 12px; border-color: var(--accent-line); background: var(--accent-soft); color: var(--accent); font-size: .75rem; white-space: normal; text-align: center; justify-content: center; }
 
 /* Laci daftar: lembar chord, editor, kamus */
@@ -862,7 +860,7 @@ main.app.fit3 .tb-go { box-shadow: inset 0 1px 0 rgba(255, 255, 255, .2), 0 0 0 
 /* Cetak transkrip (tombol "Cetak transkrip" mengisi #pa lalu memanggil print) */
 @media print {
   body.app-page { height: auto !important; overflow: visible !important; padding: 0 !important; background: #fff !important; color: #000 !important; }
-  .skip-link, .site-header, main.app, .drawer, .site-footer, .theme-toggle { display: none !important; }
+  .skip-link, .site-header, main.app, .drawer, .site-footer { display: none !important; }
   #pa { display: block !important; padding: 0 8px; }
   #pa h2 { margin: .6rem 0; font: 600 1.3rem/1.2 var(--font-display); color: #000; }
   #pa .sheet { max-height: none; overflow: visible; border: 0; background: #fff; padding: 0; }

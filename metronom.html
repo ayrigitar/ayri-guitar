@@ -111,7 +111,6 @@
 
             <div class="nav__actions">
                 <!-- Tombol tema dari theme.js dipindahkan ke sini oleh app.js -->
-                <span id="themeslot" class="theme-slot"></span>
                 <a href="https://wa.me/6285795738637" target="_blank" rel="noopener" class="btn btn--wa btn--sm nav__cta">
                     <svg class="ic ic--fill" aria-hidden="true"><use href="#i-wa"/></svg> <span class="nav__cta-label">Chat WhatsApp</span>
                 </a>
@@ -206,6 +205,19 @@
     var SIGS = [['2/4', 2, [2, 1]], ['3/4', 3, [2, 1, 1]], ['4/4', 4, [2, 1, 1, 1]], ['5/4', 5, [2, 1, 1, 2, 1]], ['6/8', 6, [2, 0, 0, 1, 0, 0]], ['7/8', 7, [2, 0, 1, 0, 1, 0, 0]], ['12/8', 12, [2, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0]]];
     var SUBS = [[1, 'Ketukan'], [2, '\u00bd (2)'], [3, 'Triol (3)'], [4, '\u00bc (4)']];
     var SOUNDS = [['klik', 'Klik'], ['kayu', 'Kayu'], ['beep', 'Beep'], ['hat', 'Hi-hat'], ['drum', 'Drum'], ['suara', 'Hitung']];
+    /* data tersimpan bisa rusak atau dari versi lama: dipaksa ke nilai yang sah supaya halaman tidak macet selamanya */
+    function angka(v, a, b, d) { v = +v; return isFinite(v) ? Math.max(a, Math.min(b, Math.round(v))) : d; }
+    function accSah(a) { return (Array.isArray(a) ? a : [2, 1, 1, 1]).slice(0, 16).map(function (l) { return l === 0 || l === 1 || l === 2 ? l : 1; }); }
+    function subSah(v) { return [1, 2, 3, 4].indexOf(+v) < 0 ? 1 : +v; }
+    function bunyiSah(v) { return SOUNDS.some(function (a) { return a[0] === v; }) ? v : 'klik'; }
+    S.bpm = angka(S.bpm, 20, 300, 100); S.beats = angka(S.beats, 1, 16, 4); S.vol = isFinite(+S.vol) ? Math.max(0.1, Math.min(1, +S.vol)) : 0.8;
+    S.sub = subSah(S.sub); S.sound = bunyiSah(S.sound); S.vib = !!S.vib; S.acc = accSah(S.acc);
+    if (['analog', 'digital', 'flash', 'led'].indexOf(S.vis) < 0) S.vis = 'analog';
+    if (!S.tr || typeof S.tr !== 'object') S.tr = {};
+    S.tr = { on: !!S.tr.on, dir: S.tr.dir === 'down' ? 'down' : 'up', step: angka(S.tr.step, 1, 30, 5), every: angka(S.tr.every, 1, 32, 4), max: angka(S.tr.max, 20, 300, 140), min: angka(S.tr.min, 20, 300, 80) };
+    presets = (Array.isArray(presets) ? presets : []).filter(function (p) { return p && typeof p === 'object' && isFinite(+p.bpm) && isFinite(+p.beats); }).slice(-8).map(function (p) {
+        return { bpm: angka(p.bpm, 20, 300, 100), beats: angka(p.beats, 1, 16, 4), sub: subSah(p.sub), sound: bunyiSah(p.sound), acc: accSah(p.acc) };
+    });
     var NAMES = [[40, 'Largo'], [60, 'Larghetto'], [76, 'Adagio'], [108, 'Andante'], [120, 'Moderato'], [156, 'Allegro'], [176, 'Vivace'], [999, 'Presto']];
     var ctx = null, master, noiseBuf, playing = false, timer = null, raf = 0, next = 0, beat = 0, subi = 0, bar = 0, count = 0, queue = [], last = { t: 0, n: 0 }, wl = null;
     function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
@@ -295,7 +307,6 @@
         if (ls[q.b]) { ls[q.b].classList.add('on'); setTimeout(function () { ls[q.b].classList.remove('on'); }, 110); }
         var fl = $('flash'); if (q.lv > 0) { fl.classList.add(q.lv === 2 ? 'on2' : 'on'); setTimeout(function () { fl.classList.remove('on', 'on2'); }, 90); }
         if (S.vib && navigator.vibrate && q.lv > 0) navigator.vibrate(q.lv === 2 ? 40 : 20);
-        window.__beats = (window.__beats || 0) + 1;
     }
     function frame() {
         var now = ctx.currentTime;
