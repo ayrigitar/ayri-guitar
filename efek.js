@@ -729,7 +729,7 @@
 
     /* ================= tampilan ================= */
     var pilih = 'amp', papan = $('#ef-blok'), rantai = $('#ef-rantai');
-    function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+    var esc = AYRI_UTIL.esc;
     function fmt(p, v) { return angka(v, p.step >= 1 ? 0 : 1) + p.sat; }
     function htmlParam(k, p, v) {
         if (p.pilihan) return '<label class="ef-p ef-pil"><span>' + p.label + '</span><select class="sel" data-b="' + k + '" data-p="' + p.k + '">' +

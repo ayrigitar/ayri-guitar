@@ -7,11 +7,11 @@
      > kutipan / catatan    **tebal**   _miring_   [teks tautan](https://alamat)
      baris kosong = paragraf baru */
 (function (root) {
-    function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+    var esc = root.AYRI_UTIL.esc;
     function inline(s) {
         return esc(s)
             .replace(/\[([^\]]+)\]\(((?:https?:\/\/|\/|#|[a-z0-9-]+\.html)[^)\s]*)\)/gi, function (m, t, u) {
-                return '<a href="' + u + '"' + (/^https?:/i.test(u) && !/ayrigitar\.com/i.test(u) ? ' target="_blank" rel="noopener"' : '') + '>' + t + '</a>';
+                return '<a href="' + u + '"' + (/^(https?:)?\/\//i.test(u) && !/ayrigitar\.com/i.test(u) ? ' target="_blank" rel="noopener"' : '') + '>' + t + '</a>';
             })
             .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
             .replace(/(^|[\s(])_([^_]+)_(?=$|[\s).,!?;:])/g, '$1<em>$2</em>');

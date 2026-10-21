@@ -1,10 +1,15 @@
 /* Service worker Toko Gitar AYRI.
    Naikkan angka VERSION setiap kali Anda mengubah daftar file di bawah. */
-var VERSION = 'ayri-v41';
+var VERSION = 'ayri-v42';
 var CORE = ['./', 'index.html', 'tuner.html', 'chords.html', 'metronom.html', 'transkrip.html', 'partitur.html', 'partitur.js', 'partitur-edit.js', 'efek.html', 'efek.js', 'efek-worklet.js', 'chord-engine.js', 'artikel-custom-nut.html', 'style-index.css', 'style-artikel.css',
-    'theme-dark.css', 'tools.css', 'app.css', 'app.js', 'theme.js', 'pwa.js', 'site.js', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png', 'apple-touch-icon.png', 'favicon-48.png', 'favicon.svg', 'logo/ayri-ikon.svg',
-    'admin.html', 'admin.webmanifest', 'layanan.js', 'layanan.css', 'layanan-config.js', 'artikel-md.js', 'artikel-builder.js'];
+    'theme-dark.css', 'tools.css', 'app.css', 'app.js', 'theme.js', 'pwa.js', 'site.js', 'util.js', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png', 'apple-touch-icon.png', 'favicon-48.png', 'favicon.svg', 'logo/ayri-ikon.svg',
+    'admin.html', 'admin.js', 'admin.webmanifest', 'layanan.js', 'layanan.css', 'layanan-config.js', 'artikel-md.js', 'artikel-builder.js'];
 var FONT_HOSTS = ['fonts.googleapis.com', 'fonts.gstatic.com'];
+/* Tidak pernah disimpan di cache perangkat: apa pun di data/ kecuali katalog publik (data pelanggan terenkripsi, foto servis, nota), serta file unduhan besar. */
+var JANGAN_SIMPAN = /^(data\/(?!katalog\.json$)|unduh\/)|\.(apk|zip|pdf)$/i;
+var MAKS_TAMBAHAN = 80; /* file di luar CORE yang boleh ikut tersimpan; yang paling lama dibuang */
+var AWAL = new URL('./', self.registration.scope);
+var CORE_URL = CORE.map(function (p) { return new URL(p, AWAL).href; });
 
 self.addEventListener('install', function (e) {
     e.waitUntil(caches.open(VERSION).then(function (c) {
@@ -18,9 +23,19 @@ self.addEventListener('activate', function (e) {
 });
 function u(req) { return new URL(req.url).pathname; }
 function key(req) { var u = new URL(req.url); u.search = ''; return u.toString(); }
+function relatif(url) { return url.pathname.slice(AWAL.pathname.length); }
+function rapikan(c) {
+    return c.keys().then(function (ks) {
+        var lain = ks.filter(function (r) { return CORE_URL.indexOf(r.url) < 0; });
+        return Promise.all(lain.slice(0, Math.max(0, lain.length - MAKS_TAMBAHAN)).map(function (r) { return c.delete(r); }));
+    });
+}
 function networkFirst(req) {
     return fetch(req).then(function (res) {
-        if (res && res.ok) { var copy = res.clone(); caches.open(VERSION).then(function (c) { c.put(key(req), copy); }); }
+        if (res && res.status === 200 && res.type === 'basic') {
+            var copy = res.clone();
+            caches.open(VERSION).then(function (c) { return c.put(key(req), copy).then(function () { return rapikan(c); }); }).catch(function () {});
+        }
         return res;
     }).catch(function () {
         return caches.match(key(req)).then(function (hit) {
@@ -39,7 +54,7 @@ function staleWhileRevalidate(req) {
 self.addEventListener('fetch', function (e) {
     var req = e.request;
     if (req.method !== 'GET') return;
-    var u = new URL(req.url);
-    if (u.origin === location.origin) { e.respondWith(networkFirst(req)); }
-    else if (FONT_HOSTS.indexOf(u.hostname) > -1) { e.respondWith(staleWhileRevalidate(req)); }
+    var url = new URL(req.url);
+    if (url.origin === location.origin) { if (!JANGAN_SIMPAN.test(relatif(url))) e.respondWith(networkFirst(req)); }
+    else if (FONT_HOSTS.indexOf(url.hostname) > -1) { e.respondWith(staleWhileRevalidate(req)); }
 });

@@ -70,8 +70,6 @@
   --tabbar-h: 0px;
 
   /* Ikon & tekstur (dipakai lewat mask / background) */
-  --i-moon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.9' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 14.6A8 8 0 1 1 9.4 4a6.4 6.4 0 0 0 10.6 10.6z'/%3E%3C/svg%3E");
-  --i-sun: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.9' stroke-linecap='round'%3E%3Ccircle cx='12' cy='12' r='4'/%3E%3Cpath d='M12 2.5v2M12 19.5v2M4.6 4.6 6 6M18 18l1.4 1.4M2.5 12h2M19.5 12h2M4.6 19.4 6 18M18 6l1.4-1.4'/%3E%3C/svg%3E");
   --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
@@ -343,38 +341,6 @@ address { font-style: normal; }
   .nav__cta-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 }
 @media (min-width: 1200px) { .nav__link { padding: 0 14px; font-size: .9375rem; } }
-
-/* Tombol tema dari theme.js — ditampilkan sebagai ikon bulan / matahari */
-.theme-slot { display: contents; }
-.theme-toggle {
-  display: inline-grid; place-items: center; flex: none;
-  width: 44px; height: 44px; padding: 0; overflow: hidden;
-  border: 1px solid var(--line); border-radius: var(--r-sm);
-  background: var(--surface); color: transparent;
-  font-size: 0; line-height: 0; cursor: pointer;
-  transition: border-color .2s, background-color .2s, transform .15s var(--ease);
-}
-.theme-toggle::before {
-  content: ""; width: 20px; height: 20px;
-  background: var(--ink);
-  -webkit-mask: var(--i-moon) center / contain no-repeat;
-  mask: var(--i-moon) center / contain no-repeat;
-  transition: transform .6s var(--spring);
-}
-html[data-theme="dark"] .theme-toggle::before {
-  background: var(--accent);
-  -webkit-mask-image: var(--i-sun);
-  mask-image: var(--i-sun);
-}
-.theme-toggle:hover { border-color: var(--line-strong); }
-.theme-toggle:hover::before { transform: rotate(-25deg); }
-.theme-toggle:active { transform: scale(.92); }
-/* Cadangan bila tombol belum sempat dipindah ke header */
-body > .theme-toggle {
-  position: fixed; left: 16px; z-index: 58;
-  bottom: calc(var(--tabbar-h) + env(safe-area-inset-bottom) + 16px);
-  box-shadow: var(--shadow-md);
-}
 
 /* Menu mobile (panel kaca turun dari header) */
 .mobile-menu {

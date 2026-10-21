@@ -37,11 +37,7 @@
     window.addEventListener('scroll', onScroll, { passive: true });
     window.addEventListener('resize', onScroll);
 
-    /* Tombol tema (dibuat theme.js) dipindah ke header + warna bilah status ikut tema */
-    document.addEventListener('DOMContentLoaded', function () {
-        var t = document.querySelector('.theme-toggle'), slot = document.getElementById('themeslot');
-        if (t && slot && t.parentNode !== slot) slot.appendChild(t);
-    });
+    /* warna bilah status ikut tema */
     var meta = document.querySelector('meta[name="theme-color"]'), first = true, tmr;
     function syncTheme() {
         var dark = root.getAttribute('data-theme') === 'dark';

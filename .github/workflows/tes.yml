@@ -1,0 +1,23 @@
+name: Tes
+
+# Menjalankan semua uji otomatis (tests/*.test.js) pada setiap pull request dan setiap perubahan di main.
+# Uji ini memakai GitHub palsu di memori, jadi tidak menyentuh data toko yang asli.
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  tes:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      # Aksi dikunci ke SHA commit (bukan tag) supaya tidak bisa diganti diam-diam oleh pihak lain
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: '24'
+      - run: node --test

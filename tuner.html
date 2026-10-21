@@ -110,7 +110,6 @@
 
             <div class="nav__actions">
                 <!-- Tombol tema dari theme.js dipindahkan ke sini oleh app.js -->
-                <span id="themeslot" class="theme-slot"></span>
                 <a href="https://wa.me/6285795738637" target="_blank" rel="noopener" class="btn btn--wa btn--sm nav__cta">
                     <svg class="ic ic--fill" aria-hidden="true"><use href="#i-wa"/></svg> <span class="nav__cta-label">Chat WhatsApp</span>
                 </a>
@@ -213,9 +212,10 @@
         var GATE = { r:0.004, s:0.002, t:0.001 };
         var $ = function (id) { return document.getElementById(id); };
         var A4 = 440, lockIdx = -1, inst = 'ak', tun = 's', cust = [40,45,50,55,59,64], target = null, lock = null;
-        var ctx, analyser, buf, timer, hist = [], rej = 0, lastHeard = 0, stream, cs = null, tuned = false, act = -1, done = {}, doneKey = '';
+        var ctx, analyser, buf, timer, tickMs = 50, hist = [], rej = 0, lastHeard = 0, stream, cs = null, tuned = false, act = -1, done = {}, doneKey = '';
         var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
-        try { var sv = JSON.parse(localStorage.getItem('ayri-tuner-custom')); if (sv && sv.length) cust = sv; } catch (e) {}
+        /* setelan senar custom dari penyimpanan: hanya dipakai bila bentuknya sah (1-12 nada MIDI), kalau rusak diabaikan */
+        try { var sv = JSON.parse(localStorage.getItem('ayri-tuner-custom')); if (Array.isArray(sv) && sv.length && sv.length <= 12 && sv.every(function (m) { return typeof m === 'number' && m >= 12 && m <= 108; })) cust = sv; } catch (e) {}
         var f = function (m) { return A4 * Math.pow(2, (m - 69) / 12); };
         var pT = null, tonic = 7;
         var cur = function () { return inst === 'cu' ? cust : (inst === 'kr' ? [] : (inst === 'pn' ? (pT === null ? [] : [pT]) : INST[inst][1][tun][1])); };
@@ -417,6 +417,13 @@
             st.textContent = tuned ? 'Pas! Nada sudah tepat' : (cs < 0 ? 'Terlalu rendah, kencangkan senar' : 'Terlalu tinggi, kendurkan senar');
         }
         var filt = makeFilter();
+        /* tick dijadwalkan satu per satu: di HP yang lambat (satu tick > 10 ms) jedanya dilonggarkan supaya halaman tetap lancar dan baterai hemat */
+        function jadwal() {
+            timer = setTimeout(function () {
+                var t0 = performance.now();
+                try { tick(); } finally { var dt = performance.now() - t0; tickMs = dt > 20 ? 100 : dt > 10 ? 70 : 50; if (timer) jadwal(); }
+            }, tickMs);
+        }
         function tick() {
             analyser.getFloatTimeDomainData(buf);
             var now = Date.now(), sr = ctx.sampleRate, gt = GATE[$('sens').value], po = pOpts(), r;
@@ -440,12 +447,12 @@
         document.addEventListener('visibilitychange', function () { if (document.hidden && timer) $('start').click(); });
         $('start').addEventListener('click', function () {
             var btn = this;
-            if (timer) { clearInterval(timer); timer = null; if (stream) stream.getTracks().forEach(function (t) { t.stop(); }); btn.textContent = 'Mulai Tuner'; releaseWake(); aim(-58); lamp(null); act = -1; mark(); $('status').className = 't-status'; $('status').textContent = 'Tuner berhenti'; return; }
+            if (timer) { clearTimeout(timer); timer = null; if (stream) stream.getTracks().forEach(function (t) { t.stop(); }); btn.textContent = 'Mulai Tuner'; releaseWake(); aim(-58); lamp(null); act = -1; mark(); $('status').className = 't-status'; $('status').textContent = 'Tuner berhenti'; return; }
             if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) { $('status').textContent = 'Browser ini belum mendukung mikrofon. Coba Chrome atau Safari terbaru.'; return; }
             navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false } }).then(function (s) {
                 stream = s; var c = audio(); analyser = c.createAnalyser(); analyser.fftSize = 16384;
                 c.createMediaStreamSource(s).connect(analyser); buf = new Float32Array(analyser.fftSize);
-                btn.textContent = 'Berhenti'; keepAwake(); $('status').textContent = 'Petik satu senar...'; filt.reset(); timer = setInterval(tick, 50);
+                btn.textContent = 'Berhenti'; keepAwake(); $('status').textContent = 'Petik satu senar...'; filt.reset(); tickMs = 50; jadwal();
             }).catch(function () { $('status').className = 't-status bad'; $('status').textContent = 'Mikrofon tidak diizinkan. Buka pengaturan situs di browser dan izinkan mikrofon.'; });
         });
         function setA4(v) {

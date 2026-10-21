@@ -67,7 +67,7 @@
 
     function pesan(t, salah) { msg.textContent = t || ''; msg.hidden = !t; msg.classList.toggle('err', !!salah); }
     function jam(ms) { var s = Math.max(0, Math.floor(ms / 1000)); return Math.floor(s / 60) + ':' + ('0' + s % 60).slice(-2); }
-    function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+    var esc = AYRI_UTIL.esc;
 
     var hp = window.innerWidth < 600;
     var at = new alphaTab.AlphaTabApi($('#at'), {
@@ -77,7 +77,6 @@
         /* gulir hanya bila kursor keluar layar, supaya judul & chord tidak tersembunyi saat lagu dibuka */
         player: { playerMode: 'EnabledSynthesizer', soundFont: 'vendor/alphatab/soundfont/sonivox.sf2', scrollElement: main, scrollMode: 'OffScreen', scrollOffsetY: -180 }
     });
-    window.__at = at; /* untuk pengujian */
 
     /* ================= transpose, kapo, tampilan ================= */
     function setiapNot(staff, fn) { staff.bars.forEach(function (b) { b.voices.forEach(function (v) { v.beats.forEach(function (bt) { fn(bt); }); }); }); }

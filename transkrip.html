@@ -111,7 +111,6 @@
 
             <div class="nav__actions">
                 <!-- Tombol tema dari theme.js dipindahkan ke sini oleh app.js -->
-                <span id="themeslot" class="theme-slot"></span>
                 <a href="https://wa.me/6285795738637" target="_blank" rel="noopener" class="btn btn--wa btn--sm nav__cta">
                     <svg class="ic ic--fill" aria-hidden="true"><use href="#i-wa"/></svg> <span class="nav__cta-label">Chat WhatsApp</span>
                 </a>
@@ -253,6 +252,9 @@
     var ana = null, akey = null, st = { level: 'asli', inst: 'gtr', capo: 0, rate: 1, count: 0, bpm: 90, a: null, b: null, loop: false, sel: -1 };
     try { var sv = JSON.parse(localStorage.getItem('ayri-trans') || '{}'); ['inst', 'capo', 'rate', 'count', 'bpm', 'level'].forEach(function (k) { if (sv[k] !== undefined) st[k] = sv[k]; }); } catch (e) {}
     if (st.level === 'rinci' || ['asli', 'sedang', 'mudah'].indexOf(st.level) < 0) st.level = 'asli';
+    if ([0.5, 0.6, 0.75, 0.9, 1, 1.15, 1.25].indexOf(st.rate) < 0) st.rate = 1;
+    if ([0, 2, 4].indexOf(st.count) < 0) st.count = 0;
+    st.bpm = Math.max(40, Math.min(220, Math.round(+st.bpm) || 90));
     st.capo = Math.max(-11, Math.min(11, Math.round(+st.capo) || 0)); if (!INSTS[st.inst]) st.inst = 'gtr'; I = INSTS[st.inst]; st.skip = 5;
     function save() { try { localStorage.setItem('ayri-trans', JSON.stringify({ inst: st.inst, capo: st.capo, rate: st.rate, count: st.count, bpm: st.bpm, level: st.level })); } catch (e) {} }
     var au = $('au'), segs = [], dur = 0, fname = '', objUrl = null, cur = -2, raf = 0, pending = null, dragging = false, counting = false, ac2 = null, shown = -1;
@@ -319,8 +321,20 @@
         };
     }
     function progress(p, txt) { $('prog').hidden = false; $('bar').style.width = Math.round(p * 100) + '%'; $('ptxt').textContent = txt + ' ' + Math.round(p * 100) + '%'; }
+    /* batas supaya HP tidak kehabisan memori: lagu 5 menit stereo ±100 MB saat didecode */
+    var MAKS_BYTE = 80 * 1048576, DETIK_PENUH = 360, MAKS_DETIK = 600;
+    function galatBatas(pesan) { var e = new Error(pesan); e.batas = true; return e; }
+    function tungguDurasi() {
+        if (au.readyState > 0 && isFinite(au.duration)) return Promise.resolve(au.duration);
+        return new Promise(function (r) { var t = setTimeout(function () { r(0); }, 3000); au.addEventListener('loadedmetadata', function () { clearTimeout(t); r(au.duration || 0); }, { once: true }); });
+    }
     async function analyze(ab, opts) {
-        var AC = window.AudioContext || window.webkitAudioContext, c = new AC(), buf;
+        if (ab.byteLength > MAKS_BYTE) throw galatBatas('File lebih dari 80 MB. Pakai file yang lebih kecil (MP3 atau M4A biasanya cukup).');
+        var dt = await tungguDurasi();
+        if (dt > MAKS_DETIK) throw galatBatas('Lagu lebih dari 10 menit terlalu panjang untuk dianalisis di perangkat ini. Potong dulu bagian yang ingin dilatih.');
+        var AC = window.AudioContext || window.webkitAudioContext, c, buf;
+        /* lagu panjang didecode pada 22.050 Hz (separuh memori): analisis memang hanya memakai suara di bawah ±5 kHz */
+        try { c = dt > DETIK_PENUH ? new AC({ sampleRate: 22050 }) : new AC(); } catch (e) { c = new AC(); }
         progress(0.02, 'Membaca audio');
         buf = await c.decodeAudioData(ab); if (c.close) c.close();
         var chl = []; for (var q = 0; q < buf.numberOfChannels; q++) chl.push(buf.getChannelData(q));
@@ -535,7 +549,7 @@
         else if (/^(aug|\+|aug7)$/.test(rest)) k = 'aug';
         else if (/^(9|11|13)$/.test(rest)) k = '9';
         else if (/^m/.test(rest) && !/^maj/i.test(rest)) k = 'm';
-        else if (/^[0-9()b#+\-sus]*$/.test(rest)) k = /7|9|11|13/.test(rest) ? '7' : 'maj';
+        else if (/^(?:[0-9()b#+\-]|sus)*$/.test(rest)) k = /7|9|11|13/.test(rest) ? '7' : 'maj';
         else return null;
         var bass = -1; if (m[4]) { bass = { C: 0, D: 2, E: 4, F: 5, G: 7, A: 9, B: 11 }[m[4][0]] + (/[#♯]/.test(m[4].slice(1)) ? 1 : (m[4].length > 1 ? -1 : 0)); bass = (bass + 12) % 12; }
         /* q = tulisan kualitas asli (maj9, 7b9, dim7 ...) untuk level Asli; iv = semua nada chord untuk pencocokan */
@@ -642,7 +656,6 @@
         if (!/\s/.test(s)) s = s.replace(/-+/g, ' ');
         return s.replace(/(\s+(official|lyric|lyrics|lirik|video|audio|mv|hd|hq))+\s*$/ig, ' ').replace(/\s+/g, ' ').trim();
     }
-    function chordVecTI(r, ti) { var v = new Float32Array(12), nm = 0, i; TYPES[ti].iv.forEach(function (iv, j2) { var w = j2 === 0 ? 1 : (j2 < 3 ? 0.85 : 0.55); HARM.forEach(function (h) { v[(r + iv + h[0]) % 12] += w * h[1]; }); }); for (i = 0; i < 12; i++) nm += v[i] * v[i]; nm = Math.sqrt(nm) || 1; for (i = 0; i < 12; i++) v[i] /= nm; return v; }
     function fallbackBeats(ana) { var P = 0.5, beats = [], t = 0.25; while (t < ana.dur) { beats.push(t); t += P; } return { beats: beats, P: P, bpm: 120, conf: 0 }; }
     /* Viterbi atas urutan chord di chart. Tiap chord chart = rantai sub-keadaan per ketukan, sehingga bisa diberi durasi minimum dan
        durasi perkiraan (dari spasi chart). Langkah: tetap, maju ke chord berikutnya, lompat ke awal baris (bagian berulang), atau keluar
@@ -985,15 +998,21 @@
     /* posisi diubah dari mana pun saat berhenti: tampilan ikut */
     au.addEventListener('seeked', function () { if (au.paused && !seret && !luncur) mark(au.currentTime, true); });
     /* ---------- berkas ---------- */
+    /* berkas hasil yang rusak atau bukan dari sini ditolak, bukan dibiarkan merusak halaman */
+    function segSah(a) { return Array.isArray(a) && a[0] >= 0 && a[0] < 12 && TYPES[a[1]] !== undefined && isFinite(a[2]) && isFinite(a[3]) && a[2] >= 0 && a[3] > a[2]; }
+    function hasilSah(j) {
+        if (!j || typeof j !== 'object' || !Array.isArray(j.segs)) throw new Error('bukan hasil');
+        var segsOk = j.segs.filter(segSah); if (!segsOk.length) throw new Error('kosong');
+        return { segs: segsOk, bpm: isFinite(+j.bpm) && +j.bpm > 0 ? Math.max(40, Math.min(220, +j.bpm)) : 0, duration: isFinite(+j.duration) && +j.duration > 0 ? +j.duration : 0 };
+    }
     async function openFile(file) {
-        if (/\.json$/i.test(file.name)) { try { pending = JSON.parse(await file.text()); $('ptxt').textContent = 'Hasil tersimpan dimuat. Sekarang pilih file audio yang sama.'; $('prog').hidden = false; $('bar').style.width = '100%'; } catch (e) { alert('File hasil tidak valid.'); } return; }
+        if (/\.json$/i.test(file.name)) { try { pending = hasilSah(JSON.parse(await file.text())); $('ptxt').textContent = 'Hasil tersimpan dimuat. Sekarang pilih file audio yang sama.'; $('prog').hidden = false; $('bar').style.width = '100%'; } catch (e) { alert('File hasil tidak valid.'); } return; }
         fname = file.name.replace(/\.[^.]+$/, ''); $('app').hidden = true; if (objUrl) URL.revokeObjectURL(objUrl); objUrl = URL.createObjectURL(file); au.src = objUrl;
         try {
             ana = null; akey = null; tempo = 0; chartOn = false; if (pending && pending.segs) { segs = pending.segs.map(function (a) { var g = { r: a[0], ti: a[1], t0: a[2], t1: a[3] }; if (typeof a[4] === 'string') { g.q = a[4]; g.bass = a[5] === undefined ? -1 : a[5]; } return g; }); tempo = pending.bpm || 0; if (tempo) { st.bpm = tempo; save(); } dur = pending.duration || 0; pending = null; await new Promise(function (r) { if (au.readyState > 0) r(); else au.addEventListener('loadedmetadata', r, { once: true }); }); dur = au.duration || dur; }
             else { var abuf = await file.arrayBuffer(), gt = guessTitle(file.name, abuf); $('chq').value = gt; if (gt) fname = gt; ana = await analyze(abuf); try { chartText = localStorage.getItem(chartKey()) || ''; } catch (e) { chartText = ''; } chartOn = !!chartText; $('chart').value = chartText; $('chmsg').textContent = ''; rebuild(); if (ana.bt && ana.bt.conf >= BEAT_CONF) { tempo = Math.round(ana.bt.bpm); st.bpm = Math.max(40, Math.min(220, tempo)); save(); } }
-        } catch (e) { $('ptxt').textContent = 'Gagal membaca/menganalisis file ini. Coba format lain (MP3, M4A, WAV) atau file yang lebih pendek.'; $('drop').hidden = false; return; }
+        } catch (e) { $('ptxt').textContent = e && e.batas ? e.message : 'Gagal membaca/menganalisis file ini. Coba format lain (MP3, M4A, WAV) atau file yang lebih pendek.'; $('drop').hidden = false; return; }
         $('prog').hidden = true; $('app').hidden = false; $('drop').hidden = true; $('swap').hidden = false; $('swap').style.display = 'flex'; $('listbtn').hidden = false; $('seek').max = dur; $('seek').value = 0; $('tdur').textContent = fmt(dur); tpLama = -1; titleUi(); st.a = st.b = null; st.loop = false; st.sel = -1; loopUi(); chips(); sheet(); $('edit').hidden = true; startHistory(true);
-        window.__tr = { segs: segs, st: st, au: au };
     }
     $('file').addEventListener('change', function () { if (this.files[0]) openFile(this.files[0]); });
     var dz = $('drop'); ['dragover', 'dragenter'].forEach(function (ev) { dz.addEventListener(ev, function (e) { e.preventDefault(); dz.classList.add('over'); }); });
@@ -1170,7 +1189,7 @@
         rebuild(); afterRebuild(); try { localStorage.removeItem(editKey()); } catch (e) {} startHistory(false); $('chmsg').textContent = 'Kembali memakai deteksi otomatis.';
     });
     $('prn').addEventListener('click', function () {
-        $('pinfo') && 0; $('pa').innerHTML = '<h2>' + fname.replace(/</g, '&lt;') + ' \u00b7 ' + I.name + (capoOn() ? ' \u00b7 ' + capoTeks() : '') + ' \u00b7 ' + fmt(dur) + '</h2><div class="sheet">' + $('sheet').innerHTML + '</div><h2>Kamus chord</h2><div class="legend">' + $('legend').innerHTML + '</div>';
+        $('pa').innerHTML = '<h2>' + fname.replace(/</g, '&lt;') + ' \u00b7 ' + I.name + (capoOn() ? ' \u00b7 ' + capoTeks() : '') + ' \u00b7 ' + fmt(dur) + '</h2><div class="sheet">' + $('sheet').innerHTML + '</div><h2>Kamus chord</h2><div class="legend">' + $('legend').innerHTML + '</div>';
         window.print();
     });
     $('sav').addEventListener('click', function () {
@@ -1184,7 +1203,7 @@
         if (e.ctrlKey || e.metaKey || e.altKey) return;
         /* Spasi putar/jeda, panah mundur/maju, [ ] chord sebelumnya/berikutnya, L loop A-B, Home stop */
         var k = e.key;
-        if (e.code === 'Space') { e.preventDefault(); play(); }
+        if (e.code === 'Space') { if (e.target.closest && e.target.closest('button, a, summary, [role="button"]')) return; e.preventDefault(); play(); }
         else if (k === 'ArrowLeft' || k === 'ArrowRight') { e.preventDefault(); lompat((k === 'ArrowLeft' ? -1 : 1) * st.skip); }
         else if (k === '[' || k === ',') keChord(-1); else if (k === ']' || k === '.') keChord(1);
         else if (k === 'l' || k === 'L') abKetuk(); else if (k === 'Home') { e.preventDefault(); stop(); }
