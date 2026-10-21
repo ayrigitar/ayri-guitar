@@ -603,6 +603,8 @@ main.app.fit2 .mt-num span { display: none; }
   background: var(--surface); box-shadow: var(--shadow-md);
   text-align: left;
 }
+.tr-top { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.tr-top .tr-ttl { flex: 1 1 0; min-width: 0; }
 .tr-ttl { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: .8125rem; font-weight: 700; color: var(--ink-3); }
 .tr-now { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .tr-now > div:first-child { min-width: 0; }
@@ -741,19 +743,36 @@ canvas.ctab.seret { cursor: grabbing; }
 .tr-lagu .sheet { max-height: 30vh; }
 .tr-lagu #edit { padding: 12px; border: 1px solid var(--line); border-radius: var(--r-lg); background: var(--surface-2); }
 .tr-bawah { display: contents; }
-.tr-more-btn { display: none; align-items: center; justify-content: center; width: 32px; height: 32px; padding: 0; border: 1px solid var(--line-strong); border-radius: 50%; background: var(--surface); color: var(--ink-2); cursor: pointer; }
+.tr-kontrol { position: relative; }
+.tr-more-btn { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; padding: 0; border: 1px solid var(--line-strong); border-radius: 50%; background: var(--surface); color: var(--ink-2); cursor: pointer; }
 .tr-more-btn svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; }
 .tr-more-btn[aria-expanded="true"] { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
-.tr-more-panel { display: contents; }
-.tr-tampil { display: flex; gap: 6px; }
-.tr-tampil .chip { flex: 1 1 0; justify-content: center; height: 34px; font-weight: 700; }
-.tr-tampil .chip[aria-pressed="true"] { border-color: var(--accent); background: var(--accent); color: var(--on-accent); }
+.tr-more-panel { display: none; position: absolute; right: 0; bottom: calc(100% + 8px); z-index: 20; flex-direction: column; align-items: flex-start; gap: 8px; padding: 12px; border: 1px solid var(--line); border-radius: var(--r-lg); background: var(--surface); box-shadow: var(--shadow-md); }
+.tr-more-panel.buka { display: flex; }
+.tr-more-panel .tr-saran { flex: 0 0 auto; }
+.tr-more-btn { position: relative; }
+.tr-kontrol:has(#capohint:not([hidden])) .tr-more-btn::after { content: ""; position: absolute; top: -1px; right: -1px; width: 9px; height: 9px; border-radius: 50%; background: var(--accent); border: 2px solid var(--surface); }
+.tr-tampil { flex: 0 0 auto; display: inline-flex; gap: 2px; padding: 2px; border: 1px solid var(--line-strong); border-radius: var(--r-pill); background: var(--surface-2); }
+.tr-tampil .tt-b { display: inline-flex; align-items: center; justify-content: center; width: 34px; height: 28px; padding: 0; border: 0; border-radius: var(--r-pill); background: none; color: var(--ink-3); cursor: pointer; }
+.tr-tampil .tt-b .ic { width: 18px; height: 18px; }
+.tr-tampil .tt-b[aria-pressed="true"] { background: var(--accent); color: var(--on-accent); }
 /* HP: satu tampilan saja. Panggung = seperti biasa; Daftar = daftar chord di atas, kontrol pemutar tetap di bawah */
 @media (max-width: 899.98px), (max-height: 519.98px) {
   .trans-app .tapp[data-tampil="panggung"] .tr-lagu { display: none; }
   .trans-app .tapp[data-tampil="daftar"] .tr-lagu { order: -1; flex: 1 1 0; min-height: 120px; }
   .trans-app .tapp[data-tampil="daftar"] .tr-lagu .sheet { flex: 1 1 0; max-height: none; min-height: 0; align-content: flex-start; }
-  .trans-app .tapp[data-tampil="daftar"] .tr-stage > :is(.tr-ttl, .tr-now, .tr-adj, .tr-next, .ctab) { display: none; }
+  .trans-app .tapp[data-tampil="daftar"] .tr-stage > :is(.tr-now, .tr-adj, .tr-next, .ctab), .trans-app .tapp[data-tampil="daftar"] .tr-top .tr-ttl { display: none; }
+  .trans-app .tapp[data-tampil="daftar"] .tr-top { order: -2; justify-content: flex-end; }
+}
+/* HP: pengaturan satu baris, sisanya di panel tombol pengaturan lain */
+@media (max-width: 899.98px), (max-height: 519.98px) {
+  .tr-more-btn { width: 34px; height: 34px; }
+  .trans-app .tr-kontrol .tr-more-panel { right: 4px; }
+}
+@media (orientation: landscape) and (max-height: 560px) and (min-width: 560px) {
+  .trans-app .tr-stage { position: relative; }
+  .trans-app .tr-top { display: contents; }
+  .trans-app .tr-top .tr-tampil { position: absolute; top: 6px; right: 8px; z-index: 3; }
 }
 /* layar lebar: kiri chord yang sedang dimainkan, kanan daftar chord (sama lebar); seek dan kontrol selebar kartu di bawahnya */
 @media (min-width: 900px) and (min-height: 520px) {
@@ -770,7 +789,7 @@ canvas.ctab.seret { cursor: grabbing; }
   .trans-app .tr-stage > .tr-now { min-height: 84px; overflow: hidden; }
   .trans-app .tr-nd { max-height: 44px; width: auto; }
   .trans-app .tr-nd svg { max-height: 44px; width: auto; }
-  .trans-app .tr-stage > .tr-ttl { display: none; }
+  .trans-app .tr-stage > .tr-top { display: none; }
   .trans-app .tr-stage > .tr-now { grid-area: now; }
   .trans-app .tr-stage > .tr-adj { grid-area: adj; }
   .trans-app .tr-stage > .tr-next { grid-area: next; }
@@ -789,8 +808,7 @@ canvas.ctab.seret { cursor: grabbing; }
   .tr-bawah .tr-bar { --tb: 40px; --go: 50px; grid-column: 1; grid-row: 1; justify-content: flex-start; gap: 4px; padding: 0; }
   .tr-bawah .tr-seek { grid-column: 2; grid-row: 1; margin: 0; }
   .tr-bawah .tr-set { grid-column: 3; grid-row: 1; display: flex; flex-wrap: nowrap; align-items: center; gap: 6px; }
-  .tr-bawah .tr-more-btn { grid-column: 4; grid-row: 1; display: inline-flex; }
-  .tr-bawah .tr-saran { grid-column: 1 / -1; grid-row: 2; }
+  .tr-bawah .tr-more-btn { grid-column: 4; grid-row: 1; }
   /* tombol pemutar minimalis: tanpa bingkai dan bayangan, hanya Putar yang berwarna */
   .tr-bawah .tb:not(.tb-go) { border-color: transparent; background: transparent; box-shadow: none; color: var(--ink-2); }
   .tr-bawah .tb:not(.tb-go):hover { background: var(--surface-2); color: var(--ink); }
@@ -800,9 +818,6 @@ canvas.ctab.seret { cursor: grabbing; }
   .tr-bawah .tb-ab.on, .tr-bawah .tb-ab.on:hover { background: var(--wa); color: #fff; }
   .tr-bawah .tb-ab.separuh { border-color: var(--wa); }
   .tr-bawah .ts { height: 32px; }
-  /* pengaturan lain (instrumen, klik, tempo, tingkat chord): panel kecil di atas tombolnya */
-  .tr-more-panel { display: none; position: absolute; right: 0; bottom: calc(100% + 8px); z-index: 20; flex-direction: column; align-items: flex-start; gap: 8px; padding: 12px; border: 1px solid var(--line); border-radius: var(--r-lg); background: var(--surface); box-shadow: var(--shadow-md); }
-  .tr-more-panel.buka { display: flex; }
 }
 }
 .pg-row select.srch {
@@ -834,7 +849,7 @@ canvas.ctab.seret { cursor: grabbing; }
   .tr-bar { --tb: 42px; --go: 56px; }
 }
 @media (max-height: 620px) { canvas.ctab { height: 54px; } }
-@media (min-width: 900px) and (max-height: 800px) { .trans-app .tr-saran { display: none; } }
+
 main.app.fit1 canvas.ctab { height: 56px; }
 main.app.fit1 .tr-bar { --go: 54px; }
 main.app.fit2 .tr-ttl, main.app.fit2 .tr-next { display: none; }
