@@ -740,6 +740,11 @@ canvas.ctab.seret { cursor: grabbing; }
 .tr-lagu { display: flex; flex-direction: column; gap: 8px; min-width: 0; min-height: 0; }
 .tr-lagu .sheet { max-height: 30vh; }
 .tr-lagu #edit { padding: 12px; border: 1px solid var(--line); border-radius: var(--r-lg); background: var(--surface-2); }
+.tr-bawah { display: contents; }
+.tr-more-btn { display: none; align-items: center; justify-content: center; width: 32px; height: 32px; padding: 0; border: 1px solid var(--line-strong); border-radius: 50%; background: var(--surface); color: var(--ink-2); cursor: pointer; }
+.tr-more-btn svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; }
+.tr-more-btn[aria-expanded="true"] { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
+.tr-more-panel { display: contents; }
 .tr-tampil { display: flex; gap: 6px; }
 .tr-tampil .chip { flex: 1 1 0; justify-content: center; height: 34px; font-weight: 700; }
 .tr-tampil .chip[aria-pressed="true"] { border-color: var(--accent); background: var(--accent); color: var(--on-accent); }
@@ -755,8 +760,8 @@ canvas.ctab.seret { cursor: grabbing; }
   .tr-tampil { display: none; }
   .trans-app .tr-stage {
     display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); column-gap: 18px; align-content: stretch;
-    grid-template-rows: minmax(0, 1fr) auto auto auto auto auto;
-    grid-template-areas: "now list" "adj list" "next list" "tab list" "seek seek" "ktl ktl";
+    grid-template-rows: minmax(0, 1fr) auto auto auto auto;
+    grid-template-areas: "now list" "adj list" "next list" "tab list" "bawah bawah";
   }
   /* halaman tidak boleh tergulir: isi menyesuaikan tinggi layar (diagram chord mengecil), hanya daftar chord yang bergulir sendiri */
   main.app.trans-app { overflow-y: hidden; }
@@ -771,19 +776,34 @@ canvas.ctab.seret { cursor: grabbing; }
   .trans-app .tr-stage > .tr-next { grid-area: next; }
   .trans-app .tr-stage > .ctab { grid-area: tab; }
   .trans-app .tr-stage > .tr-lagu { grid-area: list; }
-  .trans-app .tr-stage > .tr-seek { grid-area: seek; }
-  .trans-app .tr-stage > .tr-kontrol { grid-area: ktl; }
   .tr-lagu .sheet { flex: 1 1 0; max-height: none; align-content: flex-start; min-height: 0; }
   /* panel ubah chord melayang di atas bagian bawah daftar: tidak mengubah tinggi halaman */
   .tr-lagu { position: relative; }
   .tr-lagu #edit { position: absolute; left: 8px; right: 8px; bottom: 8px; z-index: 3; box-shadow: var(--shadow-md); }
-  /* kontrol: tombol pemutar di atas, semua pengaturan satu baris di bawahnya (bukan dua kolom sempit yang membungkus) */
-  .trans-app .tr-kontrol { grid-template-columns: auto auto; justify-content: center; gap: 6px 14px; }
-  .trans-app .tr-kontrol .tr-bar { grid-column: 1 / -1; grid-row: 1; }
-  .trans-app .tr-kontrol .tr-set { grid-row: 2; flex-wrap: nowrap; }
-  .trans-app .tr-kontrol .tr-set:first-of-type { justify-content: flex-end; }
-  .trans-app .tr-kontrol .tr-set + .tr-set { justify-content: flex-start; }
-  .trans-app .tr-kontrol .tr-saran { grid-column: 1 / -1; grid-row: 3; }
+  /* bar bawah: satu baris ala transport DAW. Kiri tombol pemutar, tengah posisi lagu, kanan kecepatan + transpose + tombol pengaturan lain */
+  .trans-app .tr-stage > .tr-bawah {
+    grid-area: bawah; position: relative; display: grid; grid-template-columns: auto minmax(160px, 1fr) auto auto; align-items: center; gap: 4px 18px;
+    margin-top: 6px; padding-top: 12px; border-top: 1px solid var(--line);
+  }
+  .tr-bawah .tr-kontrol { display: contents; }
+  .tr-bawah .tr-bar { --tb: 40px; --go: 50px; grid-column: 1; grid-row: 1; justify-content: flex-start; gap: 4px; padding: 0; }
+  .tr-bawah .tr-seek { grid-column: 2; grid-row: 1; margin: 0; }
+  .tr-bawah .tr-set { grid-column: 3; grid-row: 1; display: flex; flex-wrap: nowrap; align-items: center; gap: 6px; }
+  .tr-bawah .tr-more-btn { grid-column: 4; grid-row: 1; display: inline-flex; }
+  .tr-bawah .tr-saran { grid-column: 1 / -1; grid-row: 2; }
+  /* tombol pemutar minimalis: tanpa bingkai dan bayangan, hanya Putar yang berwarna */
+  .tr-bawah .tb:not(.tb-go) { border-color: transparent; background: transparent; box-shadow: none; color: var(--ink-2); }
+  .tr-bawah .tb:not(.tb-go):hover { background: var(--surface-2); color: var(--ink); }
+  .tr-bawah .tb-go { box-shadow: none; }
+  .tr-bawah .tb-ab { flex-direction: row; min-width: 0; width: auto; height: 32px; padding: 0 10px; border-radius: var(--r-pill); color: var(--ink-3); }
+  .tr-bawah .tb-ab .ab-l { display: none; }
+  .tr-bawah .tb-ab.on, .tr-bawah .tb-ab.on:hover { background: var(--wa); color: #fff; }
+  .tr-bawah .tb-ab.separuh { border-color: var(--wa); }
+  .tr-bawah .ts { height: 32px; }
+  /* pengaturan lain (instrumen, klik, tempo, tingkat chord): panel kecil di atas tombolnya */
+  .tr-more-panel { display: none; position: absolute; right: 0; bottom: calc(100% + 8px); z-index: 20; flex-direction: column; align-items: flex-start; gap: 8px; padding: 12px; border: 1px solid var(--line); border-radius: var(--r-lg); background: var(--surface); box-shadow: var(--shadow-md); }
+  .tr-more-panel.buka { display: flex; }
+}
 }
 .pg-row select.srch {
   padding: 0 30px 0 12px;

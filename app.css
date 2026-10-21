@@ -400,8 +400,8 @@ main.app.fit1 .trans-app .chip.bpmh, main.app.fit1 .chip.bpmh { height: 36px; }
   .trans-app .tr-stage > .tr-adj { grid-area: adj; align-self: end; }
   .trans-app .tr-stage > .tr-next { grid-area: next; }
   .trans-app .tr-stage > .ctab { grid-area: tab; }
-  .trans-app .tr-stage > .tr-seek { grid-area: seek; }
-  .trans-app .tr-stage > .tr-kontrol { grid-area: ktl; align-self: start; gap: 5px; }
+  .trans-app .tr-stage .tr-seek { grid-area: seek; }
+  .trans-app .tr-stage .tr-kontrol { grid-area: ktl; align-self: start; gap: 5px; }
   .trans-app .ts { height: 28px; }
 }
 /* baris tombol di kolom kiri (samping diagram): boleh 2 baris di HP tanpa menambah tinggi kartu */
