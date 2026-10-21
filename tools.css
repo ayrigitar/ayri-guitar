@@ -758,6 +758,13 @@ canvas.ctab.seret { cursor: grabbing; }
     grid-template-rows: minmax(0, 1fr) auto auto auto auto auto;
     grid-template-areas: "now list" "adj list" "next list" "tab list" "seek seek" "ktl ktl";
   }
+  /* halaman tidak boleh tergulir: isi menyesuaikan tinggi layar (diagram chord mengecil), hanya daftar chord yang bergulir sendiri */
+  main.app.trans-app { overflow-y: hidden; }
+  .trans-app .tapp, .trans-app .tr-stage { min-height: 0; }
+  .trans-app .tr-stage { overflow: hidden; }
+  .trans-app .tr-stage > .tr-now { min-height: 84px; overflow: hidden; }
+  .trans-app .tr-nd { max-height: 44px; width: auto; }
+  .trans-app .tr-nd svg { max-height: 44px; width: auto; }
   .trans-app .tr-stage > .tr-ttl { display: none; }
   .trans-app .tr-stage > .tr-now { grid-area: now; }
   .trans-app .tr-stage > .tr-adj { grid-area: adj; }
@@ -807,6 +814,7 @@ canvas.ctab.seret { cursor: grabbing; }
   .tr-bar { --tb: 42px; --go: 56px; }
 }
 @media (max-height: 620px) { canvas.ctab { height: 54px; } }
+@media (min-width: 900px) and (max-height: 800px) { .trans-app .tr-saran { display: none; } }
 main.app.fit1 canvas.ctab { height: 56px; }
 main.app.fit1 .tr-bar { --go: 54px; }
 main.app.fit2 .tr-ttl, main.app.fit2 .tr-next { display: none; }
