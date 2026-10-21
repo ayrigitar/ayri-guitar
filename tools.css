@@ -735,6 +735,23 @@ canvas.ctab.seret { cursor: grabbing; }
 .sc.on { border-color: var(--accent); background: var(--accent); color: var(--on-accent); }
 .sc.on small { color: inherit; opacity: .8; }
 .sc.sel { outline: 3px solid rgba(47, 181, 116, .55); outline-offset: 1px; }
+
+/* Chord lagu ini: tampilan kedua di layar utama (di samping panggung pada layar lebar, di bawahnya pada HP) */
+.tr-lagu {
+  display: flex; flex-direction: column; gap: 8px; min-width: 0; padding: 12px;
+  border: 1px solid var(--line); border-radius: var(--r-xl); background: var(--surface); box-shadow: var(--shadow-md);
+}
+.tr-lagu__h { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px 8px; }
+.tr-lagu h2 { margin: 0; white-space: nowrap; font: 600 1.15rem/1.2 var(--font-display); }
+.tr-lagu .hint { margin: 0; }
+.tr-lagu .sheet { max-height: 30vh; }
+.tr-lagu #edit { padding: 12px; border: 1px solid var(--line); border-radius: var(--r-lg); background: var(--surface-2); }
+@media (min-width: 900px) and (min-height: 520px) {
+  .trans-app .tapp { flex-direction: row; align-items: stretch; }
+  .trans-app .tapp > .tr-stage { flex: 1 1 0; min-width: 0; }
+  .trans-app .tapp > .tr-lagu { flex: 0 0 clamp(300px, 28%, 400px); min-height: 0; }
+  .tr-lagu .sheet { flex: 1 1 0; max-height: none; align-content: flex-start; min-height: 0; }
+}
 .pg-row select.srch {
   padding: 0 30px 0 12px;
   background-image: var(--chev); background-position: right 9px center; background-size: 16px;
