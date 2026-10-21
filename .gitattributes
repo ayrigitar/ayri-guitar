@@ -1,0 +1,16 @@
+# Semua file teks disimpan dengan akhir baris LF di repo, apa pun sistem operasi yang dipakai.
+* text=auto eol=lf
+
+# File biner: jangan diubah akhir barisnya
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.webp binary
+*.ico binary
+*.woff binary
+*.woff2 binary
+*.sf2 binary
+*.apk binary
+*.bin binary
+*.mp3 binary
+*.wav binary

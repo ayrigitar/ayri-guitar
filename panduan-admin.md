@@ -35,10 +35,14 @@ Buat token **langsung di HP yang akan dipakai**, supaya token tidak perlu dikiri
 
 1. Buka **https://ayrigitar.com/admin.html** di Chrome HP (tab baru).
 2. Tempel token ke kolom **Token GitHub**.
-3. Buat **PIN** 4–8 angka (bukan tanggal lahir), ketik ulang, lalu tekan **Pasang**.
+3. Buat **PIN** minimal 6 karakter (boleh angka atau huruf; makin panjang makin aman; bukan tanggal lahir), ketik ulang, lalu tekan **Pasang**.
 4. Menu ⋮ Chrome → **Tambahkan ke layar utama**, supaya admin bisa dibuka seperti aplikasi.
 
 Setelah terpasang, token tidak perlu disimpan di tempat lain. Kalau suatu saat lupa PIN, cukup buat token baru.
+
+- PIN diminta lagi setiap halaman admin dibuka ulang atau dimuat ulang (token hanya hidup di memori selama admin terbuka).
+- Salah PIN 5 kali berturut-turut mengunci admin sementara (5 menit, makin lama bila terus salah). Itu menghalangi orang yang menebak-nebak PIN di HP yang hilang.
+- PIN bisa diganti kapan saja lewat tombol **Ganti PIN** di bagian bawah halaman Servis.
 
 ## Langkah 4: Uji coba
 
@@ -185,6 +189,8 @@ Setelah situs diperbarui, buka admin di HP owner. Akan muncul layar **Pisahkan d
 - **Internet putus**: admin tetap terbuka dengan data terakhir di perangkat. Penjualan di kasir, pelunasan servis, buka/tutup kasir, pengeluaran, dan jam masuk tetap bisa dicatat. Di atas tampil **Offline · N antri**.
 - Begitu online lagi, antrian **dikirim otomatis** (atau ketuk label itu untuk mengirim sekarang). Yang perlu internet: foto baru, stok, tebus, artikel, opname, pengaturan karyawan.
 - Bila ada transaksi yang ditolak saat dikirim (mis. barang yang sama sudah terjual dari perangkat lain), label berubah merah **gagal terkirim**. Ketuk untuk melihat rinciannya, lalu catat ulang.
+- **Dua perangkat mengubah catatan yang sama**: perangkat yang menyimpan belakangan ditolak dengan pesan *Data ini baru diubah di perangkat lain*. Tekan **OK** untuk memuat data terbaru, lalu ulangi perubahan Anda. Tidak ada data yang tertimpa diam-diam. Penjualan, pengeluaran kas, dan jam masuk dari dua perangkat sekaligus selalu tersimpan dua-duanya.
+- **Tutup kasir** selalu menghitung ulang dari transaksi terbaru semua perangkat. Bila ada transaksi baru dari perangkat lain sejak layar dibuka, admin memberi tahu angka "seharusnya ada di laci" yang baru sebelum kasir ditutup.
 - **Aplikasi Android (APK)**: ada dua aplikasi. **AYRI Alat Latihan** bisa diunduh siapa saja di ayrigitar.com/unduh/ayri-alat-latihan.apk (tombol di beranda, hanya tampil di HP Android). **AYRI POS** hanya ada di Releases repo privat `ayri-aplikasi`. Pasang di HP owner dan tablet toko, lalu pasang token dan PIN seperti biasa. Saat memasang, Android akan meminta izin "instal dari sumber ini". Izinkan sekali untuk Chrome atau File Manager.
 - Fitur baru di situs langsung ada di aplikasi, jadi tidak perlu memasang ulang APK. APK baru hanya dibuat bila bagian aplikasinya berubah. Kunci tanda tangan APK ada di folder `Documentsyri-kunci-aplikasi` di PC. Simpan salinannya, karena tanpa kunci itu update APK tidak bisa dipasang.
 - Salinan data di perangkat terkunci PIN. Jangan **Pasang ulang token** selagi masih ada antrian, karena antrian ikut terhapus.
@@ -195,7 +201,9 @@ Setelah situs diperbarui, buka admin di HP owner. Akan muncul layar **Pisahkan d
 - **Lupa PIN?** Di layar PIN tekan **Pasang ulang token**, lalu tempel token baru.
 - **Ganti HP**: cabut token HP lama (cara sama seperti HP hilang), lalu buat token baru di HP baru.
 - **Token kedaluwarsa** (kalau memilih masa berlaku): admin menampilkan pesan "Token GitHub ditolak". Buat token baru (langkah 2), lalu di admin tekan **Hapus token dari perangkat ini** dan pasang yang baru.
-- **Cadangan**: semua riwayat perubahan tersimpan otomatis di repo `ayri-servis-data`. Tombol **Unduh cadangan** di daftar servis menyimpan salinan JSON, misalnya ke Google Drive sebulan sekali.
+- **Cadangan**: semua riwayat perubahan tersimpan otomatis di repo `ayri-servis-data`. Tombol **Unduh cadangan** (di daftar servis, dan pengingat di halaman Hari ini) menyimpan salinan, misalnya ke Google Drive sebulan sekali.
+  - Cadangan berisi nama dan nomor HP pelanggan, jadi **dikunci dengan sandi** yang Anda ketik saat mengunduh (minimal 6 karakter). **Catat sandinya**: tanpa sandi, cadangan tidak bisa dibuka siapa pun, termasuk Claude.
+  - Untuk membaca isinya: tombol **Buka cadangan** di bagian bawah halaman Servis, pilih berkas `.ayri.json`, ketik sandinya; hasilnya berkas `.json` biasa. Hapus berkas hasil itu bila sudah tidak dipakai.
 - **Kapasitas**: situs GitHub Pages maksimal 1 GB. Foto servis dikecilkan ke ±150 KB, jadi cukup untuk ribuan foto. Kalau suatu saat mendekati batas, minta Claude membuat fitur arsip yang menghapus foto servis lama yang garansinya sudah habis.
 
 ## Mengubah pengaturan toko
