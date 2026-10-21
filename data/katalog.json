@@ -163,6 +163,29 @@
    "masuk": "2026-10-21"
   },
   {
+   "kode": "STK-VM7JT5",
+   "kategori": "aksesoris",
+   "jenis": "Case & tas",
+   "kondisi": "bekas",
+   "nama": "Hard Case Gitar Akustik",
+   "warna": "",
+   "deskripsi": "",
+   "harga": 700000,
+   "status": "tersedia",
+   "sisa": 1,
+   "foto": [
+    {
+     "src": "foto/stok/0c99061b03c1e1114f0f.webp",
+     "kecil": "foto/stok/0c99061b03c1e1114f0f-k.webp"
+    },
+    {
+     "src": "foto/stok/a7733dce8f77f28732db.webp",
+     "kecil": "foto/stok/a7733dce8f77f28732db-k.webp"
+    }
+   ],
+   "masuk": "2026-10-21"
+  },
+  {
    "kode": "STK-752B52",
    "kategori": "gitar",
    "jenis": "Akustik",
