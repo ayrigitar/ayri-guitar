@@ -354,8 +354,8 @@
     };
     /* struk untuk printer thermal Bluetooth (ESC/POS, kertas 58 mm = 32 huruf per baris). Hasil: daftar baris
        { t: teks ASCII, a: 'c' tengah / 'l' kiri, b: tebal, besar: huruf dua kali lipat }; dicetak oleh aplikasi Android */
-    L.strukThermal = function (s, lebar) {
-        var W = lebar || 32, t = C.toko, out = [], METODE = { tunai: 'Tunai', transfer: 'Transfer', qris: 'QRIS' };
+    function penyusunStruk(lebar) {
+        var W = lebar || 32, out = [];
         function ascii(x) {
             return String(x == null ? '' : x).normalize('NFKD').replace(/[̀-ͯ]/g, '').replace(/[–—]/g, '-').replace(/·/g, '-')
                 .replace(/[‘’]/g, "'").replace(/[“”]/g, '"').replace(/×/g, 'x').replace(/[^ -~]/g, '').replace(/\s+/g, ' ').trim();
@@ -382,11 +382,14 @@
             out.push(Object.assign({ t: akhir + new Array(Math.max(1, W - akhir.length - n.length) + 1).join(' ') + n, a: 'l' }, opsi));
         }
         function garis() { out.push({ t: new Array(W + 1).join('-'), a: 'l' }); }
+        function kop() { var t = C.toko; tengah(t.nama.toUpperCase(), { b: true, besar: true }); tengah(t.alamat); tengah('WA +' + t.wa); garis(); }
+        return { out: out, tengah: tengah, kiri: kiri, dua: dua, garis: garis, kop: kop, kosong: function () { out.push({ t: '', a: 'l' }); } };
+    }
+    L.strukThermal = function (s, lebar) {
+        var p = penyusunStruk(lebar), tengah = p.tengah, kiri = p.kiri, dua = p.dua, garis = p.garis, out = p.out, METODE = { tunai: 'Tunai', transfer: 'Transfer', qris: 'QRIS' };
         var d = s.waktu instanceof Date ? s.waktu : new Date(s.waktu), sisa = s.total - s.dibayar;
         var jam = L.tgl(L.tglStr(d)) + ' ' + ('0' + d.getHours()).slice(-2) + '.' + ('0' + d.getMinutes()).slice(-2);
-        tengah(t.nama.toUpperCase(), { b: true, besar: true });
-        tengah(t.alamat); tengah('WA +' + t.wa);
-        garis();
+        p.kop();
         (s.kode || []).forEach(function (k) { kiri(k); });
         kiri(jam);
         if (s.nama) dua('Pelanggan', s.nama);
@@ -407,6 +410,58 @@
         if ((s.nota || []).length) tengah('Nota online: ayrigitar.com (kode + 4 digit HP)');
         tengah('ayrigitar.com');
         return out;
+    };
+    /* tanda terima servis 58 mm untuk pelanggan, lalu (bila label) potongan kecil untuk ditempel/diikat di gitar
+       supaya tidak tertukar di antrian. Ketentuan diambil dari pengaturan toko (masa gratis titip, biaya, garansi) */
+    L.strukServis = function (s, opsi) {
+        opsi = opsi || {};
+        var p = penyusunStruk(opsi.lebar), h = L.hitung(s, s.items, s.bayar), gitar = L.namaGitar(s, 'Gitar');
+        p.kop();
+        p.tengah('TANDA TERIMA SERVIS', { b: true });
+        p.tengah(s.kode, { b: true, besar: true });
+        p.garis();
+        p.dua('Masuk', L.tgl(s.tgl_masuk));
+        p.dua('Pelanggan', s.nama);
+        p.dua('No. HP', '****' + L.hp4(s.hp));
+        p.kiri('Gitar: ' + gitar);
+        if (s.keluhan) p.kiri('Keluhan: ' + s.keluhan);
+        if (s.estimasi) p.dua('Perkiraan selesai', L.tgl(s.estimasi));
+        if ((s.items || []).length) {
+            p.garis();
+            s.items.forEach(function (i) {
+                var q = +i.qty || 1;
+                if (q > 1) { p.kiri(i.nama); p.dua('  ' + q + ' x ' + L.rupiah(i.harga), L.rupiah(q * i.harga)); }
+                else p.dua(i.nama, L.rupiah(i.harga));
+            });
+            p.garis();
+            if (h.diskon) p.dua('Diskon', '-' + L.rupiah(h.diskon));
+            p.dua('TOTAL', L.rupiah(h.total), { b: true });
+            if (h.dibayar) p.dua('Sudah dibayar', L.rupiah(h.dibayar));
+            p.dua('SISA', L.rupiah(h.sisa), { b: true });
+            if (h.kurangAwal) p.kiri('Dikerjakan setelah bayar awal ' + L.rupiah(h.wajibAwal) + ' (DP ' + C.dpJasaPersen + '% jasa + part lunas).');
+        }
+        p.garis();
+        p.kiri('Cek status & nota: ayrigitar.com/cek-servis.html, masukkan kode + 4 digit terakhir HP.');
+        p.kosong();
+        p.kiri('- Garansi dihitung sejak gitar diambil.');
+        p.kiri('- Gratis dititipkan ' + C.gratisTitipHari + ' hari setelah selesai, lalu ' + L.rupiah(C.biayaTitipPerHari) + '/hari.');
+        p.kiri('- Garansi hangus bila belum diambil ' + C.garansiHangusHari + ' hari setelah selesai.');
+        p.kiri('- Bawa tanda terima ini saat mengambil.');
+        p.garis();
+        p.tengah('Terima kasih!');
+        if (opsi.label) {
+            p.kosong(); p.kosong();
+            p.tengah('- - - - sobek di sini - - - -');
+            p.kosong();
+            p.tengah('LABEL GITAR', { b: true });
+            p.tengah(s.kode, { b: true, besar: true });
+            p.tengah(s.nama, { b: true });
+            p.tengah(gitar);
+            p.tengah('Masuk ' + L.tgl(s.tgl_masuk));
+            if (s.estimasi) p.tengah('Target ' + L.tgl(s.estimasi));
+            if (s.keluhan) p.kiri(String(s.keluhan).slice(0, 96));
+        }
+        return p.out;
     };
     /* kop dokumen (nota servis & surat perjanjian) */
     L.kopNota = function (judul, kode, cap) {

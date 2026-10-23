@@ -112,6 +112,18 @@
         var m = /AyriApp\/(\d+)\.(\d+)/.exec(navigator.userAgent);
         return !!m && adaAplikasi() && typeof window.AyriApp.postMessage === 'function' && (+m[1] > 1 || (+m[1] === 1 && +m[2] >= 3));
     }
+    /* cetak baris struk 58 mm (Layanan.strukThermal / strukServis): ke printer Bluetooth lewat aplikasi, atau lewat dialog cetak browser */
+    function cetakBaris(baris) {
+        if (bisaCetakBt()) { kirimKeAplikasi('cetakStruk', { baris: baris }); toast('Mencetak…'); return; }
+        var el = $('#struk-cetak'); if (!el) { el = document.createElement('div'); el.id = 'struk-cetak'; document.body.appendChild(el); }
+        el.innerHTML = '<div class="struk struk-pre">' + baris.map(function (x) {
+            return '<div class="' + (x.a === 'c' ? 'c' : '') + (x.besar ? ' besar' : '') + '">' + (x.b ? '<b>' + E(x.t) + '</b>' : E(x.t)) + '&nbsp;</div>';
+        }).join('') + '</div>';
+        document.body.classList.add('cetak-struk');
+        var lepas = function () { document.body.classList.remove('cetak-struk'); window.removeEventListener('afterprint', lepas); };
+        window.addEventListener('afterprint', lepas); window.print();
+        if (!window.AyriApp) setTimeout(lepas, 1500);
+    }
     /* hasil cetak dari aplikasi (berhasil, printer mati, belum dipasangkan, dll.) */
     window.addEventListener('ayri-cetak', function (e) { var d = e.detail || {}; if (d.pesan) toast(d.pesan, !d.ok); });
     /* gambar produk yang gagal dimuat dihapus (pengganti atribut onerror, supaya Content-Security-Policy bisa melarang skrip inline) */
@@ -1220,6 +1232,7 @@
                     .concat(s.status === 'selesai' ? [['pengingat', 'Ingatkan ambil', 'Barang belum diambil']] : [])
                     .map(function (w) { return '<button type="button" class="ly-wa__b" data-wa="' + w[0] + '"><span class="ly-wa__i" aria-hidden="true">' + WA_IKON + '</span><span class="ly-wa__t"><b>' + w[1] + '</b><small>' + w[2] + '</small></span></button>'; }).join('') + '</div>' +
                 '<div class="ly-btns" style="margin-top:8px"><a class="ly-btn" target="_blank" href="cek-servis.html?k=' + encodeURIComponent(s.kode) + '&amp;h=' + encodeURIComponent(L.hp4(s.hp)) + '">Lihat halaman pelanggan</a>' +
+                '<button type="button" class="ly-btn" id="sv-cetak">Cetak tanda terima + label</button>' +
                 '<a class="ly-btn" target="_blank" href="nota.html?k=' + encodeURIComponent(s.kode) + '&amp;h=' + encodeURIComponent(L.hp4(s.hp)) + '">Buka / cetak nota</a>' +
                 (owner() ? '<button type="button" class="ly-btn" id="sv-artikel">Jadikan artikel</button><button type="button" class="ly-btn ly-btn--del" id="sv-hapus">Hapus servis</button>' : '') + '</div>' +
                 '<p class="ly-hint" style="margin-top:8px">Halaman pelanggan ikut berubah ±1 menit setelah disimpan.</p></fieldset>') +
@@ -1247,7 +1260,12 @@
         $('#sv-simpan').addEventListener('click', simpanServis);
         pilihFoto($('#sv-foto'), function (tahap, files) { antriFoto(ed.antri, files, { tahap: tahap, tampil: true }, gambarFoto); });
         if (!ed.baru && owner()) { $('#sv-artikel').addEventListener('click', jadikanArtikel); $('#sv-hapus').addEventListener('click', hapusServis); }
+        if (!ed.baru) $('#sv-cetak').addEventListener('click', function () {
+            if (dirty) return toast('Simpan perubahan dulu, supaya yang tercetak sudah terbaru.', true);
+            cetakTandaTerima(ed.s);
+        });
     }
+    function cetakTandaTerima(s) { cetakBaris(L.strukServis(s, { label: true })); }
     function ubahField(e) {
         var t = e.target;
         if (t.dataset.f) {
@@ -1372,10 +1390,11 @@
         var fotoBaru = ed.antri.map(function (q) { return { hasil: q.hasil, tahap: q.tahap, tampil: q.tampil }; });
         prosesSimpan('servis', $('#sv-simpan'), teksUnggah(fotoBaru), function () { return A.simpanServis(rec, fotoBaru); }, function (row) {
             lepasAntri(ed.antri); ed = { baru: false, s: salin(row), antri: [] };
-            var pesan = baru ? 'Tersimpan. Kode servis: ' + row.kode + '. Kirim tanda terima lewat tombol WA.' : 'Tersimpan. Halaman pelanggan diperbarui ±1 menit lagi.';
+            var pesan = baru ? 'Tersimpan. Kode servis: ' + row.kode + '. Tanda terima bisa dicetak atau dikirim lewat WA.' : 'Tersimpan. Halaman pelanggan diperbarui ±1 menit lagi.';
             if (statusAwal === 'menunggu_dp' && row.status === 'antri') pesan += ' Status otomatis menjadi Antri.';
             toast(pesan);
-            if (baru) pindah('#servis/' + row.id); else gambarServis();
+            if (baru) { pindah('#servis/' + row.id); setTimeout(function () { if (confirm('Kode servis ' + row.kode + '. Cetak tanda terima + label gitar sekarang?')) cetakTandaTerima(row); }, 300); }
+            else gambarServis();
         }, function (r) { lepasAntri(ed.antri); ed = { baru: false, s: r, antri: [] }; gambarFoto(); });
     }
 
