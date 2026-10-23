@@ -123,3 +123,26 @@ test('struk thermal DP: sisa dan batas pelunasan', () => {
     assert.ok(b.some((t) => /^SISA +Rp2\.200\.000$/.test(t)));
     assert.ok(b.some((t) => /^Lunasi s\/d +22 Nov 2026$/.test(t)));
 });
+
+test('tanda terima servis 58 mm: kode besar, HP disamarkan, sisa bayar, ketentuan dari pengaturan, label gitar', () => {
+    const s = { kode: 'AYR-K7M2PQ', nama: 'Rian', hp: '0813 2222 3333', tgl_masuk: '2026-10-23', estimasi: '2026-10-27', gitar_jenis: 'Akustik', gitar_merk: 'Taylor 214ce',
+        keluhan: 'Action tinggi, fret buzz', items: [{ jenis: 'jasa', nama: 'Full Setup (Akustik)', harga: 350000, qty: 1 }, { jenis: 'part', nama: 'Senar', harga: 90000, qty: 2 }],
+        bayar: [{ jumlah: 355000 }] };
+    const b = L.strukServis(s, { label: true }), t = b.map((x) => x.t);
+    for (const x of b) assert.ok(x.t.length <= (x.besar ? 16 : 32) && /^[\x20-\x7e]*$/.test(x.t), x.t);
+    assert.equal(b.filter((x) => x.besar && x.t === 'AYR-K7M2PQ').length, 2);
+    assert.ok(t.some((x) => /^No\. HP +\*{4}3333$/.test(x)));
+    assert.ok(!t.join('\n').includes('0813'));
+    assert.ok(t.some((x) => /^SISA +Rp175\.000$/.test(x)));
+    assert.ok(t.some((x) => /^  2 x Rp90\.000 +Rp180\.000$/.test(x)));
+    assert.ok(t.join(' ').includes('Gratis dititipkan 14 hari'));
+    assert.ok(t.some((x) => x.includes('LABEL GITAR')));
+    const tanpa = L.strukServis(s).map((x) => x.t);
+    assert.ok(!tanpa.some((x) => x.includes('LABEL GITAR')));
+});
+
+test('tanda terima servis tanpa rincian biaya tetap bisa dicetak', () => {
+    const t = L.strukServis({ kode: 'AYR-1', nama: 'A', hp: '', tgl_masuk: '2026-10-23', items: [], bayar: [] }).map((x) => x.t);
+    assert.ok(t.includes('TANDA TERIMA SERVIS'));
+    assert.ok(!t.some((x) => x.startsWith('TOTAL')));
+});
