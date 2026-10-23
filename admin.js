@@ -107,6 +107,13 @@
         if (typeof a.postMessage === 'function') a.postMessage(JSON.stringify(Object.assign({ op: op }, d)));
         else if (op === 'bagikan') a.bagikan(d.nama, d.mime, d.b64, d.teks);
     }
+    /* cetak langsung ke printer thermal Bluetooth: aplikasi AYRI POS versi 1.3.0 ke atas */
+    function bisaCetakBt() {
+        var m = /AyriApp\/(\d+)\.(\d+)/.exec(navigator.userAgent);
+        return !!m && adaAplikasi() && typeof window.AyriApp.postMessage === 'function' && (+m[1] > 1 || (+m[1] === 1 && +m[2] >= 3));
+    }
+    /* hasil cetak dari aplikasi (berhasil, printer mati, belum dipasangkan, dll.) */
+    window.addEventListener('ayri-cetak', function (e) { var d = e.detail || {}; if (d.pesan) toast(d.pesan, !d.ok); });
     /* gambar produk yang gagal dimuat dihapus (pengganti atribut onerror, supaya Content-Security-Policy bisa melarang skrip inline) */
     document.addEventListener('error', function (e) { var t = e.target; if (t && t.tagName === 'IMG' && t.closest && t.closest('.ks-p__img')) t.remove(); }, true);
     function kodeBaris(x, lain) { return '<div class="ly-kode">' + E(x.kode) + (lain == null ? ' <small>· 4 digit HP: ' + E(L.hp4(x.hp)) + '</small>' : lain) + '</div>'; }
@@ -541,14 +548,17 @@
         var adaHp = L.hp4(s.hp).length === 4;
         m.innerHTML = '<div class="ly-modal__in ks-m" role="dialog" aria-modal="true" aria-label="Transaksi berhasil">' +
             '<div class="ks-m__ok">' + SVG.ok + '<b>' + (s.dp ? 'DP tersimpan!' : 'Transaksi berhasil!') + '</b><small>' + E(s.kode.join(', ')) + '</small></div>' + htmlStruk(s) +
-            '<div class="ly-btns ks-m__aksi"><button type="button" class="ly-btn" id="st-cetak">Cetak struk 58 mm</button><button type="button" class="ly-btn" id="st-pdf">Simpan PDF</button>' +
+            '<div class="ly-btns ks-m__aksi"><button type="button" class="ly-btn" id="st-cetak">Cetak struk 58 mm</button>' +
+            (bisaCetakBt() ? '<button type="button" class="ly-btn" id="st-printer">Ganti printer</button>' : '') + '<button type="button" class="ly-btn" id="st-pdf">Simpan PDF</button>' +
             (adaHp ? '<button type="button" class="ly-btn ly-btn--wa" id="st-wa">Kirim WA</button>' : '') +
             '<button type="button" class="ly-btn ly-btn--pri" id="st-baru">Transaksi baru</button></div>' +
             (s.dp && s.jual ? '<p class="ly-hint" style="margin:0;text-align:center"><a href="#jual/' + E(s.jual.id) + '">Buka transaksi DP</a> untuk pengingat & pelunasan.</p>' : '') + '</div>';
         m.hidden = false;
         m.onclick = function (e) {
             var b = e.target.closest('button'); if (!b) return;
-            if (b.id === 'st-cetak' || b.id === 'st-pdf') cetakStruk(s);
+            if (b.id === 'st-cetak' && bisaCetakBt()) { kirimKeAplikasi('cetakStruk', { baris: L.strukThermal(s) }); toast('Mencetak…'); }
+            else if (b.id === 'st-cetak' || b.id === 'st-pdf') cetakStruk(s);
+            else if (b.id === 'st-printer') kirimKeAplikasi('pilihPrinter', {});
             else if (b.id === 'st-wa') bukaWa(s.hp, teksStruk(s));
             else if (b.id === 'st-baru') m.hidden = true;
         };

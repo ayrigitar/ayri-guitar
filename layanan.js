@@ -352,6 +352,62 @@
         }
         if (k && h) muat(); else gerbang('');
     };
+    /* struk untuk printer thermal Bluetooth (ESC/POS, kertas 58 mm = 32 huruf per baris). Hasil: daftar baris
+       { t: teks ASCII, a: 'c' tengah / 'l' kiri, b: tebal, besar: huruf dua kali lipat }; dicetak oleh aplikasi Android */
+    L.strukThermal = function (s, lebar) {
+        var W = lebar || 32, t = C.toko, out = [], METODE = { tunai: 'Tunai', transfer: 'Transfer', qris: 'QRIS' };
+        function ascii(x) {
+            return String(x == null ? '' : x).normalize('NFKD').replace(/[̀-ͯ]/g, '').replace(/[–—]/g, '-').replace(/·/g, '-')
+                .replace(/[‘’]/g, "'").replace(/[“”]/g, '"').replace(/×/g, 'x').replace(/[^ -~]/g, '').replace(/\s+/g, ' ').trim();
+        }
+        function bungkus(x, w) {
+            var baris = [], kini = '';
+            ascii(x).split(' ').forEach(function (kata) {
+                while (kata.length > w) { if (kini) { baris.push(kini); kini = ''; } baris.push(kata.slice(0, w)); kata = kata.slice(w); }
+                if (!kata) return;
+                if (!kini) kini = kata; else if (kini.length + 1 + kata.length <= w) kini += ' ' + kata; else { baris.push(kini); kini = kata; }
+            });
+            if (kini) baris.push(kini);
+            return baris;
+        }
+        function tengah(x, opsi) { bungkus(x, opsi && opsi.besar ? Math.floor(W / 2) : W).forEach(function (b) { out.push(Object.assign({ t: b, a: 'c' }, opsi)); }); }
+        function kiri(x, opsi) { bungkus(x, W).forEach(function (b) { out.push(Object.assign({ t: b, a: 'l' }, opsi)); }); }
+        /* kiri ... kanan dalam satu baris; bila tidak muat, teks kiri dibungkus dan angka di baris terakhir */
+        function dua(k, n, opsi) {
+            var awal = /^ */.exec(k)[0]; k = ascii(k); n = ascii(n);
+            if (awal.length + k.length + 1 + n.length <= W) { out.push(Object.assign({ t: awal + k + new Array(W - awal.length - k.length - n.length + 1).join(' ') + n, a: 'l' }, opsi)); return; }
+            var b = bungkus(k, W), akhir = b.pop() || '';
+            b.forEach(function (x) { out.push(Object.assign({ t: x, a: 'l' }, opsi)); });
+            if (akhir.length + 1 + n.length > W) { out.push(Object.assign({ t: akhir, a: 'l' }, opsi)); akhir = ''; }
+            out.push(Object.assign({ t: akhir + new Array(Math.max(1, W - akhir.length - n.length) + 1).join(' ') + n, a: 'l' }, opsi));
+        }
+        function garis() { out.push({ t: new Array(W + 1).join('-'), a: 'l' }); }
+        var d = s.waktu instanceof Date ? s.waktu : new Date(s.waktu), sisa = s.total - s.dibayar;
+        var jam = L.tgl(L.tglStr(d)) + ' ' + ('0' + d.getHours()).slice(-2) + '.' + ('0' + d.getMinutes()).slice(-2);
+        tengah(t.nama.toUpperCase(), { b: true, besar: true });
+        tengah(t.alamat); tengah('WA +' + t.wa);
+        garis();
+        (s.kode || []).forEach(function (k) { kiri(k); });
+        kiri(jam);
+        if (s.nama) dua('Pelanggan', s.nama);
+        garis();
+        (s.items || []).forEach(function (i) { kiri(i.nama); dua('  ' + i.qty + ' x ' + L.rupiah(i.harga), L.rupiah(i.qty * i.harga)); });
+        garis();
+        dua('TOTAL', L.rupiah(s.total), { b: true });
+        if (s.dp) {
+            dua('DP (' + METODE[s.metode] + ')', L.rupiah(s.dibayar));
+            dua('SISA', L.rupiah(sisa), { b: true });
+            if (s.jual && s.jual.batas_lunas) dua('Lunasi s/d', L.tgl(s.jual.batas_lunas));
+        } else {
+            dua('Bayar (' + METODE[s.metode] + ')', L.rupiah(s.diterima != null ? s.diterima : s.total));
+            if (s.diterima != null) dua('Kembali', L.rupiah(s.diterima - s.total));
+        }
+        garis();
+        tengah('Terima kasih sudah berbelanja!');
+        if ((s.nota || []).length) tengah('Nota online: ayrigitar.com (kode + 4 digit HP)');
+        tengah('ayrigitar.com');
+        return out;
+    };
     /* kop dokumen (nota servis & surat perjanjian) */
     L.kopNota = function (judul, kode, cap) {
         return '<header class="nota-head"><div class="nota-toko"><b>Toko Gitar <span>AYRI</span></b><p>' + E(C.toko.alamat) + '</p><p>WhatsApp +' + E(C.toko.wa) + ' · ayrigitar.com</p></div>' +
