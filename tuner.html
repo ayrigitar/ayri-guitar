@@ -212,7 +212,7 @@
         var GATE = { r:0.004, s:0.002, t:0.001 };
         var $ = function (id) { return document.getElementById(id); };
         var A4 = 440, lockIdx = -1, inst = 'ak', tun = 's', cust = [40,45,50,55,59,64], target = null, lock = null;
-        var ctx, analyser, buf, timer, tickMs = 50, hist = [], rej = 0, lastHeard = 0, stream, cs = null, tuned = false, act = -1, done = {}, doneKey = '';
+        var ctx, analyser, buf, timer, tickMs = TICK_MS, hist = [], rej = 0, lastHeard = 0, stream, cs = null, tuned = false, act = -1, done = {}, doneKey = '';
         var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
         /* setelan senar custom dari penyimpanan: hanya dipakai bila bentuknya sah (1-12 nada MIDI), kalau rusak diabaikan */
         try { var sv = JSON.parse(localStorage.getItem('ayri-tuner-custom')); if (Array.isArray(sv) && sv.length && sv.length <= 12 && sv.every(function (m) { return typeof m === 'number' && m >= 12 && m <= 108; })) cust = sv; } catch (e) {}
@@ -372,7 +372,7 @@
                     if (hz <= 0) { if (t - lastT > 900) { s = null; raw = []; onset = 0; outl = 0; } return null; }
                     if (t - lastT > 900 && raw.length === 0) onset = 0;
                     lastT = t;
-                    if (!onset) onset = t + 160; if (t < onset) return null;
+                    if (!onset) onset = t + 80; if (t < onset) return null;
                     var x = 1200 * Math.log(hz / 440) / Math.LN2;
                     if (raw.length >= 3) { var m = med(raw); if (Math.abs(x - m) > 35) { if (++outl > 4) { raw = []; s = null; outl = 0; } else return s === null ? null : s; } else outl = 0; }
                     raw.push(x); if (raw.length > 7) raw.shift();
@@ -382,6 +382,16 @@
                     return s;
                 }
             };
+        }
+        /* pembacaan tiap 25 ms (HP lambat: dilonggarkan otomatis di jadwal()) */
+        var TICK_MS = 25;
+        /* jendela adaptif: 4096 sampel (±85 ms) cukup untuk nada gitar dan lebih cepat mengikuti petikan baru;
+           nada rendah (< 70 Hz, mis. bass) atau sinyal yang belum terbaca dicek ulang dengan jendela lebih panjang supaya tetap akurat */
+        function deteksi(buf, sr, gt, po) {
+            var r = pitch(buf.subarray(buf.length - 4096), sr, gt, po);
+            if ((r[0] > 0 && r[0] < 70) || (r[0] <= 0 && r[2] >= gt)) { var r2 = pitch(buf.subarray(buf.length - 8192), sr, gt, po); if (r2[0] > 0 || r[0] <= 0) r = r2; }
+            if (r[0] > 0 && r[0] < 50) { var rf = pitch(buf, sr, gt, po); if (rf[0] > 0) r = rf; }
+            return r;
         }
         /* ENGINE-END */
         var cents = function (hz, ref) { return 1200 * Math.log(hz / ref) / Math.LN2; };
@@ -421,7 +431,7 @@
         function jadwal() {
             timer = setTimeout(function () {
                 var t0 = performance.now();
-                try { tick(); } finally { var dt = performance.now() - t0; tickMs = dt > 20 ? 100 : dt > 10 ? 70 : 50; if (timer) jadwal(); }
+                try { tick(); } finally { var dt = performance.now() - t0; tickMs = dt > 20 ? 100 : dt > 10 ? 50 : TICK_MS; if (timer) jadwal(); }
             }, tickMs);
         }
         function tick() {
@@ -429,8 +439,8 @@
             var now = Date.now(), sr = ctx.sampleRate, gt = GATE[$('sens').value], po = pOpts(), r;
             if (inst === 'pn' && !po) r = pianoAuto(buf, sr, gt);
             else {
-                r = pitch(buf.subarray(buf.length - 8192), sr, gt, po);
-                if ((r[0] > 0 && r[0] < 100) || (r[0] <= 0 && r[2] >= gt && inst === 'pn')) { var rf = pitch(buf, sr, gt, po); if (rf[0] > 0) r = rf; }
+                r = deteksi(buf, sr, gt, po);
+                if (r[0] <= 0 && r[2] >= gt && inst === 'pn') { var rf = pitch(buf, sr, gt, po); if (rf[0] > 0) r = rf; }
             }
             var ok = r[0] > 0 && r[1] >= 0.6;
             if (ok) lastHeard = now;

@@ -17,6 +17,7 @@ Uji memuat kode ASLI dari repo (`layanan.js`, `admin.js`, `artikel-*.js`, `sw.js
 | `pin.test.js` | PIN, penguncian setelah salah 5 kali, token tidak di sessionStorage, cadangan terenkripsi |
 | `hitungan.test.js` | hitungan uang, DP, penitipan, pembatalan pesanan, format |
 | `artikel.test.js` | teks artikel aman dari penyisipan HTML, pembuat halaman menolak alamat berbahaya |
+| `tuner.test.js` | mesin tuner: akurasi (< 1 sen) dan kecepatan jarum muncul (< 200 ms) pada petikan senar buatan |
 | `chord.test.js` | mesin chord (bentuk jari, kecepatan) dan pembaca chart |
 | `halaman.test.js` | sintaks semua skrip, urutan `util.js`, tautan lokal, aturan keamanan halaman admin (CSP), sitemap, service worker, tidak ada token di repo |
 
