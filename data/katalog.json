@@ -2,6 +2,52 @@
  "toko": "Toko Gitar AYRI",
  "item": [
   {
+   "kode": "STK-YKXTRX",
+   "kategori": "aksesoris",
+   "jenis": "Senar",
+   "kondisi": "baru",
+   "nama": "Orphee NX35",
+   "warna": "Nylon Klasik Hard Tension",
+   "deskripsi": "",
+   "harga": 40000,
+   "status": "tersedia",
+   "sisa": null,
+   "foto": [
+    {
+     "src": "foto/stok/e22a056f7407d204c416.webp",
+     "kecil": "foto/stok/e22a056f7407d204c416-k.webp"
+    },
+    {
+     "src": "foto/stok/8361dffe85f763652e9f.webp",
+     "kecil": "foto/stok/8361dffe85f763652e9f-k.webp"
+    }
+   ],
+   "masuk": "2026-10-23"
+  },
+  {
+   "kode": "STK-VM7JT5",
+   "kategori": "aksesoris",
+   "jenis": "Case & tas",
+   "kondisi": "bekas",
+   "nama": "Hard Case Gitar Akustik",
+   "warna": "",
+   "deskripsi": "",
+   "harga": 700000,
+   "status": "tersedia",
+   "sisa": 1,
+   "foto": [
+    {
+     "src": "foto/stok/0c99061b03c1e1114f0f.webp",
+     "kecil": "foto/stok/0c99061b03c1e1114f0f-k.webp"
+    },
+    {
+     "src": "foto/stok/a7733dce8f77f28732db.webp",
+     "kecil": "foto/stok/a7733dce8f77f28732db-k.webp"
+    }
+   ],
+   "masuk": "2026-10-21"
+  },
+  {
    "kode": "STK-M62RNY",
    "kategori": "gitar",
    "jenis": "Elektrik",
@@ -158,29 +204,6 @@
     {
      "src": "foto/stok/c2b9361bb099ddc1e1eb.webp",
      "kecil": "foto/stok/c2b9361bb099ddc1e1eb-k.webp"
-    }
-   ],
-   "masuk": "2026-10-21"
-  },
-  {
-   "kode": "STK-VM7JT5",
-   "kategori": "aksesoris",
-   "jenis": "Case & tas",
-   "kondisi": "bekas",
-   "nama": "Hard Case Gitar Akustik",
-   "warna": "",
-   "deskripsi": "",
-   "harga": 700000,
-   "status": "tersedia",
-   "sisa": 1,
-   "foto": [
-    {
-     "src": "foto/stok/0c99061b03c1e1114f0f.webp",
-     "kecil": "foto/stok/0c99061b03c1e1114f0f-k.webp"
-    },
-    {
-     "src": "foto/stok/a7733dce8f77f28732db.webp",
-     "kecil": "foto/stok/a7733dce8f77f28732db-k.webp"
     }
    ],
    "masuk": "2026-10-21"
