@@ -192,8 +192,17 @@ Setelah situs diperbarui, buka admin di HP owner. Akan muncul layar **Pisahkan d
 - **Dua perangkat mengubah catatan yang sama**: perangkat yang menyimpan belakangan ditolak dengan pesan *Data ini baru diubah di perangkat lain*. Tekan **OK** untuk memuat data terbaru, lalu ulangi perubahan Anda. Tidak ada data yang tertimpa diam-diam. Penjualan, pengeluaran kas, dan jam masuk dari dua perangkat sekaligus selalu tersimpan dua-duanya.
 - **Tutup kasir** selalu menghitung ulang dari transaksi terbaru semua perangkat. Bila ada transaksi baru dari perangkat lain sejak layar dibuka, admin memberi tahu angka "seharusnya ada di laci" yang baru sebelum kasir ditutup.
 - **Aplikasi Android (APK)**: ada dua aplikasi. **AYRI Alat Latihan** bisa diunduh siapa saja di halaman Releases repo ayri-guitar (tombol di beranda, hanya tampil di HP Android). Versi baru: buat tag di `ayri-aplikasi`, lalu salin `ayri-alat-latihan.apk` ke rilis baru di `ayri-guitar` (tandai *latest*); tautan di beranda otomatis mengarah ke versi terbaru. **AYRI POS** hanya ada di Releases repo privat `ayri-aplikasi`. Pasang di HP owner dan tablet toko, lalu pasang token dan PIN seperti biasa. Saat memasang, Android akan meminta izin "instal dari sumber ini". Izinkan sekali untuk Chrome atau File Manager.
-- Fitur baru di situs langsung ada di aplikasi, jadi tidak perlu memasang ulang APK. APK baru hanya dibuat bila bagian aplikasinya berubah. Kunci tanda tangan APK ada di folder `Documentsyri-kunci-aplikasi` di PC. Simpan salinannya, karena tanpa kunci itu update APK tidak bisa dipasang.
+- Fitur baru di situs langsung ada di aplikasi, jadi tidak perlu memasang ulang APK. APK baru hanya dibuat bila bagian aplikasinya berubah. Kunci tanda tangan APK ada di folder `Documents\ayri-kunci-aplikasi` di PC. Simpan salinannya, karena tanpa kunci itu update APK tidak bisa dipasang.
 - Salinan data di perangkat terkunci PIN. Jangan **Pasang ulang token** selagi masih ada antrian, karena antrian ikut terhapus.
+
+## Cetak struk ke printer Bluetooth (aplikasi AYRI POS)
+
+- Butuh aplikasi **AYRI POS versi 1.3.0** ke atas. Printer thermal 58 mm Bluetooth biasa (mis. iWare) langsung bisa.
+- Sekali saja: nyalakan printer, lalu **pasangkan di menu Bluetooth HP/tablet** (Pengaturan → Bluetooth → pilih printer; PIN biasanya 0000 atau 1234).
+- Setelah transaksi, tekan **Cetak struk 58 mm**. Pertama kali, aplikasi minta izin *Perangkat sekitar* dan menanyakan printer mana yang dipakai. Setelah itu struk langsung keluar tanpa dialog.
+- **Ganti printer**: tombol di layar struk. Setelah memilih, printer mencetak tulisan "Printer siap dipakai".
+- Bila muncul "Printer tidak tersambung": pastikan printer menyala, kertas ada, dan tidak sedang tersambung ke HP lain.
+- **Simpan PDF** tetap lewat menu cetak Android. Di browser biasa (bukan aplikasi), Cetak struk juga memakai menu cetak.
 
 ## Keamanan & perawatan
 

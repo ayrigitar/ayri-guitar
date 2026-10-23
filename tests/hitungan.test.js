@@ -97,3 +97,29 @@ test('util.js: satu sumber untuk esc, rupiah, salin', () => {
     kopi.a[1].b = 3;
     assert.equal(asal.a[1].b, 2);
 });
+
+test('struk thermal 58 mm: semua baris muat 32 huruf, ASCII saja, angka rata kanan', () => {
+    const s = { waktu: new Date(2026, 9, 23, 14, 5), nama: 'Bambang Sétiawan', kode: ['JUL-ABC123', 'AYR-XYZ789'], nota: ['x'], metode: 'tunai', dp: false,
+        items: [{ nama: 'Gitar Akustik Yamaha F310 (Natural) – bekas, kondisi mulus sekali', qty: 1, harga: 1350000 }, { nama: "D'Addario EXL110", qty: 2, harga: 90000 }],
+        total: 1530000, dibayar: 1530000, diterima: 1600000 };
+    const b = L.strukThermal(s);
+    for (const x of b) {
+        assert.ok(x.t.length <= (x.besar ? 16 : 32), 'terlalu panjang: ' + x.t);
+        assert.match(x.t, /^[\x20-\x7e]*$/, 'bukan ASCII: ' + x.t);
+    }
+    const teks = b.map((x) => x.t);
+    assert.ok(teks.includes('  2 x Rp90.000'.padEnd(32 - 'Rp180.000'.length) + 'Rp180.000'));
+    assert.ok(teks.some((t) => /^TOTAL +Rp1\.530\.000$/.test(t) && t.length === 32));
+    assert.ok(teks.some((t) => /^Kembali +Rp70\.000$/.test(t)));
+    assert.ok(teks.includes('23 Okt 2026 14.05'));
+    assert.ok(teks.some((t) => t.includes('Bambang Setiawan')));
+    assert.ok(b.find((x) => x.besar).b);
+});
+
+test('struk thermal DP: sisa dan batas pelunasan', () => {
+    const b = L.strukThermal({ waktu: new Date(2026, 9, 23), kode: ['JUL-1'], nota: [], metode: 'transfer', dp: true, items: [{ nama: 'Gitar', qty: 1, harga: 3200000 }],
+        total: 3200000, dibayar: 1000000, jual: { batas_lunas: '2026-11-22' } }).map((x) => x.t);
+    assert.ok(b.some((t) => /^DP \(Transfer\) +Rp1\.000\.000$/.test(t)));
+    assert.ok(b.some((t) => /^SISA +Rp2\.200\.000$/.test(t)));
+    assert.ok(b.some((t) => /^Lunasi s\/d +22 Nov 2026$/.test(t)));
+});
