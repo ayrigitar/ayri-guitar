@@ -48,57 +48,6 @@
    "masuk": "2026-10-21"
   },
   {
-   "kode": "STK-M62RNY",
-   "kategori": "gitar",
-   "jenis": "Elektrik",
-   "kondisi": "bekas",
-   "nama": "Donner ST Standard Series",
-   "warna": "",
-   "deskripsi": "",
-   "harga": 900000,
-   "status": "tersedia",
-   "sisa": null,
-   "foto": [
-    {
-     "src": "foto/stok/6e0bb26958ff50b2b47b.webp",
-     "kecil": "foto/stok/6e0bb26958ff50b2b47b-k.webp"
-    },
-    {
-     "src": "foto/stok/97cf0d1764bc433e3c23.webp",
-     "kecil": "foto/stok/97cf0d1764bc433e3c23-k.webp"
-    },
-    {
-     "src": "foto/stok/43f6a9110561c7bcf22e.webp",
-     "kecil": "foto/stok/43f6a9110561c7bcf22e-k.webp"
-    },
-    {
-     "src": "foto/stok/c37e1c4d7c863fd9370d.webp",
-     "kecil": "foto/stok/c37e1c4d7c863fd9370d-k.webp"
-    },
-    {
-     "src": "foto/stok/4090ea9d5f673f922c8b.webp",
-     "kecil": "foto/stok/4090ea9d5f673f922c8b-k.webp"
-    },
-    {
-     "src": "foto/stok/e27b0425fae6ea2727a0.webp",
-     "kecil": "foto/stok/e27b0425fae6ea2727a0-k.webp"
-    },
-    {
-     "src": "foto/stok/df3f9f5e4ab4e32a1205.webp",
-     "kecil": "foto/stok/df3f9f5e4ab4e32a1205-k.webp"
-    },
-    {
-     "src": "foto/stok/684b5e2eda354aa61c5d.webp",
-     "kecil": "foto/stok/684b5e2eda354aa61c5d-k.webp"
-    },
-    {
-     "src": "foto/stok/d327a608512fb74e0986.webp",
-     "kecil": "foto/stok/d327a608512fb74e0986-k.webp"
-    }
-   ],
-   "masuk": "2026-10-21"
-  },
-  {
    "kode": "STK-6PQCDA",
    "kategori": "gitar",
    "jenis": "Akustik Elektrik",
