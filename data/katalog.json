@@ -2,6 +2,61 @@
  "toko": "Toko Gitar AYRI",
  "item": [
   {
+   "kode": "STK-TZEN4Z",
+   "kategori": "gitar",
+   "jenis": "Elektrik",
+   "kondisi": "bekas",
+   "nama": "DeArmond Guild M-70",
+   "warna": "Crimson Red",
+   "deskripsi": "",
+   "harga": 5000000,
+   "status": "tersedia",
+   "sisa": null,
+   "foto": [
+    {
+     "src": "foto/stok/2e91bef5db8cc988fd20.webp",
+     "kecil": "foto/stok/2e91bef5db8cc988fd20-k.webp"
+    },
+    {
+     "src": "foto/stok/5a9053dfb0f99cafe975.webp",
+     "kecil": "foto/stok/5a9053dfb0f99cafe975-k.webp"
+    },
+    {
+     "src": "foto/stok/c745669bc6ef455c9e29.webp",
+     "kecil": "foto/stok/c745669bc6ef455c9e29-k.webp"
+    },
+    {
+     "src": "foto/stok/4fbcb197baba69f1ef84.webp",
+     "kecil": "foto/stok/4fbcb197baba69f1ef84-k.webp"
+    },
+    {
+     "src": "foto/stok/9b84781e8831361ad29d.webp",
+     "kecil": "foto/stok/9b84781e8831361ad29d-k.webp"
+    },
+    {
+     "src": "foto/stok/6dc4266401d5b64ac86f.webp",
+     "kecil": "foto/stok/6dc4266401d5b64ac86f-k.webp"
+    },
+    {
+     "src": "foto/stok/12319c210d235346f2f3.webp",
+     "kecil": "foto/stok/12319c210d235346f2f3-k.webp"
+    },
+    {
+     "src": "foto/stok/182266b2703a16eaabf2.webp",
+     "kecil": "foto/stok/182266b2703a16eaabf2-k.webp"
+    },
+    {
+     "src": "foto/stok/f756a507a4c59264d411.webp",
+     "kecil": "foto/stok/f756a507a4c59264d411-k.webp"
+    },
+    {
+     "src": "foto/stok/5b14fe6602fd63fb2e70.webp",
+     "kecil": "foto/stok/5b14fe6602fd63fb2e70-k.webp"
+    }
+   ],
+   "masuk": "2026-10-25"
+  },
+  {
    "kode": "STK-U3X8N4",
    "kategori": "gitar",
    "jenis": "Elektrik",
@@ -210,56 +265,48 @@
    "masuk": "2026-10-25"
   },
   {
-   "kode": "STK-TZEN4Z",
+   "kode": "STK-6J8WP3",
    "kategori": "gitar",
-   "jenis": "Elektrik",
+   "jenis": "Bass",
    "kondisi": "bekas",
-   "nama": "DeArmond Guild M-70",
-   "warna": "Crimson Red",
-   "deskripsi": "",
-   "harga": 5000000,
+   "nama": "Yamaha RBX 100",
+   "warna": "Hitam",
+   "deskripsi": "Free softcase",
+   "harga": 1000000,
    "status": "tersedia",
    "sisa": null,
    "foto": [
     {
-     "src": "foto/stok/2e91bef5db8cc988fd20.webp",
-     "kecil": "foto/stok/2e91bef5db8cc988fd20-k.webp"
+     "src": "foto/stok/df93134f5c3336458552.webp",
+     "kecil": "foto/stok/df93134f5c3336458552-k.webp"
     },
     {
-     "src": "foto/stok/5a9053dfb0f99cafe975.webp",
-     "kecil": "foto/stok/5a9053dfb0f99cafe975-k.webp"
+     "src": "foto/stok/59d0ca5acae9228bb270.webp",
+     "kecil": "foto/stok/59d0ca5acae9228bb270-k.webp"
     },
     {
-     "src": "foto/stok/c745669bc6ef455c9e29.webp",
-     "kecil": "foto/stok/c745669bc6ef455c9e29-k.webp"
+     "src": "foto/stok/7410036dfd3b0fc6af6f.webp",
+     "kecil": "foto/stok/7410036dfd3b0fc6af6f-k.webp"
     },
     {
-     "src": "foto/stok/4fbcb197baba69f1ef84.webp",
-     "kecil": "foto/stok/4fbcb197baba69f1ef84-k.webp"
+     "src": "foto/stok/0d44ea863968333750bc.webp",
+     "kecil": "foto/stok/0d44ea863968333750bc-k.webp"
     },
     {
-     "src": "foto/stok/9b84781e8831361ad29d.webp",
-     "kecil": "foto/stok/9b84781e8831361ad29d-k.webp"
+     "src": "foto/stok/5d0a1967264d4b5b6131.webp",
+     "kecil": "foto/stok/5d0a1967264d4b5b6131-k.webp"
     },
     {
-     "src": "foto/stok/6dc4266401d5b64ac86f.webp",
-     "kecil": "foto/stok/6dc4266401d5b64ac86f-k.webp"
+     "src": "foto/stok/da5dab74addf00dc9b26.webp",
+     "kecil": "foto/stok/da5dab74addf00dc9b26-k.webp"
     },
     {
-     "src": "foto/stok/12319c210d235346f2f3.webp",
-     "kecil": "foto/stok/12319c210d235346f2f3-k.webp"
+     "src": "foto/stok/e268080c9b4cbe19e063.webp",
+     "kecil": "foto/stok/e268080c9b4cbe19e063-k.webp"
     },
     {
-     "src": "foto/stok/182266b2703a16eaabf2.webp",
-     "kecil": "foto/stok/182266b2703a16eaabf2-k.webp"
-    },
-    {
-     "src": "foto/stok/f756a507a4c59264d411.webp",
-     "kecil": "foto/stok/f756a507a4c59264d411-k.webp"
-    },
-    {
-     "src": "foto/stok/5b14fe6602fd63fb2e70.webp",
-     "kecil": "foto/stok/5b14fe6602fd63fb2e70-k.webp"
+     "src": "foto/stok/3445c9bc80e4fed739cb.webp",
+     "kecil": "foto/stok/3445c9bc80e4fed739cb-k.webp"
     }
    ],
    "masuk": "2026-10-25"
