@@ -2,6 +2,57 @@
  "toko": "Toko Gitar AYRI",
  "item": [
   {
+   "kode": "STK-Z24B4G",
+   "kategori": "gitar",
+   "jenis": "Bass",
+   "kondisi": "bekas",
+   "nama": "Rockwell",
+   "warna": "",
+   "deskripsi": "Bonus softcase",
+   "harga": 1200000,
+   "status": "tersedia",
+   "sisa": null,
+   "foto": [
+    {
+     "src": "foto/stok/f0004ee5c50e4f2bbb95.webp",
+     "kecil": "foto/stok/f0004ee5c50e4f2bbb95-k.webp"
+    },
+    {
+     "src": "foto/stok/fdc6e28fcf0d4749b39e.webp",
+     "kecil": "foto/stok/fdc6e28fcf0d4749b39e-k.webp"
+    },
+    {
+     "src": "foto/stok/1dc27977222c64cc1781.webp",
+     "kecil": "foto/stok/1dc27977222c64cc1781-k.webp"
+    },
+    {
+     "src": "foto/stok/6ecd4687cbf6e0b85c04.webp",
+     "kecil": "foto/stok/6ecd4687cbf6e0b85c04-k.webp"
+    },
+    {
+     "src": "foto/stok/cf235d90dc3a9247df26.webp",
+     "kecil": "foto/stok/cf235d90dc3a9247df26-k.webp"
+    },
+    {
+     "src": "foto/stok/0324a9093fd4cdbeec2c.webp",
+     "kecil": "foto/stok/0324a9093fd4cdbeec2c-k.webp"
+    },
+    {
+     "src": "foto/stok/11aa5b84c775b9ab04e6.webp",
+     "kecil": "foto/stok/11aa5b84c775b9ab04e6-k.webp"
+    },
+    {
+     "src": "foto/stok/f7bfbd26ed16c68b34e3.webp",
+     "kecil": "foto/stok/f7bfbd26ed16c68b34e3-k.webp"
+    },
+    {
+     "src": "foto/stok/6fbad29aa7e6b394d9f7.webp",
+     "kecil": "foto/stok/6fbad29aa7e6b394d9f7-k.webp"
+    }
+   ],
+   "masuk": "2026-10-25"
+  },
+  {
    "kode": "STK-UKV3BK",
    "kategori": "gitar",
    "jenis": "Bass",
@@ -112,52 +163,48 @@
    "masuk": "2026-10-25"
   },
   {
-   "kode": "STK-Z24B4G",
+   "kode": "STK-U3X8N4",
    "kategori": "gitar",
-   "jenis": "Bass",
+   "jenis": "Elektrik",
    "kondisi": "bekas",
-   "nama": "Rockwell",
+   "nama": "Samick SS51",
    "warna": "",
-   "deskripsi": "Bonus softcase",
+   "deskripsi": "Include tas dan senar",
    "harga": 1200000,
    "status": "tersedia",
    "sisa": null,
    "foto": [
     {
-     "src": "foto/stok/f0004ee5c50e4f2bbb95.webp",
-     "kecil": "foto/stok/f0004ee5c50e4f2bbb95-k.webp"
+     "src": "foto/stok/d3d0246ddfcf45063f46.webp",
+     "kecil": "foto/stok/d3d0246ddfcf45063f46-k.webp"
     },
     {
-     "src": "foto/stok/fdc6e28fcf0d4749b39e.webp",
-     "kecil": "foto/stok/fdc6e28fcf0d4749b39e-k.webp"
+     "src": "foto/stok/a2674762d2ba60b54991.webp",
+     "kecil": "foto/stok/a2674762d2ba60b54991-k.webp"
     },
     {
-     "src": "foto/stok/1dc27977222c64cc1781.webp",
-     "kecil": "foto/stok/1dc27977222c64cc1781-k.webp"
+     "src": "foto/stok/6a0fea42f062a37b1cac.webp",
+     "kecil": "foto/stok/6a0fea42f062a37b1cac-k.webp"
     },
     {
-     "src": "foto/stok/6ecd4687cbf6e0b85c04.webp",
-     "kecil": "foto/stok/6ecd4687cbf6e0b85c04-k.webp"
+     "src": "foto/stok/bec3ee7c9e469200cf19.webp",
+     "kecil": "foto/stok/bec3ee7c9e469200cf19-k.webp"
     },
     {
-     "src": "foto/stok/cf235d90dc3a9247df26.webp",
-     "kecil": "foto/stok/cf235d90dc3a9247df26-k.webp"
+     "src": "foto/stok/fd9860386c0cc7e4fda0.webp",
+     "kecil": "foto/stok/fd9860386c0cc7e4fda0-k.webp"
     },
     {
-     "src": "foto/stok/0324a9093fd4cdbeec2c.webp",
-     "kecil": "foto/stok/0324a9093fd4cdbeec2c-k.webp"
+     "src": "foto/stok/91b18234b02b7e4006ab.webp",
+     "kecil": "foto/stok/91b18234b02b7e4006ab-k.webp"
     },
     {
-     "src": "foto/stok/11aa5b84c775b9ab04e6.webp",
-     "kecil": "foto/stok/11aa5b84c775b9ab04e6-k.webp"
+     "src": "foto/stok/ba8ce2c1991be59e87e8.webp",
+     "kecil": "foto/stok/ba8ce2c1991be59e87e8-k.webp"
     },
     {
-     "src": "foto/stok/f7bfbd26ed16c68b34e3.webp",
-     "kecil": "foto/stok/f7bfbd26ed16c68b34e3-k.webp"
-    },
-    {
-     "src": "foto/stok/6fbad29aa7e6b394d9f7.webp",
-     "kecil": "foto/stok/6fbad29aa7e6b394d9f7-k.webp"
+     "src": "foto/stok/2d99cc104ee2f8d620b5.webp",
+     "kecil": "foto/stok/2d99cc104ee2f8d620b5-k.webp"
     }
    ],
    "masuk": "2026-10-25"
