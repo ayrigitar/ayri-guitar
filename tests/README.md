@@ -21,4 +21,6 @@ Uji memuat kode ASLI dari repo (`layanan.js`, `admin.js`, `artikel-*.js`, `sw.js
 | `chord.test.js` | mesin chord (bentuk jari, kecepatan) dan pembaca chart |
 | `halaman.test.js` | sintaks semua skrip, urutan `util.js`, tautan lokal, aturan keamanan halaman admin (CSP), sitemap, service worker, tidak ada token di repo |
 
+Untuk melihat admin asli dengan data contoh (tanpa menyentuh data toko): `node tests/server-admin.js 8783`, lalu buka http://127.0.0.1:8783/admin.html (token apa saja, mis. `tok-owner`, dan PIN 6 angka). Rinciannya ada di komentar atas `tests/server-admin.js`.
+
 Sebelum membuat PR yang mengubah halaman, jalankan juga `node scripts/perbarui-sitemap.js` supaya tanggal di `sitemap.xml` ikut diperbarui.
