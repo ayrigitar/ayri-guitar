@@ -121,3 +121,11 @@ test('service worker: data pelanggan dan unduhan tidak pernah disimpan di cache 
     for (const p of ['data/servis/abc.json', 'data/tebus/abc.json', 'data/jual/abc.json', 'data/foto/abc.bin', 'data/folder-baru/x.json', 'unduh/ayri-alat-latihan.apk', 'x/file.apk']) assert.ok(pola.test(p), p + ' harus dikecualikan');
     for (const p of ['index.html', 'data/katalog.json', 'foto/stok/abc.webp', 'layanan.js', 'admin.html']) assert.ok(!pola.test(p), p + ' boleh disimpan');
 });
+
+test('metronom: penanda ketukan tidak memicu hitung ulang tata letak, dan kotak LCD tidak ikut menentukan tinggi panggung', () => {
+    /* tanpa ini, tampilan digital berkedip tiap ketukan: ukuran angka (fitLcd) dan tinggi panggung (fit di app.js) saling mengubah */
+    const html = baca('metronom.html'), css = baca('app.css'), js = baca('app.js');
+    for (const id of ['acc', 'boxes', 'leds', 'flash']) assert.match(html, new RegExp('id="' + id + '"[^>]*data-fitskip'), id + ' harus ber-data-fitskip');
+    assert.match(js, /\[data-fitskip\]/);
+    assert.match(css, /\.metro-app \.lcd \{[^}]*position: absolute/);
+});

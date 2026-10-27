@@ -15,7 +15,7 @@
 
 /* Penyesuaian otomatis: tinggi layar nyata, jendela aplikasi (standalone), teks besar. */
 (function () {
-  var MIN = { tuner: ['#tm', 170], chords: ['#dia', 130], metronom: ['#vis', 90], transkrip: ['.tr-now', 90] };
+  var MIN = { tuner: ['#tm', 170], chords: ['#dia', 130], metronom: ['#vis', 120], transkrip: ['.tr-now', 90] };
   var page = (location.pathname.split('/').pop() || '').replace('.html', ''), raf = 0, busy = false;
   function setH() { var h = (window.visualViewport && window.visualViewport.height) || window.innerHeight; document.documentElement.style.setProperty('--app-h', Math.round(h) + 'px'); }
   if ((window.matchMedia && matchMedia('(display-mode: standalone)').matches) || navigator.standalone) document.documentElement.classList.add('standalone');
@@ -27,11 +27,13 @@
     setTimeout(function () { busy = false; }, 0);
   }
   function sched() { if (busy) return; cancelAnimationFrame(raf); raf = requestAnimationFrame(fit); }
+  /* ganti-ganti class tiap ketukan/denyut (penanda ketukan, lampu LED, dsb.) tidak mengubah ukuran apa pun: wadahnya diberi data-fitskip supaya tidak memicu hitung ulang tiap ketukan */
+  function hanyaTampilan(r) { return r.type === 'attributes' && r.attributeName === 'class' && r.target.closest && !!r.target.closest('[data-fitskip]'); }
   setH(); window.addEventListener('resize', function () { setH(); sched(); }); window.addEventListener('orientationchange', function () { setTimeout(function () { setH(); sched(); }, 250); });
   if (window.visualViewport) window.visualViewport.addEventListener('resize', function () { setH(); sched(); });
   document.addEventListener('DOMContentLoaded', function () {
     var m = document.querySelector('main.app'); if (!m) return; setH(); sched();
-    new MutationObserver(function (recs) { if (recs.every(function (r) { return r.target === m; })) return; sched(); }).observe(m, { subtree: true, attributes: true, attributeFilter: ['hidden', 'class'], childList: true });
+    new MutationObserver(function (recs) { if (recs.every(function (r) { return r.target === m || hanyaTampilan(r); })) return; sched(); }).observe(m, { subtree: true, attributes: true, attributeFilter: ['hidden', 'class'], childList: true });
     window.addEventListener('load', function () { setH(); sched(); });
   });
 })();

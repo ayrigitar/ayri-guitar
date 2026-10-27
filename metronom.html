@@ -158,14 +158,14 @@
                         <g id="rod"><line class="an-rod" x1="100" y1="262" x2="100" y2="40"/><g id="wt"><path class="an-w" d="M86 100 h28 l-4 -22 h-20 z"/></g></g>
                         <circle class="an-p" cx="100" cy="262" r="8"/>
                     </svg>
-                    <div class="lcd" data-v="digital"><div class="lcd-row"><div class="lcd-s" id="lcdp" aria-hidden="true"></div><div class="lcd-n" id="lcdn">100</div><div class="lcd-s" id="lcdx" aria-hidden="true"></div></div><div class="lcd-t" id="lcdt">Allegro</div><div class="boxes" id="boxes"></div></div>
-                    <div class="leds" data-v="led" id="leds"></div>
-                    <div class="flash" data-v="flash" id="flash">Layar berkedip tiap ketukan</div>
+                    <div class="lcd" data-v="digital"><div class="lcd-row"><div class="lcd-s" id="lcdp" aria-hidden="true"></div><div class="lcd-n" id="lcdn">100</div><div class="lcd-s" id="lcdx" aria-hidden="true"></div></div><div class="lcd-t" id="lcdt">Allegro</div><div class="boxes" id="boxes" data-fitskip></div></div>
+                    <div class="leds" data-v="led" id="leds" data-fitskip></div>
+                    <div class="flash" data-v="flash" id="flash" data-fitskip>Layar berkedip tiap ketukan</div>
                 </div>
                 <div class="mt-bpm"><button id="bm" type="button" class="rb" aria-label="Kurangi tempo">&minus;</button><div class="mt-num"><input id="bpm" type="number" inputmode="numeric" min="20" max="300" aria-label="Tempo dalam BPM"><span>BPM &middot; <i id="tn" style="font-style:normal"></i></span></div><button id="bp" type="button" class="rb" aria-label="Naikkan tempo">+</button></div>
                 <input id="bs" class="rg" type="range" min="20" max="300" aria-label="Geser tempo">
                 <div class="mt-act"><button id="go" type="button" class="t-btn">Mulai</button><button id="tap" type="button" class="t-btn alt">Tap tempo</button></div>
-                <div class="accr" id="acc"></div>
+                <div class="accr" id="acc" data-fitskip></div>
             </div>
             <div class="mtside">
                 <div class="mtset">

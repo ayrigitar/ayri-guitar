@@ -495,7 +495,8 @@ main.app.trans-app.fit1 #capohint { display: none; }
 .trans-app .tr-cd.kb { flex: 0 1 56%; height: auto; align-self: center; }
 .trans-app .tr-cd.kb .cd { width: 100%; height: auto; }
 /* Metronom digital: angka tetap di dalam kotak hitam; kiri/kanan = nama tempo sebelum dan sesudahnya */
-.metro-app .lcd { overflow: hidden; gap: 4px; padding: 8px 10px; }
+/* kotak LCD melayang di dalam panggung (tidak ikut menentukan tingginya): kalau ikut, ukuran angka (fitLcd) dan tinggi panggung (fit di app.js) saling mengubah dan layar berkedip tiap ketukan */
+.metro-app .lcd { position: absolute; inset: 0; width: auto !important; height: auto; margin: 10px; overflow: hidden; gap: 4px; padding: 8px 10px; }
 .metro-app .lcd-row { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: 8px; width: 100%; }
 .metro-app .lcd-n { font-size: clamp(2rem, min(8dvh, 15vw), 4rem); line-height: .9; }
 .metro-app .lcd-s {
