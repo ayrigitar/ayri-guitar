@@ -99,7 +99,7 @@ Barang yang **tersedia**, **ada harga jual**, dan dicentang **🌐 Tampilkan di 
 
 | Kejadian | Yang dilakukan di admin |
 |---|---|
-| Barang masuk | **Stok** → **+ Tambah stok** → pilih **Gitar/Aksesoris** dan **Baru/Bekas** → nama/merk, warna atau varian, deskripsi, **modal**, **harga jual**, jumlah, asal barang (opsional), foto → **Simpan** |
+| Barang masuk | **Stok** → **+ Tambah stok** → pilih **Gitar/Aksesoris** dan **Baru/Used** (untuk Used, pilih juga **Tingkat kondisi**: Mint, Excellent, Very Good, atau Good; tampil di poster, katalog, dan teks penawaran) → nama/merk, warna atau varian, deskripsi, **modal**, **harga jual**, jumlah, asal barang (opsional), foto → **Simpan** |
 | Mau menawarkan | **Tawarkan via WA** → pilih kontak, grup, atau status WhatsApp. Pesannya berisi link foto di katalog |
 | Ada yang dipesan | Status **Dipesan** → Simpan (di katalog tampil label "Dipesan") |
 | Terjual | Bagian **Penjualan** → jumlah, harga, catatan → **Catat penjualan** → **Simpan**. Stok berkurang otomatis; bila habis, status **Terjual** dan barang hilang dari katalog |

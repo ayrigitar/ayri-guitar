@@ -42,6 +42,18 @@ test('stok: modal hanya di repo owner, katalog publik tanpa modal', async () => 
     assert.equal(gh.json('ayri-guitar', 'data/katalog.json').item.length, 0);
 });
 
+test('stok: tingkat kondisi hanya tampil di katalog untuk gitar bekas, tanpa tingkat kunci tidak ditulis', async () => {
+    const { gh, A } = await mulai();
+    const baru = { id: undefined, kode: undefined, created_at: undefined };
+    await A.simpanStok(stokContoh(null, 1, Object.assign({ gitar_jenis: 'Bass', gitar_merk: 'Fender Aerodyne', kondisi: 'bekas', tingkat: 'excellent' }, baru)), []);
+    await A.simpanStok(stokContoh(null, 1, Object.assign({ gitar_merk: 'Yamaha Baru', kondisi: 'baru', tingkat: 'mint' }, baru)), []);
+    await A.simpanStok(stokContoh(null, 1, Object.assign({ gitar_merk: 'Tanpa Nilai', kondisi: 'bekas' }, baru)), []);
+    const item = gh.json('ayri-guitar', 'data/katalog.json').item, per = (n) => item.find((x) => x.nama === n);
+    assert.equal(per('Fender Aerodyne').tingkat, 'Excellent');
+    assert.equal('tingkat' in per('Yamaha Baru'), false, 'gitar baru tidak punya tingkat');
+    assert.equal('tingkat' in per('Tanpa Nilai'), false, 'belum dinilai: kunci tidak ditulis');
+});
+
 test('jual: lunas mengurangi stok, DP menahan, batal mengembalikan, hapus mengembalikan', async () => {
     const { gh, A } = await mulai({ data: { 'stok.json': JSON.stringify([stokContoh('s1', 2), stokContoh('s2', 1)]) } });
     const stok = () => gh.json('ayri-toko-data', 'stok.json');

@@ -357,7 +357,7 @@
     };
     function siapBayar(s) { return s.status === 'selesai' && L.hitung(s, s.items, s.bayar).sisa > 0; }
     function bisaDijual(s) { return +s.jumlah > 0 && s.status !== 'ditarik'; }
-    function namaBarang(s) { return (s.kategori === 'aksesoris' ? '' : 'Gitar ' + L.jenisStok(s) + ' ') + L.namaStok(s) + (s.warna ? ' (' + s.warna + ')' : '') + (s.kondisi === 'bekas' ? ' – bekas' : ''); }
+    function namaBarang(s) { return L.judulStok(s) + (s.warna ? ' (' + s.warna + ')' : '') + (s.kondisi === 'bekas' ? ' – Used' + (L.tingkatStok(s) ? ' ' + L.tingkatStok(s) : '') : ''); }
     function totalKr() { return kr.items.reduce(function (t, i) { return t + i.harga * i.qty; }, 0); }
     function nKr() { return kr.items.reduce(function (t, i) { return t + i.qty; }, 0); }
     function kasir() {
@@ -401,7 +401,7 @@
         var stok = cache.stok.filter(bisaDijual), sv = cache.servis.filter(siapBayar), c = cariKs.trim().toLowerCase();
         var n = { semua: stok.length, baru: 0, bekas: 0, aksesoris: 0, servis: sv.length };
         stok.forEach(function (s) { n[kelStok(s)]++; });
-        $('#ks-filter').innerHTML = [['semua', 'Semua barang'], ['baru', 'Gitar baru'], ['bekas', 'Gitar seken'], ['aksesoris', 'Aksesoris'], ['servis', '🔧 Servis siap bayar']].map(function (x) {
+        $('#ks-filter').innerHTML = [['semua', 'Semua barang'], ['baru', 'Gitar baru'], ['bekas', 'Gitar used'], ['aksesoris', 'Aksesoris'], ['servis', '🔧 Servis siap bayar']].map(function (x) {
             return '<button type="button" data-f="' + x[0] + '" aria-pressed="' + (filterKs === x[0]) + '">' + x[1] + '<b>' + n[x[0]] + '</b></button>';
         }).join('');
         function cocok(teks) { return !c || teks.toLowerCase().indexOf(c) > -1; }
@@ -420,7 +420,7 @@
             var habis = di && di.qty >= +s.jumlah, tanpaHarga = !(+s.harga_jual > 0);
             return '<button type="button" class="ks-p' + (habis ? ' habis' : '') + '" data-tambah="stok:' + E(s.id) + '"' + (di ? ' aria-pressed="true"' : '') + (habis && +s.jumlah === 1 ? ' title="Ketuk lagi untuk membatalkan"' : '') + '>' +
                 '<span class="ks-p__img">' + (f ? '<img src="' + E(f.thumb_path || f.path) + '" alt="" loading="lazy">' : '') + SVG.gitar + '</span>' +
-                '<span class="ks-p__top"><span class="ks-tag ks-tag--' + kel + '">' + (kel === 'aksesoris' ? E(s.sub || 'Aksesoris') : kel === 'baru' ? 'Baru' : 'Seken') + '</span><span class="ks-p__stok' + (+s.jumlah <= 1 ? ' sedikit' : '') + '">Stok ' + s.jumlah + (s.status === 'dipesan' ? ' · ada DP' : '') + '</span></span>' +
+                '<span class="ks-p__top"><span class="ks-tag ks-tag--' + kel + '">' + (kel === 'aksesoris' ? E(s.sub || 'Aksesoris') : kel === 'baru' ? 'Baru' : 'Used') + '</span><span class="ks-p__stok' + (+s.jumlah <= 1 ? ' sedikit' : '') + '">Stok ' + s.jumlah + (s.status === 'dipesan' ? ' · ada DP' : '') + '</span></span>' +
                 '<b class="ks-p__nama">' + E(kel === 'aksesoris' ? L.namaStok(s) : L.jenisStok(s) + ' · ' + L.namaStok(s)) + '</b>' +
                 '<small>' + E([s.warna, s.no_seri ? 'SN ' + s.no_seri : ''].filter(Boolean).join(' · ') || s.kode) + '</small>' +
                 '<span class="ks-p__harga">' + (tanpaHarga ? '<span class="ly-warn">Harga belum diisi</span>' : L.rupiah(s.harga_jual)) + '</span>' + (di ? '<span class="ks-p__n">' + di.qty + '</span>' : '') + '</button>';
@@ -1671,7 +1671,7 @@
     function jualBaru(stokId) { ambilCatatan('stok', stokId, function () { return null; }, formJual); }
     function formJual(s) {
         if (!(+s.jumlah > 0) || s.status === 'ditarik') { app.innerHTML = '<p class="ly-kosong">Stok ' + E(s.kode) + ' sedang tidak tersedia. <a href="#stok/' + E(s.id) + '">Kembali</a></p>'; return; }
-        var h = L.hariIni(), nama = (s.kategori === 'aksesoris' ? '' : 'Gitar ' + L.jenisStok(s) + ' ') + L.namaStok(s) + (s.warna ? ' (' + s.warna + ')' : '') + (s.kondisi === 'bekas' ? ' – bekas' : '');
+        var h = L.hariIni(), nama = L.judulStok(s) + (s.warna ? ' (' + s.warna + ')' : '') + (s.kondisi === 'bekas' ? ' – Used' + (L.tingkatStok(s) ? ' ' + L.tingkatStok(s) : '') : '');
         jl = { baru: true, stok: s, j: { nama: '', hp: '', tgl: h, items: [{ stok_id: s.id, kode: s.kode, nama: nama, qty: 1, harga: +s.harga_jual || 0 }], bayar: [], catatan: '', batas_lunas: L.tambahHari(h, C.jual.batasHari) } };
         app.innerHTML = '<section id="jl" class="ly-f"><div class="ly-head"><a class="ly-back" href="#stok/' + E(s.id) + '">‹ ' + E(s.kode) + '</a></div>' +
             '<div class="ly-head"><h1>Jual / pesan dengan DP</h1></div>' +
@@ -1828,7 +1828,7 @@
     function kelStok(s) { return s.kategori === 'aksesoris' ? 'aksesoris' : s.kondisi; }
     function chipStok(s) {
         var aks = s.kategori === 'aksesoris';
-        return '<span class="st-chip ' + (aks ? 'st-menunggu_dp' : s.kondisi === 'baru' ? 'st-antri' : 'st-dikerjakan') + '">' + (aks ? 'Aksesoris' : L.KONDISI[s.kondisi]) + ' · ' + L.STATUS_STOK[s.status] + '</span>';
+        return '<span class="st-chip ' + (aks ? 'st-menunggu_dp' : s.kondisi === 'baru' ? 'st-antri' : 'st-dikerjakan') + '">' + (aks ? 'Aksesoris' : L.KONDISI[s.kondisi] + (L.tingkatStok(s) ? ' ' + L.tingkatStok(s) : '')) + ' · ' + L.STATUS_STOK[s.status] + '</span>';
     }
     function gambarDaftarStok() {
         if (!$('#list')) return;
@@ -1849,7 +1849,7 @@
             '<div><span>Tampil di katalog website</span><span>' + diWeb + ' barang</span></div>' +
             (owner() ? '<div><span>Modal di stok</span><span>' + L.rupiah(modal) + '</span></div><div><span>Perkiraan untung bila semua terjual' + (tanpaHarga ? '<br><small class="ly-warn">' + tanpaHarga + ' barang belum ada harga jual</small>' : '') + '</span><span>' + L.rupiah(potensi) + '</span></div>' : '') +
             '<div class="ly-total"><span>Terjual bulan ini</span><span>' + terjualUnit + ' unit' + (owner() ? ' · untung ' + L.rupiah(untung) : '') + '</span></div>';
-        $('#filter').innerHTML = [['tersedia', 'Tersedia'], ['baru', 'Gitar baru'], ['bekas', 'Gitar bekas'], ['aksesoris', 'Aksesoris'], ['terjual', 'Terjual'], ['semua', 'Semua']].map(function (x) {
+        $('#filter').innerHTML = [['tersedia', 'Tersedia'], ['baru', 'Gitar baru'], ['bekas', 'Gitar used'], ['aksesoris', 'Aksesoris'], ['terjual', 'Terjual'], ['semua', 'Semua']].map(function (x) {
             return '<button type="button" data-f="' + x[0] + '" aria-pressed="' + (filterSk === x[0]) + '">' + x[1] + '<b>' + (x[0] === 'semua' ? rows.length : n[x[0]] || 0) + '</b></button>';
         }).join('');
         var hasil = rows.filter(function (s) {
@@ -1867,8 +1867,8 @@
         }).join('') : '<p class="ly-kosong">' + (rows.length ? 'Tidak ada di kategori ini.' : 'Belum ada stok. Tekan “+ Tambah stok”.') + '</p>';
     }
     function teksTawar(s) {
-        var judul = s.kategori === 'aksesoris' ? L.namaStok(s) : 'Gitar ' + L.jenisStok(s) + ' ' + L.namaStok(s);
-        return judul + (s.warna ? ' (' + s.warna + ')' : '') + ' – ' + (s.kondisi === 'bekas' ? 'bekas' : 'BARU') + '\n' +
+        var judul = L.judulStok(s);
+        return judul + (s.warna ? ' (' + s.warna + ')' : '') + ' – ' + (s.kondisi === 'bekas' ? 'USED' + (L.tingkatStok(s) ? ' (' + L.tingkatStok(s) + ')' : '') : 'BARU') + '\n' +
             (s.deskripsi ? s.deskripsi + '\n' : '') + 'Harga: ' + L.rupiah(s.harga_jual) + '\n\nTersedia di ' + C.toko.nama + ', ' + C.toko.alamat +
             (L.diKatalog(s) ? '\nLihat foto: ' + L.situs() + 'katalog.html#' + s.kode : '') +
             '\nTanya / pesan: https://wa.me/' + C.toko.wa;
@@ -1894,14 +1894,14 @@
     function rect(c, x, y, w, h, r) { c.beginPath(); c.moveTo(x + r, y); c.arcTo(x + w, y, x + w, y + h, r); c.arcTo(x + w, y + h, x, y + h, r); c.arcTo(x, y + h, x, y, r); c.arcTo(x, y, x + w, y, r); c.closePath(); }
     function buatPoster(s) {
         var fp = (s.foto || []).filter(function (f) { return f.repo === 'publik'; })[0];
-        var judul = s.kategori === 'aksesoris' ? L.namaStok(s) : 'Gitar ' + L.jenisStok(s) + ' ' + L.namaStok(s);
+        var judul = L.judulStok(s);
         var fonts = Promise.all(['700 70px Fraunces', '700 40px "Plus Jakarta Sans"'].map(function (f) { return document.fonts && document.fonts.load ? document.fonts.load(f) : null; }));
         fonts = Promise.race([fonts, new Promise(function (ok) { setTimeout(ok, 1200); })]).catch(function () {});
         var foto = fp ? muatFotoPoster(s, fp) : Promise.resolve(null);
         return Promise.all([foto, muatGambar(L.situs() + 'logo/ayri-logo-putih.svg').catch(function () { return null; }), fonts]).then(function (r) {
             var cv = document.createElement('canvas'), W = 1080, H = 1920, EMAS = '#E0A95C', SERIF = 'Fraunces, Georgia, serif', SANS = '"Plus Jakarta Sans", system-ui, sans-serif';
             cv.width = W; cv.height = H;
-            var c = cv.getContext('2d'), g = c.createLinearGradient(0, 0, 0, H), wa = '0' + String(C.toko.wa).slice(2), jenis = s.kategori === 'aksesoris' ? (s.sub || 'Aksesoris') : 'Gitar ' + L.jenisStok(s);
+            var c = cv.getContext('2d'), g = c.createLinearGradient(0, 0, 0, H), wa = '0' + String(C.toko.wa).slice(2), jenis = s.kategori === 'aksesoris' ? (s.sub || 'Aksesoris') : L.tingkatStok(s);
             wa = wa.replace(/^(\d{4})(\d{4})(\d+)$/, '$1-$2-$3'); c.textBaseline = 'alphabetic';
             g.addColorStop(0, '#1d1812'); g.addColorStop(1, '#0d0a07'); c.fillStyle = g; c.fillRect(0, 0, W, H);
             var gl = c.createRadialGradient(W / 2, 620, 60, W / 2, 620, 760); gl.addColorStop(0, 'rgba(224,169,92,.20)'); gl.addColorStop(1, 'rgba(224,169,92,0)'); c.fillStyle = gl; c.fillRect(0, 0, W, 1300);
@@ -1914,10 +1914,10 @@
                 rect(c, x0, y0, w, h, 40); c.strokeStyle = 'rgba(224,169,92,.55)'; c.lineWidth = 3; c.stroke();
             }
             else if (r[1]) { var lw = 240, lh = lw * r[1].height / r[1].width; c.globalAlpha = .25; c.drawImage(r[1], fx + (fw - lw) / 2, fy + (fh - lh) / 2, lw, lh); c.globalAlpha = 1; }
-            /* lencana: kondisi (isi emas) + jenis (garis emas), logo di kanan */
-            var kond = s.kondisi === 'bekas' ? 'BEKAS' : 'BARU', cy = 1040; c.font = '800 28px ' + SANS;
+            /* lencana: kondisi (isi emas) + tingkat kondisi gitar bekas / kategori aksesoris (garis emas). Jenis gitar tidak diulang: sudah ada di judul */
+            var kond = s.kondisi === 'bekas' ? 'USED' : 'BARU', cy = 1040; c.font = '800 28px ' + SANS;
             var bw = c.measureText(kond).width + 52; rect(c, 60, cy, bw, 56, 28); c.fillStyle = EMAS; c.fill(); c.fillStyle = '#1a1510'; c.fillText(kond, 86, cy + 38);
-            c.font = '700 28px ' + SANS; var jw = c.measureText(jenis.toUpperCase()).width + 52; rect(c, 60 + bw + 12, cy, jw, 56, 28); c.strokeStyle = 'rgba(224,169,92,.7)'; c.lineWidth = 2; c.stroke(); c.fillStyle = EMAS; c.fillText(jenis.toUpperCase(), 86 + bw + 12, cy + 38);
+            if (jenis) { c.font = '700 28px ' + SANS; var jw = c.measureText(jenis.toUpperCase()).width + 52; rect(c, 60 + bw + 12, cy, jw, 56, 28); c.strokeStyle = 'rgba(224,169,92,.7)'; c.lineWidth = 2; c.stroke(); c.fillStyle = EMAS; c.fillText(jenis.toUpperCase(), 86 + bw + 12, cy + 38); }
             /* nama + warna */
             c.fillStyle = '#fff'; c.font = '700 66px ' + SERIF;
             var y = 1176; barisTeks(c, judul, 960, 2).forEach(function (b) { c.fillText(b, 60, y); y += 76; });
@@ -1955,7 +1955,7 @@
         }).catch(function (e) { if (e && e.name !== 'AbortError') toast('Gagal membagikan: ' + (e.message || e), true); }).then(lepas);
     }
     function stokKosong() {
-        return { kategori: 'gitar', kondisi: 'bekas', gitar_jenis: C.jenisGitar[0], gitar_merk: '', sub: C.kategoriAksesoris[0], nama: '', warna: '', no_seri: '', deskripsi: '', jumlah: 1, harga_beli: 0, harga_jual: 0, tgl_masuk: L.hariIni(), asal: '', status: 'tersedia', tampil: true, penjualan: [], foto: [], catatan_admin: '' };
+        return { kategori: 'gitar', kondisi: 'bekas', tingkat: '', gitar_jenis: C.jenisGitar[0], gitar_merk: '', sub: C.kategoriAksesoris[0], nama: '', warna: '', no_seri: '', deskripsi: '', jumlah: 1, harga_beli: 0, harga_jual: 0, tgl_masuk: L.hariIni(), asal: '', status: 'tersedia', tampil: true, penjualan: [], foto: [], catatan_admin: '' };
     }
     function bukaStok(id) { ambilCatatan('stok', id, stokKosong, function (s) { s.foto = s.foto || []; s.penjualan = s.penjualan || []; sk = { baru: !id, s: s, antri: [] }; gambarStok(); }); }
     function gambarStok() {
@@ -1970,6 +1970,8 @@
             '<fieldset class="ly-card ly-f"><legend>Barang</legend>' +
             '<div class="ly-status" id="sk-kategori">' + [['gitar', 'Gitar'], ['aksesoris', 'Aksesoris']].map(function (k) { return '<button type="button" data-kategori="' + k[0] + '" aria-pressed="' + (s.kategori === k[0]) + '">' + k[1] + '</button>'; }).join('') + '</div>' +
             '<div class="ly-status" id="sk-kondisi">' + ['baru', 'bekas'].map(function (k) { return '<button type="button" data-kondisi="' + k + '" aria-pressed="' + (s.kondisi === k) + '">' + L.KONDISI[k] + '</button>'; }).join('') + '</div>' +
+            '<div id="sk-tingkat" class="ly-f"' + (!aks && s.kondisi === 'bekas' ? '' : ' hidden') + '><label>Tingkat kondisi (tampil di poster &amp; katalog)<select data-s="tingkat">' + opsi([['', 'Belum dinilai']].concat(C.tingkatKondisi.map(function (t) { return [t[0], t[1]]; })), s.tingkat || '') + '</select></label>' +
+            '<p class="ly-hint" style="margin:0">' + C.tingkatKondisi.map(function (t) { return '<b>' + E(t[1]) + '</b>: ' + E(t[2]); }).join('. ') + '. Cacat yang ada tetap ditulis di deskripsi.</p></div>' +
             '<div id="sk-gitar"' + (aks ? ' hidden' : '') + ' class="ly-f"><div class="ly-row2"><label>Jenis gitar<select data-s="gitar_jenis">' + opsi(jenis, s.gitar_jenis) + '</select></label><label>Merk / model<input data-s="gitar_merk" placeholder="mis. Yamaha F310"></label></div>' +
             '<label>Nomor seri (tidak tampil di website)<input data-s="no_seri" autocapitalize="characters"></label></div>' +
             '<div id="sk-aks"' + (aks ? '' : ' hidden') + ' class="ly-f"><div class="ly-row2"><label>Kategori<select data-s="sub">' + opsi(subs, s.sub) + '</select></label><label>Nama produk<input data-s="nama" placeholder="mis. Senar Elixir Nanoweb 11-52"></label></div></div>' +
@@ -1993,6 +1995,7 @@
         $('#sk-tampil').checked = s.tampil !== false;
         gambarSumStok(); gambarStatusStok(); gambarJual(); gambarFotoStok(); setDirty(false);
         var el = $('#sk');
+        function tampilTingkat() { $('#sk-tingkat').hidden = !(s.kategori !== 'aksesoris' && s.kondisi === 'bekas'); }
         function ubah(e) {
             var t = e.target, k = t.dataset.s;
             if (t.id === 'sk-tampil') { s.tampil = t.checked; setDirty(true); return; }
@@ -2003,12 +2006,12 @@
         el.addEventListener('input', ubah); el.addEventListener('change', ubah);
         el.addEventListener('click', function (e) {
             var b = e.target.closest('button'); if (!b) return; var d = b.dataset;
-            if (d.kondisi) { s.kondisi = d.kondisi; $$('#sk-kondisi button').forEach(function (x) { x.setAttribute('aria-pressed', x.dataset.kondisi === s.kondisi); }); setDirty(true); }
+            if (d.kondisi) { s.kondisi = d.kondisi; $$('#sk-kondisi button').forEach(function (x) { x.setAttribute('aria-pressed', x.dataset.kondisi === s.kondisi); }); tampilTingkat(); setDirty(true); }
             else if (d.kategori) {
                 s.kategori = d.kategori; var aks = s.kategori === 'aksesoris';
                 if (aks && sk.baru) { s.kondisi = 'baru'; $$('#sk-kondisi button').forEach(function (x) { x.setAttribute('aria-pressed', x.dataset.kondisi === 'baru'); }); }
                 $$('#sk-kategori button').forEach(function (x) { x.setAttribute('aria-pressed', x.dataset.kategori === s.kategori); });
-                $('#sk-gitar').hidden = aks; $('#sk-aks').hidden = !aks; $('#sk-lbl-warna').textContent = aks ? 'Varian (ukuran / warna)' : 'Warna'; setDirty(true);
+                $('#sk-gitar').hidden = aks; $('#sk-aks').hidden = !aks; tampilTingkat(); $('#sk-lbl-warna').textContent = aks ? 'Varian (ukuran / warna)' : 'Warna'; setDirty(true);
             }
             else if (d.sts) { s.status = d.sts; gambarStatusStok(); setDirty(true); }
             else if (d.deljual != null) { var p = s.penjualan[+d.deljual]; if (confirm('Hapus catatan penjualan ' + p.qty + ' unit tanggal ' + L.tgl(p.tgl) + '? Jumlah stok dikembalikan.')) { s.jumlah = (+s.jumlah || 0) + p.qty; s.penjualan.splice(+d.deljual, 1); if (s.status === 'terjual') s.status = 'tersedia'; $('[data-s="jumlah"]').value = s.jumlah; gambarJual(); gambarSumStok(); gambarStatusStok(); setDirty(true); } }

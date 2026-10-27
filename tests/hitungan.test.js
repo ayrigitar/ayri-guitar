@@ -146,3 +146,18 @@ test('tanda terima servis tanpa rincian biaya tetap bisa dicetak', () => {
     assert.ok(t.includes('TANDA TERIMA SERVIS'));
     assert.ok(!t.some((x) => x.startsWith('TOTAL')));
 });
+
+test('nama barang: bass dan ukulele tanpa kata Gitar, tingkat kondisi hanya untuk gitar bekas', () => {
+    const g = (j, m, x) => Object.assign({ kategori: 'gitar', gitar_jenis: j, gitar_merk: m, kondisi: 'bekas' }, x || {});
+    assert.equal(L.judulStok(g('Bass', 'Fender Aerodyne')), 'Bass Fender Aerodyne');
+    assert.equal(L.judulStok(g('Ukulele', 'Kala KA-C')), 'Ukulele Kala KA-C');
+    assert.equal(L.judulStok(g('Akustik', 'Yamaha F310')), 'Gitar Akustik Yamaha F310');
+    assert.equal(L.judulStok(g('Lainnya', 'Cigar Box')), 'Gitar Cigar Box');
+    assert.equal(L.judulStok({ kategori: 'aksesoris', nama: 'Senar Elixir' }), 'Senar Elixir');
+    assert.equal(L.tingkatStok(g('Bass', 'X', { tingkat: 'excellent' })), 'Excellent');
+    assert.equal(L.tingkatStok(g('Bass', 'X', { tingkat: 'very_good' })), 'Very Good');
+    assert.equal(L.tingkatStok(g('Bass', 'X', { kondisi: 'baru', tingkat: 'mint' })), '', 'gitar baru tidak punya tingkat');
+    assert.equal(L.tingkatStok({ kategori: 'aksesoris', kondisi: 'bekas', tingkat: 'mint' }), '');
+    assert.equal(L.tingkatStok(g('Bass', 'X', { tingkat: 'ngawur' })), '', 'nilai tak dikenal diabaikan');
+    assert.equal(L.KONDISI.bekas, 'Used');
+});

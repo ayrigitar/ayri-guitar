@@ -65,6 +65,15 @@ var AYRI_LAYANAN = {
     ],
 
     jenisGitar: ['Akustik', 'Akustik Elektrik', 'Klasik', 'Elektrik', 'Bass', 'Ukulele', 'Lainnya'],
+    /* nama barang ditulis "Gitar <jenis> <merk>"; jenis berikut berdiri sendiri, tanpa kata "Gitar" (mis. "Bass Fender Aerodyne") */
+    jenisTanpaGitar: ['Bass', 'Ukulele'],
+    /* tingkat kondisi gitar bekas (tampil di poster, katalog, dan pesan WA): kunci, nama tampil, arti singkat untuk bantuan di admin */
+    tingkatKondisi: [
+        ['mint', 'Mint', 'nyaris seperti baru, tanpa cacat berarti'],
+        ['excellent', 'Excellent', 'pemakaian sangat ringan, cacat tipis hampir tak terlihat'],
+        ['very_good', 'Very Good', 'pemakaian wajar, goresan halus atau lecet kecil, fungsi sempurna'],
+        ['good', 'Good', 'bekas pakai terlihat (goresan, penyok kecil), fungsi tetap baik']
+    ],
 
     /* menu Stok & katalog website: kategori aksesoris, dan kapan "sisa N" ditampilkan */
     kategoriAksesoris: ['Senar', 'Capo', 'Tuner', 'Strap', 'Kabel', 'Case & tas', 'Efek & amplifier', 'Part & pickup', 'Perawatan', 'Lainnya'],
