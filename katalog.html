@@ -134,19 +134,19 @@ document.addEventListener('DOMContentLoaded', function () {
     var C = window.AYRI_LAYANAN || {}, toko = C.toko || {}, grid = document.getElementById('kat-grid'), dlg = document.getElementById('kat-dlg');
     var item = [], filter = 'semua', cari = '';
     var esc = AYRI_UTIL.esc, rupiah = AYRI_UTIL.rupiah;
-    function judul(x) { return x.kategori === 'gitar' ? 'Gitar ' + x.jenis + ' ' + x.nama : x.nama; }
+    function judul(x) { return x.kategori === 'gitar' ? ((C.jenisTanpaGitar || []).indexOf(x.jenis) > -1 ? x.jenis : 'Gitar ' + x.jenis) + ' ' + x.nama : x.nama; }
     function waPesan(x) {
         return 'https://wa.me/' + (toko.wa || '') + '?text=' + encodeURIComponent('Halo AYRI, saya tertarik dengan ' + judul(x) + (x.warna ? ' (' + x.warna + ')' : '') + ' kode ' + x.kode + ' harga ' + rupiah(x.harga) + '. Apakah masih tersedia?');
     }
     function lencana(x) {
-        return '<span class="kat-badge kat-' + (x.kategori === 'gitar' ? x.kondisi : 'aks') + '">' + (x.kategori === 'gitar' ? (x.kondisi === 'baru' ? 'Baru' : 'Bekas') : esc(x.jenis)) + '</span>' +
+        return '<span class="kat-badge kat-' + (x.kategori === 'gitar' ? x.kondisi : 'aks') + '">' + (x.kategori === 'gitar' ? (x.kondisi === 'baru' ? 'Baru' : 'Used') : esc(x.jenis)) + '</span>' + (x.tingkat ? '<span class="kat-badge kat-tingkat">' + esc(x.tingkat) + '</span>' : '') +
             (x.status === 'dipesan' ? '<span class="kat-badge kat-pesan">Dipesan</span>' : x.sisa ? '<span class="kat-badge kat-sisa">Sisa ' + x.sisa + '</span>' : '');
     }
     function kelompok(x) { return x.kategori === 'gitar' ? x.kondisi : 'aksesoris'; }
     function gambarFilter() {
         var n = { semua: item.length, baru: 0, bekas: 0, aksesoris: 0 };
         item.forEach(function (x) { n[kelompok(x)]++; });
-        document.getElementById('kat-filter').innerHTML = [['semua', 'Semua'], ['baru', 'Gitar baru'], ['bekas', 'Gitar bekas'], ['aksesoris', 'Aksesoris']].filter(function (f) { return f[0] === 'semua' || n[f[0]]; })
+        document.getElementById('kat-filter').innerHTML = [['semua', 'Semua'], ['baru', 'Gitar baru'], ['bekas', 'Gitar used'], ['aksesoris', 'Aksesoris']].filter(function (f) { return f[0] === 'semua' || n[f[0]]; })
             .map(function (f) { return '<button type="button" data-f="' + f[0] + '" aria-pressed="' + (filter === f[0]) + '">' + f[1] + '<b>' + n[f[0]] + '</b></button>'; }).join('');
     }
     function gambar() {

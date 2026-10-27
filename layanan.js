@@ -893,7 +893,16 @@
     /* ---------- stok (gitar & aksesoris) ----------
        Data lengkap (modal, asal barang, no. seri, penjualan) hanya di repo PRIVAT (stok.json).
        Barang yang tersedia + foto produk dipublikasikan ke situs: data/katalog.json dan foto/stok/ (tanpa enkripsi). */
-    L.KONDISI = { baru: 'Baru', bekas: 'Bekas' };
+    L.KONDISI = { baru: 'Baru', bekas: 'Used' };
+    L.TINGKAT = {}; C.tingkatKondisi.forEach(function (t) { L.TINGKAT[t[0]] = t[1]; });
+    /* tingkat kondisi hanya untuk gitar bekas; teks kosong bila belum dinilai */
+    L.tingkatStok = function (s) { return s.kategori !== 'aksesoris' && s.kondisi === 'bekas' && L.TINGKAT[s.tingkat] ? L.TINGKAT[s.tingkat] : ''; };
+    /* nama lengkap yang wajar: "Gitar Akustik Yamaha F310", tetapi "Bass Fender Aerodyne" (tanpa kata Gitar) */
+    L.judulStok = function (s) {
+        if (s.kategori === 'aksesoris') return L.namaStok(s);
+        var j = s.gitar_jenis || '', depan = !j || j === 'Lainnya' ? 'Gitar' : C.jenisTanpaGitar.indexOf(j) > -1 ? j : 'Gitar ' + j;
+        return depan + ' ' + L.namaStok(s);
+    };
     L.STATUS_STOK = { tersedia: 'Tersedia', dipesan: 'Dipesan', terjual: 'Terjual', ditarik: 'Ditarik' };
     L.namaStok = function (s) { return s.kategori === 'aksesoris' ? (s.nama || 'Aksesoris') : (s.gitar_merk || s.gitar_jenis || 'Gitar'); };
     L.jenisStok = function (s) { return s.kategori === 'aksesoris' ? (s.sub || 'Aksesoris') : (s.gitar_jenis || 'Gitar'); };
@@ -904,7 +913,8 @@
             kode: s.kode, kategori: aks ? 'aksesoris' : 'gitar', jenis: L.jenisStok(s), kondisi: s.kondisi || 'baru', nama: L.namaStok(s), warna: s.warna || '',
             deskripsi: s.deskripsi || '', harga: +s.harga_jual, status: s.status, sisa: aks && +s.jumlah <= C.katalogSisaTampil ? +s.jumlah : null,
             foto: (s.foto || []).filter(function (f) { return f.repo === 'publik'; }).map(function (f) { return { src: f.path, kecil: f.thumb_path || f.path }; }),
-            masuk: s.tgl_masuk || ''
+            masuk: s.tgl_masuk || '',
+            tingkat: L.tingkatStok(s) || undefined   /* tanpa tingkat = kunci tidak ditulis (katalog lama tidak berubah) */
         };
     }
     L.untungStok = function (s) {

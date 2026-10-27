@@ -315,10 +315,12 @@ html[data-theme="dark"] .ly-ingat:not(.ly-ingat--info) { border-color: rgba(245,
 .kat-baru { background: #E8F0FC; color: #2659A8; }
 .kat-bekas { background: #F1EAFB; color: #6B3FA0; }
 .kat-aks { background: #FEF3E2; color: #A15C07; }
+.kat-tingkat { background: transparent; box-shadow: inset 0 0 0 1px #C9B8EA; color: #6B3FA0; }
 .kat-pesan { background: rgba(180, 35, 24, .1); color: var(--danger); }
 .kat-sisa { background: var(--accent-soft); color: var(--accent); }
 html[data-theme="dark"] .kat-baru { background: rgba(140, 180, 245, .12); color: #8CB4F5; }
 html[data-theme="dark"] .kat-bekas { background: rgba(196, 163, 242, .12); color: #C4A3F2; }
+html[data-theme="dark"] .kat-tingkat { box-shadow: inset 0 0 0 1px rgba(196, 163, 242, .4); color: #C4A3F2; }
 html[data-theme="dark"] .kat-aks { background: rgba(245, 182, 92, .12); color: #F5B65C; }
 .kat-dlg { position: fixed; inset: 0; z-index: 200; display: grid; place-items: end center; background: rgba(0, 0, 0, .55); }
 @media (min-width: 720px) { .kat-dlg { place-items: center; } }

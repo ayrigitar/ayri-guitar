@@ -16,7 +16,7 @@ const servis = [{
     bayar: [{ id: 'b1', tgl: hari, jumlah: 355000, jenis: 'dp', metode: 'tunai' }], foto: [], fk: 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA='
 }];
 const stok = [{
-    id: 'sk1', kode: 'STK-V9FPZW', kategori: 'gitar', gitar_jenis: 'Bass', gitar_merk: 'Fender Aerodyne', warna: 'Hitam Glossy', kondisi: 'bekas', jumlah: 1, status: 'tersedia', tampil: true,
+    id: 'sk1', kode: 'STK-V9FPZW', kategori: 'gitar', gitar_jenis: 'Bass', gitar_merk: 'Fender Aerodyne', warna: 'Hitam Glossy', kondisi: 'bekas', tingkat: 'excellent', jumlah: 1, status: 'tersedia', tampil: true,
     harga_jual: 13000000, deskripsi: 'Jazz Bass Made in Japan 2003', penjualan: [], tgl_masuk: hari, created_at: '2026-10-21T00:00:00.000Z', updated_at: '2026-10-21T00:00:00.000Z',
     foto: [{ id: 'f1', tahap: 'gitar', path: 'foto/stok/uji.webp', thumb_path: 'foto/stok/uji-k.webp', tipe: 'image/webp', repo: 'publik', created_at: '2026-10-21T00:00:00.000Z' }]
 }];
@@ -59,6 +59,8 @@ http.createServer((req, res) => {
         });
         return;
     }
+    /* katalog.html membaca data/katalog.json: setelah stok disimpan lewat admin, yang tampil adalah katalog hasil GitHub palsu */
+    if (u.pathname === '/data/katalog.json') { const t = gh.isi('ayri-guitar', 'data/katalog.json'); if (t !== null) { res.writeHead(200, { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' }); res.end(t); return; } }
     let p = decodeURIComponent(u.pathname); if (p === '/') p = '/index.html';
     const f = path.join(H.REPO, p);
     if (!f.startsWith(H.REPO) || !fs.existsSync(f) || fs.statSync(f).isDirectory()) { res.writeHead(404); res.end('404'); return; }
