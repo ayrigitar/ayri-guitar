@@ -121,3 +121,12 @@ test('service worker: data pelanggan dan unduhan tidak pernah disimpan di cache 
     for (const p of ['data/servis/abc.json', 'data/tebus/abc.json', 'data/jual/abc.json', 'data/foto/abc.bin', 'data/folder-baru/x.json', 'unduh/ayri-alat-latihan.apk', 'x/file.apk']) assert.ok(pola.test(p), p + ' harus dikecualikan');
     for (const p of ['index.html', 'data/katalog.json', 'foto/stok/abc.webp', 'layanan.js', 'admin.html']) assert.ok(!pola.test(p), p + ' boleh disimpan');
 });
+
+test('admin: tombol aksi memakai komponen seragam dan poster memuat foto lewat GitHub (bukan hanya cache situs)', () => {
+    const js = baca('admin.js'), css = baca('layanan.css');
+    /* semua id yang dipasangi pendengar harus tetap ada di markup tombol aksi */
+    for (const id of ['sv-cetak', 'sv-artikel', 'sv-hapus', 'tb-hapus', 'tb-kestok', 'jl-hapus', 'sk-tawar', 'sk-hapus', 'ar-hapus']) assert.match(js, new RegExp("id: '" + id + "'"), id);
+    assert.match(js, /A\.fotoBlob\(s, f, true\)/);
+    assert.doesNotMatch(js, /muatGambar\(L\.situs\(\) \+ fp\.path\)/, 'foto poster tidak boleh hanya dari situs (cache force-cache bisa menyimpan 404)');
+    assert.match(css, /\.ly-akt--del/);
+});
