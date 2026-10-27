@@ -94,51 +94,60 @@
    "tingkat": "Good"
   },
   {
-   "kode": "STK-U3X8N4",
+   "kode": "STK-TZEN4Z",
    "kategori": "gitar",
    "jenis": "Elektrik",
    "kondisi": "bekas",
-   "nama": "Samick SS51",
-   "warna": "",
-   "deskripsi": "Include tas dan senar",
-   "harga": 1200000,
+   "nama": "DeArmond Guild M-70",
+   "warna": "Crimson Red",
+   "deskripsi": "",
+   "harga": 5000000,
    "status": "tersedia",
    "sisa": null,
    "foto": [
     {
-     "src": "foto/stok/d3d0246ddfcf45063f46.webp",
-     "kecil": "foto/stok/d3d0246ddfcf45063f46-k.webp"
+     "src": "foto/stok/2e91bef5db8cc988fd20.webp",
+     "kecil": "foto/stok/2e91bef5db8cc988fd20-k.webp"
     },
     {
-     "src": "foto/stok/a2674762d2ba60b54991.webp",
-     "kecil": "foto/stok/a2674762d2ba60b54991-k.webp"
+     "src": "foto/stok/5a9053dfb0f99cafe975.webp",
+     "kecil": "foto/stok/5a9053dfb0f99cafe975-k.webp"
     },
     {
-     "src": "foto/stok/6a0fea42f062a37b1cac.webp",
-     "kecil": "foto/stok/6a0fea42f062a37b1cac-k.webp"
+     "src": "foto/stok/c745669bc6ef455c9e29.webp",
+     "kecil": "foto/stok/c745669bc6ef455c9e29-k.webp"
     },
     {
-     "src": "foto/stok/bec3ee7c9e469200cf19.webp",
-     "kecil": "foto/stok/bec3ee7c9e469200cf19-k.webp"
+     "src": "foto/stok/4fbcb197baba69f1ef84.webp",
+     "kecil": "foto/stok/4fbcb197baba69f1ef84-k.webp"
     },
     {
-     "src": "foto/stok/fd9860386c0cc7e4fda0.webp",
-     "kecil": "foto/stok/fd9860386c0cc7e4fda0-k.webp"
+     "src": "foto/stok/9b84781e8831361ad29d.webp",
+     "kecil": "foto/stok/9b84781e8831361ad29d-k.webp"
     },
     {
-     "src": "foto/stok/91b18234b02b7e4006ab.webp",
-     "kecil": "foto/stok/91b18234b02b7e4006ab-k.webp"
+     "src": "foto/stok/6dc4266401d5b64ac86f.webp",
+     "kecil": "foto/stok/6dc4266401d5b64ac86f-k.webp"
     },
     {
-     "src": "foto/stok/ba8ce2c1991be59e87e8.webp",
-     "kecil": "foto/stok/ba8ce2c1991be59e87e8-k.webp"
+     "src": "foto/stok/12319c210d235346f2f3.webp",
+     "kecil": "foto/stok/12319c210d235346f2f3-k.webp"
     },
     {
-     "src": "foto/stok/2d99cc104ee2f8d620b5.webp",
-     "kecil": "foto/stok/2d99cc104ee2f8d620b5-k.webp"
+     "src": "foto/stok/182266b2703a16eaabf2.webp",
+     "kecil": "foto/stok/182266b2703a16eaabf2-k.webp"
+    },
+    {
+     "src": "foto/stok/f756a507a4c59264d411.webp",
+     "kecil": "foto/stok/f756a507a4c59264d411-k.webp"
+    },
+    {
+     "src": "foto/stok/5b14fe6602fd63fb2e70.webp",
+     "kecil": "foto/stok/5b14fe6602fd63fb2e70-k.webp"
     }
    ],
-   "masuk": "2026-10-25"
+   "masuk": "2026-10-25",
+   "tingkat": "Very Good"
   },
   {
    "kode": "STK-Z24B4G",
@@ -302,60 +311,52 @@
    "masuk": "2026-10-25"
   },
   {
-   "kode": "STK-TZEN4Z",
+   "kode": "STK-U3X8N4",
    "kategori": "gitar",
    "jenis": "Elektrik",
    "kondisi": "bekas",
-   "nama": "DeArmond Guild M-70",
-   "warna": "Crimson Red",
-   "deskripsi": "",
-   "harga": 5000000,
+   "nama": "Samick SS51",
+   "warna": "",
+   "deskripsi": "Include tas dan senar",
+   "harga": 1200000,
    "status": "tersedia",
    "sisa": null,
    "foto": [
     {
-     "src": "foto/stok/2e91bef5db8cc988fd20.webp",
-     "kecil": "foto/stok/2e91bef5db8cc988fd20-k.webp"
+     "src": "foto/stok/d3d0246ddfcf45063f46.webp",
+     "kecil": "foto/stok/d3d0246ddfcf45063f46-k.webp"
     },
     {
-     "src": "foto/stok/5a9053dfb0f99cafe975.webp",
-     "kecil": "foto/stok/5a9053dfb0f99cafe975-k.webp"
+     "src": "foto/stok/a2674762d2ba60b54991.webp",
+     "kecil": "foto/stok/a2674762d2ba60b54991-k.webp"
     },
     {
-     "src": "foto/stok/c745669bc6ef455c9e29.webp",
-     "kecil": "foto/stok/c745669bc6ef455c9e29-k.webp"
+     "src": "foto/stok/6a0fea42f062a37b1cac.webp",
+     "kecil": "foto/stok/6a0fea42f062a37b1cac-k.webp"
     },
     {
-     "src": "foto/stok/4fbcb197baba69f1ef84.webp",
-     "kecil": "foto/stok/4fbcb197baba69f1ef84-k.webp"
+     "src": "foto/stok/bec3ee7c9e469200cf19.webp",
+     "kecil": "foto/stok/bec3ee7c9e469200cf19-k.webp"
     },
     {
-     "src": "foto/stok/9b84781e8831361ad29d.webp",
-     "kecil": "foto/stok/9b84781e8831361ad29d-k.webp"
+     "src": "foto/stok/fd9860386c0cc7e4fda0.webp",
+     "kecil": "foto/stok/fd9860386c0cc7e4fda0-k.webp"
     },
     {
-     "src": "foto/stok/6dc4266401d5b64ac86f.webp",
-     "kecil": "foto/stok/6dc4266401d5b64ac86f-k.webp"
+     "src": "foto/stok/91b18234b02b7e4006ab.webp",
+     "kecil": "foto/stok/91b18234b02b7e4006ab-k.webp"
     },
     {
-     "src": "foto/stok/12319c210d235346f2f3.webp",
-     "kecil": "foto/stok/12319c210d235346f2f3-k.webp"
+     "src": "foto/stok/ba8ce2c1991be59e87e8.webp",
+     "kecil": "foto/stok/ba8ce2c1991be59e87e8-k.webp"
     },
     {
-     "src": "foto/stok/182266b2703a16eaabf2.webp",
-     "kecil": "foto/stok/182266b2703a16eaabf2-k.webp"
-    },
-    {
-     "src": "foto/stok/f756a507a4c59264d411.webp",
-     "kecil": "foto/stok/f756a507a4c59264d411-k.webp"
-    },
-    {
-     "src": "foto/stok/5b14fe6602fd63fb2e70.webp",
-     "kecil": "foto/stok/5b14fe6602fd63fb2e70-k.webp"
+     "src": "foto/stok/2d99cc104ee2f8d620b5.webp",
+     "kecil": "foto/stok/2d99cc104ee2f8d620b5-k.webp"
     }
    ],
    "masuk": "2026-10-25",
-   "tingkat": "Very Good"
+   "tingkat": "Excellent"
   },
   {
    "kode": "STK-YKXTRX",
