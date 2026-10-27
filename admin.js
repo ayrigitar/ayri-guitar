@@ -16,9 +16,36 @@
     function gagal(e) { if (window.console) console.error(e); toast(pesanError(e), true); }
     function sibuk(btn, on, teks) {
         if (!btn) return;
-        if (on) { btn.dataset.t = btn.textContent; btn.textContent = teks || 'Menyimpan…'; btn.disabled = true; }
-        else { btn.textContent = btn.dataset.t || btn.textContent; btn.disabled = false; }
+        if (on) { if (btn._asli == null) btn._asli = btn.innerHTML; btn.textContent = teks || 'Menyimpan…'; btn.disabled = true; }
+        else { if (btn._asli != null) { btn.innerHTML = btn._asli; btn._asli = null; } btn.disabled = false; }
     }
+    /* ---------- tombol aksi seragam: baris WhatsApp (judul + keterangan + panah) dan kartu aksi berikon ---------- */
+    var IKON = {
+        lihat: '<path d="M2.5 12s3.5-6.5 9.5-6.5S21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/>',
+        cetak: '<path d="M7 9V4h10v5"/><path d="M7 17H5.5A1.5 1.5 0 0 1 4 15.5v-5A1.5 1.5 0 0 1 5.5 9h13a1.5 1.5 0 0 1 1.5 1.5v5a1.5 1.5 0 0 1-1.5 1.5H17"/><path d="M7 14h10v6H7z"/>',
+        nota: '<path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6"/>',
+        artikel: '<path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5M9 13h7M9 17h5"/>',
+        hapus: '<path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/>',
+        bagikan: '<circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="6" r="2.5"/><circle cx="18" cy="18" r="2.5"/><path d="M8.2 10.8l7.6-3.6M8.2 13.2l7.6 3.6"/>',
+        luar: '<path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/>',
+        stok: '<path d="M3 7.5 12 3l9 4.5v9L12 21l-9-4.5z"/><path d="M3 7.5 12 12l9-4.5M12 12v9"/>',
+        surat: '<path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5M9 13h7M9 17h4"/>'
+    };
+    function ikon(n) { return '<svg viewBox="0 0 24 24" aria-hidden="true">' + IKON[n] + '</svg>'; }
+    var PANAH = '<svg class="ly-wa__go" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>';
+    /* baris WhatsApp: w = [kunci, judul, keterangan]; atr = nama atribut data (data-wa / data-wat) */
+    function barisWa(daftar, atr) {
+        return '<div class="ly-wa">' + daftar.map(function (w) {
+            return '<button type="button" class="ly-wa__b" data-' + atr + '="' + w[0] + '"><span class="ly-wa__i" aria-hidden="true">' + WA_IKON + '</span><span class="ly-wa__t"><b>' + w[1] + '</b><small>' + w[2] + '</small></span>' + PANAH + '</button>';
+        }).join('') + '</div>';
+    }
+    /* kartu aksi: o.href (tautan; o.luar = tab baru) atau o.id (tombol); o.kelas: 'ly-akt--pri' | 'ly-akt--del' */
+    function aksi(o) {
+        var isi = '<span class="ly-akt__i">' + ikon(o.ikon) + '</span><span class="ly-akt__t">' + o.teks + '</span>', kls = 'ly-akt' + (o.kelas ? ' ' + o.kelas : '');
+        if (o.href) return '<a class="' + kls + '"' + (o.luar ? ' target="_blank"' : '') + ' href="' + o.href + '">' + isi + '</a>';
+        return '<button type="button" class="' + kls + '" id="' + o.id + '">' + isi + '</button>';
+    }
+    function kisiAksi(daftar) { return '<div class="ly-aksi">' + daftar.join('') + '</div>'; }
     function owner() { return A.peran() === 'owner'; }
     function setDirty(v) { dirty = v; var d = $('#dirty'); if (d) d.hidden = !v; }
     function opsi(list, cur) { return list.map(function (o) { var v = Array.isArray(o) ? o[0] : o, t = Array.isArray(o) ? o[1] : o; return '<option value="' + E(v) + '"' + (String(v) === String(cur == null ? '' : cur) ? ' selected' : '') + '>' + E(t) + '</option>'; }).join(''); }
@@ -1228,14 +1255,15 @@
             '<fieldset class="ly-card ly-f"><legend>Catatan internal</legend><label>Hanya terlihat admin<textarea data-f="catatan_admin" rows="2"></textarea></label></fieldset>' +
 
             (ed.baru ? '' : '<fieldset class="ly-card"><legend>Kirim &amp; lainnya</legend>' +
-                '<div class="ly-wa">' + [['tandaTerima', 'Tanda terima', 'Barang sudah kami terima'], ['update', 'Update status', 'Kabari perkembangan'], ['selesai', 'Kabari selesai', 'Barang siap diambil'], ['nota', 'Kirim nota', 'Tautan nota & rincian biaya']]
-                    .concat(s.status === 'selesai' ? [['pengingat', 'Ingatkan ambil', 'Barang belum diambil']] : [])
-                    .map(function (w) { return '<button type="button" class="ly-wa__b" data-wa="' + w[0] + '"><span class="ly-wa__i" aria-hidden="true">' + WA_IKON + '</span><span class="ly-wa__t"><b>' + w[1] + '</b><small>' + w[2] + '</small></span></button>'; }).join('') + '</div>' +
-                '<div class="ly-btns" style="margin-top:8px"><a class="ly-btn" target="_blank" href="cek-servis.html?k=' + encodeURIComponent(s.kode) + '&amp;h=' + encodeURIComponent(L.hp4(s.hp)) + '">Lihat halaman pelanggan</a>' +
-                '<button type="button" class="ly-btn" id="sv-cetak">Cetak tanda terima + label</button>' +
-                '<a class="ly-btn" target="_blank" href="nota.html?k=' + encodeURIComponent(s.kode) + '&amp;h=' + encodeURIComponent(L.hp4(s.hp)) + '">Buka / cetak nota</a>' +
-                (owner() ? '<button type="button" class="ly-btn" id="sv-artikel">Jadikan artikel</button><button type="button" class="ly-btn ly-btn--del" id="sv-hapus">Hapus servis</button>' : '') + '</div>' +
-                '<p class="ly-hint" style="margin-top:8px">Halaman pelanggan ikut berubah ±1 menit setelah disimpan.</p></fieldset>') +
+                barisWa([['tandaTerima', 'Tanda terima', 'Barang sudah kami terima'], ['update', 'Update status', 'Kabari perkembangan'], ['selesai', 'Kabari selesai', 'Barang siap diambil'], ['nota', 'Kirim nota', 'Tautan nota & rincian biaya']]
+                    .concat(s.status === 'selesai' ? [['pengingat', 'Ingatkan ambil', 'Barang belum diambil']] : []), 'wa') +
+                '<h3 class="ly-sub">Aksi lainnya</h3>' +
+                kisiAksi([
+                    aksi({ href: 'cek-servis.html?k=' + encodeURIComponent(s.kode) + '&amp;h=' + encodeURIComponent(L.hp4(s.hp)), luar: true, ikon: 'lihat', teks: 'Lihat halaman pelanggan' }),
+                    aksi({ id: 'sv-cetak', ikon: 'cetak', teks: 'Cetak tanda terima + label' }),
+                    aksi({ href: 'nota.html?k=' + encodeURIComponent(s.kode) + '&amp;h=' + encodeURIComponent(L.hp4(s.hp)), luar: true, ikon: 'nota', teks: 'Buka / cetak nota' })
+                ].concat(owner() ? [aksi({ id: 'sv-artikel', ikon: 'artikel', teks: 'Jadikan artikel' }), aksi({ id: 'sv-hapus', ikon: 'hapus', teks: 'Hapus servis', kelas: 'ly-akt--del' })] : [])) +
+                '<p class="ly-hint ly-hint--c">Halaman pelanggan ikut berubah ±1 menit setelah disimpan.</p></fieldset>') +
 
             '<div class="ly-save"><span class="ly-dirty" id="dirty" hidden>Belum disimpan</span><button type="button" class="ly-btn ly-btn--pri" id="sv-simpan">' + (ed.baru ? 'Simpan &amp; buat kode' : 'Simpan perubahan') + '</button></div></section>';
 
@@ -1511,16 +1539,17 @@
             '<label class="ly-cek"><input type="checkbox" id="tb-setuju"><span>Penjual sudah membalas <b>SETUJU</b> di WhatsApp</span></label>' +
             '<div class="ly-status" id="tb-status"></div>' +
             '<label>Catatan internal<textarea data-t="catatan_admin" rows="2"></textarea></label></fieldset>' +
-            (te.baru ? '' : '<fieldset class="ly-card"><legend>Kirim &amp; lainnya</legend><div class="ly-btns">' +
-                '<button type="button" class="ly-btn ly-btn--wa" data-wat="konfirmasi">WA: Bukti &amp; minta SETUJU</button>' +
-                (t.status === 'aktif' ? '<button type="button" class="ly-btn ly-btn--wa" data-wat="pengingat">WA: Pengingat tebus</button>' : '') +
-                (t.status === 'ditebus' ? '<button type="button" class="ly-btn ly-btn--wa" data-wat="ditebus">WA: Terima kasih (ditebus)</button>' : '') +
-                (t.status === 'milik_toko' ? '<button type="button" class="ly-btn ly-btn--wa" data-wat="berakhir">WA: Masa tebus berakhir</button>' : '') +
-                (t.status === 'milik_toko' && !t.stok_id ? '<button type="button" class="ly-btn ly-btn--pri" id="tb-kestok">Masukkan ke stok</button>' : '') +
-                (t.stok_id ? '<a class="ly-btn" href="#stok/' + E(t.stok_id) + '">Lihat di stok</a>' : '') + '</div>' +
-                '<div class="ly-btns" style="margin-top:8px"><a class="ly-btn" target="_blank" href="perjanjian.html?k=' + encodeURIComponent(t.kode) + '&amp;h=' + encodeURIComponent(L.hp4(t.hp)) + '">Buka / cetak surat perjanjian</a>' +
-                '<button type="button" class="ly-btn ly-btn--del" id="tb-hapus">Hapus data</button></div>' +
-                '<p class="ly-hint" style="margin-top:8px">Surat perjanjian di situs ikut berubah ±1 menit setelah disimpan.</p></fieldset>') +
+            (te.baru ? '' : '<fieldset class="ly-card"><legend>Kirim &amp; lainnya</legend>' +
+                barisWa([['konfirmasi', 'Bukti & minta SETUJU', 'Kirim bukti pembelian ke penjual']]
+                    .concat(t.status === 'aktif' ? [['pengingat', 'Pengingat tebus', 'Ingatkan batas membeli kembali']] : [])
+                    .concat(t.status === 'ditebus' ? [['ditebus', 'Terima kasih (ditebus)', 'Kabari gitar sudah dibeli kembali']] : [])
+                    .concat(t.status === 'milik_toko' ? [['berakhir', 'Masa tebus berakhir', 'Kabari gitar jadi milik toko']] : []), 'wat') +
+                '<h3 class="ly-sub">Aksi lainnya</h3>' +
+                kisiAksi([].concat(t.status === 'milik_toko' && !t.stok_id ? [aksi({ id: 'tb-kestok', ikon: 'stok', teks: 'Masukkan ke stok', kelas: 'ly-akt--pri' })] : [])
+                    .concat(t.stok_id ? [aksi({ href: '#stok/' + E(t.stok_id), ikon: 'stok', teks: 'Lihat di stok' })] : [])
+                    .concat([aksi({ href: 'perjanjian.html?k=' + encodeURIComponent(t.kode) + '&amp;h=' + encodeURIComponent(L.hp4(t.hp)), luar: true, ikon: 'surat', teks: 'Buka / cetak surat perjanjian' }),
+                        aksi({ id: 'tb-hapus', ikon: 'hapus', teks: 'Hapus data', kelas: 'ly-akt--del' })])) +
+                '<p class="ly-hint ly-hint--c">Surat perjanjian di situs ikut berubah ±1 menit setelah disimpan.</p></fieldset>') +
             '<div class="ly-save"><span class="ly-dirty" id="dirty" hidden>Belum disimpan</span><button type="button" class="ly-btn ly-btn--pri" id="tb-simpan">' + (te.baru ? 'Simpan &amp; buat kode' : 'Simpan perubahan') + '</button></div></section>';
         $$('[data-t]', app).forEach(function (el) { var v = t[el.dataset.t]; el.value = v == null ? '' : v; });
         $('#tb-setuju').checked = !!t.disetujui;
@@ -1710,19 +1739,19 @@
                 '<label>Metode<select id="by-metode">' + opsi([['tunai', 'Tunai'], ['transfer', 'Transfer'], ['qris', 'QRIS']], 'transfer') + '</select></label></div>' +
                 '<div class="ly-row2"><label>Tanggal<input type="date" id="by-tgl"></label><label>Batas pelunasan<input type="date" id="jl-batas"></label></div>' +
                 '<button type="button" class="ly-btn" id="by-tambah">Catat pembayaran</button></div>' : '') + '</fieldset>' +
-            '<fieldset class="ly-card"><legend>WhatsApp ke pembeli</legend>' + (adaHp && j.status !== 'batal' ? '<label class="ly-cek" style="margin-bottom:12px"><input type="checkbox" id="jl-setuju"><span>Pembeli sudah membalas <b>SETUJU</b> atas ketentuan di WhatsApp</span></label>' : '') + '<div class="ly-btns">' + (adaHp ?
-                (j.status === 'dp' ? '<button type="button" class="ly-btn ly-btn--wa" data-wa="dp">Kirim bukti DP</button><button type="button" class="ly-btn ly-btn--wa" data-wa="pengingat">Pengingat pelunasan</button>' : '') +
-                (j.status === 'lunas' || j.status === 'selesai' ? '<button type="button" class="ly-btn ly-btn--wa" data-wa="lunas">Kirim nota lunas</button>' : '') +
-                (j.status === 'batal' ? '<button type="button" class="ly-btn ly-btn--wa" data-wa="batal">Kabari pembatalan</button>' : '') +
-                '<a class="ly-btn" target="_blank" href="' + E(L.urlNotaJual(j.kode)) + '">Buka nota</a>'
-                : '<p class="ly-muted" style="margin:0">Tanpa nomor WhatsApp (jual lunas langsung), nota online tidak dibuat.</p>') + '</div>' +
+            '<fieldset class="ly-card"><legend>WhatsApp ke pembeli</legend>' + (adaHp && j.status !== 'batal' ? '<label class="ly-cek" style="margin-bottom:12px"><input type="checkbox" id="jl-setuju"><span>Pembeli sudah membalas <b>SETUJU</b> atas ketentuan di WhatsApp</span></label>' : '') + (adaHp ?
+                barisWa([].concat(j.status === 'dp' ? [['dp', 'Kirim bukti DP', 'Bukti pesanan + minta SETUJU'], ['pengingat', 'Pengingat pelunasan', 'Ingatkan sisa dan batas bayar']] : [])
+                    .concat(j.status === 'lunas' || j.status === 'selesai' ? [['lunas', 'Kirim nota lunas', 'Tautan nota online']] : [])
+                    .concat(j.status === 'batal' ? [['batal', 'Kabari pembatalan', 'Rincian uang kembali']] : []), 'wa') +
+                kisiAksi([aksi({ href: E(L.urlNotaJual(j.kode)), luar: true, ikon: 'nota', teks: 'Buka nota' })])
+                : '<p class="ly-muted" style="margin:0">Tanpa nomor WhatsApp (jual lunas langsung), nota online tidak dibuat.</p>') +
             ((j.pengingat || []).length ? '<p class="ly-hint" style="margin:8px 0 0">Diingatkan: ' + j.pengingat.map(L.tgl).join(', ') + '</p>' : '') + '</fieldset>' +
             (aktif ? '<fieldset class="ly-card"><legend>Status</legend><div class="ly-btns">' +
                 (j.status === 'lunas' ? '<button type="button" class="ly-btn ly-btn--pri" id="jl-selesai">Barang sudah diambil / dikirim</button>' : '') +
                 '<button type="button" class="ly-btn" id="jl-batal-p">Batal (pembeli)</button><button type="button" class="ly-btn" id="jl-batal-t">Batal (toko)</button></div>' +
                 '<p class="ly-hint" style="margin:8px 0 0">Batal oleh pembeli / lewat batas: dipotong ' + C.jual.potonganPersen + '% dari harga barang (maks. sebesar yang sudah dibayar). Batal oleh toko: dikembalikan penuh. Stok kembali tersedia.</p></fieldset>' : '') +
-            (owner() ? '<fieldset class="ly-card"><legend>Lainnya</legend><div class="ly-btns"><button type="button" class="ly-btn ly-btn--del" id="jl-hapus">Hapus transaksi</button></div>' +
-            '<p class="ly-hint" style="margin:8px 0 0">Hapus hanya untuk salah input; stok dikembalikan. Untuk pesanan yang batal, pakai tombol Batal supaya tercatat.</p></fieldset>' : '') +
+            (owner() ? '<fieldset class="ly-card"><legend>Lainnya</legend>' + kisiAksi([aksi({ id: 'jl-hapus', ikon: 'hapus', teks: 'Hapus transaksi', kelas: 'ly-akt--del' })]) +
+            '<p class="ly-hint ly-hint--c">Hapus hanya untuk salah input; stok dikembalikan. Untuk pesanan yang batal, pakai tombol Batal supaya tercatat.</p></fieldset>' : '') +
             '<div class="ly-save"><span class="ly-dirty" id="dirty" hidden>Belum disimpan</span><button type="button" class="ly-btn ly-btn--pri" id="jl-simpan">Simpan perubahan</button></div></section>';
         if ($('#by-tgl')) { $('#by-tgl').value = L.hariIni(); $('#by-jml').value = h.sisa || ''; $('#jl-batas').value = j.batas_lunas || ''; }
         if ($('#jl-setuju')) $('#jl-setuju').checked = !!j.disetujui;
@@ -1845,9 +1874,15 @@
             '\nTanya / pesan: https://wa.me/' + C.toko.wa;
     }
     /* ---------- poster penawaran (gambar 1080×1920, pas untuk Story) + menu Bagikan ---------- */
-    function muatGambar(url) {
-        return fetch(url, { cache: 'force-cache' }).then(function (r) { if (!r.ok) throw new Error('foto'); return r.blob(); })
-            .then(function (b) { return new Promise(function (ok, gagal) { var u = URL.createObjectURL(b), im = new Image(); im.onload = function () { ok(im); }; im.onerror = gagal; im.src = u; }); });
+    function gambarDari(b) { return new Promise(function (ok, gagal) { var u = URL.createObjectURL(b), im = new Image(); im.onload = function () { ok(im); }; im.onerror = function () { gagal(new Error('foto rusak')); }; im.src = u; }); }
+    function muatGambar(url, cache) {
+        return fetch(url, { cache: cache || 'force-cache' }).then(function (r) { if (!r.ok) throw new Error('foto ' + r.status); return r.blob(); }).then(gambarDari);
+    }
+    /* foto produk untuk poster: dibaca lewat GitHub (langsung benar begitu diunggah, tanpa menunggu situs selesai dibangun);
+       bila gagal, dicoba dari situs dengan pengecekan ulang (cache 'force-cache' bisa menyimpan 404 dari sebelum situs selesai dibangun) */
+    function muatFotoPoster(s, f) {
+        return A.fotoBlob(s, f, true).then(gambarDari).catch(function () { return muatGambar(L.situs() + f.path, 'no-cache'); })
+            .catch(function () { throw new Error('Foto produk belum bisa dimuat. Periksa internet lalu coba lagi.'); });
     }
     function barisTeks(c, teks, lebar, maks) {
         var kata = String(teks || '').replace(/\s+/g, ' ').trim().split(' '), baris = [], cur = '';
@@ -1862,7 +1897,7 @@
         var judul = s.kategori === 'aksesoris' ? L.namaStok(s) : 'Gitar ' + L.jenisStok(s) + ' ' + L.namaStok(s);
         var fonts = Promise.all(['700 70px Fraunces', '700 40px "Plus Jakarta Sans"'].map(function (f) { return document.fonts && document.fonts.load ? document.fonts.load(f) : null; }));
         fonts = Promise.race([fonts, new Promise(function (ok) { setTimeout(ok, 1200); })]).catch(function () {});
-        var foto = fp ? muatGambar(L.situs() + fp.path).catch(function () { return null; }) : Promise.resolve(null);
+        var foto = fp ? muatFotoPoster(s, fp) : Promise.resolve(null);
         return Promise.all([foto, muatGambar(L.situs() + 'logo/ayri-logo-putih.svg').catch(function () { return null; }), fonts]).then(function (r) {
             var cv = document.createElement('canvas'), W = 1080, H = 1920, EMAS = '#E0A95C', SERIF = 'Fraunces, Georgia, serif', SANS = '"Plus Jakarta Sans", system-ui, sans-serif';
             cv.width = W; cv.height = H;
@@ -1909,9 +1944,8 @@
     /* Bagikan: poster + teks lewat menu bagikan HP (WA, Status WA, Instagram, Threads, X, dll). Di PC tanpa menu bagikan berkas: hanya teks, lewat menu bagikan atau WhatsApp. */
     function bagikanStok(s, tombol) {
         var teks = teksTawar(s), nama = 'ayri-' + String(s.kode || 'barang').toLowerCase() + '.jpg';
-        var label = tombol && tombol.textContent;
-        if (tombol) { tombol.disabled = true; tombol.textContent = 'Menyiapkan…'; }
-        function lepas() { if (tombol) { tombol.disabled = false; tombol.textContent = label; } }
+        if (tombol) sibuk(tombol, true, 'Menyiapkan…');
+        function lepas() { if (tombol) sibuk(tombol, false); }
         /* PC / browser tanpa menu bagikan berkas: tanpa unduhan gambar, kirim teks penawaran lewat WhatsApp */
         var cobaBerkas = adaAplikasi() || !!(navigator.canShare && navigator.canShare({ files: [new File([''], nama, { type: 'image/jpeg' })] }));
         if (!cobaBerkas) { lepas(); if (navigator.share) { navigator.share({ text: teks, title: C.toko.nama }).catch(function () {}); } else bukaWa('', teks); return; }
@@ -1952,8 +1986,8 @@
                 (+s.jumlah > 0 && s.status !== 'ditarik' ? '<div class="ly-btns" style="margin-top:10px"><button type="button" class="ly-btn ly-btn--pri" id="sk-jual-baru">Jual / pesan dengan DP</button></div>' +
                     '<p class="ly-hint" style="margin:8px 0 0">Bayar penuh = langsung terjual. Bayar sebagian = DP: barang ditahan ' + C.jual.batasHari + ' hari, nota & pengingat pelunasan dikirim lewat WA.</p>' : '') + '</fieldset>') +
             '<fieldset class="ly-card ly-f"><legend>Status</legend><div class="ly-status" id="sk-status"></div><label>Catatan internal<textarea data-s="catatan_admin" rows="2"></textarea></label></fieldset>' +
-            (sk.baru ? '' : '<fieldset class="ly-card"><legend>Lainnya</legend><div class="ly-btns">' + (s.harga_jual && adaStok(s) ? '<button type="button" class="ly-btn ly-btn--pri" id="sk-tawar">Bagikan poster &amp; penawaran</button>' : '') +
-                (owner() ? '<button type="button" class="ly-btn ly-btn--del" id="sk-hapus">Hapus data</button>' : '') + '</div></fieldset>') +
+            (sk.baru ? '' : '<fieldset class="ly-card"><legend>Lainnya</legend>' + kisiAksi([].concat(s.harga_jual && adaStok(s) ? [aksi({ id: 'sk-tawar', ikon: 'bagikan', teks: 'Bagikan poster &amp; penawaran', kelas: 'ly-akt--pri ly-akt--lebar' })] : [])
+                .concat(owner() ? [aksi({ id: 'sk-hapus', ikon: 'hapus', teks: 'Hapus data', kelas: 'ly-akt--del' })] : [])) + '</fieldset>') +
             '<div class="ly-save"><span class="ly-dirty" id="dirty" hidden>Belum disimpan</span><button type="button" class="ly-btn ly-btn--pri" id="sk-simpan">' + (sk.baru ? 'Simpan stok' : 'Simpan perubahan') + '</button></div></section>';
         $$('[data-s]', app).forEach(function (el) { var v = s[el.dataset.s]; el.value = v == null ? '' : v; });
         $('#sk-tampil').checked = s.tampil !== false;
@@ -2081,8 +2115,8 @@
             '<fieldset class="ly-card"><legend>Foto</legend><div class="ly-afoto" id="ar-foto"></div><div id="ar-pick"></div>' +
             '<div class="ly-btns" style="margin-top:10px"><label class="ly-btn ly-btn--sm ly-file">+ Unggah foto<input type="file" accept="image/*" multiple id="ar-file"></label></div>' +
             '<p class="ly-hint" style="margin-top:8px">Foto pertama menjadi sampul. Isi keterangan singkat tiap foto (membantu Google). Pastikan tidak ada wajah, nota, atau nomor seri gitar. Foto artikel bersifat publik.</p></fieldset>' +
-            (ae.baru ? '' : '<fieldset class="ly-card"><legend>Lainnya</legend><div class="ly-btns">' + (terbit ? '<a class="ly-btn" target="_blank" href="' + E(url) + '">Lihat di situs</a>' : '') +
-                '<button type="button" class="ly-btn ly-btn--del" id="ar-hapus">Hapus artikel</button></div></fieldset>') +
+            (ae.baru ? '' : '<fieldset class="ly-card"><legend>Lainnya</legend>' + kisiAksi([].concat(terbit ? [aksi({ href: E(url), luar: true, ikon: 'luar', teks: 'Lihat di situs' })] : [])
+                .concat([aksi({ id: 'ar-hapus', ikon: 'hapus', teks: 'Hapus artikel', kelas: 'ly-akt--del' })])) + '</fieldset>') +
             '<div class="ly-save"><span class="ly-dirty" id="dirty" hidden>Belum disimpan</span><button type="button" class="ly-btn ly-btn--pri" id="ar-simpan">Simpan</button></div></section>';
         $$('[data-a]', app).forEach(function (el) { el.value = a[el.dataset.a] == null ? '' : a[el.dataset.a]; });
         infoArtikel(); gambarAFoto(); setDirty(false);
