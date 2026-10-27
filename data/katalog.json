@@ -46,53 +46,6 @@
    "tingkat": "Very Good"
   },
   {
-   "kode": "STK-6J8WP3",
-   "kategori": "gitar",
-   "jenis": "Bass",
-   "kondisi": "bekas",
-   "nama": "Yamaha RBX 100",
-   "warna": "Hitam",
-   "deskripsi": "Free softcase",
-   "harga": 1000000,
-   "status": "tersedia",
-   "sisa": null,
-   "foto": [
-    {
-     "src": "foto/stok/df93134f5c3336458552.webp",
-     "kecil": "foto/stok/df93134f5c3336458552-k.webp"
-    },
-    {
-     "src": "foto/stok/59d0ca5acae9228bb270.webp",
-     "kecil": "foto/stok/59d0ca5acae9228bb270-k.webp"
-    },
-    {
-     "src": "foto/stok/7410036dfd3b0fc6af6f.webp",
-     "kecil": "foto/stok/7410036dfd3b0fc6af6f-k.webp"
-    },
-    {
-     "src": "foto/stok/0d44ea863968333750bc.webp",
-     "kecil": "foto/stok/0d44ea863968333750bc-k.webp"
-    },
-    {
-     "src": "foto/stok/5d0a1967264d4b5b6131.webp",
-     "kecil": "foto/stok/5d0a1967264d4b5b6131-k.webp"
-    },
-    {
-     "src": "foto/stok/da5dab74addf00dc9b26.webp",
-     "kecil": "foto/stok/da5dab74addf00dc9b26-k.webp"
-    },
-    {
-     "src": "foto/stok/e268080c9b4cbe19e063.webp",
-     "kecil": "foto/stok/e268080c9b4cbe19e063-k.webp"
-    },
-    {
-     "src": "foto/stok/3445c9bc80e4fed739cb.webp",
-     "kecil": "foto/stok/3445c9bc80e4fed739cb-k.webp"
-    }
-   ],
-   "masuk": "2026-10-25"
-  },
-  {
    "kode": "STK-TZEN4Z",
    "kategori": "gitar",
    "jenis": "Elektrik",
@@ -354,6 +307,54 @@
     }
    ],
    "masuk": "2026-10-25"
+  },
+  {
+   "kode": "STK-6J8WP3",
+   "kategori": "gitar",
+   "jenis": "Bass",
+   "kondisi": "bekas",
+   "nama": "Yamaha RBX 100",
+   "warna": "Hitam",
+   "deskripsi": "Free softcase",
+   "harga": 1000000,
+   "status": "tersedia",
+   "sisa": null,
+   "foto": [
+    {
+     "src": "foto/stok/df93134f5c3336458552.webp",
+     "kecil": "foto/stok/df93134f5c3336458552-k.webp"
+    },
+    {
+     "src": "foto/stok/59d0ca5acae9228bb270.webp",
+     "kecil": "foto/stok/59d0ca5acae9228bb270-k.webp"
+    },
+    {
+     "src": "foto/stok/7410036dfd3b0fc6af6f.webp",
+     "kecil": "foto/stok/7410036dfd3b0fc6af6f-k.webp"
+    },
+    {
+     "src": "foto/stok/0d44ea863968333750bc.webp",
+     "kecil": "foto/stok/0d44ea863968333750bc-k.webp"
+    },
+    {
+     "src": "foto/stok/5d0a1967264d4b5b6131.webp",
+     "kecil": "foto/stok/5d0a1967264d4b5b6131-k.webp"
+    },
+    {
+     "src": "foto/stok/da5dab74addf00dc9b26.webp",
+     "kecil": "foto/stok/da5dab74addf00dc9b26-k.webp"
+    },
+    {
+     "src": "foto/stok/e268080c9b4cbe19e063.webp",
+     "kecil": "foto/stok/e268080c9b4cbe19e063-k.webp"
+    },
+    {
+     "src": "foto/stok/3445c9bc80e4fed739cb.webp",
+     "kecil": "foto/stok/3445c9bc80e4fed739cb-k.webp"
+    }
+   ],
+   "masuk": "2026-10-25",
+   "tingkat": "Good"
   },
   {
    "kode": "STK-YKXTRX",
