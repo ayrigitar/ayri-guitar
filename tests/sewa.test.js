@@ -94,7 +94,7 @@ test('pesan WA sewa memuat batas kembali, deposit, dan ketentuan; pengingat memb
     const { L } = await mulai();
     const w = sewaContoh(L, { kode: 'SWA-ABC123', bayar: [{ jumlah: 300000, jenis: 'sewa' }, { jumlah: 500000, jenis: 'deposit' }] });
     const m = L.pesanSewa.mulai(w);
-    assert.match(m, /SWA-ABC123/); assert.match(m, /Ketentuan:\n1\. /); assert.match(m, /SETUJU/); assert.match(m, /denda Rp10\.000 per senar/); assert.match(m, /senar cadangan tersedia di dalam tas/); assert.match(m, /terpakai semua menjadi Rp60\.000/); assert.match(m, /jam operasional \(/); assert.match(m, /1x24 jam/);
+    assert.match(m, /SWA-ABC123/); assert.match(m, /Ketentuan:\n1\. /); assert.match(m, /SETUJU/); assert.match(m, /denda Rp10\.000 per senar/); assert.match(m, /senar cadangan tersedia di dalam tas/); assert.match(m, /terpakai semua menjadi Rp60\.000/); assert.match(m, /jam operasional toko, yaitu /); assert.match(m, /1x24 jam/);
     assert.ok(m.includes(L.tglPanjang(L.batasSewa(w))), 'tanggal batas kembali ada di ketentuan');
     assert.ok(m.includes(L.rupiah(500000)), 'deposit disebut');
     const telat = sewaContoh(L, { kode: 'SWA-ABC123', tgl_mulai: L.tambahHari(hariIni(), -5) });
