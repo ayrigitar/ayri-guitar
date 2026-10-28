@@ -74,6 +74,24 @@ var AYRI_LAYANAN = {
         ['very_good', 'Very Good', 'pemakaian wajar, goresan halus atau lecet kecil, fungsi sempurna'],
         ['good', 'Good', 'bekas pakai terlihat (goresan, penyok kecil), fungsi tetap baik']
     ],
+    /* ---------- sewa gitar (unit used dari stok) ----------
+       Tarif & deposit hanya nilai awal di formulir; bisa diubah per transaksi. */
+    sewa: {
+        tarifHari: 100000,             /* tarif per hari */
+        tarifMinggu: 600000,           /* paket 7 hari (bayar seperti 6 hari); 0 = tanpa paket mingguan */
+        depositPersen: 30,             /* deposit awal = % harga jual unit ... */
+        depositMin: 500000,            /* ... tetapi tidak kurang dari ini */
+        depositMaks: 3000000,          /* ... dan tidak lebih dari ini (0 = tanpa batas) */
+        maksHari: 30,                  /* durasi sewa terpanjang yang bisa dipilih */
+        /* tercetak di pesan WhatsApp; {batas}, {tarif}, {deposit} diganti otomatis */
+        ketentuan: [
+            'Gitar diserahkan dalam kondisi sesuai catatan/foto saat serah terima, dan harus dikembalikan dalam kondisi yang sama paling lambat {batas}.',
+            'Deposit {deposit} dibayar saat serah terima dan dikembalikan penuh saat gitar kembali tanpa kerusakan.',
+            'Bila ada kerusakan atau kehilangan, biaya perbaikan/penggantian dipotong dari deposit; kekurangannya ditanggung penyewa.',
+            'Keterlambatan dihitung sebagai tambahan hari sewa dengan tarif normal ({tarif}); pengembalian lebih awal tidak mengurangi biaya sewa.',
+            'Gitar tidak boleh dipinjamkan, disewakan kembali, atau dijadikan jaminan kepada pihak lain.'
+        ]
+    },
 
     /* menu Stok & katalog website: kategori aksesoris, dan kapan "sisa N" ditampilkan */
     kategoriAksesoris: ['Senar', 'Capo', 'Tuner', 'Strap', 'Kabel', 'Case & tas', 'Efek & amplifier', 'Part & pickup', 'Perawatan', 'Lainnya'],

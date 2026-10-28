@@ -10,7 +10,8 @@
         pengingatHari: [7, 12], katalogSisaTampil: 3, jenisGitar: ['Akustik'], kategoriAksesoris: ['Lainnya'], katalogJasa: [], ketentuan: [], syaratJatuh: '',
         github: {}, toko: { nama: 'Toko Gitar AYRI', alamat: '', jam: '', wa: '', rekening: [] },
         tebus: { batasHari: 30, maksHari: 90, pengingatHari: [7, 1], fotoKtpMinHarga: 1000000, hapusKtpHari: 90, ketentuan: [] },
-        jual: { batasHari: 30, potonganPersen: 10, pengingatHari: [7, 1], ketentuan: [] }
+        jual: { batasHari: 30, potonganPersen: 10, pengingatHari: [7, 1], ketentuan: [] },
+        sewa: { tarifHari: 100000, tarifMinggu: 0, depositPersen: 30, depositMin: 0, depositMaks: 0, maksHari: 30, ketentuan: [] }
     };
     function lengkapi(c, d) {
         Object.keys(d).forEach(function (k) {
@@ -614,7 +615,7 @@
     L.api.lupakan = function () { L.api.kunci(); bersihkanGagal(); try { localStorage.removeItem(KUNCI_TOKEN); } catch (e) {} return Promise.resolve(); };
 
     /* ---------- data (repo privat) ---------- */
-    var data = { servis: [], artikel: [], tebus: [], stok: [], jual: [], absen: [], opname: [], pengaturan: {}, kas: [] }, rahasia = {}, statusPisah = null;
+    var data = { servis: [], artikel: [], tebus: [], stok: [], jual: [], absen: [], opname: [], pengaturan: {}, kas: [], sewa: [] }, rahasia = {}, statusPisah = null;
     function cari(list, id) { return list.filter(function (x) { return x.id === id; })[0] || null; }
     function bacaJson(nama, rp) { return bacaFile(rp || 'data', nama).then(function (t) { return t ? JSON.parse(t) : []; }); }
     /* modal & asal barang: setelah dipisah, disimpan di repo owner (stok-rahasia.json), bukan di stok.json bersama */
@@ -631,7 +632,7 @@
         return cekPeran().then(function () {
             var owner = peran === 'owner';
             return Promise.all([
-                Promise.all(['servis', 'artikel', 'stok', 'jual', 'absen', 'opname', 'pengaturan', 'kas'].map(function (j) { return bacaFile('data', j + '.json'); })),
+                Promise.all(['servis', 'artikel', 'stok', 'jual', 'absen', 'opname', 'pengaturan', 'kas', 'sewa'].map(function (j) { return bacaFile('data', j + '.json'); })),
                 owner ? bacaJson('tebus.json', repoJenis('tebus')) : Promise.resolve([]),
                 owner && PISAH ? bacaFile('owner', 'stok-rahasia.json') : Promise.resolve(null),
                 owner && PISAH ? bacaFile('owner', 'servis.json') : Promise.resolve(null)
@@ -642,7 +643,7 @@
             statusPisah = PISAH && !b[0] ? (peran === 'owner' && r[3] ? 'pindah' : 'kosong') : null;
             rahasia = r[2] ? JSON.parse(r[2]) : {};
             data.servis = json(b[0]); data.artikel = json(b[1]); data.stok = gabungStok(json(b[2])); data.jual = json(b[3]); data.tebus = r[1];
-            data.absen = json(b[4]); data.opname = json(b[5]); data.pengaturan = b[6] ? JSON.parse(b[6]) : {}; data.kas = json(b[7]);
+            data.absen = json(b[4]); data.opname = json(b[5]); data.pengaturan = b[6] ? JSON.parse(b[6]) : {}; data.kas = json(b[7]); data.sewa = json(b[8]);
             return salin(data);
         });
     }
@@ -888,6 +889,119 @@
     L.api.hapusTebus = function (rec) {
         var files = hapusFoto(rec.foto || [], { situs: rec.pubId ? [{ path: 'data/tebus/' + rec.pubId + '.json', hapus: true }] : [], data: [], owner: [] });
         return hapusDua('tebus', rec, files, 'Tebus: hapus surat perjanjian');
+    };
+
+    /* ---------- sewa gitar ----------
+       Unit used dari stok disewakan tanpa mengubah jumlah stok (unit tetap milik toko); status "sedang disewa" dihitung dari daftar sewa.
+       Data lengkap (nama, HP, foto KTP & kondisi terenkripsi) hanya di repo privat bersama (sewa.json); tidak ada halaman publik. */
+    var SW = C.sewa;
+    L.STATUS_SEWA = { aktif: 'Sedang disewa', selesai: 'Dikembalikan', batal: 'Dibatalkan' };
+    /* tarif untuk n hari: tiap 7 hari penuh memakai paket mingguan, sisanya per hari (tidak pernah lebih mahal dari paket) */
+    L.tarifSewa = function (hari, tarifHari, tarifMinggu) {
+        hari = Math.max(0, Math.round(+hari || 0)); tarifHari = +tarifHari || 0; tarifMinggu = +tarifMinggu || 0;
+        if (!(tarifMinggu > 0)) return hari * tarifHari;
+        return Math.floor(hari / 7) * tarifMinggu + Math.min((hari % 7) * tarifHari, tarifMinggu);
+    };
+    /* deposit awal: % harga jual unit, dibulatkan ke 100 ribu terdekat, di antara batas bawah & atas */
+    L.depositAwal = function (hargaJual) {
+        var d = Math.round((+hargaJual || 0) * SW.depositPersen / 100 / 100000) * 100000;
+        d = Math.max(d, +SW.depositMin || 0); if (+SW.depositMaks > 0) d = Math.min(d, +SW.depositMaks);
+        return d;
+    };
+    L.batasSewa = function (w) { return L.tambahHari(w.tgl_mulai, Math.max(1, +w.hari || 1)); };
+    /* sisa hari sampai batas kembali (negatif = telat) */
+    L.infoSewa = function (w, hariIni) {
+        var sisa = w.status === 'aktif' ? L.hariAntara(hariIni || L.hariIni(), L.batasSewa(w)) : null;
+        return { sisa: sisa, lewat: sisa != null && sisa < 0, hariTelat: sisa != null && sisa < 0 ? -sisa : 0 };
+    };
+    /* hari yang ditagih: yang dipesan, atau lebih bila dipakai lebih lama (telat); pengembalian lebih awal tidak mengurangi */
+    L.hariTagihSewa = function (w, hariIni) {
+        var akhir = w.status === 'aktif' ? hariIni || L.hariIni() : w.tgl_kembali || w.tgl_mulai;
+        return Math.max(1, +w.hari || 1, L.hariAntara(w.tgl_mulai, akhir));
+    };
+    /* bayar: sewa (pendapatan), deposit (titipan), deposit_potong (deposit dipakai membayar sewa/ganti rugi; tanpa uang bergerak), deposit_kembali */
+    L.hitungSewa = function (w, hariIni) {
+        var hari = L.hariTagihSewa(w, hariIni), sewa = L.tarifSewa(hari, w.tarif_hari, w.tarif_minggu), s = { sewa: 0, deposit: 0, potong: 0, kembali: 0 };
+        (w.bayar || []).forEach(function (b) { var j = +b.jumlah || 0; if (b.jenis === 'deposit') s.deposit += j; else if (b.jenis === 'deposit_potong') s.potong += j; else if (b.jenis === 'deposit_kembali') s.kembali += j; else s.sewa += j; });
+        var gantiRugi = +w.ganti_rugi || 0, tagihan = sewa + gantiRugi, ditahan = Math.max(0, s.deposit - s.potong - s.kembali);
+        /* kebutuhan = tagihan yang belum tertutup uang sewa maupun potongan deposit; diambil dari deposit yang masih ditahan, sisanya dikembalikan */
+        var perlu = Math.max(0, tagihan - s.sewa - s.potong), potongDeposit = Math.min(ditahan, perlu);
+        return {
+            hari: hari, tarif: sewa, gantiRugi: gantiRugi, tagihan: tagihan, dibayar: s.sewa, deposit: s.deposit, ditahan: ditahan,
+            kurang: Math.max(0, sewa - s.sewa - s.potong), potongDeposit: potongDeposit, harusKembali: ditahan - potongDeposit, masihHutang: perlu - potongDeposit
+        };
+    };
+    L.perluIngatSewa = function (w, hariIni) {
+        var i = L.infoSewa(w, hariIni), terakhir = (w.pengingat || []).slice(-1)[0] || '';
+        return i.sisa != null && i.sisa <= 1 && terakhir !== (hariIni || L.hariIni());
+    };
+    L.sewaAktifStok = function (stokId, list) { return (list || data.sewa).filter(function (w) { return w.status === 'aktif' && w.stok_id === stokId; })[0] || null; };
+    /* hanya gitar used yang masih ada & belum disewa orang lain */
+    L.bisaDisewa = function (s, list) { return s.kategori !== 'aksesoris' && s.kondisi === 'bekas' && +s.jumlah > 0 && s.status !== 'ditarik' && !L.sewaAktifStok(s.id, list); };
+    L.ketentuanSewa = function (w) {
+        return SW.ketentuan.map(function (k) {
+            return k.split('{batas}').join(L.tglPanjang(L.batasSewa(w))).split('{tarif}').join(L.rupiah(w.tarif_hari) + '/hari').split('{deposit}').join(L.rupiah(w.deposit_rencana != null ? w.deposit_rencana : L.hitungSewa(w).deposit));
+        });
+    };
+    L.pesanSewa = {
+        mulai: function (w) {
+            var h = L.hitungSewa(w), dep = w.deposit_rencana != null ? w.deposit_rencana : h.deposit, nomor = 0;
+            return 'Halo Kak ' + w.nama + ', terima kasih sudah menyewa di ' + C.toko.nama + ' 🙏\n\n' +
+                '🎸 *' + w.nama_barang + '*\nKode sewa: *' + w.kode + '*\n' +
+                'Mulai: ' + L.tgl(w.tgl_mulai) + '\nKembali paling lambat: *' + L.tgl(L.batasSewa(w)) + '* (' + w.hari + ' hari)\n\n' +
+                'Biaya sewa: ' + L.rupiah(h.tarif) + (h.dibayar >= h.tarif ? ' ✅ sudah dibayar' : ' (dibayar ' + L.rupiah(h.dibayar) + ')') + '\n' +
+                'Deposit: ' + L.rupiah(dep) + (h.deposit ? ' ✅ sudah diterima' : '') + ' (dikembalikan saat gitar kembali dalam kondisi baik)\n\n' +
+                'Ketentuan:\n' + L.ketentuanSewa(w).map(function (k) { return ++nomor + '. ' + k; }).join('\n') + '\n\n' +
+                'Mohon balas *SETUJU* bila ketentuan di atas sudah sesuai. ' + jamBuka() + 'Selamat bermain musik 🎸';
+        },
+        pengingat: function (w) {
+            var i = L.infoSewa(w), h = L.hitungSewa(w);
+            return 'Halo Kak ' + w.nama + ', kami mengingatkan sewa *' + w.nama_barang + '* (kode *' + w.kode + '*) ' +
+                (i.lewat ? 'sudah lewat batas kembali (' + L.tgl(L.batasSewa(w)) + '), terlambat ' + i.hariTelat + ' hari. Biaya sewa bertambah ' + L.rupiah(w.tarif_hari) + ' per hari keterlambatan.\n\nMohon segera dikembalikan atau kabari kami bila ingin memperpanjang.'
+                    : i.sisa ? 'harus dikembalikan besok, *' + L.tgl(L.batasSewa(w)) + '*.' : 'harus dikembalikan *hari ini*.') +
+                (i.lewat ? '' : '\nBila ingin memperpanjang, kabari kami ya.') + '\n' + jamBuka() + 'Terima kasih 🙏';
+        },
+        selesai: function (w) {
+            var h = L.hitungSewa(w), kembali = (w.bayar || []).filter(function (b) { return b.jenis === 'deposit_kembali'; }).reduce(function (t, b) { return t + (+b.jumlah || 0); }, 0);
+            return 'Halo Kak ' + w.nama + ', gitar *' + w.nama_barang + '* (kode *' + w.kode + '*) sudah kami terima kembali pada ' + L.tgl(w.tgl_kembali || L.hariIni()) + ' ✅\n\n' +
+                'Lama sewa: ' + h.hari + ' hari (' + L.rupiah(h.tarif) + ')\n' +
+                (h.gantiRugi ? 'Biaya kerusakan/ganti rugi: ' + L.rupiah(h.gantiRugi) + (w.ket_ganti_rugi ? ' (' + w.ket_ganti_rugi + ')' : '') + '\n' : '') +
+                'Deposit dikembalikan: *' + L.rupiah(kembali) + '*' + (h.masihHutang ? '\nKekurangan yang masih harus dibayar: *' + L.rupiah(h.masihHutang) + '*' : '') + '\n\nTerima kasih sudah menyewa di ' + C.toko.nama + ' 🙏';
+        }
+    };
+    L.strukSewa = function (w, opsi) {
+        opsi = opsi || {};
+        var p = penyusunStruk(opsi.lebar), h = L.hitungSewa(w);
+        p.kop(); p.tengah('BUKTI SEWA GITAR', { b: true }); p.tengah(w.kode, { b: true, besar: true }); p.garis();
+        p.dua('Penyewa', w.nama); p.dua('No. HP', '****' + L.hp4(w.hp)); p.kiri('Gitar: ' + w.nama_barang);
+        p.dua('Mulai', L.tgl(w.tgl_mulai)); p.dua('Kembali paling lambat', L.tgl(L.batasSewa(w)), { b: true }); p.garis();
+        p.dua(h.hari + ' hari x ' + L.rupiah(w.tarif_hari), L.rupiah(h.tarif));
+        p.dua('Sudah dibayar', L.rupiah(h.dibayar));
+        p.dua('Deposit diterima', L.rupiah(h.deposit), { b: true });
+        p.garis();
+        p.kiri('Deposit dikembalikan saat gitar kembali tanpa kerusakan. Telat dihitung tambahan hari sewa. Kerusakan/kehilangan dipotong dari deposit.');
+        p.kosong(); p.tengah('Terima kasih'); p.kosong(); p.kosong();
+        return p.out;
+    };
+    /* foto: kondisi gitar (tahap keluar/kembali) dienkripsi di situs seperti foto servis; foto KTP (tahap ktp) hanya di repo owner, tidak pernah di situs */
+    L.api.simpanSewa = function (rec, fotoBaru) {
+        rec = salin(rec);
+        var dv = ambilDasar(rec), dasar = dv.d, sekarang = new Date().toISOString(), lama = cari(data.sewa, rec.id), files = { situs: [], data: [], owner: [] };
+        var ktp = (fotoBaru || []).filter(function (f) { return f.tahap === 'ktp'; }), lain = (fotoBaru || []).filter(function (f) { return f.tahap !== 'ktp'; });
+        if (ktp.length && peran !== 'owner') return Promise.reject(new Error('Foto KTP hanya bisa ditambah oleh owner.'));
+        siapkanBaru(rec, data.sewa, 'SWA', sekarang);
+        if (!rec.fk) rec.fk = b64(crypto.getRandomValues(new Uint8Array(32)));
+        rec.bayar = rec.bayar || []; rec.foto = rec.foto || []; rec.updated_at = dv.ulang && rec.updated_at ? rec.updated_at : sekarang;
+        if (rec.status === 'selesai' && !rec.tgl_kembali) rec.tgl_kembali = L.hariIni();
+        return cekBentrok('sewa', rec, dasar, lama)
+            .then(function () { return unggahTerkunci(rec, lain, 'data/foto/', files.situs, function (fb) { return { keterangan: fb.keterangan || '', created_at: sekarang }; }); })
+            .then(function () { return unggahTerkunci(rec, ktp, 'foto/', PISAH ? files.owner : files.data, function () { return { keterangan: 'KTP', repo: 'data', created_at: sekarang }; }); })
+            .then(function () { hapusFotoHilang(lama, rec, files); return commitBila('owner', files.owner, 'Sewa: foto KTP'); })
+            .then(function () { return simpanDua('sewa', rec, files, 'Sewa: foto kondisi gitar', false, dasar); }).catch(tandaiRec(rec, dasar));
+    };
+    L.api.hapusSewa = function (rec) {
+        var files = hapusFoto(rec.foto || [], { situs: [], data: [], owner: [] });
+        return commitBila('owner', files.owner, 'Sewa: hapus foto KTP').then(function () { return hapusDua('sewa', rec, files, 'Sewa: hapus foto kondisi gitar'); });
     };
 
     /* ---------- stok (gitar & aksesoris) ----------

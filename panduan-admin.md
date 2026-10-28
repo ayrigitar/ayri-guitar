@@ -111,6 +111,19 @@ Barang yang **tersedia**, **ada harga jual**, dan dicentang **🌐 Tampilkan di 
 - Bagian atas daftar menampilkan **rekap**: unit tersedia (gitar baru/bekas/aksesoris), jumlah barang di katalog, modal di stok, perkiraan untung, serta penjualan **bulan ini**.
 - Barang yang lebih dari 90 hari di stok ditandai merah, sebagai tanda untuk dipromosikan atau diturunkan harganya.
 
+## Sewa gitar (menu **Sewa**)
+
+Gitar **used** di Stok bisa disewakan; unit tetap milik toko dan stoknya tidak berkurang. Selama disewa, unit itu tidak muncul di kasir.
+
+| Langkah | Cara |
+|---|---|
+| Sewa baru | **Sewa** → **+ Sewa baru** (atau di halaman stok tekan **Sewakan gitar ini**) → nama & WA penyewa, lama sewa, tarif, deposit → catat bayar sewa + deposit → foto kondisi gitar (dan KTP, hanya owner) → **Simpan sewa** → **WA: Kirim bukti & ketentuan** |
+| Perpanjang | Buka sewa → **Perpanjang** (hari) → catat pembayaran tambahan |
+| Pengingat | Sewa yang kembali besok, hari ini, atau telat muncul di **Hari ini**; tombol **Pengingat kembali** membuka WA |
+| Gitar kembali | **Gitar sudah dikembalikan** → isi biaya kerusakan bila ada → deposit dikembalikan dikurangi kekurangan sewa/ganti rugi → **Selesaikan sewa** → **WA: Kabari pengembalian** |
+
+Aturan awal (ubah di `layanan-config.js` bagian `sewa`): Rp100.000 per hari, paket 7 hari Rp600.000, deposit 30% harga jual (min Rp500.000, maks Rp3.000.000, bisa diubah per transaksi). Telat dihitung tambahan hari dengan tarif normal; kembali lebih awal tidak mengurangi biaya. Deposit bukan pendapatan: di **Rekap** hanya uang sewa dan deposit yang dipotong yang dihitung sebagai pendapatan sewa. Foto KTP hanya disimpan di repo owner.
+
 ## Yang dilihat pelanggan
 
 - **cek-servis.html** dan **nota.html**: hanya terbuka dengan kode servis + 4 digit terakhir HP.
