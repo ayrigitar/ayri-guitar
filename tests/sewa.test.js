@@ -115,20 +115,26 @@ test('struk sewa 58 mm memuat kode, batas kembali, deposit', async () => {
     assert.match(teks, /BUKTI SEWA GITAR/); assert.match(teks, /SWA-ABC123/); assert.match(teks, /Deposit diterima/);
 });
 
-test('penawaran sewa per unit memuat nama unit, tarif, deposit, link foto publik, dan ketentuan tanpa placeholder', async () => {
+test('pesan untuk calon penyewa dipisah: unit (tanpa ketentuan), ketentuan, formulir, pembayaran', async () => {
     const { L } = await mulai();
     const unit = stokContoh('s1', 1, { harga_jual: 1500000, foto: [{ id: 'f1', repo: 'publik', path: 'foto/stok/a.webp' }, { id: 'f2', repo: 'privat', path: 'x' }] });
-    const m = L.pesanSewa.tawar(unit, { nama_barang: 'Gitar Akustik Yamaha F310 – Used Very Good', deposit_rencana: 150000 });
-    assert.ok(m.includes('*Gitar Akustik Yamaha F310 – Used Very Good*'));
-    assert.ok(m.includes('1 hari: Rp100.000\n2 hari: Rp150.000\n3 hari: Rp175.000\nHari berikutnya: +Rp25.000 per hari\n7 hari (paket): Rp300.000'));
-    assert.ok(m.includes('Deposit Rp150.000'));
-    assert.ok(m.includes('Foto & detail gitar:\n') && m.includes('/unit/STK-S1.html'), 'unit ada di katalog: tautan halaman unit');
+    const w = { nama_barang: 'Gitar Akustik Yamaha F310 – Used Very Good', deposit_rencana: 150000, biaya_custom: 175000, hari: 3 };
+    const u = L.pesanSewa.calon.unit(unit, w);
+    assert.ok(u.startsWith('🎸 *Gitar Akustik Yamaha F310 – Used Very Good*'), 'tanpa sapaan: bisa dikirim berurutan untuk beberapa unit');
+    assert.ok(u.includes('1 hari Rp100.000 · 2 hari Rp150.000 · 3 hari Rp175.000 · 7 hari Rp300.000 (hari berikutnya +Rp25.000)'));
+    assert.ok(u.includes('Deposit: Rp150.000') && u.includes('/unit/STK-S1.html'));
+    assert.ok(!u.includes('Ketentuan') && !u.includes('SETUJU'), 'ketentuan tidak ikut di pesan unit');
     /* unit yang tidak tampil di katalog: foto publik ditautkan langsung, foto privat tidak */
-    const tersembunyi = L.pesanSewa.tawar(Object.assign({}, unit, { tampil: false }), { nama_barang: 'Gitar X', deposit_rencana: 150000 });
+    const tersembunyi = L.pesanSewa.calon.unit(Object.assign({}, unit, { tampil: false }), w);
     assert.ok(tersembunyi.includes('foto/stok/a.webp') && !tersembunyi.includes('privat') && !tersembunyi.includes('/unit/'));
-    assert.match(m, /Ketentuan:\n1\. /); assert.match(m, /Rp10\.000 per senar/);
-    assert.ok(!/undefined|[{]/.test(m), 'tidak ada placeholder tersisa');
-    /* unit Rp2 juta ke atas: tarif tidak distandarkan */
-    const mahal = L.pesanSewa.tawar(stokContoh('s2', 1, { harga_jual: 13000000 }), { nama_barang: 'Bass Fender', deposit_rencana: 1300000 });
-    assert.ok(mahal.includes('Tarif sewa: kami kabari sesuai lama sewa.') && !mahal.includes('1 hari: Rp100.000'));
+    /* unit Rp2 juta ke atas: estimasi tidak distandarkan */
+    const mahal = L.pesanSewa.calon.unit(stokContoh('s2', 1, { harga_jual: 13000000 }), { nama_barang: 'Bass Fender', deposit_rencana: 1300000 });
+    assert.ok(mahal.includes('kami kabari sesuai lama sewa') && !mahal.includes('1 hari Rp100.000'));
+    const k = L.pesanSewa.calon.ketentuan();
+    assert.match(k, /^Ketentuan sewa gitar di /); assert.match(k, /\n1\. /); assert.match(k, /Rp10\.000 per senar/); assert.match(k, /10% dari harga gitar/); assert.match(k, /SETUJU/);
+    const f = L.pesanSewa.calon.formulir(unit, w);
+    assert.ok(f.includes('Nama lengkap:') && f.includes('No. WhatsApp:') && f.includes('Gitar yang disewa: Gitar Akustik Yamaha F310') && f.includes('Lama sewa (hari):'));
+    const b = L.pesanSewa.calon.bayar(unit, w);
+    assert.ok(b.includes('Biaya sewa (3 hari): Rp175.000') && b.includes('Deposit: Rp150.000') && b.includes('Total dibayar di muka: Rp325.000') && b.includes('BCA'));
+    [u, k, f, b].forEach((t) => assert.ok(!/undefined|[{]/.test(t), 'tidak ada placeholder tersisa'));
 });

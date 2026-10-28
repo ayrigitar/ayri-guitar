@@ -1883,7 +1883,7 @@
         sw = { baru: true, antri: [], w: { nama: '', hp: '', stok_id: s.id, stok_kode: s.kode, nama_barang: nama, tgl_mulai: h, hari: 3, biaya_custom: L.tarifStandarUnit(s) ? L.tarifSewa(3) : 0, deposit_rencana: L.depositAwal(s.harga_jual), kondisi_keluar: '', status: 'aktif', bayar: [], foto: [] }, metode: 'tunai', bayarSewa: null, bayarDep: null };
         app.innerHTML = '<section id="sw" class="ly-f"><div class="ly-head"><a class="ly-back" href="#sewa">‹ Sewa gitar</a></div><div class="ly-head"><h1>Sewa baru</h1></div>' +
             '<fieldset class="ly-card ly-f"><legend>Gitar</legend><p style="margin:0"><b>' + E(nama) + '</b><br><small class="ly-muted">' + E(s.kode) + ' · harga jual ' + (s.harga_jual ? L.rupiah(s.harga_jual) : 'belum diisi') + '</small></p></fieldset>' +
-            barisWa([['tawar', 'Kirim penawaran &amp; foto', 'Tarif, deposit, ketentuan, dan link foto gitar ini. Tanpa nomor: pilih kontaknya di WhatsApp']], 'wa') +
+            barisWa([['unit', 'Kirim unit &amp; estimasi biaya', 'Nama unit, estimasi sewa, deposit, link foto'], ['ketentuan', 'Kirim ketentuan sewa', 'Kirim sekali saja, tidak diulang per unit'], ['formulir', 'Kirim formulir pendaftaran', 'Isian nama, WA, tanggal & lama sewa'], ['bayar', 'Kirim info pembayaran', 'Total bayar di muka + rekening']], 'wa') +
             '<fieldset class="ly-card ly-f"><legend>Penyewa</legend><div class="ly-row2"><label>Nama<input data-w="nama" autocomplete="off"></label><label>No. WhatsApp<input data-w="hp" type="tel" inputmode="tel" autocomplete="off" placeholder="08…"></label></div>' +
             '<p class="ly-hint" style="margin:0">Wajib: bukti sewa dan pengingat dikirim lewat WA.</p></fieldset>' +
             '<fieldset class="ly-card ly-f"><legend>Sewa</legend><div class="ly-row2"><label>Mulai<input type="date" data-w="tgl_mulai"></label><label>Lama (hari)<input type="number" inputmode="numeric" min="1" max="' + SWC.maksHari + '" data-w="hari"></label></div>' +
@@ -1927,7 +1927,7 @@
         el.addEventListener('change', function (e) { if (e.target.id === 'sw-metode') sw.metode = e.target.value; });
         el.addEventListener('click', function (e) {
             var b = e.target.closest('button'); if (!b) return;
-            if (b.dataset.wa === 'tawar') bukaWa('', L.pesanSewa.tawar(s, w));
+            if (b.dataset.wa) bukaWa('', L.pesanSewa.calon[b.dataset.wa](s, w)); /* tanpa nomor: kontaknya dipilih di WhatsApp */
             else if (b.dataset.hari) { $('[data-w="hari"]').value = b.dataset.hari; sw.bayarSewa = null; sw.bayarDep = null; sinkron(true); }
             else if (b.dataset.hapusq) { sw.antri = buangQ(sw.antri, b.dataset.hapusq); gambarFotoSewa(); }
             else if (b.id === 'sw-simpan') simpanSewaBaru();
