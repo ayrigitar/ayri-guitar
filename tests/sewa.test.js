@@ -122,3 +122,11 @@ test('draf info sewa untuk calon penyewa memuat tarif, deposit, dan ketentuan ta
     assert.match(m, /Deposit 10% dari harga gitar/); assert.match(m, /Ketentuan:\n1\. /); assert.match(m, /Rp10\.000 per senar/);
     assert.ok(!/undefined|\{/.test(m), 'tidak ada placeholder tersisa');
 });
+
+test('draf info servis untuk calon pelanggan memuat daftar jasa, ketentuan, dan jam buka tanpa data transaksi', async () => {
+    const { L } = await mulai();
+    const m = L.pesan.info();
+    assert.ok(m.includes('Basic Setup (Akustik) – Rp100.000'));
+    assert.ok(m.includes('Ketentuan servis:') && m.includes('Jam buka:'));
+    assert.ok(!/undefined|[{]/.test(m), 'tidak ada placeholder tersisa');
+});

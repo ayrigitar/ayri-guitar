@@ -190,6 +190,19 @@
     /* ---------- pesan WhatsApp servis ---------- */
     function jasaTeks(items) { return (items || []).map(function (i) { return '• ' + i.nama + (i.qty > 1 ? ' ×' + i.qty : '') + ' – ' + L.rupiah(i.harga * (i.qty || 1)); }).join('\n'); }
     L.pesan = {
+        /* info umum untuk calon pelanggan (tanpa data transaksi): daftar jasa & harga + ketentuan servis */
+        info: function () {
+            var grup = {}, urut = [];
+            C.katalogJasa.forEach(function (j) { if (!grup[j.grup]) { grup[j.grup] = []; urut.push(j.grup); } grup[j.grup].push(j); });
+            var t = 'Halo Kak, terima kasih sudah menghubungi ' + C.toko.nama + ' 🎸\n\nDaftar servis & harga jasa:\n';
+            urut.forEach(function (g) {
+                t += '\n*' + g + '*\n' + grup[g].map(function (j) {
+                    return '• ' + j.nama + ' – ' + (j.harga > 0 ? L.rupiah(j.harga) : 'sesuai kondisi (kami kabari dulu)') + (j.garansi ? ' (garansi ' + L.garansiLabel(j.garansi) + ')' : '');
+                }).join('\n') + '\n';
+            });
+            var n = 0;
+            return t + '\nKetentuan servis:\n' + L.ketentuan().map(function (k) { return ++n + '. ' + k.replace('menunjukkan nota ini', 'menunjukkan nota servis'); }).join('\n') + '\n' + jamBuka() + 'Alamat: ' + C.toko.alamat + '\n\nGitar apa yang mau diservis, dan apa keluhannya? 🙏';
+        },
         tandaTerima: function (s) {
             var h = L.hitung(s, s.items, s.bayar), t = 'Halo Kak ' + s.nama + ', gitar ' + L.namaGitar(s, 'Kakak') + ' sudah kami terima di ' + C.toko.nama + ' 🙏\n\n';
             t += 'Kode servis: *' + s.kode + '*\nTanggal masuk: ' + L.tgl(s.tgl_masuk) + '\n';
