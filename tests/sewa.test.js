@@ -21,11 +21,12 @@ test('tarif sewa standar: 100/150/175 ribu, lalu +25 ribu per hari, 7 hari 300 r
     assert.equal(L.tarifSewa(0), 0);
 });
 
-test('deposit awal: 50% dari biaya sewa, dibulatkan 5 ribu; unit di bawah 2 juta memakai tarif standar', async () => {
+test('deposit awal: 10% harga jual gitar (dibulatkan 5 ribu); unit di bawah 2 juta memakai tarif standar', async () => {
     const { L } = await mulai();
-    assert.equal(L.depositAwal(100000), 50000);
-    assert.equal(L.depositAwal(300000), 150000);
-    assert.equal(L.depositAwal(175000), 90000);
+    assert.equal(L.depositAwal(1500000), 150000);
+    assert.equal(L.depositAwal(13000000), 1300000);
+    assert.equal(L.depositAwal(1234000), 125000);
+    assert.equal(L.depositAwal(0), 0);
     assert.equal(L.tarifStandarUnit({ harga_jual: 1999000 }), true);
     assert.equal(L.tarifStandarUnit({ harga_jual: 2000000 }), false, '2 juta ke atas: isi manual');
     assert.match(L.ringkasTarifSewa(), /1 hari Rp100\.000, 2 hari Rp150\.000, 3 hari Rp175\.000, lalu \+Rp25\.000 per hari; 7 hari Rp300\.000/);
@@ -93,7 +94,7 @@ test('pesan WA sewa memuat batas kembali, deposit, dan ketentuan; pengingat memb
     const { L } = await mulai();
     const w = sewaContoh(L, { kode: 'SWA-ABC123', bayar: [{ jumlah: 300000, jenis: 'sewa' }, { jumlah: 500000, jenis: 'deposit' }] });
     const m = L.pesanSewa.mulai(w);
-    assert.match(m, /SWA-ABC123/); assert.match(m, /Ketentuan:\n1\. /); assert.match(m, /SETUJU/);
+    assert.match(m, /SWA-ABC123/); assert.match(m, /Ketentuan:\n1\. /); assert.match(m, /SETUJU/); assert.match(m, /denda Rp10\.000 per senar/); assert.match(m, /senar cadangan tersedia di dalam tas/); assert.match(m, /terpakai semua menjadi Rp60\.000/); assert.match(m, /jam operasional \(/); assert.match(m, /1x24 jam/);
     assert.ok(m.includes(L.tglPanjang(L.batasSewa(w))), 'tanggal batas kembali ada di ketentuan');
     assert.ok(m.includes(L.rupiah(500000)), 'deposit disebut');
     const telat = sewaContoh(L, { kode: 'SWA-ABC123', tgl_mulai: L.tambahHari(hariIni(), -5) });

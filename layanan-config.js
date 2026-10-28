@@ -81,13 +81,17 @@ var AYRI_LAYANAN = {
         tambahPerHari: 25000,          /* setiap hari berikutnya (hari ke-4, 5, 6 ...) */
         tarifMinggu: 300000,           /* paket tepat 7 hari; hari ke-8 dst. = paket + tambahPerHari per hari. 0 = tanpa paket */
         batasUnitStandar: 2000000,     /* unit berharga jual di bawah ini memakai tarif standar; yang lebih mahal diisi manual */
-        depositPersen: 50,             /* deposit awal = % dari biaya sewa */
+        depositPersen: 10,             /* deposit awal = % dari harga jual gitar */
+        dendaSenar: 10000,             /* denda per senar putus (senar dari toko baru; senar cadangan ada di tas gitar) */
+        senarCadangan: 6,              /* jumlah senar cadangan di tas; bila terpakai semua, dendanya senarCadangan x dendaSenar */
         maksHari: 30,                  /* durasi sewa terpanjang yang bisa dipilih */
-        /* tercetak di pesan WhatsApp; {batas}, {tambah}, {deposit} diganti otomatis */
+        /* tercetak di pesan WhatsApp; {batas}, {tambah}, {deposit}, {senar}, {senarSemua}, {jam} diganti otomatis */
         ketentuan: [
             'Gitar diserahkan dalam kondisi sesuai catatan/foto saat serah terima, dan harus dikembalikan dalam kondisi yang sama paling lambat {batas}.',
             'Biaya sewa dan deposit ({deposit}) dibayar di muka sebelum gitar dibawa. Deposit dikembalikan penuh saat gitar kembali tanpa kerusakan.',
-            'Bila ada kerusakan atau kehilangan, biaya perbaikan/penggantian dipotong dari deposit; kekurangannya ditanggung penyewa.',
+            'Senar gitar baru dari toko, dan senar cadangan tersedia di dalam tas gitar. Bila senar putus dikenakan denda {senar} per senar; bila senar cadangan terpakai semua menjadi {senarSemua}.',
+            'Bila ada kerusakan lain atau kehilangan, biaya perbaikan/penggantian dipotong dari deposit; kekurangannya ditanggung penyewa.',
+            'Satu hari sewa = 1x24 jam sejak gitar diambil. Gitar dikembalikan langsung ke toko, hanya pada jam operasional toko, yaitu {jam}, paling lambat pada hari berakhirnya masa sewa.',
             'Keterlambatan dihitung sebagai tambahan hari sewa sesuai daftar tarif (hari ke-4 dan seterusnya {tambah} per hari); pengembalian lebih awal tidak mengurangi biaya sewa.',
             'Gitar tidak boleh dipinjamkan, disewakan kembali, atau dijadikan jaminan kepada pihak lain.'
         ]

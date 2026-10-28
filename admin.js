@@ -1879,7 +1879,7 @@
     function formSewa(s) {
         if (!L.bisaDisewa(s, cache.sewa)) { app.innerHTML = '<p class="ly-kosong">Stok ' + E(s.kode) + ' tidak bisa disewakan (bukan gitar used, habis, ditarik, atau sedang disewa). <a href="#sewa">Kembali</a></p>'; return; }
         var h = L.hariIni(), nama = L.judulStok(s) + (s.warna ? ' (' + s.warna + ')' : '') + ' – Used' + (L.tingkatStok(s) ? ' ' + L.tingkatStok(s) : '');
-        sw = { baru: true, antri: [], w: { nama: '', hp: '', stok_id: s.id, stok_kode: s.kode, nama_barang: nama, tgl_mulai: h, hari: 3, biaya_custom: L.tarifStandarUnit(s) ? L.tarifSewa(3) : 0, deposit_rencana: L.tarifStandarUnit(s) ? L.depositAwal(L.tarifSewa(3)) : 0, kondisi_keluar: '', status: 'aktif', bayar: [], foto: [] }, metode: 'tunai', bayarSewa: null, bayarDep: null };
+        sw = { baru: true, antri: [], w: { nama: '', hp: '', stok_id: s.id, stok_kode: s.kode, nama_barang: nama, tgl_mulai: h, hari: 3, biaya_custom: L.tarifStandarUnit(s) ? L.tarifSewa(3) : 0, deposit_rencana: L.depositAwal(s.harga_jual), kondisi_keluar: '', status: 'aktif', bayar: [], foto: [] }, metode: 'tunai', bayarSewa: null, bayarDep: null };
         app.innerHTML = '<section id="sw" class="ly-f"><div class="ly-head"><a class="ly-back" href="#sewa">‹ Sewa gitar</a></div><div class="ly-head"><h1>Sewa baru</h1></div>' +
             '<fieldset class="ly-card ly-f"><legend>Gitar</legend><p style="margin:0"><b>' + E(nama) + '</b><br><small class="ly-muted">' + E(s.kode) + ' · harga jual ' + (s.harga_jual ? L.rupiah(s.harga_jual) : 'belum diisi') + '</small></p></fieldset>' +
             '<fieldset class="ly-card ly-f"><legend>Penyewa</legend><div class="ly-row2"><label>Nama<input data-w="nama" autocomplete="off"></label><label>No. WhatsApp<input data-w="hp" type="tel" inputmode="tel" autocomplete="off" placeholder="08…"></label></div>' +
@@ -1888,7 +1888,7 @@
             '<div class="ly-btns" id="sw-cepat">' + [1, 2, 3, 7, 14].map(function (d) { return '<button type="button" class="ly-btn ly-btn--sm" data-hari="' + d + '">' + d + ' hari</button>'; }).join('') + '</div>' +
             '<div class="ly-row2"><label>Biaya sewa (Rp)<input type="number" inputmode="numeric" min="0" step="5000" data-w="biaya_custom"></label><label>Deposit (Rp)<input type="number" inputmode="numeric" min="0" step="5000" data-w="deposit_rencana"></label></div>' +
             '<label>Metode bayar<select id="sw-metode">' + opsi([['tunai', 'Tunai'], ['transfer', 'Transfer'], ['qris', 'QRIS']], 'tunai') + '</select></label>' +
-            '<p class="ly-hint" style="margin:0">' + (L.tarifStandarUnit(s) ? 'Tarif standar: ' + L.ringkasTarifSewa() + '. Deposit awal ' + SWC.depositPersen + '% dari biaya sewa.' : '<b class="ly-warn">Unit ' + L.rupiah(SWC.batasUnitStandar) + ' ke atas: isi biaya sewa dan deposit sendiri.</b>') + ' Keduanya bisa diubah. Biaya sewa dan deposit dibayar di muka.</p>' +
+            '<p class="ly-hint" style="margin:0">' + (L.tarifStandarUnit(s) ? 'Tarif standar: ' + L.ringkasTarifSewa() + '.' : '<b class="ly-warn">Unit ' + L.rupiah(SWC.batasUnitStandar) + ' ke atas: isi biaya sewa sendiri.</b>') + ' Deposit awal ' + SWC.depositPersen + '% harga gitar. Keduanya bisa diubah. Biaya sewa dan deposit dibayar di muka.</p>' +
             '<div class="ly-row2"><label>Sewa dibayar sekarang (Rp)<input type="number" inputmode="numeric" min="0" step="5000" id="sw-bs"></label><label>Deposit diterima (Rp)<input type="number" inputmode="numeric" min="0" step="50000" id="sw-bd"></label></div>' +
             '<div class="ly-sum" id="sw-sum"></div></fieldset>' +
             '<fieldset class="ly-card ly-f"><legend>Kondisi saat keluar</legend><label>Catatan kondisi (lecet, bonus tas/kabel, dll.)<textarea data-w="kondisi_keluar" rows="2"></textarea></label><div id="sw-foto"></div>' +
@@ -1904,7 +1904,7 @@
             }
             /* biaya & deposit mengikuti tarif standar sampai diubah manual (unit mahal: kosong sampai diisi) */
             if (!sw.biayaManual && L.tarifStandarUnit(s)) w.biaya_custom = L.tarifSewa(w.hari);
-            if (!sw.depManual && L.tarifStandarUnit(s)) w.deposit_rencana = L.depositAwal(w.biaya_custom);
+            if (!sw.depManual) w.deposit_rencana = L.depositAwal(s.harga_jual);
             ['biaya_custom', 'deposit_rencana'].forEach(function (k) { var i = $('[data-w="' + k + '"]'); if (i !== document.activeElement) i.value = w[k] || ''; });
             var tarif = w.biaya_custom;
             if (sw.bayarSewa == null) $('#sw-bs').value = tarif; if (sw.bayarDep == null) $('#sw-bd').value = w.deposit_rencana;
@@ -1977,7 +1977,7 @@
             (aktif ? '<div class="ly-row2" style="margin-top:10px;align-items:end"><label>Perpanjang (hari)<input type="number" inputmode="numeric" min="1" max="' + SWC.maksHari + '" id="sw-perp" value="1"></label><button type="button" class="ly-btn" id="sw-perpanjang">Perpanjang</button></div>' : '') + '</fieldset>' +
             '<fieldset class="ly-card"><legend>Uang</legend><div class="ly-sum">' +
             '<div><span>Biaya sewa (' + h.hari + ' hari)</span><span>' + L.rupiah(h.tarif) + '</span></div>' +
-            (h.gantiRugi ? '<div><span>Biaya kerusakan / ganti rugi' + (w.ket_ganti_rugi ? '<br><small>' + E(w.ket_ganti_rugi) + '</small>' : '') + '</span><span>' + L.rupiah(h.gantiRugi) + '</span></div>' : '') +
+            (h.gantiRugi ? '<div><span>Denda &amp; ganti rugi' + (w.ket_ganti_rugi ? '<br><small>' + E(w.ket_ganti_rugi) + '</small>' : '') + '</span><span>' + L.rupiah(h.gantiRugi) + '</span></div>' : '') +
             '<div><span>Sudah dibayar (sewa)</span><span>' + L.rupiah(h.dibayar) + '</span></div>' +
             '<div><span>Deposit ' + (aktif ? 'ditahan' : 'diterima') + '</span><span>' + L.rupiah(aktif ? h.ditahan : h.deposit) + '</span></div>' +
             '<div class="ly-total"><span>' + (aktif ? 'Kurang bayar sewa saat ini' : 'Masih harus dibayar penyewa') + '</span><span' + ((aktif ? h.kurang : h.masihHutang) ? ' class="ly-telat"' : '') + '>' + L.rupiah(aktif ? h.kurang : h.masihHutang) + '</span></div></div>' +
@@ -2039,26 +2039,27 @@
     function panelSelesaiSewa() {
         var w = sw.w, el = $('#sw-selesai-isi'); if (!el) return;
         var metodeDep = (w.bayar.filter(function (b) { return b.jenis === 'deposit'; })[0] || {}).metode || 'tunai';
-        el.innerHTML = '<div class="ly-f"><div class="ly-row2"><label>Tanggal kembali<input type="date" id="sl-tgl"></label><label>Biaya kerusakan / ganti rugi (Rp)<input type="number" inputmode="numeric" min="0" step="10000" id="sl-rugi"></label></div>' +
-            '<label>Keterangan kerusakan (bila ada)<input id="sl-ket" placeholder="mis. senar putus, lecet di body"></label>' +
+        el.innerHTML = '<div class="ly-f"><div class="ly-row2"><label>Tanggal kembali<input type="date" id="sl-tgl"></label><label>Senar putus (buah, ' + L.rupiah(SWC.dendaSenar) + ' per senar, maks ' + SWC.senarCadangan + ' = ' + L.rupiah(SWC.dendaSenar * SWC.senarCadangan) + ')<input type="number" inputmode="numeric" min="0" max="' + SWC.senarCadangan + '" id="sl-senar" value="0"></label></div>' +
+            '<div class="ly-row2"><label>Kerusakan lain (Rp)<input type="number" inputmode="numeric" min="0" step="10000" id="sl-rugi"></label><label>Keterangan kerusakan lain<input id="sl-ket" placeholder="mis. lecet di body"></label></div>' +
             '<label>Deposit dikembalikan lewat<select id="sl-metode">' + opsi([['tunai', 'Tunai'], ['transfer', 'Transfer'], ['qris', 'QRIS']], metodeDep) + '</select></label>' +
             '<div class="ly-sum" id="sl-sum"></div><button type="button" class="ly-btn ly-btn--pri" id="sl-ok">Selesaikan sewa</button></div>';
         $('#sl-tgl').value = L.hariIni();
         function hitung() {
-            var t = Object.assign({}, w, { status: 'selesai', tgl_kembali: $('#sl-tgl').value || L.hariIni(), ganti_rugi: Math.max(0, Math.round(+$('#sl-rugi').value || 0)) }), h = L.hitungSewa(t);
-            $('#sl-sum').innerHTML = '<div><span>Biaya sewa (' + h.hari + ' hari)</span><span>' + L.rupiah(h.tarif) + '</span></div>' + (h.gantiRugi ? '<div><span>Ganti rugi</span><span>' + L.rupiah(h.gantiRugi) + '</span></div>' : '') +
+            var t = Object.assign({}, w, { status: 'selesai', tgl_kembali: $('#sl-tgl').value || L.hariIni(), ganti_rugi: Math.max(0, Math.round(+$('#sl-senar').value || 0)) * (+SWC.dendaSenar || 0) + Math.max(0, Math.round(+$('#sl-rugi').value || 0)) }), h = L.hitungSewa(t);
+            $('#sl-sum').innerHTML = '<div><span>Biaya sewa (' + h.hari + ' hari)</span><span>' + L.rupiah(h.tarif) + '</span></div>' + (h.gantiRugi ? '<div><span>Denda senar &amp; ganti rugi</span><span>' + L.rupiah(h.gantiRugi) + '</span></div>' : '') +
                 '<div><span>Sudah dibayar</span><span>' + L.rupiah(h.dibayar) + '</span></div><div><span>Deposit ditahan</span><span>' + L.rupiah(h.ditahan) + '</span></div>' +
                 '<div><span>Dipotong dari deposit</span><span>' + L.rupiah(h.potongDeposit) + '</span></div>' +
                 '<div class="ly-total"><span>Deposit dikembalikan ke penyewa</span><span>' + L.rupiah(h.harusKembali) + '</span></div>' +
                 (h.masihHutang ? '<div><span class="ly-warn">Masih harus dibayar penyewa</span><span class="ly-telat">' + L.rupiah(h.masihHutang) + '</span></div>' : '');
             return { t: t, h: h };
         }
-        $('#sl-tgl').addEventListener('input', hitung); $('#sl-rugi').addEventListener('input', hitung); hitung();
+        ['#sl-tgl', '#sl-senar', '#sl-rugi'].forEach(function (id) { $(id).addEventListener('input', hitung); }); hitung();
         $('#sl-ok').addEventListener('click', function () {
             var x = hitung(), t = x.t, h = x.h;
             if (t.tgl_kembali < w.tgl_mulai) return toast('Tanggal kembali tidak valid.', true);
             if (!confirm('Selesaikan sewa ' + w.kode + '? Deposit dikembalikan ' + L.rupiah(h.harusKembali) + (h.potongDeposit ? ', dipotong ' + L.rupiah(h.potongDeposit) : '') + '.')) return;
-            w.status = 'selesai'; w.tgl_kembali = t.tgl_kembali; w.ganti_rugi = t.ganti_rugi; w.ket_ganti_rugi = $('#sl-ket').value.trim();
+            w.status = 'selesai'; w.tgl_kembali = t.tgl_kembali; w.ganti_rugi = t.ganti_rugi; w.senar_putus = Math.max(0, Math.round(+$('#sl-senar').value || 0));
+            w.ket_ganti_rugi = [w.senar_putus ? 'senar putus ' + w.senar_putus : '', $('#sl-ket').value.trim()].filter(Boolean).join(', ');
             if (h.potongDeposit > 0) w.bayar.push({ id: idAcak(), tgl: t.tgl_kembali, jumlah: h.potongDeposit, jenis: 'deposit_potong', metode: metodeDep });
             if (h.harusKembali > 0) w.bayar.push({ id: idAcak(), tgl: t.tgl_kembali, jumlah: h.harusKembali, jenis: 'deposit_kembali', metode: $('#sl-metode').value });
             sw.selesai = false; simpanSewaIni(function () { toast('Sewa selesai. Kabari penyewa lewat tombol WA.'); });

@@ -11,7 +11,7 @@
         github: {}, toko: { nama: 'Toko Gitar AYRI', alamat: '', jam: '', wa: '', rekening: [] },
         tebus: { batasHari: 30, maksHari: 90, pengingatHari: [7, 1], fotoKtpMinHarga: 1000000, hapusKtpHari: 90, ketentuan: [] },
         jual: { batasHari: 30, potonganPersen: 10, pengingatHari: [7, 1], ketentuan: [] },
-        sewa: { tarifHarian: [[1, 100000]], tambahPerHari: 100000, tarifMinggu: 0, batasUnitStandar: 0, depositPersen: 50, maksHari: 30, ketentuan: [] }
+        sewa: { tarifHarian: [[1, 100000]], tambahPerHari: 100000, tarifMinggu: 0, batasUnitStandar: 0, depositPersen: 10, dendaSenar: 0, senarCadangan: 6, maksHari: 30, ketentuan: [] }
     };
     function lengkapi(c, d) {
         Object.keys(d).forEach(function (k) {
@@ -905,8 +905,8 @@
         if (minggu > 0 && hari > 7) return minggu + (hari - 7) * SW.tambahPerHari;
         return akhir[1] + (hari - akhir[0]) * SW.tambahPerHari;
     };
-    /* deposit awal: % dari biaya sewa, dibulatkan ke 5 ribu terdekat */
-    L.depositAwal = function (biaya) { return Math.round((+biaya || 0) * SW.depositPersen / 100 / 5000) * 5000; };
+    /* deposit awal: % dari harga jual gitar, dibulatkan ke 5 ribu terdekat */
+    L.depositAwal = function (hargaJual) { return Math.round((+hargaJual || 0) * SW.depositPersen / 100 / 5000) * 5000; };
     /* unit mahal tidak memakai tarif standar: biaya & deposit diisi manual */
     L.tarifStandarUnit = function (s) { return !(+SW.batasUnitStandar > 0 && (+s.harga_jual || 0) >= SW.batasUnitStandar); };
     /* ringkasan tarif standar untuk bantuan di formulir */
@@ -950,7 +950,7 @@
     L.bisaDisewa = function (s, list) { return s.kategori !== 'aksesoris' && s.kondisi === 'bekas' && +s.jumlah > 0 && s.status !== 'ditarik' && !L.sewaAktifStok(s.id, list); };
     L.ketentuanSewa = function (w) {
         return SW.ketentuan.map(function (k) {
-            return k.split('{batas}').join(L.tglPanjang(L.batasSewa(w))).split('{tambah}').join(L.rupiah(SW.tambahPerHari)).split('{deposit}').join(L.rupiah(w.deposit_rencana != null ? w.deposit_rencana : L.hitungSewa(w).deposit));
+            return k.split('{batas}').join(L.tglPanjang(L.batasSewa(w))).split('{tambah}').join(L.rupiah(SW.tambahPerHari)).split('{senar}').join(L.rupiah(SW.dendaSenar)).split('{senarSemua}').join(L.rupiah(SW.dendaSenar * SW.senarCadangan)).split('{jam}').join(C.toko.jam || 'jam buka toko').split('{deposit}').join(L.rupiah(w.deposit_rencana != null ? w.deposit_rencana : L.hitungSewa(w).deposit));
         });
     };
     L.pesanSewa = {
@@ -975,7 +975,7 @@
             var h = L.hitungSewa(w), kembali = (w.bayar || []).filter(function (b) { return b.jenis === 'deposit_kembali'; }).reduce(function (t, b) { return t + (+b.jumlah || 0); }, 0);
             return 'Halo Kak ' + w.nama + ', gitar *' + w.nama_barang + '* (kode *' + w.kode + '*) sudah kami terima kembali pada ' + L.tgl(w.tgl_kembali || L.hariIni()) + ' ✅\n\n' +
                 'Lama sewa: ' + h.hari + ' hari (' + L.rupiah(h.tarif) + ')\n' +
-                (h.gantiRugi ? 'Biaya kerusakan/ganti rugi: ' + L.rupiah(h.gantiRugi) + (w.ket_ganti_rugi ? ' (' + w.ket_ganti_rugi + ')' : '') + '\n' : '') +
+                (h.gantiRugi ? 'Denda/ganti rugi: ' + L.rupiah(h.gantiRugi) + (w.ket_ganti_rugi ? ' (' + w.ket_ganti_rugi + ')' : '') + '\n' : '') +
                 'Deposit dikembalikan: *' + L.rupiah(kembali) + '*' + (h.masihHutang ? '\nKekurangan yang masih harus dibayar: *' + L.rupiah(h.masihHutang) + '*' : '') + '\n\nTerima kasih sudah menyewa di ' + C.toko.nama + ' 🙏';
         }
     };
