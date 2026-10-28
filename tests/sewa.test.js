@@ -12,35 +12,35 @@ async function mulai(o) {
 }
 const sewaContoh = (L, ekstra) => Object.assign({
     nama: 'Rian', hp: '081234567890', stok_id: 's1', stok_kode: 'STK-S1', nama_barang: 'Gitar Akustik Yamaha F310', tgl_mulai: hariIni(), hari: 3,
-    tarif_hari: 100000, tarif_minggu: 600000, deposit_rencana: 500000, status: 'aktif', bayar: []
+    biaya_custom: 300000, deposit_rencana: 500000, status: 'aktif', bayar: []
 }, ekstra || {});
 
-test('tarif sewa: paket mingguan untuk tiap 7 hari, sisanya per hari tapi tidak lebih mahal dari paket', async () => {
+test('tarif sewa standar: 100/150/175 ribu, lalu +25 ribu per hari, 7 hari 300 ribu, sesudahnya +25 ribu', async () => {
     const { L } = await mulai();
-    assert.equal(L.tarifSewa(3, 100000, 600000), 300000);
-    assert.equal(L.tarifSewa(6, 100000, 600000), 600000);   /* 6 hari = paket, bukan lebih mahal */
-    assert.equal(L.tarifSewa(7, 100000, 600000), 600000);
-    assert.equal(L.tarifSewa(8, 100000, 600000), 700000);
-    assert.equal(L.tarifSewa(14, 100000, 600000), 1200000);
-    assert.equal(L.tarifSewa(7, 100000, 0), 700000, 'tanpa paket mingguan');
+    assert.deepEqual([1, 2, 3, 4, 5, 6, 7, 8, 10, 14].map((h) => L.tarifSewa(h)), [100000, 150000, 175000, 200000, 225000, 250000, 300000, 325000, 375000, 475000]);
+    assert.equal(L.tarifSewa(0), 0);
 });
 
-test('deposit awal: persen harga jual, dibulatkan 100 ribu, dibatasi min dan maks', async () => {
+test('deposit awal: 50% dari biaya sewa, dibulatkan 5 ribu; unit di bawah 2 juta memakai tarif standar', async () => {
     const { L } = await mulai();
-    assert.equal(L.depositAwal(1000000), 500000, 'di bawah minimum dinaikkan ke minimum');
-    assert.equal(L.depositAwal(5000000), 1500000);
-    assert.equal(L.depositAwal(13000000), 3000000, 'dibatasi maksimum');
-    assert.equal(L.depositAwal(0), 500000);
+    assert.equal(L.depositAwal(100000), 50000);
+    assert.equal(L.depositAwal(300000), 150000);
+    assert.equal(L.depositAwal(175000), 90000);
+    assert.equal(L.tarifStandarUnit({ harga_jual: 1999000 }), true);
+    assert.equal(L.tarifStandarUnit({ harga_jual: 2000000 }), false, '2 juta ke atas: isi manual');
+    assert.match(L.ringkasTarifSewa(), /1 hari Rp100\.000, 2 hari Rp150\.000, 3 hari Rp175\.000, lalu \+Rp25\.000 per hari; 7 hari Rp300\.000/);
 });
 
-test('hitung sewa: telat dihitung tambahan hari, kembali lebih awal tidak mengurangi', async () => {
+test('hitung sewa: telat dihitung tambahan hari, harga custom ikut, kembali lebih awal tidak mengurangi', async () => {
     const { L } = await mulai();
     const mulaiTgl = L.tambahHari(hariIni(), -5);
-    const w = sewaContoh(L, { tgl_mulai: mulaiTgl, hari: 3, tarif_minggu: 0 });
+    const w = sewaContoh(L, { tgl_mulai: mulaiTgl, hari: 3, biaya_custom: null });
     assert.equal(L.infoSewa(w).hariTelat, 2);
     assert.equal(L.hitungSewa(w).hari, 5, 'sudah 5 hari dipakai, dipesan 3');
-    assert.equal(L.hitungSewa(w).tarif, 500000);
-    const awal = sewaContoh(L, { tgl_mulai: mulaiTgl, hari: 3, tarif_minggu: 0, status: 'selesai', tgl_kembali: L.tambahHari(mulaiTgl, 1) });
+    assert.equal(L.hitungSewa(w).tarif, 225000, 'tarif standar 5 hari');
+    /* harga custom 3 hari = 300 ribu: hari lebihnya ditambah selisih tarif standar (225 - 175 = 50 ribu) */
+    assert.equal(L.hitungSewa(sewaContoh(L, { tgl_mulai: mulaiTgl, hari: 3, biaya_custom: 300000 })).tarif, 350000);
+    const awal = sewaContoh(L, { tgl_mulai: mulaiTgl, hari: 3, status: 'selesai', tgl_kembali: L.tambahHari(mulaiTgl, 1) });
     assert.equal(L.hitungSewa(awal).hari, 3, 'kembali hari ke-1, tetap ditagih 3 hari');
     assert.equal(L.batasSewa(w), L.tambahHari(mulaiTgl, 3));
 });
@@ -48,7 +48,7 @@ test('hitung sewa: telat dihitung tambahan hari, kembali lebih awal tidak mengur
 test('penutupan sewa: kekurangan dan ganti rugi diambil dari deposit, sisanya dikembalikan', async () => {
     const { L } = await mulai();
     const bayar = [{ jumlah: 300000, jenis: 'sewa' }, { jumlah: 500000, jenis: 'deposit' }];
-    let w = sewaContoh(L, { bayar, tarif_minggu: 0, status: 'selesai', tgl_kembali: L.tambahHari(hariIni(), 0), ganti_rugi: 150000 });
+    let w = sewaContoh(L, { bayar, status: 'selesai', tgl_kembali: L.tambahHari(hariIni(), 0), ganti_rugi: 150000 });
     let h = L.hitungSewa(w);
     assert.deepEqual([h.tagihan, h.potongDeposit, h.harusKembali, h.masihHutang], [450000, 150000, 350000, 0]);
     /* ganti rugi melebihi deposit: penyewa masih berhutang selisihnya */

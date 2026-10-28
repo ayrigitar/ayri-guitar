@@ -122,7 +122,7 @@ Gitar **used** di Stok bisa disewakan; unit tetap milik toko dan stoknya tidak b
 | Pengingat | Sewa yang kembali besok, hari ini, atau telat muncul di **Hari ini**; tombol **Pengingat kembali** membuka WA |
 | Gitar kembali | **Gitar sudah dikembalikan** → isi biaya kerusakan bila ada → deposit dikembalikan dikurangi kekurangan sewa/ganti rugi → **Selesaikan sewa** → **WA: Kabari pengembalian** |
 
-Aturan awal (ubah di `layanan-config.js` bagian `sewa`): Rp100.000 per hari, paket 7 hari Rp600.000, deposit 30% harga jual (min Rp500.000, maks Rp3.000.000, bisa diubah per transaksi). Telat dihitung tambahan hari dengan tarif normal; kembali lebih awal tidak mengurangi biaya. Deposit bukan pendapatan: di **Rekap** hanya uang sewa dan deposit yang dipotong yang dihitung sebagai pendapatan sewa. Foto KTP hanya disimpan di repo owner.
+Tarif standar untuk unit di bawah Rp2 juta (ubah di `layanan-config.js` bagian `sewa`): 1 hari Rp100.000, 2 hari Rp150.000, 3 hari Rp175.000, lalu +Rp25.000 per hari; 7 hari Rp300.000. Deposit awal 50% dari biaya sewa. Biaya sewa dan deposit dibayar di muka. Unit Rp2 juta ke atas: biaya dan deposit diisi sendiri; untuk semua unit, keduanya bisa diubah per transaksi. Telat dihitung tambahan hari sesuai daftar tarif; kembali lebih awal tidak mengurangi biaya. Deposit bukan pendapatan: di **Rekap** hanya uang sewa dan deposit yang dipotong yang dihitung sebagai pendapatan sewa. Foto KTP hanya disimpan di repo owner.
 
 ## Yang dilihat pelanggan
 

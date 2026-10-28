@@ -1879,16 +1879,16 @@
     function formSewa(s) {
         if (!L.bisaDisewa(s, cache.sewa)) { app.innerHTML = '<p class="ly-kosong">Stok ' + E(s.kode) + ' tidak bisa disewakan (bukan gitar used, habis, ditarik, atau sedang disewa). <a href="#sewa">Kembali</a></p>'; return; }
         var h = L.hariIni(), nama = L.judulStok(s) + (s.warna ? ' (' + s.warna + ')' : '') + ' – Used' + (L.tingkatStok(s) ? ' ' + L.tingkatStok(s) : '');
-        sw = { baru: true, antri: [], w: { nama: '', hp: '', stok_id: s.id, stok_kode: s.kode, nama_barang: nama, tgl_mulai: h, hari: 3, tarif_hari: +SWC.tarifHari || 0, tarif_minggu: +SWC.tarifMinggu || 0, deposit_rencana: L.depositAwal(s.harga_jual), kondisi_keluar: '', status: 'aktif', bayar: [], foto: [] }, metode: 'tunai', bayarSewa: null, bayarDep: null };
+        sw = { baru: true, antri: [], w: { nama: '', hp: '', stok_id: s.id, stok_kode: s.kode, nama_barang: nama, tgl_mulai: h, hari: 3, biaya_custom: L.tarifStandarUnit(s) ? L.tarifSewa(3) : 0, deposit_rencana: L.tarifStandarUnit(s) ? L.depositAwal(L.tarifSewa(3)) : 0, kondisi_keluar: '', status: 'aktif', bayar: [], foto: [] }, metode: 'tunai', bayarSewa: null, bayarDep: null };
         app.innerHTML = '<section id="sw" class="ly-f"><div class="ly-head"><a class="ly-back" href="#sewa">‹ Sewa gitar</a></div><div class="ly-head"><h1>Sewa baru</h1></div>' +
             '<fieldset class="ly-card ly-f"><legend>Gitar</legend><p style="margin:0"><b>' + E(nama) + '</b><br><small class="ly-muted">' + E(s.kode) + ' · harga jual ' + (s.harga_jual ? L.rupiah(s.harga_jual) : 'belum diisi') + '</small></p></fieldset>' +
             '<fieldset class="ly-card ly-f"><legend>Penyewa</legend><div class="ly-row2"><label>Nama<input data-w="nama" autocomplete="off"></label><label>No. WhatsApp<input data-w="hp" type="tel" inputmode="tel" autocomplete="off" placeholder="08…"></label></div>' +
             '<p class="ly-hint" style="margin:0">Wajib: bukti sewa dan pengingat dikirim lewat WA.</p></fieldset>' +
             '<fieldset class="ly-card ly-f"><legend>Sewa</legend><div class="ly-row2"><label>Mulai<input type="date" data-w="tgl_mulai"></label><label>Lama (hari)<input type="number" inputmode="numeric" min="1" max="' + SWC.maksHari + '" data-w="hari"></label></div>' +
-            '<div class="ly-btns" id="sw-cepat">' + [1, 3, 7, 14].map(function (d) { return '<button type="button" class="ly-btn ly-btn--sm" data-hari="' + d + '">' + d + ' hari</button>'; }).join('') + '</div>' +
-            '<div class="ly-row2"><label>Tarif per hari (Rp)<input type="number" inputmode="numeric" min="0" step="5000" data-w="tarif_hari"></label><label>Paket 7 hari (Rp, 0 = tanpa)<input type="number" inputmode="numeric" min="0" step="10000" data-w="tarif_minggu"></label></div>' +
-            '<div class="ly-row2"><label>Deposit (Rp)<input type="number" inputmode="numeric" min="0" step="50000" data-w="deposit_rencana"></label><label>Metode bayar<select id="sw-metode">' + opsi([['tunai', 'Tunai'], ['transfer', 'Transfer'], ['qris', 'QRIS']], 'tunai') + '</select></label></div>' +
-            '<p class="ly-hint" style="margin:0">Deposit awal ' + SWC.depositPersen + '% harga jual (min ' + L.rupiah(SWC.depositMin) + (+SWC.depositMaks > 0 ? ', maks ' + L.rupiah(SWC.depositMaks) : '') + '); ubah sesuai nilai gitar dan penyewa.</p>' +
+            '<div class="ly-btns" id="sw-cepat">' + [1, 2, 3, 7, 14].map(function (d) { return '<button type="button" class="ly-btn ly-btn--sm" data-hari="' + d + '">' + d + ' hari</button>'; }).join('') + '</div>' +
+            '<div class="ly-row2"><label>Biaya sewa (Rp)<input type="number" inputmode="numeric" min="0" step="5000" data-w="biaya_custom"></label><label>Deposit (Rp)<input type="number" inputmode="numeric" min="0" step="5000" data-w="deposit_rencana"></label></div>' +
+            '<label>Metode bayar<select id="sw-metode">' + opsi([['tunai', 'Tunai'], ['transfer', 'Transfer'], ['qris', 'QRIS']], 'tunai') + '</select></label>' +
+            '<p class="ly-hint" style="margin:0">' + (L.tarifStandarUnit(s) ? 'Tarif standar: ' + L.ringkasTarifSewa() + '. Deposit awal ' + SWC.depositPersen + '% dari biaya sewa.' : '<b class="ly-warn">Unit ' + L.rupiah(SWC.batasUnitStandar) + ' ke atas: isi biaya sewa dan deposit sendiri.</b>') + ' Keduanya bisa diubah. Biaya sewa dan deposit dibayar di muka.</p>' +
             '<div class="ly-row2"><label>Sewa dibayar sekarang (Rp)<input type="number" inputmode="numeric" min="0" step="5000" id="sw-bs"></label><label>Deposit diterima (Rp)<input type="number" inputmode="numeric" min="0" step="50000" id="sw-bd"></label></div>' +
             '<div class="ly-sum" id="sw-sum"></div></fieldset>' +
             '<fieldset class="ly-card ly-f"><legend>Kondisi saat keluar</legend><label>Catatan kondisi (lecet, bonus tas/kabel, dll.)<textarea data-w="kondisi_keluar" rows="2"></textarea></label><div id="sw-foto"></div>' +
@@ -1899,10 +1899,14 @@
         function angka(x) { return Math.max(0, Math.round(+x || 0)); }
         function sinkron(dariUbah) {
             if (dariUbah) {
-                $$('[data-w]', el).forEach(function (i) { var k = i.dataset.w; w[k] = /^(hari|tarif_hari|tarif_minggu|deposit_rencana)$/.test(k) ? angka(i.value) : i.value; });
+                $$('[data-w]', el).forEach(function (i) { var k = i.dataset.w; w[k] = /^(hari|biaya_custom|deposit_rencana)$/.test(k) ? angka(i.value) : i.value; });
                 w.hari = Math.min(+SWC.maksHari || 365, Math.max(1, w.hari || 1)); w.nama = w.nama.trim(); w.hp = w.hp.trim();
             }
-            var tarif = L.tarifSewa(w.hari, w.tarif_hari, w.tarif_minggu);
+            /* biaya & deposit mengikuti tarif standar sampai diubah manual (unit mahal: kosong sampai diisi) */
+            if (!sw.biayaManual && L.tarifStandarUnit(s)) w.biaya_custom = L.tarifSewa(w.hari);
+            if (!sw.depManual && L.tarifStandarUnit(s)) w.deposit_rencana = L.depositAwal(w.biaya_custom);
+            ['biaya_custom', 'deposit_rencana'].forEach(function (k) { var i = $('[data-w="' + k + '"]'); if (i !== document.activeElement) i.value = w[k] || ''; });
+            var tarif = w.biaya_custom;
             if (sw.bayarSewa == null) $('#sw-bs').value = tarif; if (sw.bayarDep == null) $('#sw-bd').value = w.deposit_rencana;
             $('#sw-sum').innerHTML = '<div><span>' + w.hari + ' hari · kembali paling lambat</span><span>' + L.tgl(L.batasSewa(w)) + '</span></div><div><span>Biaya sewa</span><span>' + L.rupiah(tarif) + '</span></div>' +
                 '<div><span>Deposit (dikembalikan)</span><span>' + L.rupiah(w.deposit_rencana) + '</span></div><div class="ly-total"><span>Total dibayar penyewa sekarang</span><span>' + L.rupiah(angka($('#sw-bs').value) + angka($('#sw-bd').value)) + '</span></div>';
@@ -1910,13 +1914,18 @@
         }
         el.addEventListener('input', function (e) {
             if (e.target.id === 'sw-bs') sw.bayarSewa = angka(e.target.value); else if (e.target.id === 'sw-bd') sw.bayarDep = angka(e.target.value);
-            else { if (/^(hari|tarif_hari|tarif_minggu)$/.test(e.target.dataset.w)) sw.bayarSewa = null; if (e.target.dataset.w === 'deposit_rencana') sw.bayarDep = null; }
+            else {
+                var kk = e.target.dataset.w;
+                if (kk === 'hari') { sw.bayarSewa = null; sw.bayarDep = null; }
+                else if (kk === 'biaya_custom') { sw.biayaManual = true; sw.bayarSewa = null; sw.bayarDep = null; }
+                else if (kk === 'deposit_rencana') { sw.depManual = true; sw.bayarDep = null; }
+            }
             sinkron(true);
         });
         el.addEventListener('change', function (e) { if (e.target.id === 'sw-metode') sw.metode = e.target.value; });
         el.addEventListener('click', function (e) {
             var b = e.target.closest('button'); if (!b) return;
-            if (b.dataset.hari) { $('[data-w="hari"]').value = b.dataset.hari; sw.bayarSewa = null; sinkron(true); }
+            if (b.dataset.hari) { $('[data-w="hari"]').value = b.dataset.hari; sw.bayarSewa = null; sw.bayarDep = null; sinkron(true); }
             else if (b.dataset.hapusq) { sw.antri = buangQ(sw.antri, b.dataset.hapusq); gambarFotoSewa(); }
             else if (b.id === 'sw-simpan') simpanSewaBaru();
         });
@@ -1937,7 +1946,8 @@
         var w = sw.w, bs = Math.max(0, Math.round(+$('#sw-bs').value || 0)), bd = Math.max(0, Math.round(+$('#sw-bd').value || 0)), t = L.tgl(w.tgl_mulai);
         if (!w.nama) return toast('Isi nama penyewa.', true);
         if (L.hp4(w.hp).length < 4) return toast('Isi nomor WhatsApp penyewa.', true);
-        if (!(w.tarif_hari > 0)) return toast('Isi tarif per hari.', true);
+        if (!(w.biaya_custom > 0)) return toast('Isi biaya sewa.', true);
+        if (bs < w.biaya_custom && !confirm('Biaya sewa dibayar (' + L.rupiah(bs) + ') kurang dari ' + L.rupiah(w.biaya_custom) + '. Aturan toko: sewa dibayar di muka. Tetap simpan?')) return;
         if (!w.tgl_mulai) return toast('Isi tanggal mulai.', true);
         if (sw.antri.some(function (q) { return !q.hasil; })) return toast('Foto masih diproses, tunggu sebentar.', true);
         if (!w.deposit_rencana && !confirm('Deposit Rp0. Tetap sewakan tanpa deposit?')) return;
@@ -1962,7 +1972,7 @@
             (aktif ? '<div><span>Kembali paling lambat</span><span' + (i.lewat ? ' class="ly-telat"' : '') + '>' + L.tgl(L.batasSewa(w)) + (i.lewat ? ' (telat ' + i.hariTelat + ' hari)' : i.sisa ? ' (' + i.sisa + ' hari lagi)' : ' (hari ini)') + '</span></div>'
                 : '<div><span>Dikembalikan</span><span>' + L.tgl(w.tgl_kembali) + '</span></div>') +
             '<div><span>Lama sewa ditagih</span><span>' + h.hari + ' hari' + (h.hari > w.hari ? ' (dipesan ' + w.hari + ')' : '') + '</span></div>' +
-            '<div><span>Tarif</span><span>' + L.rupiah(w.tarif_hari) + '/hari' + (+w.tarif_minggu > 0 ? ' · 7 hari ' + L.rupiah(w.tarif_minggu) : '') + '</span></div>' +
+            '<div><span>Biaya sewa dipesan (' + w.hari + ' hari)</span><span>' + L.rupiah(w.biaya_custom != null ? w.biaya_custom : L.tarifSewa(w.hari)) + '</span></div>' +
             '<div><span>No. WhatsApp</span><span>' + E(w.hp) + '</span></div></div>' +
             (aktif ? '<div class="ly-row2" style="margin-top:10px;align-items:end"><label>Perpanjang (hari)<input type="number" inputmode="numeric" min="1" max="' + SWC.maksHari + '" id="sw-perp" value="1"></label><button type="button" class="ly-btn" id="sw-perpanjang">Perpanjang</button></div>' : '') + '</fieldset>' +
             '<fieldset class="ly-card"><legend>Uang</legend><div class="ly-sum">' +
@@ -2007,9 +2017,9 @@
             }
             else if (b.id === 'sw-perpanjang') {
                 var n = Math.round(+$('#sw-perp').value || 0); if (n < 1) return toast('Isi jumlah hari perpanjangan.', true);
-                var tambah = L.tarifSewa(w.hari + n, w.tarif_hari, w.tarif_minggu) - L.tarifSewa(w.hari, w.tarif_hari, w.tarif_minggu);
+                var tambah = L.tarifSewa(w.hari + n) - L.tarifSewa(w.hari);
                 if (!confirm('Perpanjang ' + n + ' hari? Kembali paling lambat jadi ' + L.tgl(L.tambahHari(L.batasSewa(w), n)) + '. Biaya tambahan ' + L.rupiah(tambah) + '.')) return;
-                w.hari += n; simpanSewaIni(function () { toast('Diperpanjang. Catat pembayaran tambahan bila sudah dibayar.'); });
+                w.hari += n; if (w.biaya_custom != null) w.biaya_custom = (+w.biaya_custom || 0) + tambah; simpanSewaIni(function () { toast('Diperpanjang. Catat pembayaran tambahan bila sudah dibayar.'); });
             }
             else if (b.id === 'sw-selesai') { if (dirty) return toast('Simpan perubahan dulu.', true); sw.selesai = true; b.hidden = true; panelSelesaiSewa(); }
             else if (b.id === 'sw-cetak') cetakBaris(L.strukSewa(w));

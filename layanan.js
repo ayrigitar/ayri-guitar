@@ -11,7 +11,7 @@
         github: {}, toko: { nama: 'Toko Gitar AYRI', alamat: '', jam: '', wa: '', rekening: [] },
         tebus: { batasHari: 30, maksHari: 90, pengingatHari: [7, 1], fotoKtpMinHarga: 1000000, hapusKtpHari: 90, ketentuan: [] },
         jual: { batasHari: 30, potonganPersen: 10, pengingatHari: [7, 1], ketentuan: [] },
-        sewa: { tarifHari: 100000, tarifMinggu: 0, depositPersen: 30, depositMin: 0, depositMaks: 0, maksHari: 30, ketentuan: [] }
+        sewa: { tarifHarian: [[1, 100000]], tambahPerHari: 100000, tarifMinggu: 0, batasUnitStandar: 0, depositPersen: 50, maksHari: 30, ketentuan: [] }
     };
     function lengkapi(c, d) {
         Object.keys(d).forEach(function (k) {
@@ -896,17 +896,22 @@
        Data lengkap (nama, HP, foto KTP & kondisi terenkripsi) hanya di repo privat bersama (sewa.json); tidak ada halaman publik. */
     var SW = C.sewa;
     L.STATUS_SEWA = { aktif: 'Sedang disewa', selesai: 'Dikembalikan', batal: 'Dibatalkan' };
-    /* tarif untuk n hari: tiap 7 hari penuh memakai paket mingguan, sisanya per hari (tidak pernah lebih mahal dari paket) */
-    L.tarifSewa = function (hari, tarifHari, tarifMinggu) {
-        hari = Math.max(0, Math.round(+hari || 0)); tarifHari = +tarifHari || 0; tarifMinggu = +tarifMinggu || 0;
-        if (!(tarifMinggu > 0)) return hari * tarifHari;
-        return Math.floor(hari / 7) * tarifMinggu + Math.min((hari % 7) * tarifHari, tarifMinggu);
+    /* tarif standar untuk n hari: daftar tarifHarian (1, 2, 3 hari), lalu +tambahPerHari tiap hari; tepat 7 hari = paket mingguan, sesudahnya paket + tambahPerHari */
+    L.tarifSewa = function (hari) {
+        hari = Math.max(0, Math.round(+hari || 0)); if (!hari) return 0;
+        var daftar = SW.tarifHarian, akhir = daftar[daftar.length - 1], ada = daftar.filter(function (x) { return x[0] === hari; })[0], minggu = +SW.tarifMinggu || 0;
+        if (ada) return ada[1];
+        if (minggu > 0 && hari === 7) return minggu;
+        if (minggu > 0 && hari > 7) return minggu + (hari - 7) * SW.tambahPerHari;
+        return akhir[1] + (hari - akhir[0]) * SW.tambahPerHari;
     };
-    /* deposit awal: % harga jual unit, dibulatkan ke 100 ribu terdekat, di antara batas bawah & atas */
-    L.depositAwal = function (hargaJual) {
-        var d = Math.round((+hargaJual || 0) * SW.depositPersen / 100 / 100000) * 100000;
-        d = Math.max(d, +SW.depositMin || 0); if (+SW.depositMaks > 0) d = Math.min(d, +SW.depositMaks);
-        return d;
+    /* deposit awal: % dari biaya sewa, dibulatkan ke 5 ribu terdekat */
+    L.depositAwal = function (biaya) { return Math.round((+biaya || 0) * SW.depositPersen / 100 / 5000) * 5000; };
+    /* unit mahal tidak memakai tarif standar: biaya & deposit diisi manual */
+    L.tarifStandarUnit = function (s) { return !(+SW.batasUnitStandar > 0 && (+s.harga_jual || 0) >= SW.batasUnitStandar); };
+    /* ringkasan tarif standar untuk bantuan di formulir */
+    L.ringkasTarifSewa = function () {
+        return SW.tarifHarian.map(function (x) { return x[0] + ' hari ' + L.rupiah(x[1]); }).join(', ') + ', lalu +' + L.rupiah(SW.tambahPerHari) + ' per hari' + (+SW.tarifMinggu > 0 ? '; 7 hari ' + L.rupiah(SW.tarifMinggu) : '');
     };
     L.batasSewa = function (w) { return L.tambahHari(w.tgl_mulai, Math.max(1, +w.hari || 1)); };
     /* sisa hari sampai batas kembali (negatif = telat) */
@@ -920,8 +925,13 @@
         return Math.max(1, +w.hari || 1, L.hariAntara(w.tgl_mulai, akhir));
     };
     /* bayar: sewa (pendapatan), deposit (titipan), deposit_potong (deposit dipakai membayar sewa/ganti rugi; tanpa uang bergerak), deposit_kembali */
+    /* biaya sewa untuk n hari ditagih: biaya yang disepakati (biaya_custom) untuk hari yang dipesan + tambahan menurut tarif standar untuk hari lebihnya (telat) */
+    L.biayaSewa = function (w, hari) {
+        if (w.biaya_custom == null || w.biaya_custom === '') return L.tarifSewa(hari);
+        return (+w.biaya_custom || 0) + Math.max(0, L.tarifSewa(hari) - L.tarifSewa(w.hari));
+    };
     L.hitungSewa = function (w, hariIni) {
-        var hari = L.hariTagihSewa(w, hariIni), sewa = L.tarifSewa(hari, w.tarif_hari, w.tarif_minggu), s = { sewa: 0, deposit: 0, potong: 0, kembali: 0 };
+        var hari = L.hariTagihSewa(w, hariIni), sewa = L.biayaSewa(w, hari), s = { sewa: 0, deposit: 0, potong: 0, kembali: 0 };
         (w.bayar || []).forEach(function (b) { var j = +b.jumlah || 0; if (b.jenis === 'deposit') s.deposit += j; else if (b.jenis === 'deposit_potong') s.potong += j; else if (b.jenis === 'deposit_kembali') s.kembali += j; else s.sewa += j; });
         var gantiRugi = +w.ganti_rugi || 0, tagihan = sewa + gantiRugi, ditahan = Math.max(0, s.deposit - s.potong - s.kembali);
         /* kebutuhan = tagihan yang belum tertutup uang sewa maupun potongan deposit; diambil dari deposit yang masih ditahan, sisanya dikembalikan */
@@ -940,7 +950,7 @@
     L.bisaDisewa = function (s, list) { return s.kategori !== 'aksesoris' && s.kondisi === 'bekas' && +s.jumlah > 0 && s.status !== 'ditarik' && !L.sewaAktifStok(s.id, list); };
     L.ketentuanSewa = function (w) {
         return SW.ketentuan.map(function (k) {
-            return k.split('{batas}').join(L.tglPanjang(L.batasSewa(w))).split('{tarif}').join(L.rupiah(w.tarif_hari) + '/hari').split('{deposit}').join(L.rupiah(w.deposit_rencana != null ? w.deposit_rencana : L.hitungSewa(w).deposit));
+            return k.split('{batas}').join(L.tglPanjang(L.batasSewa(w))).split('{tambah}').join(L.rupiah(SW.tambahPerHari)).split('{deposit}').join(L.rupiah(w.deposit_rencana != null ? w.deposit_rencana : L.hitungSewa(w).deposit));
         });
     };
     L.pesanSewa = {
@@ -949,7 +959,7 @@
             return 'Halo Kak ' + w.nama + ', terima kasih sudah menyewa di ' + C.toko.nama + ' 🙏\n\n' +
                 '🎸 *' + w.nama_barang + '*\nKode sewa: *' + w.kode + '*\n' +
                 'Mulai: ' + L.tgl(w.tgl_mulai) + '\nKembali paling lambat: *' + L.tgl(L.batasSewa(w)) + '* (' + w.hari + ' hari)\n\n' +
-                'Biaya sewa: ' + L.rupiah(h.tarif) + (h.dibayar >= h.tarif ? ' ✅ sudah dibayar' : ' (dibayar ' + L.rupiah(h.dibayar) + ')') + '\n' +
+                'Biaya sewa: ' + L.rupiah(h.tarif) + (h.dibayar >= h.tarif ? ' ✅ sudah dibayar' : ' (baru dibayar ' + L.rupiah(h.dibayar) + '; sisanya dibayar sebelum gitar dibawa)') + '\n' +
                 'Deposit: ' + L.rupiah(dep) + (h.deposit ? ' ✅ sudah diterima' : '') + ' (dikembalikan saat gitar kembali dalam kondisi baik)\n\n' +
                 'Ketentuan:\n' + L.ketentuanSewa(w).map(function (k) { return ++nomor + '. ' + k; }).join('\n') + '\n\n' +
                 'Mohon balas *SETUJU* bila ketentuan di atas sudah sesuai. ' + jamBuka() + 'Selamat bermain musik 🎸';
@@ -957,7 +967,7 @@
         pengingat: function (w) {
             var i = L.infoSewa(w), h = L.hitungSewa(w);
             return 'Halo Kak ' + w.nama + ', kami mengingatkan sewa *' + w.nama_barang + '* (kode *' + w.kode + '*) ' +
-                (i.lewat ? 'sudah lewat batas kembali (' + L.tgl(L.batasSewa(w)) + '), terlambat ' + i.hariTelat + ' hari. Biaya sewa bertambah ' + L.rupiah(w.tarif_hari) + ' per hari keterlambatan.\n\nMohon segera dikembalikan atau kabari kami bila ingin memperpanjang.'
+                (i.lewat ? 'sudah lewat batas kembali (' + L.tgl(L.batasSewa(w)) + '), terlambat ' + i.hariTelat + ' hari. Biaya sewa bertambah sesuai hari keterlambatan.\n\nMohon segera dikembalikan atau kabari kami bila ingin memperpanjang.'
                     : i.sisa ? 'harus dikembalikan besok, *' + L.tgl(L.batasSewa(w)) + '*.' : 'harus dikembalikan *hari ini*.') +
                 (i.lewat ? '' : '\nBila ingin memperpanjang, kabari kami ya.') + '\n' + jamBuka() + 'Terima kasih 🙏';
         },
@@ -975,7 +985,7 @@
         p.kop(); p.tengah('BUKTI SEWA GITAR', { b: true }); p.tengah(w.kode, { b: true, besar: true }); p.garis();
         p.dua('Penyewa', w.nama); p.dua('No. HP', '****' + L.hp4(w.hp)); p.kiri('Gitar: ' + w.nama_barang);
         p.dua('Mulai', L.tgl(w.tgl_mulai)); p.dua('Kembali paling lambat', L.tgl(L.batasSewa(w)), { b: true }); p.garis();
-        p.dua(h.hari + ' hari x ' + L.rupiah(w.tarif_hari), L.rupiah(h.tarif));
+        p.dua('Sewa ' + h.hari + ' hari', L.rupiah(h.tarif));
         p.dua('Sudah dibayar', L.rupiah(h.dibayar));
         p.dua('Deposit diterima', L.rupiah(h.deposit), { b: true });
         p.garis();

@@ -75,20 +75,20 @@ var AYRI_LAYANAN = {
         ['good', 'Good', 'bekas pakai terlihat (goresan, penyok kecil), fungsi tetap baik']
     ],
     /* ---------- sewa gitar (unit used dari stok) ----------
-       Tarif & deposit hanya nilai awal di formulir; bisa diubah per transaksi. */
+       Biaya & deposit hanya nilai awal di formulir; bisa diubah per transaksi (unit mahal diisi manual). */
     sewa: {
-        tarifHari: 100000,             /* tarif per hari */
-        tarifMinggu: 600000,           /* paket 7 hari (bayar seperti 6 hari); 0 = tanpa paket mingguan */
-        depositPersen: 30,             /* deposit awal = % harga jual unit ... */
-        depositMin: 500000,            /* ... tetapi tidak kurang dari ini */
-        depositMaks: 3000000,          /* ... dan tidak lebih dari ini (0 = tanpa batas) */
+        tarifHarian: [[1, 100000], [2, 150000], [3, 175000]],   /* biaya total untuk 1, 2, 3 hari */
+        tambahPerHari: 25000,          /* setiap hari berikutnya (hari ke-4, 5, 6 ...) */
+        tarifMinggu: 300000,           /* paket tepat 7 hari; hari ke-8 dst. = paket + tambahPerHari per hari. 0 = tanpa paket */
+        batasUnitStandar: 2000000,     /* unit berharga jual di bawah ini memakai tarif standar; yang lebih mahal diisi manual */
+        depositPersen: 50,             /* deposit awal = % dari biaya sewa */
         maksHari: 30,                  /* durasi sewa terpanjang yang bisa dipilih */
-        /* tercetak di pesan WhatsApp; {batas}, {tarif}, {deposit} diganti otomatis */
+        /* tercetak di pesan WhatsApp; {batas}, {tambah}, {deposit} diganti otomatis */
         ketentuan: [
             'Gitar diserahkan dalam kondisi sesuai catatan/foto saat serah terima, dan harus dikembalikan dalam kondisi yang sama paling lambat {batas}.',
-            'Deposit {deposit} dibayar saat serah terima dan dikembalikan penuh saat gitar kembali tanpa kerusakan.',
+            'Biaya sewa dan deposit ({deposit}) dibayar di muka sebelum gitar dibawa. Deposit dikembalikan penuh saat gitar kembali tanpa kerusakan.',
             'Bila ada kerusakan atau kehilangan, biaya perbaikan/penggantian dipotong dari deposit; kekurangannya ditanggung penyewa.',
-            'Keterlambatan dihitung sebagai tambahan hari sewa dengan tarif normal ({tarif}); pengembalian lebih awal tidak mengurangi biaya sewa.',
+            'Keterlambatan dihitung sebagai tambahan hari sewa sesuai daftar tarif (hari ke-4 dan seterusnya {tambah} per hari); pengembalian lebih awal tidak mengurangi biaya sewa.',
             'Gitar tidak boleh dipinjamkan, disewakan kembali, atau dijadikan jaminan kepada pihak lain.'
         ]
     },
