@@ -4,7 +4,8 @@ const test = require('node:test'), assert = require('node:assert/strict'), fs = 
 const { REPO, baca } = require('./helper');
 
 const AKAR = REPO.replace(/[\\/]$/, '');
-const dilewati = new Set(['.git', 'node_modules', 'vendor', 'tests', '.github']);
+/* unit/ berisi halaman pratinjau yang dibuat otomatis oleh admin saat menyimpan stok */
+const dilewati = new Set(['.git', 'node_modules', 'vendor', 'tests', '.github', 'unit']);
 function semua(dir, hasil) {
     hasil = hasil || [];
     for (const e of fs.readdirSync(dir, { withFileTypes: true })) {

@@ -2152,7 +2152,7 @@
         var judul = L.judulStok(s);
         return judul + (s.warna ? ' (' + s.warna + ')' : '') + ' – ' + (s.kondisi === 'bekas' ? 'USED' + (L.tingkatStok(s) ? ' (' + L.tingkatStok(s) + ')' : '') : 'BARU') + '\n' +
             (s.deskripsi ? s.deskripsi + '\n' : '') + 'Harga: ' + L.rupiah(s.harga_jual) + '\n\nTersedia di ' + C.toko.nama + ', ' + C.toko.alamat +
-            (L.diKatalog(s) ? '\nLihat foto: ' + L.situs() + 'katalog.html#' + s.kode : '') +
+            (L.diKatalog(s) ? '\nLihat foto & detail: ' + L.urlUnit(s.kode) : '') +
             '\nTanya / pesan: https://wa.me/' + C.toko.wa;
     }
     /* ---------- poster penawaran (gambar 1080×1920, pas untuk Story) + menu Bagikan ---------- */
@@ -2273,6 +2273,7 @@
                     '<p class="ly-hint" style="margin:8px 0 0">Bayar penuh = langsung terjual. Bayar sebagian = DP: barang ditahan ' + C.jual.batasHari + ' hari, nota & pengingat pelunasan dikirim lewat WA.</p>' : '') + '</fieldset>') +
             '<fieldset class="ly-card ly-f"><legend>Status</legend><div class="ly-status" id="sk-status"></div><label>Catatan internal<textarea data-s="catatan_admin" rows="2"></textarea></label></fieldset>' +
             (sk.baru ? '' : '<fieldset class="ly-card"><legend>Lainnya</legend>' + kisiAksi([].concat(s.harga_jual && adaStok(s) ? [aksi({ id: 'sk-tawar', ikon: 'bagikan', teks: 'Bagikan poster &amp; penawaran', kelas: 'ly-akt--pri ly-akt--lebar' })] : [])
+                .concat(L.diKatalog(s) ? [aksi({ href: E(L.urlUnit(s.kode)), luar: true, ikon: 'lihat', teks: 'Lihat halaman unit' })] : [])
                 .concat(owner() ? [aksi({ id: 'sk-hapus', ikon: 'hapus', teks: 'Hapus data', kelas: 'ly-akt--del' })] : [])) + '</fieldset>') +
             '<div class="ly-save"><span class="ly-dirty" id="dirty" hidden>Belum disimpan</span><button type="button" class="ly-btn ly-btn--pri" id="sk-simpan">' + (sk.baru ? 'Simpan stok' : 'Simpan perubahan') + '</button></div></section>';
         $$('[data-s]', app).forEach(function (el) { var v = s[el.dataset.s]; el.value = v == null ? '' : v; });

@@ -971,11 +971,11 @@
     L.pesanSewa = {
         /* penawaran untuk calon penyewa (tanpa data penyewa): satu unit, tarif, deposit, ketentuan, dan link foto */
         tawar: function (s, w) {
-            var foto = (s.foto || []).filter(function (f) { return f.repo === 'publik'; }).slice(0, 5).map(function (f) { return L.situs() + f.path; }), n = 0;
+            var foto = L.diKatalog(s) ? [] : (s.foto || []).filter(function (f) { return f.repo === 'publik'; }).slice(0, 5).map(function (f) { return L.situs() + f.path; }), n = 0;
             return 'Halo Kak, ini gitar yang bisa disewa di ' + C.toko.nama + ' 🎸\n\n*' + w.nama_barang + '*\n\n' +
                 (L.tarifStandarUnit(s) ? 'Tarif sewa:\n' + L.barisTarifSewa().join('\n') + '\n\n' : 'Tarif sewa: kami kabari sesuai lama sewa.\n\n') +
                 'Deposit ' + L.rupiah(w.deposit_rencana) + ' (dikembalikan saat gitar kembali). Biaya sewa dan deposit dibayar di muka.\n\n' +
-                (foto.length ? 'Foto gitar:\n' + foto.join('\n') + '\n\n' : '') +
+                (L.diKatalog(s) ? 'Foto & detail gitar:\n' + L.urlUnit(s.kode) + '\n\n' : foto.length ? 'Foto gitar:\n' + foto.join('\n') + '\n\n' : '') +
                 'Ketentuan:\n' + L.ketentuanSewaUmum(L.rupiah(w.deposit_rencana)).map(function (k) { return ++n + '. ' + k; }).join('\n') + '\n\nMau sewa untuk berapa hari, dan mulai kapan? 🙏';
         },
         mulai: function (w) {
@@ -1077,11 +1077,38 @@
             return fileKatalogDari(list.filter(function (x) { return x.id !== (ganti || hapus).id; }).concat(ganti ? [ganti] : []));
         });
     }
+    /* tautan halaman satu unit (dibagikan ke calon pembeli/penyewa): unit/<kode>.html memuat pratinjau WhatsApp lalu meneruskan ke unit.html */
+    L.urlUnit = function (kode) { return L.situs() + 'unit/' + encodeURIComponent(kode) + '.html'; };
+    var VERSI_HALAMAN_UNIT = 1; /* naikkan bila bentuk halaman pratinjau berubah: semua halaman dibuat ulang pada simpan stok berikutnya */
+    function judulKatalog(x) { return x.kategori === 'gitar' ? (C.jenisTanpaGitar.indexOf(x.jenis) > -1 ? x.jenis : 'Gitar ' + x.jenis) + ' ' + x.nama : x.nama; }
+    /* halaman pratinjau kecil per unit: tag Open Graph + data produk supaya tautan tampil dengan foto & harga di WhatsApp/Google; pengunjung diteruskan ke unit.html */
+    L.halamanUnit = function (x) {
+        var e = L.esc, judul = judulKatalog(x), url = L.urlUnit(x.kode), tujuan = 'unit.html?k=' + encodeURIComponent(x.kode);
+        var kondisi = x.kategori === 'gitar' ? (x.kondisi === 'baru' ? 'Baru' : 'Used' + (x.tingkat ? ' ' + x.tingkat : '')) : x.jenis;
+        var deskripsi = [kondisi, x.warna].filter(Boolean).join(' · ') + ' – ' + L.rupiah(x.harga) + '. Tersedia di ' + C.toko.nama + ' Bogor.';
+        var gambar = L.situs() + (x.foto[0] ? x.foto[0].src : 'og/katalog.jpg');
+        var ld = { '@context': 'https://schema.org', '@type': 'Product', name: judul, sku: x.kode, description: x.deskripsi || deskripsi, image: x.foto.map(function (f) { return L.situs() + f.src; }),
+            offers: { '@type': 'Offer', url: url, price: x.harga, priceCurrency: 'IDR', availability: 'https://schema.org/' + (x.status === 'dipesan' ? 'LimitedAvailability' : 'InStock'),
+                itemCondition: 'https://schema.org/' + (x.kondisi === 'bekas' ? 'UsedCondition' : 'NewCondition'), seller: { '@type': 'Organization', name: C.toko.nama } } };
+        return '<!DOCTYPE html>\n<html lang="id">\n<head>\n<meta charset="UTF-8">\n<meta name="viewport" content="width=device-width, initial-scale=1">\n' +
+            '<title>' + e(judul) + ' | ' + e(C.toko.nama) + ' Bogor</title>\n<meta name="description" content="' + e(deskripsi) + '">\n<link rel="canonical" href="' + e(url) + '">\n' +
+            '<meta property="og:type" content="product">\n<meta property="og:locale" content="id_ID">\n<meta property="og:site_name" content="' + e(C.toko.nama) + '">\n' +
+            '<meta property="og:title" content="' + e(judul + ' – ' + L.rupiah(x.harga)) + '">\n<meta property="og:description" content="' + e(deskripsi) + '">\n<meta property="og:url" content="' + e(url) + '">\n' +
+            '<meta property="og:image" content="' + e(gambar) + '">\n<meta name="twitter:card" content="summary_large_image">\n<meta name="twitter:image" content="' + e(gambar) + '">\n' +
+            '<script type="application/ld+json">' + JSON.stringify(ld).split('<').join('\\u003c') + '</script>\n' +
+            '</head>\n<body>\n<p><a href="../' + e(tujuan) + '">' + e(judul) + ' – ' + e(L.rupiah(x.harga)) + '</a></p>\n<script>location.replace("../' + tujuan.split('"').join('') + '");</script>\n</body>\n</html>\n';
+    };
     function fileKatalogDari(list) {
         return bacaFile('situs', 'data/katalog.json').then(function (lama) {
             var item = list.filter(L.diKatalog).sort(function (a, b) { return (b.tgl_masuk || '') < (a.tgl_masuk || '') ? -1 : 1; }).map(versiKatalog);
-            var teks = JSON.stringify({ toko: C.toko.nama, item: item }, null, 1) + '\n';
-            return lama === teks ? [] : [{ path: 'data/katalog.json', teks: teks }];
+            var teks = JSON.stringify({ toko: C.toko.nama, v: VERSI_HALAMAN_UNIT, item: item }, null, 1) + '\n';
+            if (lama === teks) return [];
+            var dulu; try { dulu = lama ? JSON.parse(lama) : {}; } catch (er) { dulu = {}; }
+            var semua = dulu.v !== VERSI_HALAMAN_UNIT, per = {}, files = [{ path: 'data/katalog.json', teks: teks }];
+            (dulu.item || []).forEach(function (x) { per[x.kode] = JSON.stringify(x); });
+            item.forEach(function (x) { if (semua || per[x.kode] !== JSON.stringify(x)) files.push({ path: 'unit/' + x.kode + '.html', teks: L.halamanUnit(x) }); delete per[x.kode]; });
+            if (!semua) Object.keys(per).forEach(function (k) { files.push({ path: 'unit/' + k + '.html', hapus: true }); }); /* barang terjual/ditarik: halamannya dihapus */
+            return files;
         });
     }
     function fotoPublikStok(besar, kecil, tipe, files, sekarang) {
