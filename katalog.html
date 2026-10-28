@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Katalog Gitar & Aksesoris | Toko Gitar AYRI Bogor</title>
-    <meta name="description" content="Katalog gitar baru dan bekas serta aksesoris gitar di Toko Gitar AYRI Bogor: foto, harga, dan pemesanan lewat WhatsApp.">
+    <meta name="description" content="Katalog gitar baru, gitar used, dan aksesoris di Toko Gitar AYRI Bogor: foto, harga, kondisi, dan pemesanan lewat WhatsApp.">
     <link rel="canonical" href="https://ayrigitar.com/katalog.html">
     <meta property="og:type" content="website">
     <meta property="og:locale" content="id_ID">
@@ -114,83 +114,96 @@
 
     </header>
 
-    <!-- KONTEN: katalog gitar & aksesoris (diisi dari data/katalog.json yang diperbarui admin) -->
+    <!-- KONTEN: katalog gaya marketplace (diisi dari data/katalog.json yang diperbarui admin); tiap kartu membuka halaman unit -->
     <main id="konten" class="cek-page">
         <div class="kat-wrap">
-            <header class="cek-hero">
-                <span class="tag">Katalog toko</span>
-                <h1>Gitar &amp; aksesoris</h1>
-                <p class="ly-muted">Stok terbaru Toko Gitar AYRI Bogor. Ketuk barang untuk melihat foto dan pesan lewat WhatsApp.</p>
+            <header class="kat-head">
+                <h1>Katalog</h1>
+                <p class="ly-muted" id="kat-hitung">Memuat katalog&hellip;</p>
             </header>
-            <div class="ly-cari"><input class="ly-in" id="kat-cari" type="search" placeholder="Cari gitar atau aksesoris&hellip;" autocomplete="off" aria-label="Cari di katalog"></div>
-            <div class="ly-filter" id="kat-filter" role="group" aria-label="Saring katalog"></div>
-            <div class="kat-grid" id="kat-grid" aria-live="polite"><p class="ly-kosong">Memuat katalog&hellip;</p></div>
+            <div class="kat-bar">
+                <div class="ly-cari"><input class="ly-in" id="kat-cari" type="search" placeholder="Cari gitar, merk, atau aksesoris&hellip;" autocomplete="off" aria-label="Cari di katalog"></div>
+                <label class="kat-urut"><span class="sr-only">Urutkan</span>
+                    <select id="kat-urut" class="ly-in" aria-label="Urutkan">
+                        <option value="baru">Terbaru</option>
+                        <option value="murah">Harga terendah</option>
+                        <option value="mahal">Harga tertinggi</option>
+                    </select>
+                </label>
+            </div>
+            <div class="ly-filter" id="kat-filter" role="group" aria-label="Kategori"></div>
+            <div class="ly-filter ly-filter--kecil" id="kat-jenis" role="group" aria-label="Jenis" hidden></div>
+            <div class="kat-grid" id="kat-grid" aria-live="polite"></div>
         </div>
     </main>
-    <div class="kat-dlg" id="kat-dlg" role="dialog" aria-modal="true" aria-labelledby="kat-dlg-judul" hidden></div>
 
     <script>
 document.addEventListener('DOMContentLoaded', function () {
-    var C = window.AYRI_LAYANAN || {}, toko = C.toko || {}, grid = document.getElementById('kat-grid'), dlg = document.getElementById('kat-dlg');
-    var item = [], filter = 'semua', cari = '';
+    var C = window.AYRI_LAYANAN || {}, toko = C.toko || {}, grid = document.getElementById('kat-grid');
+    var item = [], filter = 'semua', jenis = '', cari = '', urut = 'baru';
     var esc = AYRI_UTIL.esc, rupiah = AYRI_UTIL.rupiah;
+
+    /* tautan lama katalog.html#KODE tetap jalan: diteruskan ke halaman unit */
+    var h = decodeURIComponent(location.hash.slice(1));
+    if (/^STK-/.test(h)) { location.replace('unit.html?k=' + encodeURIComponent(h)); return; }
+
     function judul(x) { return x.kategori === 'gitar' ? ((C.jenisTanpaGitar || []).indexOf(x.jenis) > -1 ? x.jenis : 'Gitar ' + x.jenis) + ' ' + x.nama : x.nama; }
-    function waPesan(x) {
-        return 'https://wa.me/' + (toko.wa || '') + '?text=' + encodeURIComponent('Halo AYRI, saya tertarik dengan ' + judul(x) + (x.warna ? ' (' + x.warna + ')' : '') + ' kode ' + x.kode + ' harga ' + rupiah(x.harga) + '. Apakah masih tersedia?');
-    }
-    function lencana(x) {
-        return '<span class="kat-badge kat-' + (x.kategori === 'gitar' ? x.kondisi : 'aks') + '">' + (x.kategori === 'gitar' ? (x.kondisi === 'baru' ? 'Baru' : 'Used') : esc(x.jenis)) + '</span>' + (x.tingkat ? '<span class="kat-badge kat-tingkat">' + esc(x.tingkat) + '</span>' : '') +
-            (x.status === 'dipesan' ? '<span class="kat-badge kat-pesan">Dipesan</span>' : x.sisa ? '<span class="kat-badge kat-sisa">Sisa ' + x.sisa + '</span>' : '');
-    }
     function kelompok(x) { return x.kategori === 'gitar' ? x.kondisi : 'aksesoris'; }
+    function lencana(x) {
+        return '<span class="kat-badge kat-' + (x.kategori === 'gitar' ? x.kondisi : 'aks') + '">' + (x.kategori === 'gitar' ? (x.kondisi === 'baru' ? 'Baru' : 'Used') : esc(x.jenis)) + '</span>' + (x.tingkat ? '<span class="kat-badge kat-tingkat">' + esc(x.tingkat) + '</span>' : '');
+    }
+    function kartu(x) {
+        var f = x.foto[0];
+        return '<a class="kat-item" href="unit.html?k=' + encodeURIComponent(x.kode) + '">' +
+            '<span class="kat-foto">' + (f ? '<img src="' + esc(f.kecil) + '" alt="' + esc(judul(x)) + '" loading="lazy" decoding="async">' : '<span class="kat-nofoto">Foto menyusul</span>') +
+            '<span class="kat-badges kat-badges--foto">' + lencana(x) + '</span>' +
+            (x.status === 'dipesan' ? '<span class="kat-pita">Dipesan</span>' : '') +
+            (x.foto.length > 1 ? '<span class="kat-jml">' + x.foto.length + ' foto</span>' : '') + '</span>' +
+            '<span class="kat-isi"><span class="kat-harga">' + rupiah(x.harga) + '</span><b class="kat-nama">' + esc(judul(x)) + '</b>' +
+            '<small>' + esc([x.warna, x.kategori === 'gitar' ? '' : ''].filter(Boolean).join(' · ')) + (x.sisa ? ' Sisa ' + x.sisa : '') + '</small>' +
+            '<small class="kat-lok"><svg class="ic" aria-hidden="true"><use href="#i-pin"/></svg>Bogor</small></span></a>';
+    }
+    function tombol(daftar, aktif, attr) {
+        return daftar.map(function (f) { return '<button type="button" ' + attr + '="' + esc(f[0]) + '" aria-pressed="' + (aktif === f[0]) + '">' + esc(f[1]) + '<b>' + f[2] + '</b></button>'; }).join('');
+    }
     function gambarFilter() {
         var n = { semua: item.length, baru: 0, bekas: 0, aksesoris: 0 };
         item.forEach(function (x) { n[kelompok(x)]++; });
-        document.getElementById('kat-filter').innerHTML = [['semua', 'Semua'], ['baru', 'Gitar baru'], ['bekas', 'Gitar used'], ['aksesoris', 'Aksesoris']].filter(function (f) { return f[0] === 'semua' || n[f[0]]; })
-            .map(function (f) { return '<button type="button" data-f="' + f[0] + '" aria-pressed="' + (filter === f[0]) + '">' + f[1] + '<b>' + n[f[0]] + '</b></button>'; }).join('');
+        document.getElementById('kat-filter').innerHTML = tombol([['semua', 'Semua'], ['baru', 'Gitar baru'], ['bekas', 'Gitar used'], ['aksesoris', 'Aksesoris']].filter(function (f) { return f[0] === 'semua' || n[f[0]]; })
+            .map(function (f) { return [f[0], f[1], n[f[0]]]; }), filter, 'data-f');
+        var j = {}, el = document.getElementById('kat-jenis');
+        item.filter(function (x) { return filter === 'semua' || kelompok(x) === filter; }).forEach(function (x) { j[x.jenis] = (j[x.jenis] || 0) + 1; });
+        var daftar = Object.keys(j).sort(function (a, b) { return j[b] - j[a]; });
+        el.hidden = daftar.length < 2;
+        el.innerHTML = daftar.length < 2 ? '' : tombol([['', 'Semua jenis', Object.keys(j).reduce(function (t, k) { return t + j[k]; }, 0)]].concat(daftar.map(function (k) { return [k, k, j[k]]; })), jenis, 'data-j');
     }
     function gambar() {
         var c = cari.trim().toLowerCase();
-        var hasil = item.filter(function (x) { return (filter === 'semua' || kelompok(x) === filter) && (!c || [x.nama, x.jenis, x.warna, x.deskripsi, x.kode].join(' ').toLowerCase().indexOf(c) > -1); });
-        grid.innerHTML = hasil.length ? hasil.map(function (x) {
-            var f = x.foto[0];
-            return '<a class="kat-item" href="#' + esc(x.kode) + '" data-kode="' + esc(x.kode) + '">' +
-                '<span class="kat-foto">' + (f ? '<img src="' + esc(f.kecil) + '" alt="' + esc(judul(x)) + '" loading="lazy" decoding="async">' : '<span class="kat-nofoto">Foto menyusul</span>') + '</span>' +
-                '<span class="kat-isi"><span class="kat-badges">' + lencana(x) + '</span><b>' + esc(x.nama) + '</b><small>' + esc(x.kategori === 'gitar' ? x.jenis : '') + (x.warna ? (x.kategori === 'gitar' ? ' · ' : '') + esc(x.warna) : '') + '</small><span class="kat-harga">' + rupiah(x.harga) + '</span></span></a>';
-        }).join('') : '<p class="ly-kosong">' + (item.length ? 'Tidak ada yang cocok.' : 'Belum ada barang di katalog. Tanyakan stok terbaru lewat WhatsApp.') + '</p>';
+        var hasil = item.filter(function (x) {
+            return (filter === 'semua' || kelompok(x) === filter) && (!jenis || x.jenis === jenis) && (!c || [x.nama, x.jenis, x.warna, x.deskripsi, x.kode, x.tingkat].join(' ').toLowerCase().indexOf(c) > -1);
+        });
+        if (urut === 'murah') hasil.sort(function (a, b) { return a.harga - b.harga; }); else if (urut === 'mahal') hasil.sort(function (a, b) { return b.harga - a.harga; });
+        document.getElementById('kat-hitung').textContent = item.length ? hasil.length + ' produk' + (hasil.length !== item.length ? ' dari ' + item.length : '') + ' · Toko Gitar AYRI, Bogor' : '';
+        grid.innerHTML = hasil.length ? hasil.map(kartu).join('') :
+            '<div class="ly-kosong kat-kosong">' + (item.length ? 'Tidak ada yang cocok dengan pencarian ini.' : 'Belum ada barang di katalog.') +
+            '<a class="ly-btn ly-btn--wa" target="_blank" rel="noopener" href="https://wa.me/' + esc(toko.wa || '') + '?text=' + encodeURIComponent('Halo AYRI, saya mau tanya stok gitar dan aksesoris') + '">Tanya stok lewat WhatsApp</a></div>';
     }
-    function buka(kode) {
-        var x = item.filter(function (y) { return y.kode === kode; })[0]; if (!x) return;
-        dlg.innerHTML = '<div class="kat-dlg__in"><button type="button" class="kat-tutup" data-tutup aria-label="Tutup">×</button>' +
-            (x.foto.length ? '<div class="kat-galeri">' + x.foto.map(function (f, i) { return '<img src="' + esc(f.src) + '" alt="' + esc(judul(x)) + ' foto ' + (i + 1) + '" decoding="async">'; }).join('') + '</div>' : '') +
-            '<div class="kat-detail"><div class="kat-badges">' + lencana(x) + '</div><h2 id="kat-dlg-judul">' + esc(judul(x)) + '</h2>' + (x.warna ? '<p class="ly-muted">' + esc(x.warna) + '</p>' : '') +
-            '<p class="kat-harga kat-harga--besar">' + rupiah(x.harga) + '</p>' + (x.deskripsi ? '<p class="kat-desk">' + esc(x.deskripsi) + '</p>' : '') +
-            '<p class="ly-muted">Kode: ' + esc(x.kode) + ' · ' + esc(toko.alamat || '') + '</p>' +
-            '<a class="ly-btn ly-btn--wa kat-wa" target="_blank" rel="noopener" href="' + esc(waPesan(x)) + '">Tanya / pesan via WhatsApp</a></div></div>';
-        dlg.hidden = false; document.body.style.overflow = 'hidden';
-        if (location.hash !== '#' + kode && history.replaceState) history.replaceState(null, '', '#' + kode);
-    }
-    function tutup() { dlg.hidden = true; dlg.innerHTML = ''; document.body.style.overflow = ''; if (history.replaceState) history.replaceState(null, '', location.pathname); }
-    dlg.addEventListener('click', function (e) { if (e.target === dlg || e.target.closest('[data-tutup]')) tutup(); });
-    document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !dlg.hidden) tutup(); });
-    grid.addEventListener('click', function (e) { var a = e.target.closest('[data-kode]'); if (a) { e.preventDefault(); buka(a.dataset.kode); } });
-    document.getElementById('kat-filter').addEventListener('click', function (e) { var b = e.target.closest('[data-f]'); if (b) { filter = b.dataset.f; gambarFilter(); gambar(); } });
+    document.getElementById('kat-filter').addEventListener('click', function (e) { var b = e.target.closest('[data-f]'); if (b) { filter = b.dataset.f; jenis = ''; gambarFilter(); gambar(); } });
+    document.getElementById('kat-jenis').addEventListener('click', function (e) { var b = e.target.closest('[data-j]'); if (b) { jenis = b.dataset.j; gambarFilter(); gambar(); } });
     document.getElementById('kat-cari').addEventListener('input', function () { cari = this.value; gambar(); });
+    document.getElementById('kat-urut').addEventListener('change', function () { urut = this.value; gambar(); });
 
     /* data produk untuk mesin pencari (schema.org) */
     function strukturData() {
         var ld = { '@context': 'https://schema.org', '@type': 'ItemList', name: 'Katalog Toko Gitar AYRI', itemListElement: item.map(function (x, i) {
-            return { '@type': 'ListItem', position: i + 1, item: { '@type': 'Product', name: judul(x), description: x.deskripsi || undefined, sku: x.kode,
-                image: x.foto.map(function (f) { return (C.situsUrl || location.origin + '/') + f.src; }),
-                offers: { '@type': 'Offer', price: x.harga, priceCurrency: 'IDR', availability: 'https://schema.org/' + (x.status === 'dipesan' ? 'LimitedAvailability' : 'InStock'),
-                    itemCondition: 'https://schema.org/' + (x.kondisi === 'bekas' ? 'UsedCondition' : 'NewCondition'), seller: { '@type': 'Organization', name: toko.nama || 'Toko Gitar AYRI' } } } };
+            return { '@type': 'ListItem', position: i + 1, url: (C.situsUrl || location.origin + '/') + 'unit/' + x.kode + '.html', name: judul(x) };
         }) };
         var s = document.createElement('script'); s.type = 'application/ld+json'; s.textContent = JSON.stringify(ld); document.head.appendChild(s);
     }
 
+    grid.innerHTML = new Array(8 + 1).join('<span class="kat-item kat-skel" aria-hidden="true"><span class="kat-foto"></span><span class="kat-isi"><span class="kat-harga">&nbsp;</span><b>&nbsp;</b></span></span>');
     fetch('data/katalog.json', { cache: 'no-store' }).then(function (r) { return r.ok ? r.json() : { item: [] }; }).catch(function () { return { item: [] }; }).then(function (d) {
         item = d.item || []; gambarFilter(); gambar(); if (item.length) strukturData();
-        var h = decodeURIComponent(location.hash.slice(1)); if (h) buka(h);
     });
 });
     </script>

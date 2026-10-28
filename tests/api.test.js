@@ -42,6 +42,24 @@ test('stok: modal hanya di repo owner, katalog publik tanpa modal', async () => 
     assert.equal(gh.json('ayri-guitar', 'data/katalog.json').item.length, 0);
 });
 
+test('stok: tiap barang di katalog punya halaman pratinjau unit/<kode>.html (tag WhatsApp), terhapus saat barang tidak lagi tampil', async () => {
+    const { gh, A, L } = await mulai();
+    const r = await A.simpanStok(stokContoh(null, 1, { id: undefined, kode: undefined, created_at: undefined, gitar_jenis: 'Bass', gitar_merk: 'Fender Aerodyne', warna: 'Hitam', tingkat: 'excellent', deskripsi: 'Jazz "Bass" <2003>' }), []);
+    assert.equal(gh.json('ayri-guitar', 'data/katalog.json').v, 1);
+    const halaman = gh.isi('ayri-guitar', 'unit/' + r.kode + '.html');
+    assert.ok(halaman, 'halaman unit dibuat');
+    assert.ok(halaman.includes('<meta property="og:title" content="Bass Fender Aerodyne – Rp1.000.000">'), 'judul tanpa kata Gitar untuk bass + harga');
+    assert.ok(halaman.includes('Used Excellent') && halaman.includes('<link rel="canonical" href="' + L.urlUnit(r.kode) + '">'));
+    assert.ok(halaman.includes('"@type":"Product"') && !halaman.includes('<2003>'), 'data produk ada, teks bebas di-escape');
+    assert.ok(halaman.includes('unit.html?k=' + r.kode), 'diteruskan ke halaman unit');
+    assert.ok(!halaman.includes('harga_beli'));
+    /* ubah harga: halaman diperbarui; ditarik dari katalog: halaman dihapus */
+    const r2 = await A.simpanStok(Object.assign({}, r, { harga_jual: 1250000 }), []);
+    assert.ok(gh.isi('ayri-guitar', 'unit/' + r.kode + '.html').includes('Rp1.250.000'));
+    await A.simpanStok(Object.assign({}, r2, { tampil: false }), []);
+    assert.equal(gh.isi('ayri-guitar', 'unit/' + r.kode + '.html'), null, 'halaman unit dihapus bila barang keluar dari katalog');
+});
+
 test('stok: tingkat kondisi hanya tampil di katalog untuk gitar bekas, tanpa tingkat kunci tidak ditulis', async () => {
     const { gh, A } = await mulai();
     const baru = { id: undefined, kode: undefined, created_at: undefined };

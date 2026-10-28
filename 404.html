@@ -57,6 +57,10 @@
         @keyframes sway { 0%, 100% { rotate: 0deg; } 50% { rotate: 6deg; } }
     </style>
     <script>document.documentElement.classList.add('js');</script>
+    <script>
+        /* tautan unit/STK-XXXX.html yang halaman pratinjaunya belum ada: tetap dibuka lewat unit.html */
+        (function () { var m = /^\/unit\/([A-Za-z0-9-]+)\.html$/.exec(location.pathname); if (m) location.replace('/unit.html?k=' + m[1]); })();
+    </script>
     <script src="/theme.js"></script>
     <script src="/site.js" defer></script>
 </head>
