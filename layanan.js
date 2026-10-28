@@ -190,19 +190,6 @@
     /* ---------- pesan WhatsApp servis ---------- */
     function jasaTeks(items) { return (items || []).map(function (i) { return '• ' + i.nama + (i.qty > 1 ? ' ×' + i.qty : '') + ' – ' + L.rupiah(i.harga * (i.qty || 1)); }).join('\n'); }
     L.pesan = {
-        /* info umum untuk calon pelanggan (tanpa data transaksi): daftar jasa & harga + ketentuan servis */
-        info: function () {
-            var grup = {}, urut = [];
-            C.katalogJasa.forEach(function (j) { if (!grup[j.grup]) { grup[j.grup] = []; urut.push(j.grup); } grup[j.grup].push(j); });
-            var t = 'Halo Kak, terima kasih sudah menghubungi ' + C.toko.nama + ' 🎸\n\nDaftar servis & harga jasa:\n';
-            urut.forEach(function (g) {
-                t += '\n*' + g + '*\n' + grup[g].map(function (j) {
-                    return '• ' + j.nama + ' – ' + (j.harga > 0 ? L.rupiah(j.harga) : 'sesuai kondisi (kami kabari dulu)') + (j.garansi ? ' (garansi ' + L.garansiLabel(j.garansi) + ')' : '');
-                }).join('\n') + '\n';
-            });
-            var n = 0;
-            return t + '\nKetentuan servis:\n' + L.ketentuan().map(function (k) { return ++n + '. ' + k.replace('menunjukkan nota ini', 'menunjukkan nota servis'); }).join('\n') + '\n' + jamBuka() + 'Alamat: ' + C.toko.alamat + '\n\nGitar apa yang mau diservis, dan apa keluhannya? 🙏';
-        },
         tandaTerima: function (s) {
             var h = L.hitung(s, s.items, s.bayar), t = 'Halo Kak ' + s.nama + ', gitar ' + L.namaGitar(s, 'Kakak') + ' sudah kami terima di ' + C.toko.nama + ' 🙏\n\n';
             t += 'Kode servis: *' + s.kode + '*\nTanggal masuk: ' + L.tgl(s.tgl_masuk) + '\n';
@@ -922,6 +909,13 @@
     L.depositAwal = function (hargaJual) { return Math.round((+hargaJual || 0) * SW.depositPersen / 100 / 5000) * 5000; };
     /* unit mahal tidak memakai tarif standar: biaya & deposit diisi manual */
     L.tarifStandarUnit = function (s) { return !(+SW.batasUnitStandar > 0 && (+s.harga_jual || 0) >= SW.batasUnitStandar); };
+    /* baris tarif standar untuk pesan: "1 hari: Rp100.000", ..., "Hari berikutnya: +Rp25.000 per hari", "7 hari (paket): Rp300.000" */
+    L.barisTarifSewa = function () {
+        var b = SW.tarifHarian.map(function (x) { return x[0] + ' hari: ' + L.rupiah(x[1]); });
+        b.push('Hari berikutnya: +' + L.rupiah(SW.tambahPerHari) + ' per hari');
+        if (+SW.tarifMinggu > 0) b.push('7 hari (paket): ' + L.rupiah(SW.tarifMinggu));
+        return b;
+    };
     /* ringkasan tarif standar untuk bantuan di formulir */
     L.ringkasTarifSewa = function () {
         return SW.tarifHarian.map(function (x) { return x[0] + ' hari ' + L.rupiah(x[1]); }).join(', ') + ', lalu +' + L.rupiah(SW.tambahPerHari) + ' per hari' + (+SW.tarifMinggu > 0 ? '; 7 hari ' + L.rupiah(SW.tarifMinggu) : '');
@@ -967,16 +961,22 @@
             return k.split('{batas}').join(L.tglPanjang(L.batasSewa(w))).split('{tambah}').join(L.rupiah(SW.tambahPerHari)).split('{senar}').join(L.rupiah(SW.dendaSenar)).split('{senarSemua}').join(L.rupiah(SW.dendaSenar * SW.senarCadangan)).split('{jam}').join(C.toko.jam || 'jam buka toko').split('{deposit}').join(L.rupiah(w.deposit_rencana != null ? w.deposit_rencana : L.hitungSewa(w).deposit));
         });
     };
+    /* ketentuan tanpa tanggal & nama (untuk penawaran sebelum sewa dibuat) */
+    L.ketentuanSewaUmum = function (depositTeks) {
+        return SW.ketentuan.map(function (k) {
+            return k.split('{batas}').join('hari berakhirnya masa sewa').split('{deposit}').join(depositTeks).split('{tambah}').join(L.rupiah(SW.tambahPerHari))
+                .split('{senar}').join(L.rupiah(SW.dendaSenar)).split('{senarSemua}').join(L.rupiah(SW.dendaSenar * SW.senarCadangan)).split('{jam}').join(C.toko.jam || 'jam buka toko');
+        });
+    };
     L.pesanSewa = {
-        /* info umum untuk calon penyewa (tanpa data transaksi): tarif + ketentuan */
-        info: function () {
-            var nomor = 0, ket = SW.ketentuan.map(function (k) {
-                return k.split('{batas}').join('hari berakhirnya masa sewa').split('{deposit}').join(SW.depositPersen + '% dari harga gitar').split('{tambah}').join(L.rupiah(SW.tambahPerHari))
-                    .split('{senar}').join(L.rupiah(SW.dendaSenar)).split('{senarSemua}').join(L.rupiah(SW.dendaSenar * SW.senarCadangan)).split('{jam}').join(C.toko.jam || 'jam buka toko');
-            });
-            return 'Halo Kak, terima kasih sudah menghubungi ' + C.toko.nama + ' 🎸\n\nSewa gitar (unit used):\n' + L.ringkasTarifSewa().split('; ').join('\n').split(', ').join('\n') + '\n' +
-                'Deposit ' + SW.depositPersen + '% dari harga gitar (dikembalikan saat gitar kembali). Biaya sewa dan deposit dibayar di muka.\n\n' +
-                'Ketentuan:\n' + ket.map(function (k) { return ++nomor + '. ' + k; }).join('\n') + '\n\nGitar mana yang ingin disewa, dan untuk berapa hari? 🙏';
+        /* penawaran untuk calon penyewa (tanpa data penyewa): satu unit, tarif, deposit, ketentuan, dan link foto */
+        tawar: function (s, w) {
+            var foto = (s.foto || []).filter(function (f) { return f.repo === 'publik'; }).slice(0, 5).map(function (f) { return L.situs() + f.path; }), n = 0;
+            return 'Halo Kak, ini gitar yang bisa disewa di ' + C.toko.nama + ' 🎸\n\n*' + w.nama_barang + '*\n\n' +
+                (L.tarifStandarUnit(s) ? 'Tarif sewa:\n' + L.barisTarifSewa().join('\n') + '\n\n' : 'Tarif sewa: kami kabari sesuai lama sewa.\n\n') +
+                'Deposit ' + L.rupiah(w.deposit_rencana) + ' (dikembalikan saat gitar kembali). Biaya sewa dan deposit dibayar di muka.\n\n' +
+                (foto.length ? 'Foto gitar:\n' + foto.join('\n') + '\n\n' : '') +
+                'Ketentuan:\n' + L.ketentuanSewaUmum(L.rupiah(w.deposit_rencana)).map(function (k) { return ++n + '. ' + k; }).join('\n') + '\n\nMau sewa untuk berapa hari, dan mulai kapan? 🙏';
         },
         mulai: function (w) {
             var h = L.hitungSewa(w), dep = w.deposit_rencana != null ? w.deposit_rencana : h.deposit, nomor = 0;
