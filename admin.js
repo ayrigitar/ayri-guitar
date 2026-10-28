@@ -321,13 +321,13 @@
     function rute() {
         if (!A.terbuka()) return layarPin();
         var p = (location.hash.replace(/^#/, '') || 'hari').split('/');
-        $$('#tabs a').forEach(function (a) { a.setAttribute('aria-current', a.getAttribute('href') === '#' + (p[0] === 'sewa' ? 'servis' : p[0]) ? 'page' : 'false'); });
+        $$('#tabs a').forEach(function (a) { a.setAttribute('aria-current', a.getAttribute('href') === '#' + p[0] ? 'page' : 'false'); });
         document.body.classList.toggle('ly-detail', !!p[1] || p[0] === 'opname'); document.body.classList.remove('ly-kunci-gulir');
         app.classList.toggle('ly-lebar', (!p[1] && ['hari', 'kasir', 'servis', 'jam', 'opname', 'rekap', 'kas'].indexOf(p[0]) > -1) || (p[0] === 'opname' && !!p[1]));
         window.scrollTo(0, 0);
         if (!owner() && (p[0] === 'tebus' || p[0] === 'artikel' || p[0] === 'rekap' || (p[0] === 'jam' && p[1] === 'atur'))) { toast('Menu ini khusus owner.', true); pindah('#kasir'); return; }
         $('#lainnya').hidden = true; app.onclick = app.oninput = app.onchange = null; clearInterval(detikJam);
-        $('#b-lainnya').setAttribute('aria-current', ['jam', 'opname', 'tebus', 'artikel', 'rekap', 'kas'].indexOf(p[0]) > -1 ? 'page' : 'false');
+        $('#b-lainnya').setAttribute('aria-current', ['jam', 'opname', 'tebus', 'artikel', 'rekap', 'kas', 'sewa'].indexOf(p[0]) > -1 ? 'page' : 'false');
         if (p[0] === 'hari') return halamanHari();
         if (p[0] === 'kas') return halamanKas();
         if (p[0] === 'jam') return p[1] === 'atur' ? aturKaryawan() : halamanJam();
@@ -1156,19 +1156,11 @@
     }
 
     /* ================= daftar servis ================= */
-    /* Servis dan Sewa satu menu: pilihan di atas kedua daftar (isi angka = yang masih berjalan) */
-    function tabServisSewa(aktif) {
-        var sv = cache.servis.filter(function (x) { return AKTIF.indexOf(x.status) > -1; }).length, sw2 = cache.sewa.filter(function (x) { return x.status === 'aktif'; }).length;
-        return '<div class="ly-seg ly-seg--tab" id="tab-ss" role="group" aria-label="Servis atau sewa"><button type="button" data-ke="servis" aria-pressed="' + (aktif === 'servis') + '">Servis <span class="ly-n">' + sv + '</span></button>' +
-            '<button type="button" data-ke="sewa" aria-pressed="' + (aktif === 'sewa') + '">Sewa gitar <span class="ly-n">' + sw2 + '</span></button></div>';
-    }
-    function pasangTabServisSewa() { var t = $('#tab-ss'); if (t) t.addEventListener('click', function (e) { var b = e.target.closest('[data-ke]'); if (b && b.getAttribute('aria-pressed') !== 'true') pindah('#' + b.dataset.ke); }); }
     function daftarServis() {
-        app.innerHTML = '<section>' + tabServisSewa('servis') + '<div class="ly-head"><h1>Antrian servis</h1><div class="ly-seg" id="tampilan" role="group" aria-label="Tampilan"><button type="button" data-v="papan">Papan</button><button type="button" data-v="daftar">Daftar</button></div><a class="ly-btn ly-btn--pri" href="#servis/baru">+ Gitar masuk</a></div>' +
+        app.innerHTML = '<section><div class="ly-head"><h1>Antrian servis</h1><div class="ly-seg" id="tampilan" role="group" aria-label="Tampilan"><button type="button" data-v="papan">Papan</button><button type="button" data-v="daftar">Daftar</button></div><a class="ly-btn ly-btn--pri" href="#servis/baru">+ Gitar masuk</a></div>' +
             '<div class="ly-cari"><input class="ly-in" id="cari" type="search" placeholder="Cari kode, nama, no. HP, merk…" autocomplete="off"></div>' +
             '<div id="ingat"></div><div class="ly-filter" id="filter"></div><div class="ly-list" id="list"></div>' +
             '<div class="ly-btns" style="margin-top:18px"><button type="button" class="ly-btn ly-btn--sm" id="b-muat">Muat ulang data</button><button type="button" class="ly-btn ly-btn--sm" id="b-cadang">Unduh cadangan</button><button type="button" class="ly-btn ly-btn--sm" id="b-buka-cad">Buka cadangan</button><button type="button" class="ly-btn ly-btn--sm" id="b-pin">Ganti PIN</button><button type="button" class="ly-btn ly-btn--sm ly-btn--del" id="b-lupa">Hapus token dari perangkat ini</button></div></section>';
-        pasangTabServisSewa();
         $('#cari').value = cari;
         $('#cari').addEventListener('input', function () { cari = this.value; gambarDaftar(); });
         $('#filter').addEventListener('click', function (e) { var b = e.target.closest('[data-f]'); if (b) { filter = b.dataset.f; gambarDaftar(); } });
@@ -1841,12 +1833,11 @@
     var CHIP_SEWA = { aktif: 'st-antri', telat: 'st-menunggu_dp', selesai: 'st-selesai', batal: 'st-batal' };
     function chipSewa(w) { var k = statusSewa(w); return '<span class="st-chip ' + CHIP_SEWA[k] + '">' + (k === 'telat' ? 'Telat ' + L.infoSewa(w).hariTelat + ' hari' : E(L.STATUS_SEWA[k] || k)) + '</span>'; }
     function daftarSewa() {
-        app.innerHTML = '<section>' + tabServisSewa('sewa') + '<div class="ly-head"><h1>Sewa gitar</h1><a class="ly-btn ly-btn--pri" href="#sewa/baru">+ Sewa baru</a></div>' +
+        app.innerHTML = '<section><div class="ly-head"><h1>Sewa gitar</h1><a class="ly-btn ly-btn--pri" href="#sewa/baru">+ Sewa baru</a></div>' +
             '<p class="ly-muted">Gitar used di <a href="#stok">Stok</a> bisa disewakan. Gitar yang sedang disewa tidak muncul di kasir; pengembalian dan deposit dicatat di sini.</p>' +
             '<div class="ly-cari"><input class="ly-in" id="cari" type="search" placeholder="Cari kode, nama penyewa, gitar…" autocomplete="off"></div>' +
             '<div class="ly-filter" id="filter"></div><div class="ly-list" id="list"></div>' +
             '</section>';
-        pasangTabServisSewa();
         $('#cari').value = cariSw;
         $('#cari').addEventListener('input', function () { cariSw = this.value; gambarDaftarSewa(); });
         $('#filter').addEventListener('click', function (e) { var b = e.target.closest('[data-f]'); if (b) { filterSw = b.dataset.f; gambarDaftarSewa(); } });
