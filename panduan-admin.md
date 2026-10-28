@@ -119,6 +119,7 @@ Gitar **used** di Stok bisa disewakan; unit tetap milik toko dan stoknya tidak b
 |---|---|
 | Sewa baru | **Sewa** → **+ Sewa baru** (atau di halaman stok tekan **Sewakan gitar ini**) → nama & WA penyewa, lama sewa, tarif, deposit → catat bayar sewa + deposit → foto kondisi gitar (dan KTP, hanya owner) → **Simpan sewa** → **WA: Kirim bukti & ketentuan** |
 | Perpanjang | Buka sewa → **Perpanjang** (hari) → catat pembayaran tambahan |
+| Draf pesan | Di halaman **Sewa** ada kotak **Draf info & ketentuan sewa** (untuk calon penyewa yang bertanya) dan di tiap sewa ada **Draf pesan** (bukti, pengingat, pengembalian) → **Salin pesan**, atau **Bagikan ke WhatsApp** (tanpa nomor; kontaknya dipilih di WhatsApp). Draf serupa ada di menu **Servis** (daftar jasa, harga, ketentuan untuk calon pelanggan) dan di halaman tiap servis |
 | Pengingat | Sewa yang kembali besok, hari ini, atau telat muncul di **Hari ini**; tombol **Pengingat kembali** membuka WA |
 | Gitar kembali | **Gitar sudah dikembalikan** → isi biaya kerusakan bila ada → deposit dikembalikan dikurangi kekurangan sewa/ganti rugi → **Selesaikan sewa** → **WA: Kabari pengembalian** |
 

@@ -1160,8 +1160,10 @@
         app.innerHTML = '<section><div class="ly-head"><h1>Antrian servis</h1><div class="ly-seg" id="tampilan" role="group" aria-label="Tampilan"><button type="button" data-v="papan">Papan</button><button type="button" data-v="daftar">Daftar</button></div><a class="ly-btn ly-btn--pri" href="#servis/baru">+ Gitar masuk</a></div>' +
             '<div class="ly-cari"><input class="ly-in" id="cari" type="search" placeholder="Cari kode, nama, no. HP, merk…" autocomplete="off"></div>' +
             '<div id="ingat"></div><div class="ly-filter" id="filter"></div><div class="ly-list" id="list"></div>' +
+            '<div style="margin-top:16px">' + kotakDraf('sv-info', 'Draf info servis &amp; harga', null, 'Untuk calon pelanggan yang bertanya (daftar jasa, harga, ketentuan). Tanpa nama atau nomor: pilih kontaknya di WhatsApp.') + '</div>' +
             '<div class="ly-btns" style="margin-top:18px"><button type="button" class="ly-btn ly-btn--sm" id="b-muat">Muat ulang data</button><button type="button" class="ly-btn ly-btn--sm" id="b-cadang">Unduh cadangan</button><button type="button" class="ly-btn ly-btn--sm" id="b-buka-cad">Buka cadangan</button><button type="button" class="ly-btn ly-btn--sm" id="b-pin">Ganti PIN</button><button type="button" class="ly-btn ly-btn--sm ly-btn--del" id="b-lupa">Hapus token dari perangkat ini</button></div></section>';
         $('#cari').value = cari;
+        pasangDraf('sv-info', function () { return L.pesan.info(); });
         $('#cari').addEventListener('input', function () { cari = this.value; gambarDaftar(); });
         $('#filter').addEventListener('click', function (e) { var b = e.target.closest('[data-f]'); if (b) { filter = b.dataset.f; gambarDaftar(); } });
         $('#ingat').addEventListener('click', function (e) { if (e.target.closest('[data-lihat]')) { filter = 'selesai'; cari = ''; $('#cari').value = ''; tampilSv = 'daftar'; gambarDaftar(); } });
@@ -1281,12 +1283,14 @@
                 ].concat(owner() ? [aksi({ id: 'sv-artikel', ikon: 'artikel', teks: 'Jadikan artikel' }), aksi({ id: 'sv-hapus', ikon: 'hapus', teks: 'Hapus servis', kelas: 'ly-akt--del' })] : [])) +
                 '<p class="ly-hint ly-hint--c">Halaman pelanggan ikut berubah ±1 menit setelah disimpan.</p></fieldset>') +
 
+            (ed.baru ? '' : kotakDraf('sv-draf', 'Draf pesan (salin / bagikan ke WhatsApp)', [['tandaTerima', 'Tanda terima'], ['update', 'Update status'], ['selesai', 'Barang selesai']].concat(s.status === 'selesai' ? [['pengingat', 'Ingatkan ambil']] : []), 'Tanpa nomor: pilih kontaknya di WhatsApp.')) +
             '<div class="ly-save"><span class="ly-dirty" id="dirty" hidden>Belum disimpan</span><button type="button" class="ly-btn ly-btn--pri" id="sv-simpan">' + (ed.baru ? 'Simpan &amp; buat kode' : 'Simpan perubahan') + '</button></div></section>';
 
         $$('[data-f]', app).forEach(function (el) {
             var v = s[el.dataset.f];
             if (el.type === 'checkbox') el.checked = !!v; else el.value = v == null ? '' : v;
         });
+        if (!ed.baru) pasangDraf('sv-draf', function (j) { return L.pesan[j](ed.s); });
         $('#by-tgl').value = L.hariIni();
         gambarItems(); gambarRingkas(); gambarBayar(); gambarStatus(); gambarFoto();
         setDirty(false);
@@ -1827,8 +1831,33 @@
     }
 
     /* ================= sewa gitar (unit used dari stok) ================= */
-    var sw = null, filterSw = 'aktif', cariSw = '';
+    var sw = null, filterSw = 'aktif', cariSw = '', isiDrafSewa = function () {};
     var SWC = C.sewa;
+    /* salin teks ke clipboard (cadangan: pilih teks di kotak pesan supaya bisa ditekan lama lalu Salin) */
+    function salinTeks(teks, kotak) {
+        function cadangan() {
+            var t = kotak || document.createElement('textarea'); if (!kotak) { t.value = teks; t.style.position = 'fixed'; t.style.opacity = '0'; document.body.appendChild(t); }
+            t.focus(); t.select(); var ok = false; try { ok = document.execCommand('copy'); } catch (e) {} if (!kotak) t.remove();
+            toast(ok ? 'Pesan disalin. Tempel di WhatsApp.' : 'Tidak bisa menyalin otomatis. Tekan lama di kotak pesan lalu pilih Salin.', !ok);
+        }
+        if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(teks).then(function () { toast('Pesan disalin. Tempel di WhatsApp.'); }, cadangan); else cadangan();
+    }
+    /* kotak draf pesan: dilihat, disalin, atau dibagikan ke WhatsApp tanpa nomor (kontaknya dipilih di WhatsApp) */
+    function kotakDraf(p, judul, pilihan, petunjuk, awal) {
+        return '<fieldset class="ly-card ly-f"><legend>' + judul + '</legend>' + (petunjuk ? '<p class="ly-hint" style="margin:0">' + petunjuk + '</p>' : '') +
+            (pilihan ? '<label>Pesan<select id="' + p + '-jenis">' + opsi(pilihan, awal || pilihan[0][0]) + '</select></label>' : '') +
+            '<textarea id="' + p + '" rows="10" readonly></textarea>' +
+            kisiAksi([aksi({ id: p + '-salin', ikon: 'nota', teks: 'Salin pesan' }), aksi({ id: p + '-wa', ikon: 'bagikan', teks: 'Bagikan ke WhatsApp', kelas: 'ly-akt--pri' })]) + '</fieldset>';
+    }
+    /* mengisi & menghubungkan kotak draf; ambil(jenis) mengembalikan teks. Mengembalikan fungsi untuk menyegarkan isinya */
+    function pasangDraf(p, ambil) {
+        var t = $('#' + p), s = $('#' + p + '-jenis');
+        function isi() { t.value = ambil(s ? s.value : null); }
+        if (s) s.addEventListener('change', isi);
+        $('#' + p + '-salin').addEventListener('click', function () { salinTeks(t.value, t); });
+        $('#' + p + '-wa').addEventListener('click', function () { bukaWa('', t.value); });
+        isi(); return isi;
+    }
     function statusSewa(w) { return w.status === 'aktif' && L.infoSewa(w).lewat ? 'telat' : w.status; }
     var CHIP_SEWA = { aktif: 'st-antri', telat: 'st-menunggu_dp', selesai: 'st-selesai', batal: 'st-batal' };
     function chipSewa(w) { var k = statusSewa(w); return '<span class="st-chip ' + CHIP_SEWA[k] + '">' + (k === 'telat' ? 'Telat ' + L.infoSewa(w).hariTelat + ' hari' : E(L.STATUS_SEWA[k] || k)) + '</span>'; }
@@ -1836,7 +1865,9 @@
         app.innerHTML = '<section><div class="ly-head"><h1>Sewa gitar</h1><a class="ly-btn ly-btn--pri" href="#sewa/baru">+ Sewa baru</a></div>' +
             '<p class="ly-muted">Gitar used di <a href="#stok">Stok</a> bisa disewakan. Gitar yang sedang disewa tidak muncul di kasir; pengembalian dan deposit dicatat di sini.</p>' +
             '<div class="ly-cari"><input class="ly-in" id="cari" type="search" placeholder="Cari kode, nama penyewa, gitar…" autocomplete="off"></div>' +
-            '<div class="ly-filter" id="filter"></div><div class="ly-list" id="list"></div></section>';
+            '<div class="ly-filter" id="filter"></div><div class="ly-list" id="list"></div>' +
+            '<div style="margin-top:16px">' + kotakDraf('sw-info', 'Draf info &amp; ketentuan sewa', null, 'Untuk calon penyewa yang bertanya (tarif + ketentuan). Tanpa nama atau nomor: pilih kontaknya di WhatsApp.') + '</div></section>';
+        pasangDraf('sw-info', function () { return L.pesanSewa.info(); });
         $('#cari').value = cariSw;
         $('#cari').addEventListener('input', function () { cariSw = this.value; gambarDaftarSewa(); });
         $('#filter').addEventListener('click', function (e) { var b = e.target.closest('[data-f]'); if (b) { filterSw = b.dataset.f; gambarDaftarSewa(); } });
@@ -1992,6 +2023,7 @@
             '<fieldset class="ly-card"><legend>WhatsApp ke penyewa</legend>' + barisWa([['mulai', 'Kirim bukti &amp; ketentuan', 'Rincian sewa + minta SETUJU']].concat(aktif ? [['pengingat', 'Pengingat kembali', i.lewat ? 'Sudah telat, ingatkan' : 'Ingatkan batas kembali']] : [['selesai', 'Kabari pengembalian', 'Rincian deposit dikembalikan']]), 'wa') +
             ((w.pengingat || []).length ? '<p class="ly-hint" style="margin:8px 0 0">Diingatkan: ' + w.pengingat.map(L.tgl).join(', ') + '</p>' : '') +
             kisiAksi([aksi({ id: 'sw-cetak', ikon: 'cetak', teks: 'Cetak bukti sewa 58 mm' })]) + '</fieldset>' +
+            kotakDraf('sw-draf', 'Draf pesan (salin / bagikan ke WhatsApp)', [['mulai', 'Bukti & ketentuan sewa'], ['pengingat', 'Pengingat kembali'], ['selesai', 'Pengembalian & deposit']], 'Tanpa nomor: pilih kontaknya di WhatsApp.', aktif ? 'mulai' : 'selesai') +
             (aktif ? '<fieldset class="ly-card" id="sw-selesai-box"><legend>Gitar dikembalikan</legend>' + (sw.selesai ? '' : '<button type="button" class="ly-btn ly-btn--pri" id="sw-selesai">Gitar sudah dikembalikan</button>' +
                 '<p class="ly-hint" style="margin:8px 0 0">Periksa kondisi gitar dulu, lalu hitung deposit yang dikembalikan.</p>') + '<div id="sw-selesai-isi"></div></fieldset>' : '') +
             (owner() ? '<fieldset class="ly-card"><legend>Lainnya</legend>' + kisiAksi([aksi({ id: 'sw-hapus', ikon: 'hapus', teks: 'Hapus catatan sewa', kelas: 'ly-akt--del' })]) +
@@ -2002,7 +2034,8 @@
         gambarBayarSewa(); gambarFotoSewa(); setDirty(false);
         if (sw.selesai) panelSelesaiSewa();
         var el = $('#sw');
-        el.addEventListener('input', function (e) { var k = e.target.dataset.w; if (k) { w[k] = e.target.value; setDirty(true); } });
+        el.addEventListener('input', function (e) { var k = e.target.dataset.w; if (k) { w[k] = e.target.value; setDirty(true); isiDrafSewa(); } });
+        isiDrafSewa = pasangDraf('sw-draf', function (j) { return L.pesanSewa[j](sw.w); });
         pilihFoto($('#sw-foto'), function (tahap, files) { antriFoto(sw.antri, files, { tahap: tahap }, gambarFotoSewa); });
         el.addEventListener('click', function (e) {
             var b = e.target.closest('button'); if (!b) return; var d = b.dataset;

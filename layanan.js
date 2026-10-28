@@ -190,6 +190,19 @@
     /* ---------- pesan WhatsApp servis ---------- */
     function jasaTeks(items) { return (items || []).map(function (i) { return '• ' + i.nama + (i.qty > 1 ? ' ×' + i.qty : '') + ' – ' + L.rupiah(i.harga * (i.qty || 1)); }).join('\n'); }
     L.pesan = {
+        /* info umum untuk calon pelanggan (tanpa data transaksi): daftar jasa & harga + ketentuan servis */
+        info: function () {
+            var grup = {}, urut = [];
+            C.katalogJasa.forEach(function (j) { if (!grup[j.grup]) { grup[j.grup] = []; urut.push(j.grup); } grup[j.grup].push(j); });
+            var t = 'Halo Kak, terima kasih sudah menghubungi ' + C.toko.nama + ' 🎸\n\nDaftar servis & harga jasa:\n';
+            urut.forEach(function (g) {
+                t += '\n*' + g + '*\n' + grup[g].map(function (j) {
+                    return '• ' + j.nama + ' – ' + (j.harga > 0 ? L.rupiah(j.harga) : 'sesuai kondisi (kami kabari dulu)') + (j.garansi ? ' (garansi ' + L.garansiLabel(j.garansi) + ')' : '');
+                }).join('\n') + '\n';
+            });
+            var n = 0;
+            return t + '\nKetentuan servis:\n' + L.ketentuan().map(function (k) { return ++n + '. ' + k.replace('menunjukkan nota ini', 'menunjukkan nota servis'); }).join('\n') + '\n' + jamBuka() + 'Alamat: ' + C.toko.alamat + '\n\nGitar apa yang mau diservis, dan apa keluhannya? 🙏';
+        },
         tandaTerima: function (s) {
             var h = L.hitung(s, s.items, s.bayar), t = 'Halo Kak ' + s.nama + ', gitar ' + L.namaGitar(s, 'Kakak') + ' sudah kami terima di ' + C.toko.nama + ' 🙏\n\n';
             t += 'Kode servis: *' + s.kode + '*\nTanggal masuk: ' + L.tgl(s.tgl_masuk) + '\n';
@@ -955,6 +968,16 @@
         });
     };
     L.pesanSewa = {
+        /* info umum untuk calon penyewa (tanpa data transaksi): tarif + ketentuan */
+        info: function () {
+            var nomor = 0, ket = SW.ketentuan.map(function (k) {
+                return k.split('{batas}').join('hari berakhirnya masa sewa').split('{deposit}').join(SW.depositPersen + '% dari harga gitar').split('{tambah}').join(L.rupiah(SW.tambahPerHari))
+                    .split('{senar}').join(L.rupiah(SW.dendaSenar)).split('{senarSemua}').join(L.rupiah(SW.dendaSenar * SW.senarCadangan)).split('{jam}').join(C.toko.jam || 'jam buka toko');
+            });
+            return 'Halo Kak, terima kasih sudah menghubungi ' + C.toko.nama + ' 🎸\n\nSewa gitar (unit used):\n' + L.ringkasTarifSewa().split('; ').join('\n').split(', ').join('\n') + '\n' +
+                'Deposit ' + SW.depositPersen + '% dari harga gitar (dikembalikan saat gitar kembali). Biaya sewa dan deposit dibayar di muka.\n\n' +
+                'Ketentuan:\n' + ket.map(function (k) { return ++nomor + '. ' + k; }).join('\n') + '\n\nGitar mana yang ingin disewa, dan untuk berapa hari? 🙏';
+        },
         mulai: function (w) {
             var h = L.hitungSewa(w), dep = w.deposit_rencana != null ? w.deposit_rencana : h.deposit, nomor = 0;
             return 'Halo Kak ' + w.nama + ', terima kasih sudah menyewa di ' + C.toko.nama + ' 🙏\n\n' +
