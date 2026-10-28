@@ -2098,6 +2098,8 @@
     /* ================= stok gitar (baru & bekas) ================= */
     function bulanIni() { return L.hariIni().slice(0, 7); }
     /* tombol di kartu stok: Sewa (gitar used yang bisa disewa) dan Bagikan (poster & penawaran jual) */
+    /* aksesoris: kolom "warna" dipakai untuk varian (tipe, ukuran, tension, warna); semua aksesoris baru */
+    var LBL_VARIAN = 'Varian / tipe (opsional)', PH_VARIAN = 'mis. Nylon Klasik Hard Tension, ukuran 11-52';
     function tombolKartuStok(s) {
         var b = (L.bisaDisewa(s, cache.sewa) ? '<button type="button" class="ly-btn ly-btn--sm" data-sewa="' + E(s.id) + '">Sewa</button>' : '') +
             (adaStok(s) && s.harga_jual ? '<button type="button" class="ly-btn ly-btn--sm" data-tawar="' + E(s.id) + '">Bagikan</button>' : '');
@@ -2257,20 +2259,20 @@
         var aks = s.kategori === 'aksesoris';
         app.innerHTML = '<section id="sk" class="ly-f"><div class="ly-head"><a class="ly-back" href="#stok">‹ Daftar stok</a></div>' +
             '<div class="ly-head"><h1>' + (sk.baru ? 'Tambah stok' : E(L.namaStok(s))) + '</h1>' + (sk.baru ? '' : chipStok(s)) + '</div>' +
-            (sk.baru ? '' : kodeBaris(s, L.diKatalog(s) ? ' <a target="_blank" href="' + E(L.situs()) + 'katalog.html#' + E(s.kode) + '">🌐 lihat di katalog</a>' : '')) +
+            (sk.baru ? '' : kodeBaris(s, L.diKatalog(s) ? ' <a target="_blank" href="' + E(L.urlUnit(s.kode)) + '">🌐 lihat di katalog</a>' : '')) +
             '<fieldset class="ly-card ly-f"><legend>Barang</legend>' +
             '<div class="ly-status" id="sk-kategori">' + [['gitar', 'Gitar'], ['aksesoris', 'Aksesoris']].map(function (k) { return '<button type="button" data-kategori="' + k[0] + '" aria-pressed="' + (s.kategori === k[0]) + '">' + k[1] + '</button>'; }).join('') + '</div>' +
-            '<div class="ly-status" id="sk-kondisi">' + ['baru', 'bekas'].map(function (k) { return '<button type="button" data-kondisi="' + k + '" aria-pressed="' + (s.kondisi === k) + '">' + L.KONDISI[k] + '</button>'; }).join('') + '</div>' +
+            '<div class="ly-status" id="sk-kondisi"' + (aks ? ' hidden' : '') + '>' + ['baru', 'bekas'].map(function (k) { return '<button type="button" data-kondisi="' + k + '" aria-pressed="' + (s.kondisi === k) + '">' + L.KONDISI[k] + '</button>'; }).join('') + '</div>' +
             '<div id="sk-tingkat" class="ly-f"' + (!aks && s.kondisi === 'bekas' ? '' : ' hidden') + '><label>Tingkat kondisi (tampil di poster &amp; katalog)<select data-s="tingkat">' + opsi([['', 'Belum dinilai']].concat(C.tingkatKondisi.map(function (t) { return [t[0], t[1]]; })), s.tingkat || '') + '</select></label>' +
             '<p class="ly-hint" style="margin:0">' + C.tingkatKondisi.map(function (t) { return '<b>' + E(t[1]) + '</b>: ' + E(t[2]); }).join('. ') + '. Cacat yang ada tetap ditulis di deskripsi.</p></div>' +
             '<div id="sk-gitar"' + (aks ? ' hidden' : '') + ' class="ly-f"><div class="ly-row2"><label>Jenis gitar<select data-s="gitar_jenis">' + opsi(jenis, s.gitar_jenis) + '</select></label><label>Merk / model<input data-s="gitar_merk" placeholder="mis. Yamaha F310"></label></div>' +
             '<label>Nomor seri (tidak tampil di website)<input data-s="no_seri" autocapitalize="characters"></label></div>' +
             '<div id="sk-aks"' + (aks ? '' : ' hidden') + ' class="ly-f"><div class="ly-row2"><label>Kategori<select data-s="sub">' + opsi(subs, s.sub) + '</select></label><label>Nama produk<input data-s="nama" placeholder="mis. Senar Elixir Nanoweb 11-52"></label></div></div>' +
-            '<label><span id="sk-lbl-warna">' + (aks ? 'Varian (ukuran / warna)' : 'Warna') + '</span><input data-s="warna"></label>' +
+            '<label><span id="sk-lbl-warna">' + (aks ? LBL_VARIAN : 'Warna') + '</span><input data-s="warna" placeholder="' + (aks ? PH_VARIAN : 'mis. Hitam Glossy') + '"></label>' +
             '<label>Deskripsi (kondisi, spesifikasi, kelengkapan)<textarea data-s="deskripsi" rows="3" placeholder="mis. mulus, action rendah, bonus softcase"></textarea></label></fieldset>' +
             '<fieldset class="ly-card ly-f"><legend>Harga &amp; jumlah</legend>' +
             '<div class="ly-row2">' + (owner() ? '<label>Modal / harga beli per unit (Rp)<input type="number" inputmode="numeric" min="0" step="10000" data-s="harga_beli"></label>' : '') + '<label>Harga jual (Rp)<input type="number" inputmode="numeric" min="0" step="10000" data-s="harga_jual"></label></div>' +
-            '<div class="ly-row2"><label>Jumlah tersedia<input type="number" inputmode="numeric" min="0" data-s="jumlah"></label><label>Tanggal masuk<input type="date" data-s="tgl_masuk"></label></div>' +
+            '<div class="ly-row2"><label>Jumlah tersedia<input type="number" inputmode="numeric" min="0" data-s="jumlah"></label><label>Tanggal masuk (tidak tampil di website)<input type="date" data-s="tgl_masuk"></label></div>' +
             (owner() ? '<label>Asal barang (opsional, tidak tampil di website)<input data-s="asal" placeholder="mis. beli dari pelanggan / distributor / tukar tambah"></label>' : '') +
             '<label class="ly-cek"><input type="checkbox" id="sk-tampil"> 🌐 Tampilkan di katalog website (bila tersedia dan ada harga jual)</label>' +
             '<div class="ly-sum owner-saja" id="sk-sum"></div></fieldset>' +
@@ -2305,7 +2307,7 @@
                 s.kategori = d.kategori; var aks = s.kategori === 'aksesoris';
                 if (aks && sk.baru) { s.kondisi = 'baru'; $$('#sk-kondisi button').forEach(function (x) { x.setAttribute('aria-pressed', x.dataset.kondisi === 'baru'); }); }
                 $$('#sk-kategori button').forEach(function (x) { x.setAttribute('aria-pressed', x.dataset.kategori === s.kategori); });
-                $('#sk-gitar').hidden = aks; $('#sk-aks').hidden = !aks; tampilTingkat(); $('#sk-lbl-warna').textContent = aks ? 'Varian (ukuran / warna)' : 'Warna'; setDirty(true);
+                $('#sk-gitar').hidden = aks; $('#sk-aks').hidden = !aks; $('#sk-kondisi').hidden = aks; if (aks) s.kondisi = 'baru'; tampilTingkat(); $('#sk-lbl-warna').textContent = aks ? LBL_VARIAN : 'Warna'; $('[data-s="warna"]').placeholder = aks ? PH_VARIAN : 'mis. Hitam Glossy'; setDirty(true);
             }
             else if (d.sts) { s.status = d.sts; gambarStatusStok(); setDirty(true); }
             else if (d.deljual != null) { var p = s.penjualan[+d.deljual]; if (confirm('Hapus catatan penjualan ' + p.qty + ' unit tanggal ' + L.tgl(p.tgl) + '? Jumlah stok dikembalikan.')) { s.jumlah = (+s.jumlah || 0) + p.qty; s.penjualan.splice(+d.deljual, 1); if (s.status === 'terjual') s.status = 'tersedia'; $('[data-s="jumlah"]').value = s.jumlah; gambarJual(); gambarSumStok(); gambarStatusStok(); setDirty(true); } }

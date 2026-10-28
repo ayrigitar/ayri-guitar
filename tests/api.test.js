@@ -43,6 +43,14 @@ test('stok: modal hanya di repo owner, katalog publik tanpa modal', async () => 
     assert.equal(gh.json('ayri-guitar', 'data/katalog.json').item.length, 0);
 });
 
+test('stok: aksesoris selalu tersimpan sebagai baru, tanpa tingkat kondisi', async () => {
+    const { gh, A } = await mulai();
+    await A.simpanStok(stokContoh(null, 3, { id: undefined, kode: undefined, created_at: undefined, kategori: 'aksesoris', sub: 'Senar', nama: 'Orphee NX35', warna: 'Nylon Klasik Hard Tension', kondisi: 'bekas', tingkat: 'mint' }), []);
+    const s = gh.json('ayri-toko-data', 'stok.json')[0], k = gh.json('ayri-guitar', 'data/katalog.json').item[0];
+    assert.equal(s.kondisi, 'baru');
+    assert.equal(k.kondisi, 'baru'); assert.equal(k.tingkat, undefined); assert.equal(k.warna, 'Nylon Klasik Hard Tension');
+});
+
 test('stok: tiap barang di katalog punya halaman pratinjau unit/<kode>.html (tag WhatsApp), terhapus saat barang tidak lagi tampil', async () => {
     const { gh, A, L } = await mulai();
     const r = await A.simpanStok(stokContoh(null, 1, { id: undefined, kode: undefined, created_at: undefined, gitar_jenis: 'Bass', gitar_merk: 'Fender Aerodyne', warna: 'Hitam', tingkat: 'excellent', deskripsi: 'Jazz "Bass" <2003>' }), []);

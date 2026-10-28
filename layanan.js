@@ -1123,6 +1123,7 @@
         var dasar = ambilDasar(rec).d, sekarang = new Date().toISOString(), lama = cari(data.stok, rec.id), files = { situs: [], data: [] };
         siapkanBaru(rec, data.stok, 'STK', sekarang);
         rec.kategori = rec.kategori || 'gitar';
+        if (rec.kategori === 'aksesoris') rec.kondisi = 'baru'; /* aksesoris selalu baru: tidak ada pilihan kondisi */
         rec.foto = rec.foto || []; rec.penjualan = rec.penjualan || []; rec.updated_at = sekarang;
         /* habis tapi masih ditahan pesanan DP: tetap Dipesan */
         if (rec.status !== 'ditarik') rec.status = +rec.jumlah > 0 ? (rec.status === 'dipesan' ? 'dipesan' : 'tersedia') : (rec.status === 'dipesan' ? 'dipesan' : 'terjual');

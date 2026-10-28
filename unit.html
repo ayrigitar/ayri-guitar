@@ -136,7 +136,7 @@ document.addEventListener('DOMContentLoaded', function () {
         } else {
             /* aksesoris: semuanya baru, jadi tanpa baris Kondisi */
             b.push(['Kategori', y.jenis], ['Nama', y.nama]);
-            if (y.warna) b.push(['Warna', y.warna]);
+            if (y.warna) b.push(['Varian', y.warna]); /* isi kolom warna untuk aksesoris = varian (tipe, ukuran, tension), bukan warna */
         }
         if (y.sisa) b.push(['Stok', 'Sisa ' + y.sisa]);
         b.push(['Kode', y.kode]);

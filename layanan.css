@@ -443,6 +443,7 @@ body.ly-kunci-gulir { overflow: hidden; }
 .ly-seg--tab button { flex: 1; padding: 9px 12px; font-size: .9375rem; }
 .ly-seg--tab .ly-n { margin-left: 4px; opacity: .7; }
 .ly-filter[hidden] { display: none; }
+.ly-status[hidden] { display: none; }
 
 /* ---------- kasir ---------- */
 .ks { display: grid; gap: 14px; align-items: start; }
