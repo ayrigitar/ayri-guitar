@@ -115,18 +115,17 @@ test('struk sewa 58 mm memuat kode, batas kembali, deposit', async () => {
     assert.match(teks, /BUKTI SEWA GITAR/); assert.match(teks, /SWA-ABC123/); assert.match(teks, /Deposit diterima/);
 });
 
-test('draf info sewa untuk calon penyewa memuat tarif, deposit, dan ketentuan tanpa data transaksi', async () => {
+test('penawaran sewa per unit memuat nama unit, tarif, deposit, link foto publik, dan ketentuan tanpa placeholder', async () => {
     const { L } = await mulai();
-    const m = L.pesanSewa.info();
-    assert.ok(m.includes('1 hari Rp100.000\n2 hari Rp150.000\n3 hari Rp175.000\nlalu +Rp25.000 per hari\n7 hari Rp300.000'));
-    assert.match(m, /Deposit 10% dari harga gitar/); assert.match(m, /Ketentuan:\n1\. /); assert.match(m, /Rp10\.000 per senar/);
-    assert.ok(!/undefined|\{/.test(m), 'tidak ada placeholder tersisa');
-});
-
-test('draf info servis untuk calon pelanggan memuat daftar jasa, ketentuan, dan jam buka tanpa data transaksi', async () => {
-    const { L } = await mulai();
-    const m = L.pesan.info();
-    assert.ok(m.includes('Basic Setup (Akustik) – Rp100.000'));
-    assert.ok(m.includes('Ketentuan servis:') && m.includes('Jam buka:'));
+    const unit = stokContoh('s1', 1, { harga_jual: 1500000, foto: [{ id: 'f1', repo: 'publik', path: 'foto/stok/a.webp' }, { id: 'f2', repo: 'privat', path: 'x' }] });
+    const m = L.pesanSewa.tawar(unit, { nama_barang: 'Gitar Akustik Yamaha F310 – Used Very Good', deposit_rencana: 150000 });
+    assert.ok(m.includes('*Gitar Akustik Yamaha F310 – Used Very Good*'));
+    assert.ok(m.includes('1 hari: Rp100.000\n2 hari: Rp150.000\n3 hari: Rp175.000\nHari berikutnya: +Rp25.000 per hari\n7 hari (paket): Rp300.000'));
+    assert.ok(m.includes('Deposit Rp150.000'));
+    assert.ok(m.includes('foto/stok/a.webp') && !m.includes('privat'), 'hanya foto publik');
+    assert.match(m, /Ketentuan:\n1\. /); assert.match(m, /Rp10\.000 per senar/);
     assert.ok(!/undefined|[{]/.test(m), 'tidak ada placeholder tersisa');
+    /* unit Rp2 juta ke atas: tarif tidak distandarkan */
+    const mahal = L.pesanSewa.tawar(stokContoh('s2', 1, { harga_jual: 13000000 }), { nama_barang: 'Bass Fender', deposit_rencana: 1300000 });
+    assert.ok(mahal.includes('Tarif sewa: kami kabari sesuai lama sewa.') && !mahal.includes('1 hari: Rp100.000'));
 });
