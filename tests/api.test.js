@@ -38,8 +38,17 @@ test('stok: modal hanya di repo owner, katalog publik tanpa modal', async () => 
     const kat = gh.json('ayri-guitar', 'data/katalog.json');
     assert.equal(kat.item.length, 1); assert.equal(kat.item[0].harga, 1000000);
     assert.equal(JSON.stringify(kat).includes('harga_beli'), false);
+    assert.equal(JSON.stringify(kat).includes('masuk'), false, 'tanggal masuk barang tidak dipublikasikan');
     await A.hapusStok(r);
     assert.equal(gh.json('ayri-guitar', 'data/katalog.json').item.length, 0);
+});
+
+test('stok: aksesoris selalu tersimpan sebagai baru, tanpa tingkat kondisi', async () => {
+    const { gh, A } = await mulai();
+    await A.simpanStok(stokContoh(null, 3, { id: undefined, kode: undefined, created_at: undefined, kategori: 'aksesoris', sub: 'Senar', nama: 'Orphee NX35', warna: 'Nylon Klasik Hard Tension', kondisi: 'bekas', tingkat: 'mint' }), []);
+    const s = gh.json('ayri-toko-data', 'stok.json')[0], k = gh.json('ayri-guitar', 'data/katalog.json').item[0];
+    assert.equal(s.kondisi, 'baru');
+    assert.equal(k.kondisi, 'baru'); assert.equal(k.tingkat, undefined); assert.equal(k.warna, 'Nylon Klasik Hard Tension');
 });
 
 test('stok: tiap barang di katalog punya halaman pratinjau unit/<kode>.html (tag WhatsApp), terhapus saat barang tidak lagi tampil', async () => {

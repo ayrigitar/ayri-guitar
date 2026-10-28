@@ -1084,7 +1084,6 @@
             kode: s.kode, kategori: aks ? 'aksesoris' : 'gitar', jenis: L.jenisStok(s), kondisi: s.kondisi || 'baru', nama: L.namaStok(s), warna: s.warna || '',
             deskripsi: s.deskripsi || '', harga: +s.harga_jual, status: s.status, sisa: aks && +s.jumlah <= C.katalogSisaTampil ? +s.jumlah : null,
             foto: (s.foto || []).filter(function (f) { return f.repo === 'publik'; }).map(function (f) { return { src: f.path, kecil: f.thumb_path || f.path }; }),
-            masuk: s.tgl_masuk || '',
             tingkat: L.tingkatStok(s) || undefined   /* tanpa tingkat = kunci tidak ditulis (katalog lama tidak berubah) */
         };
     }
@@ -1146,6 +1145,7 @@
         var dasar = ambilDasar(rec).d, sekarang = new Date().toISOString(), lama = cari(data.stok, rec.id), files = { situs: [], data: [] };
         siapkanBaru(rec, data.stok, 'STK', sekarang);
         rec.kategori = rec.kategori || 'gitar';
+        if (rec.kategori === 'aksesoris') rec.kondisi = 'baru'; /* aksesoris selalu baru: tidak ada pilihan kondisi */
         rec.foto = rec.foto || []; rec.penjualan = rec.penjualan || []; rec.updated_at = sekarang;
         /* habis tapi masih ditahan pesanan DP: tetap Dipesan */
         if (rec.status !== 'ditarik') rec.status = +rec.jumlah > 0 ? (rec.status === 'dipesan' ? 'dipesan' : 'tersedia') : (rec.status === 'dipesan' ? 'dipesan' : 'terjual');
