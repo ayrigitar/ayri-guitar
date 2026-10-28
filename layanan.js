@@ -968,15 +968,37 @@
                 .split('{senar}').join(L.rupiah(SW.dendaSenar)).split('{senarSemua}').join(L.rupiah(SW.dendaSenar * SW.senarCadangan)).split('{jam}').join(C.toko.jam || 'jam buka toko');
         });
     };
+    /* estimasi singkat satu baris untuk pesan unit: "1 hari Rp100.000 · 2 hari ... · 7 hari Rp300.000 (hari berikutnya +Rp25.000)" */
+    L.tarifSingkatSewa = function () {
+        var b = SW.tarifHarian.map(function (x) { return x[0] + ' hari ' + L.rupiah(x[1]); });
+        if (+SW.tarifMinggu > 0) b.push('7 hari ' + L.rupiah(SW.tarifMinggu));
+        return b.join(' · ') + ' (hari berikutnya +' + L.rupiah(SW.tambahPerHari) + ')';
+    };
     L.pesanSewa = {
-        /* penawaran untuk calon penyewa (tanpa data penyewa): satu unit, tarif, deposit, ketentuan, dan link foto */
-        tawar: function (s, w) {
-            var foto = L.diKatalog(s) ? [] : (s.foto || []).filter(function (f) { return f.repo === 'publik'; }).slice(0, 5).map(function (f) { return L.situs() + f.path; }), n = 0;
-            return 'Halo Kak, ini gitar yang bisa disewa di ' + C.toko.nama + ' 🎸\n\n*' + w.nama_barang + '*\n\n' +
-                (L.tarifStandarUnit(s) ? 'Tarif sewa:\n' + L.barisTarifSewa().join('\n') + '\n\n' : 'Tarif sewa: kami kabari sesuai lama sewa.\n\n') +
-                'Deposit ' + L.rupiah(w.deposit_rencana) + ' (dikembalikan saat gitar kembali). Biaya sewa dan deposit dibayar di muka.\n\n' +
-                (L.diKatalog(s) ? 'Foto & detail gitar:\n' + L.urlUnit(s.kode) + '\n\n' : foto.length ? 'Foto gitar:\n' + foto.join('\n') + '\n\n' : '') +
-                'Ketentuan:\n' + L.ketentuanSewaUmum(L.rupiah(w.deposit_rencana)).map(function (k) { return ++n + '. ' + k; }).join('\n') + '\n\nMau sewa untuk berapa hari, dan mulai kapan? 🙏';
+        /* pesan untuk CALON penyewa (belum ada data penyewa), dipisah supaya bisa dikirim berurutan tanpa pengulangan:
+           beberapa unit boleh dikirim satu per satu, lalu ketentuan SEKALI, lalu formulir, lalu info pembayaran. Pesan memakai (stok, isian formulir sewa) */
+        calon: {
+            unit: function (s, w) {
+                var foto = L.diKatalog(s) ? [] : (s.foto || []).filter(function (f) { return f.repo === 'publik'; }).slice(0, 5).map(function (f) { return L.situs() + f.path; });
+                return '🎸 *' + w.nama_barang + '*\n' +
+                    (L.tarifStandarUnit(s) ? 'Estimasi sewa: ' + L.tarifSingkatSewa() + '\n' : 'Estimasi sewa: kami kabari sesuai lama sewa\n') +
+                    'Deposit: ' + L.rupiah(w.deposit_rencana) + ' (dikembalikan saat gitar kembali)\n' +
+                    (L.diKatalog(s) ? 'Foto & detail: ' + L.urlUnit(s.kode) : foto.length ? 'Foto:\n' + foto.join('\n') : '');
+            },
+            ketentuan: function () {
+                var n = 0;
+                return 'Ketentuan sewa gitar di ' + C.toko.nama + ':\n' + L.ketentuanSewaUmum(SW.depositPersen + '% dari harga gitar').map(function (k) { return ++n + '. ' + k; }).join('\n') +
+                    '\n\nMohon balas *SETUJU* bila ketentuan di atas sudah sesuai 🙏';
+            },
+            formulir: function (s, w) {
+                return 'Untuk memproses sewa, mohon isi data berikut lalu kirim balik ya Kak 🙏\n\nNama lengkap:\nNo. WhatsApp:\nGitar yang disewa: ' + w.nama_barang + '\nTanggal mulai sewa:\nLama sewa (hari):\n\n' +
+                    'Kakak membawa kartu identitas (KTP) saat mengambil gitar. Kami mencatat dan memfotonya sebagai arsip di toko.';
+            },
+            bayar: function (s, w) {
+                var biaya = +w.biaya_custom || 0, dep = +w.deposit_rencana || 0;
+                return 'Info pembayaran sewa ' + w.nama_barang + ':\n' + (biaya ? 'Biaya sewa (' + w.hari + ' hari): ' + L.rupiah(biaya) + '\n' : '') + 'Deposit: ' + L.rupiah(dep) + '\n' +
+                    (biaya ? '*Total dibayar di muka: ' + L.rupiah(biaya + dep) + '*\n' : '') + '\nBayar tunai di toko atau transfer ke ' + L.rekeningTeks() + '. Mohon kirim bukti transfer ke chat ini. Deposit dikembalikan saat gitar kembali tanpa kerusakan.';
+            }
         },
         mulai: function (w) {
             var h = L.hitungSewa(w), dep = w.deposit_rencana != null ? w.deposit_rencana : h.deposit, nomor = 0;
