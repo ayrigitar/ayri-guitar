@@ -955,6 +955,16 @@
         });
     };
     L.pesanSewa = {
+        /* info umum untuk calon penyewa (tanpa data transaksi): tarif + ketentuan */
+        info: function () {
+            var nomor = 0, ket = SW.ketentuan.map(function (k) {
+                return k.split('{batas}').join('hari berakhirnya masa sewa').split('{deposit}').join(SW.depositPersen + '% dari harga gitar').split('{tambah}').join(L.rupiah(SW.tambahPerHari))
+                    .split('{senar}').join(L.rupiah(SW.dendaSenar)).split('{senarSemua}').join(L.rupiah(SW.dendaSenar * SW.senarCadangan)).split('{jam}').join(C.toko.jam || 'jam buka toko');
+            });
+            return 'Halo Kak, terima kasih sudah menghubungi ' + C.toko.nama + ' 🎸\n\nSewa gitar (unit used):\n' + L.ringkasTarifSewa().split('; ').join('\n').split(', ').join('\n') + '\n' +
+                'Deposit ' + SW.depositPersen + '% dari harga gitar (dikembalikan saat gitar kembali). Biaya sewa dan deposit dibayar di muka.\n\n' +
+                'Ketentuan:\n' + ket.map(function (k) { return ++nomor + '. ' + k; }).join('\n') + '\n\nGitar mana yang ingin disewa, dan untuk berapa hari? 🙏';
+        },
         mulai: function (w) {
             var h = L.hitungSewa(w), dep = w.deposit_rencana != null ? w.deposit_rencana : h.deposit, nomor = 0;
             return 'Halo Kak ' + w.nama + ', terima kasih sudah menyewa di ' + C.toko.nama + ' 🙏\n\n' +

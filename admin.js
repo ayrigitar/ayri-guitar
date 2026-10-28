@@ -1829,6 +1829,15 @@
     /* ================= sewa gitar (unit used dari stok) ================= */
     var sw = null, filterSw = 'aktif', cariSw = '';
     var SWC = C.sewa;
+    /* salin teks ke clipboard (cadangan: pilih teks di kotak pesan supaya bisa ditekan lama lalu Salin) */
+    function salinTeks(teks, kotak) {
+        function cadangan() {
+            var t = kotak || document.createElement('textarea'); if (!kotak) { t.value = teks; t.style.position = 'fixed'; t.style.opacity = '0'; document.body.appendChild(t); }
+            t.focus(); t.select(); var ok = false; try { ok = document.execCommand('copy'); } catch (e) {} if (!kotak) t.remove();
+            toast(ok ? 'Pesan disalin. Tempel di WhatsApp.' : 'Tidak bisa menyalin otomatis. Tekan lama di kotak pesan lalu pilih Salin.', !ok);
+        }
+        if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(teks).then(function () { toast('Pesan disalin. Tempel di WhatsApp.'); }, cadangan); else cadangan();
+    }
     function statusSewa(w) { return w.status === 'aktif' && L.infoSewa(w).lewat ? 'telat' : w.status; }
     var CHIP_SEWA = { aktif: 'st-antri', telat: 'st-menunggu_dp', selesai: 'st-selesai', batal: 'st-batal' };
     function chipSewa(w) { var k = statusSewa(w); return '<span class="st-chip ' + CHIP_SEWA[k] + '">' + (k === 'telat' ? 'Telat ' + L.infoSewa(w).hariTelat + ' hari' : E(L.STATUS_SEWA[k] || k)) + '</span>'; }
@@ -1836,7 +1845,11 @@
         app.innerHTML = '<section><div class="ly-head"><h1>Sewa gitar</h1><a class="ly-btn ly-btn--pri" href="#sewa/baru">+ Sewa baru</a></div>' +
             '<p class="ly-muted">Gitar used di <a href="#stok">Stok</a> bisa disewakan. Gitar yang sedang disewa tidak muncul di kasir; pengembalian dan deposit dicatat di sini.</p>' +
             '<div class="ly-cari"><input class="ly-in" id="cari" type="search" placeholder="Cari kode, nama penyewa, gitar…" autocomplete="off"></div>' +
-            '<div class="ly-filter" id="filter"></div><div class="ly-list" id="list"></div></section>';
+            '<div class="ly-filter" id="filter"></div><div class="ly-list" id="list"></div>' +
+            '<fieldset class="ly-card ly-f" style="margin-top:16px"><legend>Draf info &amp; ketentuan sewa</legend><p class="ly-hint" style="margin:0">Untuk dikirim ke calon penyewa yang bertanya (tarif + ketentuan).</p>' +
+            '<textarea id="sw-info" rows="10" readonly></textarea>' + kisiAksi([aksi({ id: 'sw-info-salin', ikon: 'nota', teks: 'Salin pesan', kelas: 'ly-akt--pri' })]) + '</fieldset></section>';
+        $('#sw-info').value = L.pesanSewa.info();
+        $('#sw-info-salin').addEventListener('click', function () { salinTeks($('#sw-info').value); });
         $('#cari').value = cariSw;
         $('#cari').addEventListener('input', function () { cariSw = this.value; gambarDaftarSewa(); });
         $('#filter').addEventListener('click', function (e) { var b = e.target.closest('[data-f]'); if (b) { filterSw = b.dataset.f; gambarDaftarSewa(); } });
@@ -1992,6 +2005,8 @@
             '<fieldset class="ly-card"><legend>WhatsApp ke penyewa</legend>' + barisWa([['mulai', 'Kirim bukti &amp; ketentuan', 'Rincian sewa + minta SETUJU']].concat(aktif ? [['pengingat', 'Pengingat kembali', i.lewat ? 'Sudah telat, ingatkan' : 'Ingatkan batas kembali']] : [['selesai', 'Kabari pengembalian', 'Rincian deposit dikembalikan']]), 'wa') +
             ((w.pengingat || []).length ? '<p class="ly-hint" style="margin:8px 0 0">Diingatkan: ' + w.pengingat.map(L.tgl).join(', ') + '</p>' : '') +
             kisiAksi([aksi({ id: 'sw-cetak', ikon: 'cetak', teks: 'Cetak bukti sewa 58 mm' })]) + '</fieldset>' +
+            '<fieldset class="ly-card ly-f"><legend>Draf pesan (salin &amp; forward)</legend><label>Pesan<select id="sw-draf-jenis">' + opsi([['mulai', 'Bukti & ketentuan sewa'], ['pengingat', 'Pengingat kembali'], ['selesai', 'Pengembalian & deposit']], aktif ? 'mulai' : 'selesai') + '</select></label>' +
+            '<textarea id="sw-draf" rows="10" readonly></textarea>' + kisiAksi([aksi({ id: 'sw-salin', ikon: 'nota', teks: 'Salin pesan', kelas: 'ly-akt--pri' })]) + '</fieldset>' +
             (aktif ? '<fieldset class="ly-card" id="sw-selesai-box"><legend>Gitar dikembalikan</legend>' + (sw.selesai ? '' : '<button type="button" class="ly-btn ly-btn--pri" id="sw-selesai">Gitar sudah dikembalikan</button>' +
                 '<p class="ly-hint" style="margin:8px 0 0">Periksa kondisi gitar dulu, lalu hitung deposit yang dikembalikan.</p>') + '<div id="sw-selesai-isi"></div></fieldset>' : '') +
             (owner() ? '<fieldset class="ly-card"><legend>Lainnya</legend>' + kisiAksi([aksi({ id: 'sw-hapus', ikon: 'hapus', teks: 'Hapus catatan sewa', kelas: 'ly-akt--del' })]) +
@@ -2002,7 +2017,9 @@
         gambarBayarSewa(); gambarFotoSewa(); setDirty(false);
         if (sw.selesai) panelSelesaiSewa();
         var el = $('#sw');
-        el.addEventListener('input', function (e) { var k = e.target.dataset.w; if (k) { w[k] = e.target.value; setDirty(true); } });
+        el.addEventListener('input', function (e) { var k = e.target.dataset.w; if (k) { w[k] = e.target.value; setDirty(true); isiDrafSewa(); } });
+        el.addEventListener('change', function (e) { if (e.target.id === 'sw-draf-jenis') isiDrafSewa(); });
+        isiDrafSewa();
         pilihFoto($('#sw-foto'), function (tahap, files) { antriFoto(sw.antri, files, { tahap: tahap }, gambarFotoSewa); });
         el.addEventListener('click', function (e) {
             var b = e.target.closest('button'); if (!b) return; var d = b.dataset;
@@ -2023,10 +2040,12 @@
             }
             else if (b.id === 'sw-selesai') { if (dirty) return toast('Simpan perubahan dulu.', true); sw.selesai = true; b.hidden = true; panelSelesaiSewa(); }
             else if (b.id === 'sw-cetak') cetakBaris(L.strukSewa(w));
+            else if (b.id === 'sw-salin') salinTeks($('#sw-draf').value, $('#sw-draf'));
             else if (b.id === 'sw-simpan') simpanSewaIni();
             else if (b.id === 'sw-hapus') { if (konfirmasiKode('Hapus catatan sewa ini beserta fotonya? Hanya untuk salah input.', w.kode)) hapusData('sewa', w, b, A.hapusSewa, 'Catatan sewa dihapus.'); }
         });
     }
+    function isiDrafSewa() { var k = $('#sw-draf-jenis'), t = $('#sw-draf'); if (k && t) t.value = L.pesanSewa[k.value](sw.w); }
     function gambarBayarSewa() {
         var w = sw.w, el = $('#sw-bayar'); if (!el) return;
         var NAMA = { sewa: 'Biaya sewa', deposit: 'Deposit', deposit_potong: 'Deposit dipotong', deposit_kembali: 'Deposit dikembalikan' };

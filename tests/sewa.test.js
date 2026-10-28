@@ -114,3 +114,11 @@ test('struk sewa 58 mm memuat kode, batas kembali, deposit', async () => {
     const teks = L.strukSewa(sewaContoh(L, { kode: 'SWA-ABC123', bayar: [{ jumlah: 300000, jenis: 'sewa' }, { jumlah: 500000, jenis: 'deposit' }] })).map((x) => x.t).join('\n');
     assert.match(teks, /BUKTI SEWA GITAR/); assert.match(teks, /SWA-ABC123/); assert.match(teks, /Deposit diterima/);
 });
+
+test('draf info sewa untuk calon penyewa memuat tarif, deposit, dan ketentuan tanpa data transaksi', async () => {
+    const { L } = await mulai();
+    const m = L.pesanSewa.info();
+    assert.ok(m.includes('1 hari Rp100.000\n2 hari Rp150.000\n3 hari Rp175.000\nlalu +Rp25.000 per hari\n7 hari Rp300.000'));
+    assert.match(m, /Deposit 10% dari harga gitar/); assert.match(m, /Ketentuan:\n1\. /); assert.match(m, /Rp10\.000 per senar/);
+    assert.ok(!/undefined|\{/.test(m), 'tidak ada placeholder tersisa');
+});
