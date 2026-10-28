@@ -439,6 +439,9 @@ body.ly-kunci-gulir { overflow: hidden; }
 .ly-seg { display: inline-flex; gap: 2px; padding: 3px; border: 1px solid var(--line); border-radius: var(--r-pill); background: var(--surface-2); }
 .ly-seg button { padding: 6px 12px; border: 0; border-radius: var(--r-pill); background: none; color: var(--ink-3); font: 700 .8125rem var(--font-sans); cursor: pointer; }
 .ly-seg button[aria-pressed="true"] { background: var(--surface); color: var(--ink); box-shadow: var(--shadow-sm); }
+.ly-seg--tab { display: flex; width: 100%; }
+.ly-seg--tab button { flex: 1; padding: 9px 12px; font-size: .9375rem; }
+.ly-seg--tab .ly-n { margin-left: 4px; opacity: .7; }
 .ly-filter[hidden] { display: none; }
 
 /* ---------- kasir ---------- */
