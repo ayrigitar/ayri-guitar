@@ -138,3 +138,16 @@ test('pesan untuk calon penyewa dipisah: unit (tanpa ketentuan), ketentuan, form
     assert.ok(b.includes('Biaya sewa (3 hari): Rp175.000') && b.includes('Deposit: Rp150.000') && b.includes('Total dibayar di muka: Rp325.000') && b.includes('BCA'));
     [u, k, f, b].forEach((t) => assert.ok(!/undefined|[{]/.test(t), 'tidak ada placeholder tersisa'));
 });
+
+test('pesan calon pelanggan servis: estimasi dari jasa terpilih, ketentuan sekali saja tanpa data pelanggan', async () => {
+    const { L } = await mulai();
+    const s = { gitar_jenis: 'Akustik', gitar_merk: 'Taylor 214ce', diskon: 0, bayar: [], items: [{ jenis: 'jasa', nama: 'Full Setup (Akustik)', harga: 350000, qty: 1 }, { jenis: 'part', nama: 'Senar Elixir 12', harga: 180000, qty: 1 }] };
+    const e = L.pesan.calon.estimasi(s);
+    assert.ok(e.startsWith('Estimasi servis Akustik Taylor 214ce:'));
+    assert.ok(e.includes('• Full Setup (Akustik) – Rp350.000') && e.includes('• Senar Elixir 12 – Rp180.000'));
+    assert.ok(e.includes('*Total estimasi: Rp530.000*') && e.includes('(DP 50% jasa + part lunas): *Rp355.000*'));
+    const k = L.pesan.calon.ketentuan();
+    assert.match(k, /^Ketentuan servis di /); assert.match(k, /\n1\. Pengerjaan dimulai setelah DP 50%/); assert.match(k, /SETUJU/);
+    assert.ok(!k.includes('nota ini'), 'tidak menyebut "nota ini" sebelum ada nota');
+    [e, k].forEach((t) => assert.ok(!/undefined|[{]/.test(t), 'tidak ada placeholder tersisa'));
+});
