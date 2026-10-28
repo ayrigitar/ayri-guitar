@@ -123,7 +123,6 @@ document.addEventListener('DOMContentLoaded', function () {
     function lencana(y) {
         return '<span class="kat-badge kat-' + (y.kategori === 'gitar' ? y.kondisi : 'aks') + '">' + (y.kategori === 'gitar' ? (y.kondisi === 'baru' ? 'Baru' : 'Used') : esc(y.jenis)) + '</span>' + (y.tingkat ? '<span class="kat-badge kat-tingkat">' + esc(y.tingkat) + '</span>' : '');
     }
-    function tglMasuk(s) { var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(s || ''); if (!m) return ''; return new Date(+m[1], +m[2] - 1, +m[3]).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }); }
     function wa(y) {
         return 'https://wa.me/' + (toko.wa || '') + '?text=' + encodeURIComponent('Halo AYRI, saya tertarik dengan ' + judul(y) + (y.warna ? ' (' + y.warna + ')' : '') + ' kode ' + y.kode + ' harga ' + rupiah(y.harga) + '. Apakah masih tersedia?\n' + situs + 'unit/' + y.kode + '.html');
     }
@@ -135,13 +134,12 @@ document.addEventListener('DOMContentLoaded', function () {
             if (y.warna) b.push(['Warna', y.warna]);
             b.push(['Kondisi', y.kondisi === 'baru' ? 'Baru' : 'Used' + (y.tingkat ? ' · ' + y.tingkat : '')]);
         } else {
+            /* aksesoris: semuanya baru, jadi tanpa baris Kondisi */
             b.push(['Kategori', y.jenis], ['Nama', y.nama]);
             if (y.warna) b.push(['Warna', y.warna]);
-            b.push(['Kondisi', 'Baru']);
         }
         if (y.sisa) b.push(['Stok', 'Sisa ' + y.sisa]);
         b.push(['Kode', y.kode]);
-        if (tglMasuk(y.masuk)) b.push(['Masuk toko', tglMasuk(y.masuk)]);
         return '<dl class="unit-spek">' + b.map(function (r) { return '<div><dt>' + esc(r[0]) + '</dt><dd>' + esc(r[1]) + '</dd></div>'; }).join('') + '</dl>' +
             (tingkat ? '<p class="unit-tingkat"><b>' + esc(y.tingkat) + ':</b> ' + esc(tingkat) + '.</p>' : '');
     }

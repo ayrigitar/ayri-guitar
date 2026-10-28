@@ -1062,7 +1062,6 @@
             kode: s.kode, kategori: aks ? 'aksesoris' : 'gitar', jenis: L.jenisStok(s), kondisi: s.kondisi || 'baru', nama: L.namaStok(s), warna: s.warna || '',
             deskripsi: s.deskripsi || '', harga: +s.harga_jual, status: s.status, sisa: aks && +s.jumlah <= C.katalogSisaTampil ? +s.jumlah : null,
             foto: (s.foto || []).filter(function (f) { return f.repo === 'publik'; }).map(function (f) { return { src: f.path, kecil: f.thumb_path || f.path }; }),
-            masuk: s.tgl_masuk || '',
             tingkat: L.tingkatStok(s) || undefined   /* tanpa tingkat = kunci tidak ditulis (katalog lama tidak berubah) */
         };
     }

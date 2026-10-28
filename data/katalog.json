@@ -42,7 +42,6 @@
      "kecil": "foto/stok/643405e66222084090fe-k.webp"
     }
    ],
-   "masuk": "2026-10-26",
    "tingkat": "Very Good"
   },
   {
@@ -90,7 +89,6 @@
      "kecil": "foto/stok/3445c9bc80e4fed739cb-k.webp"
     }
    ],
-   "masuk": "2026-10-25",
    "tingkat": "Good"
   },
   {
@@ -146,7 +144,6 @@
      "kecil": "foto/stok/5b14fe6602fd63fb2e70-k.webp"
     }
    ],
-   "masuk": "2026-10-25",
    "tingkat": "Very Good"
   },
   {
@@ -194,7 +191,6 @@
      "kecil": "foto/stok/2d99cc104ee2f8d620b5-k.webp"
     }
    ],
-   "masuk": "2026-10-25",
    "tingkat": "Excellent"
   },
   {
@@ -249,8 +245,7 @@
      "src": "foto/stok/1a1bf9bf8a68cf0ae6df.webp",
      "kecil": "foto/stok/1a1bf9bf8a68cf0ae6df-k.webp"
     }
-   ],
-   "masuk": "2026-10-25"
+   ]
   },
   {
    "kode": "STK-FBXF37",
@@ -304,8 +299,7 @@
      "src": "foto/stok/e485e42c7d7afb2834b5.webp",
      "kecil": "foto/stok/e485e42c7d7afb2834b5-k.webp"
     }
-   ],
-   "masuk": "2026-10-25"
+   ]
   },
   {
    "kode": "STK-Z24B4G",
@@ -356,7 +350,6 @@
      "kecil": "foto/stok/6fbad29aa7e6b394d9f7-k.webp"
     }
    ],
-   "masuk": "2026-10-25",
    "tingkat": "Good"
   },
   {
@@ -379,8 +372,7 @@
      "src": "foto/stok/8361dffe85f763652e9f.webp",
      "kecil": "foto/stok/8361dffe85f763652e9f-k.webp"
     }
-   ],
-   "masuk": "2026-10-23"
+   ]
   },
   {
    "kode": "STK-VM7JT5",
@@ -402,8 +394,7 @@
      "src": "foto/stok/a7733dce8f77f28732db.webp",
      "kecil": "foto/stok/a7733dce8f77f28732db-k.webp"
     }
-   ],
-   "masuk": "2026-10-21"
+   ]
   },
   {
    "kode": "STK-6PQCDA",
@@ -457,8 +448,7 @@
      "src": "foto/stok/45cb1176733acefe0a42.webp",
      "kecil": "foto/stok/45cb1176733acefe0a42-k.webp"
     }
-   ],
-   "masuk": "2026-10-21"
+   ]
   },
   {
    "kode": "STK-SCYBYR",
@@ -512,8 +502,7 @@
      "src": "foto/stok/c2b9361bb099ddc1e1eb.webp",
      "kecil": "foto/stok/c2b9361bb099ddc1e1eb-k.webp"
     }
-   ],
-   "masuk": "2026-10-21"
+   ]
   },
   {
    "kode": "STK-752B52",
@@ -567,8 +556,7 @@
      "src": "foto/stok/e7844f12235295e49a13.webp",
      "kecil": "foto/stok/e7844f12235295e49a13-k.webp"
     }
-   ],
-   "masuk": "2026-10-18"
+   ]
   },
   {
    "kode": "STK-QFV3U3",
@@ -618,8 +606,7 @@
      "src": "foto/stok/0193427ecbfb32367b87.webp",
      "kecil": "foto/stok/0193427ecbfb32367b87-k.webp"
     }
-   ],
-   "masuk": "2026-10-16"
+   ]
   }
  ]
 }

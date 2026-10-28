@@ -38,6 +38,7 @@ test('stok: modal hanya di repo owner, katalog publik tanpa modal', async () => 
     const kat = gh.json('ayri-guitar', 'data/katalog.json');
     assert.equal(kat.item.length, 1); assert.equal(kat.item[0].harga, 1000000);
     assert.equal(JSON.stringify(kat).includes('harga_beli'), false);
+    assert.equal(JSON.stringify(kat).includes('masuk'), false, 'tanggal masuk barang tidak dipublikasikan');
     await A.hapusStok(r);
     assert.equal(gh.json('ayri-guitar', 'data/katalog.json').item.length, 0);
 });
