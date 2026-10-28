@@ -111,13 +111,13 @@ Barang yang **tersedia**, **ada harga jual**, dan dicentang **🌐 Tampilkan di 
 - Bagian atas daftar menampilkan **rekap**: unit tersedia (gitar baru/bekas/aksesoris), jumlah barang di katalog, modal di stok, perkiraan untung, serta penjualan **bulan ini**.
 - Barang yang lebih dari 90 hari di stok ditandai merah, sebagai tanda untuk dipromosikan atau diturunkan harganya.
 
-## Sewa gitar (menu **Sewa**)
+## Sewa gitar (di menu **Servis**, tab **Sewa gitar**)
 
 Gitar **used** di Stok bisa disewakan; unit tetap milik toko dan stoknya tidak berkurang. Selama disewa, unit itu tidak muncul di kasir.
 
 | Langkah | Cara |
 |---|---|
-| Sewa baru | **Sewa** → **+ Sewa baru** (atau di halaman stok tekan **Sewakan gitar ini**) → nama & WA penyewa, lama sewa, tarif, deposit → catat bayar sewa + deposit → foto kondisi gitar (dan KTP, hanya owner) → **Simpan sewa** → **WA: Kirim bukti & ketentuan** |
+| Sewa baru | **Servis** → tab **Sewa gitar** → **+ Sewa baru** (atau di halaman stok tekan **Sewakan gitar ini**) → nama & WA penyewa, lama sewa, tarif, deposit → catat bayar sewa + deposit → foto kondisi gitar (dan KTP, hanya owner) → **Simpan sewa** → **WA: Kirim bukti & ketentuan** |
 | Perpanjang | Buka sewa → **Perpanjang** (hari) → catat pembayaran tambahan |
 | Penawaran ke calon penyewa | Di **Stok**, kartu gitar used punya tombol **Sewa** → formulir sewa unit itu → **Kirim penawaran & foto** (tarif, deposit, ketentuan, link foto; tanpa nomor, kontaknya dipilih di WhatsApp). Setelah calon penyewa setuju, isi nama & WA lalu **Simpan sewa** |
 | Pengingat | Sewa yang kembali besok, hari ini, atau telat muncul di **Hari ini**; tombol **Pengingat kembali** membuka WA |
