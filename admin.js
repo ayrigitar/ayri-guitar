@@ -3,7 +3,7 @@
 (function () {
     var L = Layanan, C = L.C, A = L.api, E = L.esc, app = document.getElementById('app');
     var WA_IKON = '<svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.6.8-.8 1-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.2-.4.2-.4.7-1.3.1-.1 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.8 11.9 11.9 0 0 0 4.6 4c1.7.7 2.4.8 3.3.7a2.8 2.8 0 0 0 1.8-1.3 2.2 2.2 0 0 0 .2-1.3c-.1-.1-.3-.2-.5-.3z"/></svg>';
-    var cache = { servis: [], artikel: [], tebus: [], stok: [], jual: [], absen: [], opname: [], kas: [] }, dimuat = false, ed = null, ae = null, te = null, sk = null, filterTb = 'aktif', filterSk = 'tersedia', cariSk = '', dirty = false, filter = 'aktif', cari = '', menyimpan = false;
+    var cache = { servis: [], artikel: [], tebus: [], stok: [], jual: [], absen: [], opname: [], kas: [], sewa: [] }, dimuat = false, ed = null, ae = null, te = null, sk = null, filterTb = 'aktif', filterSk = 'tersedia', cariSk = '', dirty = false, filter = 'aktif', cari = '', menyimpan = false;
     var AKTIF = ['menunggu_dp', 'antri', 'dikerjakan', 'selesai'];
 
     function $(s, r) { return (r || document).querySelector(s); }
@@ -327,7 +327,7 @@
         window.scrollTo(0, 0);
         if (!owner() && (p[0] === 'tebus' || p[0] === 'artikel' || p[0] === 'rekap' || (p[0] === 'jam' && p[1] === 'atur'))) { toast('Menu ini khusus owner.', true); pindah('#kasir'); return; }
         $('#lainnya').hidden = true; app.onclick = app.oninput = app.onchange = null; clearInterval(detikJam);
-        $('#b-lainnya').setAttribute('aria-current', ['jam', 'opname', 'tebus', 'artikel', 'rekap', 'kas'].indexOf(p[0]) > -1 ? 'page' : 'false');
+        $('#b-lainnya').setAttribute('aria-current', ['jam', 'opname', 'tebus', 'artikel', 'rekap', 'kas', 'sewa'].indexOf(p[0]) > -1 ? 'page' : 'false');
         if (p[0] === 'hari') return halamanHari();
         if (p[0] === 'kas') return halamanKas();
         if (p[0] === 'jam') return p[1] === 'atur' ? aturKaryawan() : halamanJam();
@@ -337,6 +337,7 @@
         if (p[0] === 'tebus') return p[1] ? bukaTebus(p[1] === 'baru' ? null : p[1]) : daftarTebus();
         if (p[0] === 'stok') return p[1] ? bukaStok(p[1] === 'baru' ? null : p[1]) : daftarStok();
         if (p[0] === 'jual') return p[1] === 'baru' ? jualBaru(p[2]) : p[1] ? bukaJual(p[1]) : daftarJual();
+        if (p[0] === 'sewa') return p[1] === 'baru' ? sewaBaru(p[2]) : p[1] ? bukaSewa(p[1]) : daftarSewa();
         if (p[0] === 'artikel') return p[1] ? bukaArtikel(p[1] === 'baru' ? null : p[1]) : daftarArtikel();
         return p[1] ? bukaServis(p[1] === 'baru' ? null : p[1]) : daftarServis();
     }
@@ -356,7 +357,7 @@
         ok: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8 12.5 2.7 2.7L16.5 9.5"/></svg>'
     };
     function siapBayar(s) { return s.status === 'selesai' && L.hitung(s, s.items, s.bayar).sisa > 0; }
-    function bisaDijual(s) { return +s.jumlah > 0 && s.status !== 'ditarik'; }
+    function bisaDijual(s) { return +s.jumlah > 0 && s.status !== 'ditarik' && !L.sewaAktifStok(s.id, cache.sewa); }
     function namaBarang(s) { return L.judulStok(s) + (s.warna ? ' (' + s.warna + ')' : '') + (s.kondisi === 'bekas' ? ' – Used' + (L.tingkatStok(s) ? ' ' + L.tingkatStok(s) : '') : ''); }
     function totalKr() { return kr.items.reduce(function (t, i) { return t + i.harga * i.qty; }, 0); }
     function nKr() { return kr.items.reduce(function (t, i) { return t + i.qty; }, 0); }
@@ -782,6 +783,8 @@
         var t = [];
         /* DP barang mendekati / lewat batas pelunasan */
         cache.jual.forEach(function (j) { var i = L.infoJual(j); if (i.sisa != null && i.sisa <= 3) t.push({ g: 'DP barang', u: i.lewat ? 0 : 1, h: '#jual/' + j.id, t: (j.nama || 'Pembeli') + ' · ' + L.namaJual(j), m: 'Sisa ' + L.rupiah(L.hitungJual(j).sisa) + ' · batas ' + L.tgl(j.batas_lunas) + (i.lewat ? ' (lewat ' + -i.sisa + ' hari)' : i.sisa ? ' (' + i.sisa + ' hari lagi)' : ' (hari ini)'), merah: i.lewat }); });
+        /* sewa gitar: kembali besok / hari ini / telat */
+        cache.sewa.forEach(function (w) { if (L.perluIngatSewa(w, h)) { var i = L.infoSewa(w, h); t.push({ g: 'Sewa gitar', u: i.lewat ? 0 : 1, h: '#sewa/' + w.id, t: w.nama + ' · ' + w.nama_barang, m: i.lewat ? 'Telat ' + i.hariTelat + ' hari (batas ' + L.tgl(L.batasSewa(w)) + ')' : i.sisa ? 'Kembali besok' : 'Kembali hari ini', merah: i.lewat }); } });
         /* servis lewat estimasi */
         cache.servis.forEach(function (s) { if (['menunggu_dp', 'antri', 'dikerjakan'].indexOf(s.status) > -1 && s.estimasi && s.estimasi < h) t.push({ g: 'Servis lewat estimasi', u: 1, h: '#servis/' + s.id, t: L.namaGitar(s, 'Gitar') + ' · ' + s.nama, m: L.STATUS[s.status].label + ' · estimasi ' + L.tgl(s.estimasi), merah: true }); });
         /* gitar selesai belum diambil */
@@ -1053,6 +1056,17 @@
         var log = [];
         cache.servis.forEach(function (s) { (s.bayar || []).forEach(function (b) { log.push({ tgl: b.tgl, jumlah: +b.jumlah || 0, metode: b.metode, sumber: 'servis', kode: s.kode, nama: s.nama, ket: ({ dp: 'DP servis', tambahan: 'Bayar servis', pelunasan: 'Pelunasan servis' })[b.jenis] || 'Bayar servis' }); }); });
         cache.jual.forEach(function (j) { (j.bayar || []).forEach(function (b) { var r = b.jenis === 'refund'; log.push({ tgl: b.tgl, jumlah: (r ? -1 : 1) * (+b.jumlah || 0), metode: b.metode, sumber: 'barang', kode: j.kode, nama: j.nama || 'Pembeli umum', ket: r ? 'Uang dikembalikan (batal)' : ({ dp: 'DP barang', tambahan: 'Bayar barang', pelunasan: j.status === 'dp' ? 'Bayar barang' : 'Jual barang' })[b.jenis] || 'Jual barang' }); }); });
+        cache.sewa.forEach(function (w) {
+            var depMetode = (w.bayar || []).filter(function (b) { return b.jenis === 'deposit'; }).map(function (b) { return b.metode; })[0] || 'tunai';
+            (w.bayar || []).forEach(function (b) {
+                var j = +b.jumlah || 0, dasar = { tgl: b.tgl, metode: b.metode, kode: w.kode, nama: w.nama };
+                if (b.jenis === 'deposit') log.push(Object.assign({ jumlah: j, sumber: 'deposit', ket: 'Deposit sewa gitar (titipan)' }, dasar));
+                else if (b.jenis === 'deposit_kembali') log.push(Object.assign({ jumlah: -j, sumber: 'deposit', ket: 'Deposit sewa dikembalikan' }, dasar));
+                else if (b.jenis === 'deposit_potong') { /* deposit dipakai membayar sewa/ganti rugi: tanpa uang bergerak, titipan jadi pendapatan */
+                    log.push(Object.assign({}, dasar, { metode: depMetode, jumlah: j, sumber: 'sewa', ket: 'Sewa gitar (dari deposit)' }), Object.assign({}, dasar, { metode: depMetode, jumlah: -j, sumber: 'deposit', ket: 'Deposit sewa dipakai' }));
+                } else log.push(Object.assign({ jumlah: j, sumber: 'sewa', ket: 'Sewa gitar' }, dasar));
+            });
+        });
         cache.kas.forEach(function (k) { (k.pengeluaran || []).forEach(function (p) { log.push({ tgl: k.tgl, jumlah: -(+p.jumlah || 0), metode: p.metode || 'tunai', sumber: 'operasional', kode: p.kategori, nama: p.oleh || '', ket: 'Pengeluaran: ' + p.ket }); }); });
         cache.tebus.forEach(function (t) {
             if (t.status !== 'batal' && t.tgl_beli) log.push({ tgl: t.tgl_beli, jumlah: -(+t.harga_beli || 0), metode: t.metode, sumber: 'tebus', kode: t.kode, nama: t.nama, ket: 'Beli gitar (hak tebus)' });
@@ -1061,13 +1075,13 @@
         return log;
     }
     function hitungBulan(bln, log) {
-        var r = { masuk: 0, keluar: 0, barang: 0, servis: 0, tebus: 0, operasional: 0, metode: {}, harian: {}, log: [] };
+        var r = { masuk: 0, keluar: 0, barang: 0, servis: 0, sewa: 0, deposit: 0, tebus: 0, operasional: 0, metode: {}, harian: {}, log: [] };
         log.forEach(function (x) {
             if (String(x.tgl).slice(0, 7) !== bln) return; r.log.push(x);
             if (x.jumlah >= 0) r.masuk += x.jumlah; else r.keluar += -x.jumlah;
-            if (x.sumber === 'barang') r.barang += x.jumlah; else if (x.sumber === 'servis') r.servis += x.jumlah; else if (x.sumber === 'operasional') r.operasional += x.jumlah; else r.tebus += x.jumlah;
+            if (x.sumber === 'barang') r.barang += x.jumlah; else if (x.sumber === 'servis') r.servis += x.jumlah; else if (x.sumber === 'sewa') r.sewa += x.jumlah; else if (x.sumber === 'deposit') r.deposit += x.jumlah; else if (x.sumber === 'operasional') r.operasional += x.jumlah; else r.tebus += x.jumlah;
             var m = x.metode || 'tunai'; r.metode[m] = (r.metode[m] || 0) + x.jumlah;
-            var h = r.harian[x.tgl] = r.harian[x.tgl] || { barang: 0, servis: 0 }; if (x.sumber !== 'tebus' && x.jumlah > 0) h[x.sumber] += x.jumlah;
+            var h = r.harian[x.tgl] = r.harian[x.tgl] || { barang: 0, servis: 0 }; if (h[x.sumber] != null && x.jumlah > 0) h[x.sumber] += x.jumlah;
         });
         /* untung kotor barang: transaksi jual bulan itu (bukan batal), harga deal − modal saat ini */
         r.untung = 0; r.tanpaModal = 0; r.terjual = 0; var laris = {};
@@ -1105,12 +1119,13 @@
         var log = arusKas(), r = hitungBulan(bulanRk, log), p = hitungBulan(bulanLalu(bulanRk), log);
         var dp = cache.jual.filter(function (j) { return j.status === 'dp'; }), dpUang = dp.reduce(function (t, j) { return t + L.hitungJual(j).dibayar; }, 0);
         var jenis = {}; r.svMasuk.forEach(function (s) { var k = s.gitar_jenis || 'Lainnya'; jenis[k] = (jenis[k] || 0) + 1; });
-        var bersih = r.masuk - r.keluar;
+        var bersih = r.masuk - r.keluar, depSewa = cache.sewa.reduce(function (t, w) { return t + (w.status === 'aktif' || w.status === 'selesai' ? L.hitungSewa(w).ditahan : 0); }, 0);
         app.innerHTML = '<section class="rk"><div class="ly-head"><h1>Rekap bulanan</h1><span class="ly-peran">Khusus owner</span><input type="month" class="ly-in rk-bln" id="rk-bln" value="' + bulanRk + '"></div>' +
             '<div class="rk-kartu">' +
             '<div class="ly-card"><small>Uang masuk</small><b>' + L.rupiah(r.masuk) + '</b>' + persen(r.masuk, p.masuk) + '<small>' + r.log.filter(function (x) { return x.jumlah > 0; }).length + ' pembayaran</small></div>' +
             '<div class="ly-card"><small>Penjualan barang</small><b class="rk-c1">' + L.rupiah(r.barang) + '</b>' + persen(r.barang, p.barang) + '<small>' + r.terjual + ' unit terjual</small></div>' +
             '<div class="ly-card"><small>Pendapatan servis</small><b class="rk-c2">' + L.rupiah(r.servis) + '</b>' + persen(r.servis, p.servis) + '<small>' + r.svMasuk.length + ' masuk · ' + r.svSelesai + ' selesai</small></div>' +
+            (r.sewa || r.deposit ? '<div class="ly-card"><small>Pendapatan sewa gitar</small><b class="rk-c2">' + L.rupiah(r.sewa) + '</b>' + persen(r.sewa, p.sewa) + '<small>deposit bersih ' + L.rupiah(r.deposit) + '</small></div>' : '') +
             '<div class="ly-card"><small>Untung kotor barang</small><b class="rk-c3">' + L.rupiah(r.untung) + '</b>' + persen(r.untung, p.untung) + (r.tanpaModal ? '<small class="ly-warn">' + r.tanpaModal + ' barang tanpa modal</small>' : '<small>harga deal − modal</small>') + '</div>' +
             '</div>' +
             '<div class="rk-dua"><div class="ly-card"><h2>Uang masuk per hari</h2>' + grafikHarian(bulanRk, r.harian) + '</div>' +
@@ -1121,8 +1136,9 @@
             '<div class="ly-total"><span>Bersih</span><span>' + L.rupiah(bersih) + '</span></div>' +
             Object.keys(r.metode).map(function (m) { return '<div><span>&nbsp; ' + ({ tunai: 'Tunai (cocokkan dengan kas)', transfer: 'Transfer (cocokkan dengan mutasi rekening)', qris: 'QRIS' })[m] + '</span><span>' + L.rupiah(r.metode[m]) + '</span></div>'; }).join('') +
             '<div><span>DP barang masih ditahan (saat ini)</span><span>' + L.rupiah(dpUang) + ' · ' + dp.length + ' pesanan</span></div>' +
+            (depSewa ? '<div><span>Deposit sewa ditahan (saat ini, bukan pendapatan)</span><span>' + L.rupiah(depSewa) + '</span></div>' : '') +
             '<div class="ly-total"><span>Perkiraan laba (untung barang + servis − pengeluaran)</span><span>' + L.rupiah(r.untung + r.servis + r.operasional) + '</span></div></div></div></div>' +
-            '<div class="rk-dua"><div class="ly-card"><h2>Komposisi pendapatan</h2>' + batang([['Barang', Math.max(0, r.barang), 'var(--accent)'], ['Servis', Math.max(0, r.servis), '#2659A8']].concat(r.tebus > 0 ? [['Tebus kembali', r.tebus, '#0E6B40']] : [])) + '</div>' +
+            '<div class="rk-dua"><div class="ly-card"><h2>Komposisi pendapatan</h2>' + batang([['Barang', Math.max(0, r.barang), 'var(--accent)'], ['Servis', Math.max(0, r.servis), '#2659A8']].concat(r.sewa > 0 ? [['Sewa gitar', r.sewa, '#B5651D']] : []).concat(r.tebus > 0 ? [['Tebus kembali', r.tebus, '#0E6B40']] : [])) + '</div>' +
             '<div class="ly-card"><h2>Servis masuk per jenis gitar</h2>' + (Object.keys(jenis).length ? batang(Object.keys(jenis).sort(function (a, b) { return jenis[b] - jenis[a]; }).map(function (k) { return [k, jenis[k], '#6B3FA0', jenis[k] + ' gitar']; })) : '<p class="ly-muted">Belum ada servis bulan ini.</p>') + '</div></div>' +
             '<div class="rk-dua"><div class="ly-card"><h2>Barang terlaris</h2>' + (r.laris.length ? '<ol class="rk-laris">' + r.laris.map(function (l) { return '<li><span><b>' + E(l.nama) + '</b><small>' + E(l.kode) + '</small></span><span><b>' + l.qty + ' unit</b><small>' + L.rupiah(l.omzet) + '</small></span></li>'; }).join('') + '</ol>' : '<p class="ly-muted">Belum ada penjualan bulan ini.</p>') + '</div>' +
             '<div class="ly-card"><div class="ly-head" style="margin-bottom:8px"><h2 style="flex:1;margin:0">Log transaksi</h2><button type="button" class="ly-btn ly-btn--sm" id="rk-csv">Unduh CSV (Excel)</button></div>' +
@@ -1670,7 +1686,7 @@
     /* transaksi baru dari satu barang stok (#jual/baru/<id stok>) */
     function jualBaru(stokId) { ambilCatatan('stok', stokId, function () { return null; }, formJual); }
     function formJual(s) {
-        if (!(+s.jumlah > 0) || s.status === 'ditarik') { app.innerHTML = '<p class="ly-kosong">Stok ' + E(s.kode) + ' sedang tidak tersedia. <a href="#stok/' + E(s.id) + '">Kembali</a></p>'; return; }
+        if (!(+s.jumlah > 0) || s.status === 'ditarik' || L.sewaAktifStok(s.id, cache.sewa)) { app.innerHTML = '<p class="ly-kosong">Stok ' + E(s.kode) + ' sedang tidak tersedia (habis, ditarik, atau sedang disewa). <a href="#stok/' + E(s.id) + '">Kembali</a></p>'; return; }
         var h = L.hariIni(), nama = L.judulStok(s) + (s.warna ? ' (' + s.warna + ')' : '') + (s.kondisi === 'bekas' ? ' – Used' + (L.tingkatStok(s) ? ' ' + L.tingkatStok(s) : '') : '');
         jl = { baru: true, stok: s, j: { nama: '', hp: '', tgl: h, items: [{ stok_id: s.id, kode: s.kode, nama: nama, qty: 1, harga: +s.harga_jual || 0 }], bayar: [], catatan: '', batas_lunas: L.tambahHari(h, C.jual.batasHari) } };
         app.innerHTML = '<section id="jl" class="ly-f"><div class="ly-head"><a class="ly-back" href="#stok/' + E(s.id) + '">‹ ' + E(s.kode) + '</a></div>' +
@@ -1808,6 +1824,263 @@
         var rec = salin(j); rec.pengingat = (rec.pengingat || []).concat(L.hariIni());
         sibuk(btn, true, 'Mencatat…');
         A.simpanJual(rec).then(function (row) { taruh('jual', row); jl = { baru: false, j: salin(row) }; gambarJual2(); }).catch(function (e) { sibuk(btn, false); gagal(e); });
+    }
+
+    /* ================= sewa gitar (unit used dari stok) ================= */
+    var sw = null, filterSw = 'aktif', cariSw = '';
+    var SWC = C.sewa;
+    function statusSewa(w) { return w.status === 'aktif' && L.infoSewa(w).lewat ? 'telat' : w.status; }
+    var CHIP_SEWA = { aktif: 'st-antri', telat: 'st-menunggu_dp', selesai: 'st-selesai', batal: 'st-batal' };
+    function chipSewa(w) { var k = statusSewa(w); return '<span class="st-chip ' + CHIP_SEWA[k] + '">' + (k === 'telat' ? 'Telat ' + L.infoSewa(w).hariTelat + ' hari' : E(L.STATUS_SEWA[k] || k)) + '</span>'; }
+    function daftarSewa() {
+        app.innerHTML = '<section><div class="ly-head"><h1>Sewa gitar</h1><a class="ly-btn ly-btn--pri" href="#sewa/baru">+ Sewa baru</a></div>' +
+            '<p class="ly-muted">Gitar used di <a href="#stok">Stok</a> bisa disewakan. Gitar yang sedang disewa tidak muncul di kasir; pengembalian dan deposit dicatat di sini.</p>' +
+            '<div class="ly-cari"><input class="ly-in" id="cari" type="search" placeholder="Cari kode, nama penyewa, gitar…" autocomplete="off"></div>' +
+            '<div class="ly-filter" id="filter"></div><div class="ly-list" id="list"></div></section>';
+        $('#cari').value = cariSw;
+        $('#cari').addEventListener('input', function () { cariSw = this.value; gambarDaftarSewa(); });
+        $('#filter').addEventListener('click', function (e) { var b = e.target.closest('[data-f]'); if (b) { filterSw = b.dataset.f; gambarDaftarSewa(); } });
+        gambarDaftarSewa();
+    }
+    function gambarDaftarSewa() {
+        if (!$('#list')) return;
+        var rows = cache.sewa, c = cariSw.trim().toLowerCase(), n = { aktif: 0, telat: 0, selesai: 0, semua: rows.length };
+        rows.forEach(function (w) { var k = statusSewa(w); if (k === 'aktif' || k === 'telat') n.aktif++; if (k === 'telat') n.telat++; if (k === 'selesai') n.selesai++; });
+        $('#filter').innerHTML = [['aktif', 'Sedang disewa'], ['telat', 'Telat'], ['selesai', 'Selesai'], ['semua', 'Semua']].map(function (x) {
+            return '<button type="button" data-f="' + x[0] + '" aria-pressed="' + (filterSw === x[0]) + '">' + x[1] + ' <span class="ly-n">' + n[x[0]] + '</span></button>';
+        }).join('');
+        var tampil = rows.filter(function (w) {
+            var k = statusSewa(w), ok = filterSw === 'semua' ? true : filterSw === 'aktif' ? (k === 'aktif' || k === 'telat') : k === filterSw;
+            return ok && (!c || [w.kode, w.nama, w.hp, w.nama_barang].join(' ').toLowerCase().indexOf(c) > -1);
+        });
+        $('#list').innerHTML = tampil.length ? tampil.map(function (w) {
+            var h = L.hitungSewa(w), i = L.infoSewa(w);
+            return '<div class="ly-item"><a class="ly-item__a" href="#sewa/' + E(w.id) + '"><span class="ly-item__k">' + E(w.kode) + '</span></a>' + chipSewa(w) +
+                '<span class="ly-item__t">' + E(w.nama) + ' · ' + E(w.nama_barang) + '</span>' +
+                '<span class="ly-item__m"><span>' + L.tgl(w.tgl_mulai) + ' → ' + L.tgl(L.batasSewa(w)) + '</span><span>Sewa ' + L.rupiah(h.tarif) + '</span>' +
+                (w.status === 'aktif' ? '<span>Deposit ' + L.rupiah(h.ditahan) + '</span>' : '') + (h.masihHutang ? '<span class="ly-warn">Kurang ' + L.rupiah(h.masihHutang) + '</span>' : '') +
+                (i.sisa != null && !i.lewat ? '<span>' + (i.sisa ? i.sisa + ' hari lagi' : 'kembali hari ini') + '</span>' : '') + '</span></div>';
+        }).join('') : '<p class="ly-kosong">' + (rows.length ? 'Tidak ada di kategori ini.' : 'Belum ada sewa. Tekan “+ Sewa baru”.') + '</p>';
+    }
+    /* sewa baru: pilih unit (jika belum), lalu isi formulir (#sewa/baru/<id stok>) */
+    function sewaBaru(stokId) {
+        if (!stokId) return pilihUnitSewa();
+        ambilCatatan('stok', stokId, function () { return null; }, formSewa);
+    }
+    function pilihUnitSewa() {
+        var unit = cache.stok.filter(function (s) { return L.bisaDisewa(s, cache.sewa); });
+        app.innerHTML = '<section><div class="ly-head"><a class="ly-back" href="#sewa">‹ Sewa gitar</a></div><div class="ly-head"><h1>Pilih gitar</h1></div>' +
+            '<p class="ly-muted">Hanya gitar <b>used</b> yang tersedia dan belum sedang disewa.</p><div class="ly-list">' +
+            (unit.length ? unit.map(function (s) {
+                return '<div class="ly-item"><a class="ly-item__a" href="#sewa/baru/' + E(s.id) + '"><span class="ly-item__k">' + E(s.kode) + '</span></a><span class="ly-item__t">' + E(L.judulStok(s)) + (L.tingkatStok(s) ? ' · ' + E(L.tingkatStok(s)) : '') + '</span>' +
+                    '<span class="ly-item__m"><span>Harga jual ' + (s.harga_jual ? L.rupiah(s.harga_jual) : '–') + '</span></span></div>';
+            }).join('') : '<p class="ly-kosong">Tidak ada gitar used yang bisa disewakan. Tambahkan di <a href="#stok">Stok</a>.</p>') + '</div></section>';
+    }
+    function formSewa(s) {
+        if (!L.bisaDisewa(s, cache.sewa)) { app.innerHTML = '<p class="ly-kosong">Stok ' + E(s.kode) + ' tidak bisa disewakan (bukan gitar used, habis, ditarik, atau sedang disewa). <a href="#sewa">Kembali</a></p>'; return; }
+        var h = L.hariIni(), nama = L.judulStok(s) + (s.warna ? ' (' + s.warna + ')' : '') + ' – Used' + (L.tingkatStok(s) ? ' ' + L.tingkatStok(s) : '');
+        sw = { baru: true, antri: [], w: { nama: '', hp: '', stok_id: s.id, stok_kode: s.kode, nama_barang: nama, tgl_mulai: h, hari: 3, biaya_custom: L.tarifStandarUnit(s) ? L.tarifSewa(3) : 0, deposit_rencana: L.depositAwal(s.harga_jual), kondisi_keluar: '', status: 'aktif', bayar: [], foto: [] }, metode: 'tunai', bayarSewa: null, bayarDep: null };
+        app.innerHTML = '<section id="sw" class="ly-f"><div class="ly-head"><a class="ly-back" href="#sewa">‹ Sewa gitar</a></div><div class="ly-head"><h1>Sewa baru</h1></div>' +
+            '<fieldset class="ly-card ly-f"><legend>Gitar</legend><p style="margin:0"><b>' + E(nama) + '</b><br><small class="ly-muted">' + E(s.kode) + ' · harga jual ' + (s.harga_jual ? L.rupiah(s.harga_jual) : 'belum diisi') + '</small></p></fieldset>' +
+            '<fieldset class="ly-card ly-f"><legend>Penyewa</legend><div class="ly-row2"><label>Nama<input data-w="nama" autocomplete="off"></label><label>No. WhatsApp<input data-w="hp" type="tel" inputmode="tel" autocomplete="off" placeholder="08…"></label></div>' +
+            '<p class="ly-hint" style="margin:0">Wajib: bukti sewa dan pengingat dikirim lewat WA.</p></fieldset>' +
+            '<fieldset class="ly-card ly-f"><legend>Sewa</legend><div class="ly-row2"><label>Mulai<input type="date" data-w="tgl_mulai"></label><label>Lama (hari)<input type="number" inputmode="numeric" min="1" max="' + SWC.maksHari + '" data-w="hari"></label></div>' +
+            '<div class="ly-btns" id="sw-cepat">' + [1, 2, 3, 7, 14].map(function (d) { return '<button type="button" class="ly-btn ly-btn--sm" data-hari="' + d + '">' + d + ' hari</button>'; }).join('') + '</div>' +
+            '<div class="ly-row2"><label>Biaya sewa (Rp)<input type="number" inputmode="numeric" min="0" step="5000" data-w="biaya_custom"></label><label>Deposit (Rp)<input type="number" inputmode="numeric" min="0" step="5000" data-w="deposit_rencana"></label></div>' +
+            '<label>Metode bayar<select id="sw-metode">' + opsi([['tunai', 'Tunai'], ['transfer', 'Transfer'], ['qris', 'QRIS']], 'tunai') + '</select></label>' +
+            '<p class="ly-hint" style="margin:0">' + (L.tarifStandarUnit(s) ? 'Tarif standar: ' + L.ringkasTarifSewa() + '.' : '<b class="ly-warn">Unit ' + L.rupiah(SWC.batasUnitStandar) + ' ke atas: isi biaya sewa sendiri.</b>') + ' Deposit awal ' + SWC.depositPersen + '% harga gitar. Keduanya bisa diubah. Biaya sewa dan deposit dibayar di muka.</p>' +
+            '<div class="ly-row2"><label>Sewa dibayar sekarang (Rp)<input type="number" inputmode="numeric" min="0" step="5000" id="sw-bs"></label><label>Deposit diterima (Rp)<input type="number" inputmode="numeric" min="0" step="50000" id="sw-bd"></label></div>' +
+            '<div class="ly-sum" id="sw-sum"></div></fieldset>' +
+            '<fieldset class="ly-card ly-f"><legend>Kondisi saat keluar</legend><label>Catatan kondisi (lecet, bonus tas/kabel, dll.)<textarea data-w="kondisi_keluar" rows="2"></textarea></label><div id="sw-foto"></div>' +
+            '<p class="ly-hint" style="margin:0">Foto gitar dari beberapa sisi sebelum diserahkan, supaya jelas bila ada sengketa.' + (owner() ? ' Foto KTP (opsional) hanya disimpan di repo owner dan tidak pernah tampil di situs.' : '') + '</p></fieldset>' +
+            '<div class="ly-save"><button type="button" class="ly-btn ly-btn--pri" id="sw-simpan">Simpan sewa</button></div></section>';
+        var el = $('#sw'), w = sw.w;
+        $$('[data-w]', el).forEach(function (i) { i.value = w[i.dataset.w] == null ? '' : w[i.dataset.w]; });
+        function angka(x) { return Math.max(0, Math.round(+x || 0)); }
+        function sinkron(dariUbah) {
+            if (dariUbah) {
+                $$('[data-w]', el).forEach(function (i) { var k = i.dataset.w; w[k] = /^(hari|biaya_custom|deposit_rencana)$/.test(k) ? angka(i.value) : i.value; });
+                w.hari = Math.min(+SWC.maksHari || 365, Math.max(1, w.hari || 1)); w.nama = w.nama.trim(); w.hp = w.hp.trim();
+            }
+            /* biaya & deposit mengikuti tarif standar sampai diubah manual (unit mahal: kosong sampai diisi) */
+            if (!sw.biayaManual && L.tarifStandarUnit(s)) w.biaya_custom = L.tarifSewa(w.hari);
+            if (!sw.depManual) w.deposit_rencana = L.depositAwal(s.harga_jual);
+            ['biaya_custom', 'deposit_rencana'].forEach(function (k) { var i = $('[data-w="' + k + '"]'); if (i !== document.activeElement) i.value = w[k] || ''; });
+            var tarif = w.biaya_custom;
+            if (sw.bayarSewa == null) $('#sw-bs').value = tarif; if (sw.bayarDep == null) $('#sw-bd').value = w.deposit_rencana;
+            $('#sw-sum').innerHTML = '<div><span>' + w.hari + ' hari · kembali paling lambat</span><span>' + L.tgl(L.batasSewa(w)) + '</span></div><div><span>Biaya sewa</span><span>' + L.rupiah(tarif) + '</span></div>' +
+                '<div><span>Deposit (dikembalikan)</span><span>' + L.rupiah(w.deposit_rencana) + '</span></div><div class="ly-total"><span>Total dibayar penyewa sekarang</span><span>' + L.rupiah(angka($('#sw-bs').value) + angka($('#sw-bd').value)) + '</span></div>';
+            setDirty(true);
+        }
+        el.addEventListener('input', function (e) {
+            if (e.target.id === 'sw-bs') sw.bayarSewa = angka(e.target.value); else if (e.target.id === 'sw-bd') sw.bayarDep = angka(e.target.value);
+            else {
+                var kk = e.target.dataset.w;
+                if (kk === 'hari') { sw.bayarSewa = null; sw.bayarDep = null; }
+                else if (kk === 'biaya_custom') { sw.biayaManual = true; sw.bayarSewa = null; sw.bayarDep = null; }
+                else if (kk === 'deposit_rencana') { sw.depManual = true; sw.bayarDep = null; }
+            }
+            sinkron(true);
+        });
+        el.addEventListener('change', function (e) { if (e.target.id === 'sw-metode') sw.metode = e.target.value; });
+        el.addEventListener('click', function (e) {
+            var b = e.target.closest('button'); if (!b) return;
+            if (b.dataset.hari) { $('[data-w="hari"]').value = b.dataset.hari; sw.bayarSewa = null; sw.bayarDep = null; sinkron(true); }
+            else if (b.dataset.hapusq) { sw.antri = buangQ(sw.antri, b.dataset.hapusq); gambarFotoSewa(); }
+            else if (b.id === 'sw-simpan') simpanSewaBaru();
+        });
+        pilihFoto($('#sw-foto'), function (tahap, files) { antriFoto(sw.antri, files, { tahap: tahap }, gambarFotoSewa); });
+        gambarFotoSewa(); sinkron(true); setDirty(false);
+    }
+    function grupFotoSewa(w, antri) {
+        var grup = [['keluar', 'Foto kondisi saat keluar'], ['kembali', 'Foto kondisi saat kembali']];
+        if (owner()) grup.push(['ktp', 'Foto KTP (opsional)']);
+        /* foto KTP hanya terbaca oleh owner (disimpan di repo owner); karyawan tidak melihatnya */
+        return grup.map(function (x) { return grupFoto(x[1], x[0], w.foto, antri, false); }).join('');
+    }
+    function gambarFotoSewa() {
+        var el = $('#sw-foto'); if (!el) return;
+        el.innerHTML = grupFotoSewa(sw.w, sw.antri); L.isiFoto(el, sw.w, A.fotoAdmin);
+    }
+    function simpanSewaBaru() {
+        var w = sw.w, bs = Math.max(0, Math.round(+$('#sw-bs').value || 0)), bd = Math.max(0, Math.round(+$('#sw-bd').value || 0)), t = L.tgl(w.tgl_mulai);
+        if (!w.nama) return toast('Isi nama penyewa.', true);
+        if (L.hp4(w.hp).length < 4) return toast('Isi nomor WhatsApp penyewa.', true);
+        if (!(w.biaya_custom > 0)) return toast('Isi biaya sewa.', true);
+        if (bs < w.biaya_custom && !confirm('Biaya sewa dibayar (' + L.rupiah(bs) + ') kurang dari ' + L.rupiah(w.biaya_custom) + '. Aturan toko: sewa dibayar di muka. Tetap simpan?')) return;
+        if (!w.tgl_mulai) return toast('Isi tanggal mulai.', true);
+        if (sw.antri.some(function (q) { return !q.hasil; })) return toast('Foto masih diproses, tunggu sebentar.', true);
+        if (!w.deposit_rencana && !confirm('Deposit Rp0. Tetap sewakan tanpa deposit?')) return;
+        if (bd < w.deposit_rencana && !confirm('Deposit diterima (' + L.rupiah(bd) + ') kurang dari yang direncanakan (' + L.rupiah(w.deposit_rencana) + '). Tetap simpan?')) return;
+        var rec = salin(w); rec.bayar = [];
+        if (bs) rec.bayar.push({ id: idAcak(), tgl: w.tgl_mulai, jumlah: bs, jenis: 'sewa', metode: sw.metode });
+        if (bd) rec.bayar.push({ id: idAcak(), tgl: w.tgl_mulai, jumlah: bd, jenis: 'deposit', metode: sw.metode });
+        var fotoBaru = sw.antri.map(function (q) { return { hasil: q.hasil, tahap: q.tahap }; });
+        prosesSimpan('sewa', $('#sw-simpan'), teksUnggah(sw.antri), function () { return A.simpanSewa(rec, fotoBaru); }, function (row) {
+            lepasAntri(sw.antri); toast('Sewa tersimpan (' + row.kode + ') mulai ' + t + '. Kirim bukti & ketentuan ke penyewa lewat WA.'); pindah('#sewa/' + row.id);
+        }, function (r) { sw.w = r; });
+    }
+
+    function bukaSewa(id) { ambilCatatan('sewa', id, function () { return null; }, function (w) { w.bayar = w.bayar || []; w.foto = w.foto || []; sw = { baru: false, w: w, antri: [], selesai: false }; gambarSewa2(); }); }
+    function gambarSewa2() {
+        var w = sw.w, h = L.hitungSewa(w), i = L.infoSewa(w), aktif = w.status === 'aktif', stok = cariId('stok', w.stok_id);
+        app.innerHTML = '<section id="sw" class="ly-f"><div class="ly-head"><a class="ly-back" href="#sewa">‹ Sewa gitar</a></div>' +
+            '<div class="ly-head"><h1>' + E(w.nama) + '</h1>' + chipSewa(w) + '</div>' + kodeBaris(w) +
+            '<fieldset class="ly-card"><legend>Gitar &amp; jadwal</legend><div class="ly-sum">' +
+            '<div><span>Gitar</span><span>' + (stok ? '<a href="#stok/' + E(stok.id) + '">' + E(w.nama_barang) + '</a>' : E(w.nama_barang)) + '</span></div>' +
+            '<div><span>Mulai</span><span>' + L.tgl(w.tgl_mulai) + '</span></div>' +
+            (aktif ? '<div><span>Kembali paling lambat</span><span' + (i.lewat ? ' class="ly-telat"' : '') + '>' + L.tgl(L.batasSewa(w)) + (i.lewat ? ' (telat ' + i.hariTelat + ' hari)' : i.sisa ? ' (' + i.sisa + ' hari lagi)' : ' (hari ini)') + '</span></div>'
+                : '<div><span>Dikembalikan</span><span>' + L.tgl(w.tgl_kembali) + '</span></div>') +
+            '<div><span>Lama sewa ditagih</span><span>' + h.hari + ' hari' + (h.hari > w.hari ? ' (dipesan ' + w.hari + ')' : '') + '</span></div>' +
+            '<div><span>Biaya sewa dipesan (' + w.hari + ' hari)</span><span>' + L.rupiah(w.biaya_custom != null ? w.biaya_custom : L.tarifSewa(w.hari)) + '</span></div>' +
+            '<div><span>No. WhatsApp</span><span>' + E(w.hp) + '</span></div></div>' +
+            (aktif ? '<div class="ly-row2" style="margin-top:10px;align-items:end"><label>Perpanjang (hari)<input type="number" inputmode="numeric" min="1" max="' + SWC.maksHari + '" id="sw-perp" value="1"></label><button type="button" class="ly-btn" id="sw-perpanjang">Perpanjang</button></div>' : '') + '</fieldset>' +
+            '<fieldset class="ly-card"><legend>Uang</legend><div class="ly-sum">' +
+            '<div><span>Biaya sewa (' + h.hari + ' hari)</span><span>' + L.rupiah(h.tarif) + '</span></div>' +
+            (h.gantiRugi ? '<div><span>Denda &amp; ganti rugi' + (w.ket_ganti_rugi ? '<br><small>' + E(w.ket_ganti_rugi) + '</small>' : '') + '</span><span>' + L.rupiah(h.gantiRugi) + '</span></div>' : '') +
+            '<div><span>Sudah dibayar (sewa)</span><span>' + L.rupiah(h.dibayar) + '</span></div>' +
+            '<div><span>Deposit ' + (aktif ? 'ditahan' : 'diterima') + '</span><span>' + L.rupiah(aktif ? h.ditahan : h.deposit) + '</span></div>' +
+            '<div class="ly-total"><span>' + (aktif ? 'Kurang bayar sewa saat ini' : 'Masih harus dibayar penyewa') + '</span><span' + ((aktif ? h.kurang : h.masihHutang) ? ' class="ly-telat"' : '') + '>' + L.rupiah(aktif ? h.kurang : h.masihHutang) + '</span></div></div>' +
+            '<div class="ly-bayar" id="sw-bayar" style="margin-top:10px"></div>' +
+            (aktif || h.masihHutang ? '<div class="ly-f" style="margin-top:10px"><div class="ly-row2"><label>Jumlah (Rp)<input type="number" inputmode="numeric" min="0" step="5000" id="by-jml"></label>' +
+                '<label>Jenis<select id="by-jenis">' + opsi(aktif ? [['sewa', 'Biaya sewa'], ['deposit', 'Deposit']] : [['sewa', 'Biaya sewa']], 'sewa') + '</select></label></div>' +
+                '<div class="ly-row2"><label>Metode<select id="by-metode">' + opsi([['tunai', 'Tunai'], ['transfer', 'Transfer'], ['qris', 'QRIS']], 'tunai') + '</select></label><label>Tanggal<input type="date" id="by-tgl"></label></div>' +
+                '<button type="button" class="ly-btn" id="by-tambah">Catat pembayaran</button></div>' : '') + '</fieldset>' +
+            '<fieldset class="ly-card ly-f"><legend>Kondisi &amp; foto</legend>' +
+            '<label>Kondisi saat keluar<textarea data-w="kondisi_keluar" rows="2"></textarea></label>' + '<label>Kondisi saat kembali<textarea data-w="kondisi_kembali" rows="2"></textarea></label>' +
+            '<div id="sw-foto"></div>' + (owner() ? '' : '<p class="ly-hint" style="margin:0">Foto KTP hanya terlihat oleh owner.</p>') + '</fieldset>' +
+            '<fieldset class="ly-card"><legend>WhatsApp ke penyewa</legend>' + barisWa([['mulai', 'Kirim bukti &amp; ketentuan', 'Rincian sewa + minta SETUJU']].concat(aktif ? [['pengingat', 'Pengingat kembali', i.lewat ? 'Sudah telat, ingatkan' : 'Ingatkan batas kembali']] : [['selesai', 'Kabari pengembalian', 'Rincian deposit dikembalikan']]), 'wa') +
+            ((w.pengingat || []).length ? '<p class="ly-hint" style="margin:8px 0 0">Diingatkan: ' + w.pengingat.map(L.tgl).join(', ') + '</p>' : '') +
+            kisiAksi([aksi({ id: 'sw-cetak', ikon: 'cetak', teks: 'Cetak bukti sewa 58 mm' })]) + '</fieldset>' +
+            (aktif ? '<fieldset class="ly-card" id="sw-selesai-box"><legend>Gitar dikembalikan</legend>' + (sw.selesai ? '' : '<button type="button" class="ly-btn ly-btn--pri" id="sw-selesai">Gitar sudah dikembalikan</button>' +
+                '<p class="ly-hint" style="margin:8px 0 0">Periksa kondisi gitar dulu, lalu hitung deposit yang dikembalikan.</p>') + '<div id="sw-selesai-isi"></div></fieldset>' : '') +
+            (owner() ? '<fieldset class="ly-card"><legend>Lainnya</legend>' + kisiAksi([aksi({ id: 'sw-hapus', ikon: 'hapus', teks: 'Hapus catatan sewa', kelas: 'ly-akt--del' })]) +
+                '<p class="ly-hint ly-hint--c">Hapus hanya untuk salah input; foto ikut terhapus.</p></fieldset>' : '') +
+            '<div class="ly-save"><span class="ly-dirty" id="dirty" hidden>Belum disimpan</span><button type="button" class="ly-btn ly-btn--pri" id="sw-simpan">Simpan perubahan</button></div></section>';
+        $$('[data-w]', $('#sw')).forEach(function (x) { x.value = w[x.dataset.w] || ''; });
+        if ($('#by-tgl')) { $('#by-tgl').value = L.hariIni(); $('#by-jml').value = (aktif ? h.kurang : h.masihHutang) || ''; }
+        gambarBayarSewa(); gambarFotoSewa(); setDirty(false);
+        if (sw.selesai) panelSelesaiSewa();
+        var el = $('#sw');
+        el.addEventListener('input', function (e) { var k = e.target.dataset.w; if (k) { w[k] = e.target.value; setDirty(true); } });
+        pilihFoto($('#sw-foto'), function (tahap, files) { antriFoto(sw.antri, files, { tahap: tahap }, gambarFotoSewa); });
+        el.addEventListener('click', function (e) {
+            var b = e.target.closest('button'); if (!b) return; var d = b.dataset;
+            if (d.wa) kirimWaSewa(d.wa, b);
+            else if (d.hapusfoto) { if (confirm('Hapus foto ini? (terhapus permanen saat Simpan)')) { w.foto = w.foto.filter(function (f) { return f.id !== d.hapusfoto; }); gambarFotoSewa(); setDirty(true); } }
+            else if (d.hapusq) { sw.antri = buangQ(sw.antri, d.hapusq); gambarFotoSewa(); }
+            else if (d.delbayar != null) { var by = w.bayar[+d.delbayar]; if (confirm('Hapus pembayaran ' + L.rupiah(by.jumlah) + ' tanggal ' + L.tgl(by.tgl) + '?')) { w.bayar.splice(+d.delbayar, 1); gambarBayarSewa(); setDirty(true); } }
+            else if (b.id === 'by-tambah') {
+                var jml = Math.round(+$('#by-jml').value || 0); if (jml <= 0) return toast('Isi jumlah pembayaran.', true);
+                w.bayar.push({ id: idAcak(), tgl: $('#by-tgl').value || L.hariIni(), jumlah: jml, jenis: $('#by-jenis').value, metode: $('#by-metode').value, baru: true });
+                gambarBayarSewa(); setDirty(true); toast('Pembayaran dicatat. Tekan Simpan.');
+            }
+            else if (b.id === 'sw-perpanjang') {
+                var n = Math.round(+$('#sw-perp').value || 0); if (n < 1) return toast('Isi jumlah hari perpanjangan.', true);
+                var tambah = L.tarifSewa(w.hari + n) - L.tarifSewa(w.hari);
+                if (!confirm('Perpanjang ' + n + ' hari? Kembali paling lambat jadi ' + L.tgl(L.tambahHari(L.batasSewa(w), n)) + '. Biaya tambahan ' + L.rupiah(tambah) + '.')) return;
+                w.hari += n; if (w.biaya_custom != null) w.biaya_custom = (+w.biaya_custom || 0) + tambah; simpanSewaIni(function () { toast('Diperpanjang. Catat pembayaran tambahan bila sudah dibayar.'); });
+            }
+            else if (b.id === 'sw-selesai') { if (dirty) return toast('Simpan perubahan dulu.', true); sw.selesai = true; b.hidden = true; panelSelesaiSewa(); }
+            else if (b.id === 'sw-cetak') cetakBaris(L.strukSewa(w));
+            else if (b.id === 'sw-simpan') simpanSewaIni();
+            else if (b.id === 'sw-hapus') { if (konfirmasiKode('Hapus catatan sewa ini beserta fotonya? Hanya untuk salah input.', w.kode)) hapusData('sewa', w, b, A.hapusSewa, 'Catatan sewa dihapus.'); }
+        });
+    }
+    function gambarBayarSewa() {
+        var w = sw.w, el = $('#sw-bayar'); if (!el) return;
+        var NAMA = { sewa: 'Biaya sewa', deposit: 'Deposit', deposit_potong: 'Deposit dipotong', deposit_kembali: 'Deposit dikembalikan' };
+        el.innerHTML = w.bayar.length ? w.bayar.map(function (b, n) {
+            return '<div><span>' + NAMA[b.jenis] + ' · ' + L.tgl(b.tgl) + ' · ' + (NAMA_METODE[b.metode] || b.metode) + (b.baru ? ' <small class="ly-muted">(belum disimpan)</small>' : '') + '</span><b>' + (b.jenis === 'deposit_kembali' ? '−' : '') + L.rupiah(b.jumlah) + '</b>' +
+                (b.baru ? '<button type="button" class="ly-x" data-delbayar="' + n + '" aria-label="Hapus pembayaran">×</button>' : '') + '</div>';
+        }).join('') : '<p class="ly-muted">Belum ada pembayaran.</p>';
+    }
+    /* hitung penutupan sewa: tagihan yang belum terbayar & ganti rugi diambil dari deposit, sisanya dikembalikan */
+    function panelSelesaiSewa() {
+        var w = sw.w, el = $('#sw-selesai-isi'); if (!el) return;
+        var metodeDep = (w.bayar.filter(function (b) { return b.jenis === 'deposit'; })[0] || {}).metode || 'tunai';
+        el.innerHTML = '<div class="ly-f"><div class="ly-row2"><label>Tanggal kembali<input type="date" id="sl-tgl"></label><label>Senar putus (buah, ' + L.rupiah(SWC.dendaSenar) + ' per senar, maks ' + SWC.senarCadangan + ' = ' + L.rupiah(SWC.dendaSenar * SWC.senarCadangan) + ')<input type="number" inputmode="numeric" min="0" max="' + SWC.senarCadangan + '" id="sl-senar" value="0"></label></div>' +
+            '<div class="ly-row2"><label>Kerusakan lain (Rp)<input type="number" inputmode="numeric" min="0" step="10000" id="sl-rugi"></label><label>Keterangan kerusakan lain<input id="sl-ket" placeholder="mis. lecet di body"></label></div>' +
+            '<label>Deposit dikembalikan lewat<select id="sl-metode">' + opsi([['tunai', 'Tunai'], ['transfer', 'Transfer'], ['qris', 'QRIS']], metodeDep) + '</select></label>' +
+            '<div class="ly-sum" id="sl-sum"></div><button type="button" class="ly-btn ly-btn--pri" id="sl-ok">Selesaikan sewa</button></div>';
+        $('#sl-tgl').value = L.hariIni();
+        function hitung() {
+            var t = Object.assign({}, w, { status: 'selesai', tgl_kembali: $('#sl-tgl').value || L.hariIni(), ganti_rugi: Math.max(0, Math.round(+$('#sl-senar').value || 0)) * (+SWC.dendaSenar || 0) + Math.max(0, Math.round(+$('#sl-rugi').value || 0)) }), h = L.hitungSewa(t);
+            $('#sl-sum').innerHTML = '<div><span>Biaya sewa (' + h.hari + ' hari)</span><span>' + L.rupiah(h.tarif) + '</span></div>' + (h.gantiRugi ? '<div><span>Denda senar &amp; ganti rugi</span><span>' + L.rupiah(h.gantiRugi) + '</span></div>' : '') +
+                '<div><span>Sudah dibayar</span><span>' + L.rupiah(h.dibayar) + '</span></div><div><span>Deposit ditahan</span><span>' + L.rupiah(h.ditahan) + '</span></div>' +
+                '<div><span>Dipotong dari deposit</span><span>' + L.rupiah(h.potongDeposit) + '</span></div>' +
+                '<div class="ly-total"><span>Deposit dikembalikan ke penyewa</span><span>' + L.rupiah(h.harusKembali) + '</span></div>' +
+                (h.masihHutang ? '<div><span class="ly-warn">Masih harus dibayar penyewa</span><span class="ly-telat">' + L.rupiah(h.masihHutang) + '</span></div>' : '');
+            return { t: t, h: h };
+        }
+        ['#sl-tgl', '#sl-senar', '#sl-rugi'].forEach(function (id) { $(id).addEventListener('input', hitung); }); hitung();
+        $('#sl-ok').addEventListener('click', function () {
+            var x = hitung(), t = x.t, h = x.h;
+            if (t.tgl_kembali < w.tgl_mulai) return toast('Tanggal kembali tidak valid.', true);
+            if (!confirm('Selesaikan sewa ' + w.kode + '? Deposit dikembalikan ' + L.rupiah(h.harusKembali) + (h.potongDeposit ? ', dipotong ' + L.rupiah(h.potongDeposit) : '') + '.')) return;
+            w.status = 'selesai'; w.tgl_kembali = t.tgl_kembali; w.ganti_rugi = t.ganti_rugi; w.senar_putus = Math.max(0, Math.round(+$('#sl-senar').value || 0));
+            w.ket_ganti_rugi = [w.senar_putus ? 'senar putus ' + w.senar_putus : '', $('#sl-ket').value.trim()].filter(Boolean).join(', ');
+            if (h.potongDeposit > 0) w.bayar.push({ id: idAcak(), tgl: t.tgl_kembali, jumlah: h.potongDeposit, jenis: 'deposit_potong', metode: metodeDep });
+            if (h.harusKembali > 0) w.bayar.push({ id: idAcak(), tgl: t.tgl_kembali, jumlah: h.harusKembali, jenis: 'deposit_kembali', metode: $('#sl-metode').value });
+            sw.selesai = false; simpanSewaIni(function () { toast('Sewa selesai. Kabari penyewa lewat tombol WA.'); });
+        });
+    }
+    function simpanSewaIni(lalu) {
+        if (sw.antri.some(function (q) { return !q.hasil; })) return toast('Foto masih diproses, tunggu sebentar.', true);
+        var w = sw.w, rec = Object.assign({}, w, { bayar: w.bayar.map(function (b) { var x = Object.assign({}, b); delete x.baru; return x; }) });
+        var fotoBaru = sw.antri.map(function (q) { return { hasil: q.hasil, tahap: q.tahap }; });
+        prosesSimpan('sewa', $('#sw-simpan'), teksUnggah(sw.antri), function () { return A.simpanSewa(rec, fotoBaru); }, function (row) {
+            lepasAntri(sw.antri); sw = { baru: false, w: salin(row), antri: [], selesai: false }; gambarSewa2(); if (lalu) lalu(row); else toast('Tersimpan.');
+        }, function (r) { sw.w = r; });
+    }
+    /* WA: buka dulu (harus langsung dari ketukan); pengingat dicatat di data */
+    function kirimWaSewa(jenis, btn) {
+        if (dirty) return toast('Simpan perubahan dulu, supaya pesan yang dikirim sudah terbaru.', true);
+        var w = sw.w; bukaWa(w.hp, L.pesanSewa[jenis](w));
+        if (jenis !== 'pengingat') return;
+        var rec = salin(w); rec.pengingat = (rec.pengingat || []).concat(L.hariIni());
+        sibuk(btn, true, 'Mencatat…');
+        A.simpanSewa(rec).then(function (row) { taruh('sewa', row); sw = { baru: false, w: salin(row), antri: [], selesai: false }; gambarSewa2(); }).catch(function (e) { sibuk(btn, false); gagal(e); });
     }
 
     /* ================= stok gitar (baru & bekas) ================= */
@@ -1985,7 +2258,9 @@
             '<div class="ly-sum owner-saja" id="sk-sum"></div></fieldset>' +
             '<fieldset class="ly-card"><legend>Foto</legend><div id="sk-foto"></div><p class="ly-hint" style="margin-top:10px">Foto produk tampil di katalog website (tidak dikunci). Foto pertama menjadi sampul.</p></fieldset>' +
             (sk.baru ? '' : '<fieldset class="ly-card"><legend>Penjualan</legend><div class="ly-bayar" id="sk-jual"></div>' +
-                (+s.jumlah > 0 && s.status !== 'ditarik' ? '<div class="ly-btns" style="margin-top:10px"><button type="button" class="ly-btn ly-btn--pri" id="sk-jual-baru">Jual / pesan dengan DP</button></div>' +
+                (L.sewaAktifStok(s.id, cache.sewa) ? '<p class="ly-hint" style="margin:10px 0 0"><b>Sedang disewa</b> oleh ' + E(L.sewaAktifStok(s.id, cache.sewa).nama) + ' sampai ' + L.tgl(L.batasSewa(L.sewaAktifStok(s.id, cache.sewa))) + '. <a href="#sewa/' + E(L.sewaAktifStok(s.id, cache.sewa).id) + '">Buka sewa</a></p>' : '') +
+                (L.bisaDisewa(s, cache.sewa) ? '<div class="ly-btns" style="margin-top:10px"><button type="button" class="ly-btn" id="sk-sewa-baru">Sewakan gitar ini</button></div>' : '') +
+                (+s.jumlah > 0 && s.status !== 'ditarik' && !L.sewaAktifStok(s.id, cache.sewa) ? '<div class="ly-btns" style="margin-top:10px"><button type="button" class="ly-btn ly-btn--pri" id="sk-jual-baru">Jual / pesan dengan DP</button></div>' +
                     '<p class="ly-hint" style="margin:8px 0 0">Bayar penuh = langsung terjual. Bayar sebagian = DP: barang ditahan ' + C.jual.batasHari + ' hari, nota & pengingat pelunasan dikirim lewat WA.</p>' : '') + '</fieldset>') +
             '<fieldset class="ly-card ly-f"><legend>Status</legend><div class="ly-status" id="sk-status"></div><label>Catatan internal<textarea data-s="catatan_admin" rows="2"></textarea></label></fieldset>' +
             (sk.baru ? '' : '<fieldset class="ly-card"><legend>Lainnya</legend>' + kisiAksi([].concat(s.harga_jual && adaStok(s) ? [aksi({ id: 'sk-tawar', ikon: 'bagikan', teks: 'Bagikan poster &amp; penawaran', kelas: 'ly-akt--pri ly-akt--lebar' })] : [])
@@ -2017,6 +2292,7 @@
             else if (d.deljual != null) { var p = s.penjualan[+d.deljual]; if (confirm('Hapus catatan penjualan ' + p.qty + ' unit tanggal ' + L.tgl(p.tgl) + '? Jumlah stok dikembalikan.')) { s.jumlah = (+s.jumlah || 0) + p.qty; s.penjualan.splice(+d.deljual, 1); if (s.status === 'terjual') s.status = 'tersedia'; $('[data-s="jumlah"]').value = s.jumlah; gambarJual(); gambarSumStok(); gambarStatusStok(); setDirty(true); } }
             else if (d.hapusfoto) { if (confirm('Hapus foto ini? (terhapus permanen saat Simpan)')) { s.foto = s.foto.filter(function (f) { return f.id !== d.hapusfoto; }); gambarFotoStok(); setDirty(true); } }
             else if (d.hapusq) { sk.antri = buangQ(sk.antri, d.hapusq); gambarFotoStok(); }
+            else if (b.id === 'sk-sewa-baru') { if (dirty) return toast('Simpan perubahan stok dulu.', true); pindah('#sewa/baru/' + s.id); }
             else if (b.id === 'sk-jual-baru') { if (dirty) return toast('Simpan perubahan stok dulu.', true); pindah('#jual/baru/' + s.id); }
             else if (b.id === 'sk-tawar') { if (dirty) return toast('Simpan perubahan dulu.', true); bagikanStok(s, b); }
         });

@@ -111,6 +111,19 @@ Barang yang **tersedia**, **ada harga jual**, dan dicentang **🌐 Tampilkan di 
 - Bagian atas daftar menampilkan **rekap**: unit tersedia (gitar baru/bekas/aksesoris), jumlah barang di katalog, modal di stok, perkiraan untung, serta penjualan **bulan ini**.
 - Barang yang lebih dari 90 hari di stok ditandai merah, sebagai tanda untuk dipromosikan atau diturunkan harganya.
 
+## Sewa gitar (menu **Sewa**)
+
+Gitar **used** di Stok bisa disewakan; unit tetap milik toko dan stoknya tidak berkurang. Selama disewa, unit itu tidak muncul di kasir.
+
+| Langkah | Cara |
+|---|---|
+| Sewa baru | **Sewa** → **+ Sewa baru** (atau di halaman stok tekan **Sewakan gitar ini**) → nama & WA penyewa, lama sewa, tarif, deposit → catat bayar sewa + deposit → foto kondisi gitar (dan KTP, hanya owner) → **Simpan sewa** → **WA: Kirim bukti & ketentuan** |
+| Perpanjang | Buka sewa → **Perpanjang** (hari) → catat pembayaran tambahan |
+| Pengingat | Sewa yang kembali besok, hari ini, atau telat muncul di **Hari ini**; tombol **Pengingat kembali** membuka WA |
+| Gitar kembali | **Gitar sudah dikembalikan** → isi biaya kerusakan bila ada → deposit dikembalikan dikurangi kekurangan sewa/ganti rugi → **Selesaikan sewa** → **WA: Kabari pengembalian** |
+
+Tarif standar untuk unit di bawah Rp2 juta (ubah di `layanan-config.js` bagian `sewa`): 1 hari Rp100.000, 2 hari Rp150.000, 3 hari Rp175.000, lalu +Rp25.000 per hari; 7 hari Rp300.000. Deposit awal 10% dari harga jual gitar. Biaya sewa dan deposit dibayar di muka. Unit Rp2 juta ke atas: biaya sewa diisi sendiri; untuk semua unit, biaya dan deposit bisa diubah per transaksi. Senar dari toko baru: senar putus didenda Rp10.000 per senar (maks. 6 senar cadangan di tas = Rp60.000), dihitung otomatis di layar pengembalian. Gitar dikembalikan ke toko pada jam operasional. Ada toleransi telat 1x24 jam tanpa biaya (`toleransiHari` di config); lewat itu dihitung tambahan hari sesuai daftar tarif; kembali lebih awal tidak mengurangi biaya. Deposit bukan pendapatan: di **Rekap** hanya uang sewa dan deposit yang dipotong yang dihitung sebagai pendapatan sewa. Foto KTP hanya disimpan di repo owner.
+
 ## Yang dilihat pelanggan
 
 - **cek-servis.html** dan **nota.html**: hanya terbuka dengan kode servis + 4 digit terakhir HP.
