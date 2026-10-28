@@ -1270,7 +1270,7 @@
 
             '<fieldset class="ly-card ly-f"><legend>Catatan internal</legend><label>Hanya terlihat admin<textarea data-f="catatan_admin" rows="2"></textarea></label></fieldset>' +
 
-            (ed.baru ? '' : '<fieldset class="ly-card"><legend>Kirim &amp; lainnya</legend>' +
+            (ed.baru ? '<fieldset class="ly-card"><legend>Kirim ke calon pelanggan</legend>' + barisWa([['estimasi', 'Kirim estimasi biaya', 'Jasa & part yang dipilih di bawah + total + DP'], ['ketentuan', 'Kirim ketentuan servis', 'Sekali saja: DP, garansi, penitipan']], 'wc') + '<p class="ly-hint ly-hint--c">Tanpa nomor: pilih kontaknya di WhatsApp.</p></fieldset>' : '<fieldset class="ly-card"><legend>Kirim &amp; lainnya</legend>' +
                 barisWa([['tandaTerima', 'Tanda terima', 'Barang sudah kami terima'], ['update', 'Update status', 'Kabari perkembangan'], ['selesai', 'Kabari selesai', 'Barang siap diambil'], ['nota', 'Kirim nota', 'Tautan nota & rincian biaya']]
                     .concat(s.status === 'selesai' ? [['pengingat', 'Ingatkan ambil', 'Barang belum diambil']] : []), 'wa') +
                 '<h3 class="ly-sub">Aksi lainnya</h3>' +
@@ -1387,6 +1387,7 @@
         else if (d.hapusfoto) { if (confirm('Hapus foto ini? (terhapus permanen saat Simpan)')) { ed.s.foto = ed.s.foto.filter(function (f) { return f.id !== d.hapusfoto; }); gambarFoto(); setDirty(true); } }
         else if (d.hapusq) { ed.antri = buangQ(ed.antri, d.hapusq); gambarFoto(); setDirty(ed.antri.length > 0 || dirty); }
         else if (d.wa) kirimWa(d.wa);
+        else if (d.wc) kirimCalonServis(d.wc);
         else if (t.hasAttribute('data-titip')) {
             var tt = L.titip(ed.s);
             ed.s.items.push({ jenis: 'jasa', nama: 'Biaya penitipan (' + tt.hariBiaya + ' hari)', harga: tt.biaya, qty: 1, garansi: '', garansi_syarat: '' });
@@ -1443,6 +1444,11 @@
     }
 
     /* ---------- kirim WA, artikel, hapus ---------- */
+    /* pesan untuk calon pelanggan, dari isian formulir (belum disimpan, tanpa nomor) */
+    function kirimCalonServis(jenis) {
+        if (jenis === 'estimasi' && !(ed.s.items || []).length) return toast('Pilih jasa atau part di bagian biaya dulu.', true);
+        bukaWa('', L.pesan.calon[jenis](ed.s));
+    }
     function kirimWa(jenis) {
         if (dirty) return toast('Simpan perubahan dulu, supaya yang dilihat pelanggan sudah terbaru.', true);
         if (jenis === 'pengingat') {
@@ -1883,7 +1889,7 @@
         sw = { baru: true, antri: [], w: { nama: '', hp: '', stok_id: s.id, stok_kode: s.kode, nama_barang: nama, tgl_mulai: h, hari: 3, biaya_custom: L.tarifStandarUnit(s) ? L.tarifSewa(3) : 0, deposit_rencana: L.depositAwal(s.harga_jual), kondisi_keluar: '', status: 'aktif', bayar: [], foto: [] }, metode: 'tunai', bayarSewa: null, bayarDep: null };
         app.innerHTML = '<section id="sw" class="ly-f"><div class="ly-head"><a class="ly-back" href="#sewa">‹ Sewa gitar</a></div><div class="ly-head"><h1>Sewa baru</h1></div>' +
             '<fieldset class="ly-card ly-f"><legend>Gitar</legend><p style="margin:0"><b>' + E(nama) + '</b><br><small class="ly-muted">' + E(s.kode) + ' · harga jual ' + (s.harga_jual ? L.rupiah(s.harga_jual) : 'belum diisi') + '</small></p></fieldset>' +
-            barisWa([['unit', 'Kirim unit &amp; estimasi biaya', 'Nama unit, estimasi sewa, deposit, link foto'], ['ketentuan', 'Kirim ketentuan sewa', 'Kirim sekali saja, tidak diulang per unit'], ['formulir', 'Kirim formulir pendaftaran', 'Isian nama, WA, tanggal & lama sewa'], ['bayar', 'Kirim info pembayaran', 'Total bayar di muka + rekening']], 'wa') +
+            barisWa([['unit', 'Kirim unit &amp; estimasi biaya', 'Poster foto unit + estimasi sewa, deposit, link foto'], ['ketentuan', 'Kirim ketentuan sewa', 'Kirim sekali saja, tidak diulang per unit'], ['formulir', 'Kirim formulir pendaftaran', 'Isian nama, WA, tanggal & lama sewa'], ['bayar', 'Kirim info pembayaran', 'Total bayar di muka + rekening']], 'wa') +
             '<fieldset class="ly-card ly-f"><legend>Penyewa</legend><div class="ly-row2"><label>Nama<input data-w="nama" autocomplete="off"></label><label>No. WhatsApp<input data-w="hp" type="tel" inputmode="tel" autocomplete="off" placeholder="08…"></label></div>' +
             '<p class="ly-hint" style="margin:0">Wajib: bukti sewa dan pengingat dikirim lewat WA.</p></fieldset>' +
             '<fieldset class="ly-card ly-f"><legend>Sewa</legend><div class="ly-row2"><label>Mulai<input type="date" data-w="tgl_mulai"></label><label>Lama (hari)<input type="number" inputmode="numeric" min="1" max="' + SWC.maksHari + '" data-w="hari"></label></div>' +
@@ -1927,7 +1933,8 @@
         el.addEventListener('change', function (e) { if (e.target.id === 'sw-metode') sw.metode = e.target.value; });
         el.addEventListener('click', function (e) {
             var b = e.target.closest('button'); if (!b) return;
-            if (b.dataset.wa) bukaWa('', L.pesanSewa.calon[b.dataset.wa](s, w)); /* tanpa nomor: kontaknya dipilih di WhatsApp */
+            if (b.dataset.wa === 'unit') bagikanPoster(s, L.pesanSewa.calon.unit(s, w), { sewa: { harian: L.tarifStandarUnit(s) ? L.tarifSewa(1) : 0, deposit: w.deposit_rencana } }, b); /* poster foto unit + teks lewat menu bagikan */
+            else if (b.dataset.wa) bukaWa('', L.pesanSewa.calon[b.dataset.wa](s, w)); /* tanpa nomor: kontaknya dipilih di WhatsApp */
             else if (b.dataset.hari) { $('[data-w="hari"]').value = b.dataset.hari; sw.bayarSewa = null; sw.bayarDep = null; sinkron(true); }
             else if (b.dataset.hapusq) { sw.antri = buangQ(sw.antri, b.dataset.hapusq); gambarFotoSewa(); }
             else if (b.id === 'sw-simpan') simpanSewaBaru();
@@ -2176,7 +2183,9 @@
         return baris;
     }
     function rect(c, x, y, w, h, r) { c.beginPath(); c.moveTo(x + r, y); c.arcTo(x + w, y, x + w, y + h, r); c.arcTo(x + w, y + h, x, y + h, r); c.arcTo(x, y + h, x, y, r); c.arcTo(x, y, x + w, y, r); c.closePath(); }
-    function buatPoster(s) {
+    /* opsi.sewa = { harian: tarif 1 hari (0 = sesuai lama sewa), deposit } membuat poster penawaran SEWA dengan foto unit */
+    function buatPoster(s, opsi) {
+        var sewa = opsi && opsi.sewa;
         var fp = (s.foto || []).filter(function (f) { return f.repo === 'publik'; })[0];
         var judul = L.judulStok(s);
         var fonts = Promise.all(['700 70px Fraunces', '700 40px "Plus Jakarta Sans"'].map(function (f) { return document.fonts && document.fonts.load ? document.fonts.load(f) : null; }));
@@ -2185,7 +2194,7 @@
         return Promise.all([foto, muatGambar(L.situs() + 'logo/ayri-logo-putih.svg').catch(function () { return null; }), fonts]).then(function (r) {
             var cv = document.createElement('canvas'), W = 1080, H = 1920, EMAS = '#E0A95C', SERIF = 'Fraunces, Georgia, serif', SANS = '"Plus Jakarta Sans", system-ui, sans-serif';
             cv.width = W; cv.height = H;
-            var c = cv.getContext('2d'), g = c.createLinearGradient(0, 0, 0, H), wa = '0' + String(C.toko.wa).slice(2), jenis = s.kategori === 'aksesoris' ? (s.sub || 'Aksesoris') : L.tingkatStok(s);
+            var c = cv.getContext('2d'), g = c.createLinearGradient(0, 0, 0, H), wa = '0' + String(C.toko.wa).slice(2), jenis = s.kategori === 'aksesoris' ? (s.sub || 'Aksesoris') : (L.tingkatStok(s) || (sewa ? 'USED' : ''));
             wa = wa.replace(/^(\d{4})(\d{4})(\d+)$/, '$1-$2-$3'); c.textBaseline = 'alphabetic';
             g.addColorStop(0, '#1d1812'); g.addColorStop(1, '#0d0a07'); c.fillStyle = g; c.fillRect(0, 0, W, H);
             var gl = c.createRadialGradient(W / 2, 620, 60, W / 2, 620, 760); gl.addColorStop(0, 'rgba(224,169,92,.20)'); gl.addColorStop(1, 'rgba(224,169,92,0)'); c.fillStyle = gl; c.fillRect(0, 0, W, 1300);
@@ -2199,7 +2208,7 @@
             }
             else if (r[1]) { var lw = 240, lh = lw * r[1].height / r[1].width; c.globalAlpha = .25; c.drawImage(r[1], fx + (fw - lw) / 2, fy + (fh - lh) / 2, lw, lh); c.globalAlpha = 1; }
             /* lencana: kondisi (isi emas) + tingkat kondisi gitar bekas / kategori aksesoris (garis emas). Jenis gitar tidak diulang: sudah ada di judul */
-            var kond = s.kondisi === 'bekas' ? 'USED' : 'BARU', cy = 1040; c.font = '800 28px ' + SANS;
+            var kond = sewa ? 'SEWA' : s.kondisi === 'bekas' ? 'USED' : 'BARU', cy = 1040; c.font = '800 28px ' + SANS;
             var bw = c.measureText(kond).width + 52; rect(c, 60, cy, bw, 56, 28); c.fillStyle = EMAS; c.fill(); c.fillStyle = '#1a1510'; c.fillText(kond, 86, cy + 38);
             if (jenis) { c.font = '700 28px ' + SANS; var jw = c.measureText(jenis.toUpperCase()).width + 52; rect(c, 60 + bw + 12, cy, jw, 56, 28); c.strokeStyle = 'rgba(224,169,92,.7)'; c.lineWidth = 2; c.stroke(); c.fillStyle = EMAS; c.fillText(jenis.toUpperCase(), 86 + bw + 12, cy + 38); }
             /* nama + warna */
@@ -2207,11 +2216,22 @@
             var y = 1176; barisTeks(c, judul, 960, 2).forEach(function (b) { c.fillText(b, 60, y); y += 76; });
             if (String(s.warna || '').trim()) { c.fillStyle = '#c9bfb2'; c.font = '600 34px ' + SANS; c.fillText(s.warna, 60, y - 14); y += 40; }
             /* harga: "Rp" kecil + angka besar */
+            if (sewa) {
+                if (sewa.harian > 0) {
+                    var ang = L.rupiah(sewa.harian).replace(/^Rp\s*/, '');
+                    c.fillStyle = EMAS; c.font = '600 46px ' + SERIF; c.fillText('Rp', 60, y + 62); var rw0 = c.measureText('Rp').width + 12;
+                    c.font = '700 108px ' + SERIF; c.fillText(ang, 60 + rw0, y + 76); var aw = c.measureText(ang).width;
+                    c.fillStyle = '#c9bfb2'; c.font = '600 40px ' + SANS; c.fillText('/ hari', 60 + rw0 + aw + 18, y + 76);
+                } else { c.fillStyle = EMAS; c.font = '700 66px ' + SERIF; c.fillText('Tarif sesuai lama sewa', 60, y + 70); }
+                y += 100;
+                c.fillStyle = '#d8cfc3'; c.font = '600 32px ' + SANS; c.fillText('Deposit ' + L.rupiah(sewa.deposit) + ' · dikembalikan saat gitar kembali', 60, y + 14); y += 70;
+            } else {
             var angka = L.rupiah(s.harga_jual).replace(/^Rp\s*/, '');
             c.fillStyle = EMAS; c.font = '600 46px ' + SERIF; c.fillText('Rp', 60, y + 62); var rw = c.measureText('Rp').width + 12;
             c.font = '700 108px ' + SERIF; c.fillText(angka, 60 + rw, y + 76); y += 100;
+            }
             /* deskripsi */
-            if (String(s.deskripsi || '').trim()) { c.fillStyle = '#d8cfc3'; c.font = '500 32px ' + SANS; barisTeks(c, s.deskripsi, 960, Math.max(0, Math.min(2, Math.floor((1528 - y) / 44)))).forEach(function (b) { y += 44; c.fillText(b, 60, y + 6); }); }
+            if (!sewa && String(s.deskripsi || '').trim()) { c.fillStyle = '#d8cfc3'; c.font = '500 32px ' + SANS; barisTeks(c, s.deskripsi, 960, Math.max(0, Math.min(2, Math.floor((1528 - y) / 44)))).forEach(function (b) { y += 44; c.fillText(b, 60, y + 6); }); }
             /* penutup: logo besar di kiri; di kanannya nomor WhatsApp, ajakan ke situs, dan alamat (gambar tidak bisa diketuk, jadi semuanya teks biasa) */
             c.fillStyle = 'rgba(224,169,92,.35)'; c.fillRect(60, 1528, 960, 2);
             var tx = 60; if (r[1]) { var lh1 = 120, lw1 = lh1 * r[1].width / r[1].height; c.drawImage(r[1], 60, 1546, lw1, lh1); tx = 60 + lw1 + 32; }
@@ -2226,14 +2246,15 @@
     }
     function blobBase64(b) { return new Promise(function (ok) { var f = new FileReader(); f.onload = function () { ok(String(f.result).split(',')[1] || ''); }; f.readAsDataURL(b); }); }
     /* Bagikan: poster + teks lewat menu bagikan HP (WA, Status WA, Instagram, Threads, X, dll). Di PC tanpa menu bagikan berkas: hanya teks, lewat menu bagikan atau WhatsApp. */
-    function bagikanStok(s, tombol) {
-        var teks = teksTawar(s), nama = 'ayri-' + String(s.kode || 'barang').toLowerCase() + '.jpg';
+    function bagikanStok(s, tombol) { bagikanPoster(s, teksTawar(s), null, tombol); }
+    function bagikanPoster(s, teks, opsi, tombol) {
+        var nama = 'ayri-' + (opsi && opsi.sewa ? 'sewa-' : '') + String(s.kode || 'barang').toLowerCase() + '.jpg';
         if (tombol) sibuk(tombol, true, 'Menyiapkan…');
         function lepas() { if (tombol) sibuk(tombol, false); }
         /* PC / browser tanpa menu bagikan berkas: tanpa unduhan gambar, kirim teks penawaran lewat WhatsApp */
         var cobaBerkas = adaAplikasi() || !!(navigator.canShare && navigator.canShare({ files: [new File([''], nama, { type: 'image/jpeg' })] }));
         if (!cobaBerkas) { lepas(); if (navigator.share) { navigator.share({ text: teks, title: C.toko.nama }).catch(function () {}); } else bukaWa('', teks); return; }
-        buatPoster(s).then(function (blob) {
+        buatPoster(s, opsi).then(function (blob) {
             if (adaAplikasi()) return blobBase64(blob).then(function (b64) { kirimKeAplikasi('bagikan', { nama: nama, mime: 'image/jpeg', b64: b64, teks: teks }); });
             return navigator.share({ files: [new File([blob], nama, { type: 'image/jpeg' })], text: teks, title: C.toko.nama });
         }).catch(function (e) { if (e && e.name !== 'AbortError') toast('Gagal membagikan: ' + (e.message || e), true); }).then(lepas);

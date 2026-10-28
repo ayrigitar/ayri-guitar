@@ -190,6 +190,20 @@
     /* ---------- pesan WhatsApp servis ---------- */
     function jasaTeks(items) { return (items || []).map(function (i) { return '• ' + i.nama + (i.qty > 1 ? ' ×' + i.qty : '') + ' – ' + L.rupiah(i.harga * (i.qty || 1)); }).join('\n'); }
     L.pesan = {
+        /* pesan untuk CALON pelanggan (gitar belum masuk), dipisah supaya tidak berulang: estimasi per kasus, ketentuan sekali saja */
+        calon: {
+            estimasi: function (s) {
+                var h = L.hitung(s, s.items, s.bayar), gitar = L.namaGitar(s, '');
+                return 'Estimasi servis' + (gitar ? ' ' + gitar : '') + ':\n' + jasaTeks(s.items) + '\n' + (h.diskon ? 'Diskon: ' + L.rupiah(-h.diskon) + '\n' : '') +
+                    '*Total estimasi: ' + L.rupiah(h.total) + '*\n\nPengerjaan dimulai setelah pembayaran awal (DP ' + C.dpJasaPersen + '% jasa + part lunas): *' + L.rupiah(h.wajibAwal) + '*\n' +
+                    'Bila ditemukan kerusakan lain, kami kabari dulu biaya dan estimasinya sebelum dikerjakan. Ketentuan lengkap kami kirim terpisah.';
+            },
+            ketentuan: function () {
+                var n = 0;
+                return 'Ketentuan servis di ' + C.toko.nama + ':\n' + L.ketentuan().map(function (k) { return ++n + '. ' + k.replace('menunjukkan nota ini', 'menunjukkan nota servis').replace('tercantum di nota ini', 'tercantum di nota servis'); }).join('\n') +
+                    '\n' + jamBuka() + '\nMohon balas *SETUJU* bila ketentuan di atas sudah sesuai 🙏';
+            }
+        },
         tandaTerima: function (s) {
             var h = L.hitung(s, s.items, s.bayar), t = 'Halo Kak ' + s.nama + ', gitar ' + L.namaGitar(s, 'Kakak') + ' sudah kami terima di ' + C.toko.nama + ' 🙏\n\n';
             t += 'Kode servis: *' + s.kode + '*\nTanggal masuk: ' + L.tgl(s.tgl_masuk) + '\n';
