@@ -11,7 +11,7 @@
         github: {}, toko: { nama: 'Toko Gitar AYRI', alamat: '', jam: '', wa: '', rekening: [] },
         tebus: { batasHari: 30, maksHari: 90, pengingatHari: [7, 1], fotoKtpMinHarga: 1000000, hapusKtpHari: 90, ketentuan: [] },
         jual: { batasHari: 30, potonganPersen: 10, pengingatHari: [7, 1], ketentuan: [] },
-        sewa: { tarifHarian: [[1, 100000]], tambahPerHari: 100000, tarifMinggu: 0, batasUnitStandar: 0, depositPersen: 10, dendaSenar: 0, senarCadangan: 6, maksHari: 30, ketentuan: [] }
+        sewa: { tarifHarian: [[1, 100000]], tambahPerHari: 100000, tarifMinggu: 0, batasUnitStandar: 0, depositPersen: 10, dendaSenar: 0, senarCadangan: 6, toleransiHari: 0, maksHari: 30, ketentuan: [] }
     };
     function lengkapi(c, d) {
         Object.keys(d).forEach(function (k) {
@@ -917,12 +917,13 @@
     /* sisa hari sampai batas kembali (negatif = telat) */
     L.infoSewa = function (w, hariIni) {
         var sisa = w.status === 'aktif' ? L.hariAntara(hariIni || L.hariIni(), L.batasSewa(w)) : null;
-        return { sisa: sisa, lewat: sisa != null && sisa < 0, hariTelat: sisa != null && sisa < 0 ? -sisa : 0 };
+        var telat = sisa != null && sisa < 0 ? -sisa : 0;
+        return { sisa: sisa, lewat: telat > 0, hariTelat: telat, kenaBiaya: telat > (+SW.toleransiHari || 0) };
     };
     /* hari yang ditagih: yang dipesan, atau lebih bila dipakai lebih lama (telat); pengembalian lebih awal tidak mengurangi */
     L.hariTagihSewa = function (w, hariIni) {
         var akhir = w.status === 'aktif' ? hariIni || L.hariIni() : w.tgl_kembali || w.tgl_mulai;
-        return Math.max(1, +w.hari || 1, L.hariAntara(w.tgl_mulai, akhir));
+        return Math.max(1, +w.hari || 1, L.hariAntara(w.tgl_mulai, akhir) - (+SW.toleransiHari || 0));
     };
     /* bayar: sewa (pendapatan), deposit (titipan), deposit_potong (deposit dipakai membayar sewa/ganti rugi; tanpa uang bergerak), deposit_kembali */
     /* biaya sewa untuk n hari ditagih: biaya yang disepakati (biaya_custom) untuk hari yang dipesan + tambahan menurut tarif standar untuk hari lebihnya (telat) */
@@ -967,7 +968,8 @@
         pengingat: function (w) {
             var i = L.infoSewa(w), h = L.hitungSewa(w);
             return 'Halo Kak ' + w.nama + ', kami mengingatkan sewa *' + w.nama_barang + '* (kode *' + w.kode + '*) ' +
-                (i.lewat ? 'sudah lewat batas kembali (' + L.tgl(L.batasSewa(w)) + '), terlambat ' + i.hariTelat + ' hari. Biaya sewa bertambah sesuai hari keterlambatan.\n\nMohon segera dikembalikan atau kabari kami bila ingin memperpanjang.'
+                (i.lewat && !i.kenaBiaya ? 'sudah lewat batas kembali (' + L.tgl(L.batasSewa(w)) + '). Masih dalam toleransi 1x24 jam tanpa biaya tambahan.\n\nMohon dikembalikan paling lambat besok pada jam operasional; setelah itu dihitung tambahan hari sewa.'
+                    : i.lewat ? 'sudah lewat batas kembali (' + L.tgl(L.batasSewa(w)) + '), terlambat ' + i.hariTelat + ' hari. Biaya sewa bertambah sesuai hari keterlambatan di luar toleransi.\n\nMohon segera dikembalikan atau kabari kami bila ingin memperpanjang.'
                     : i.sisa ? 'harus dikembalikan besok, *' + L.tgl(L.batasSewa(w)) + '*.' : 'harus dikembalikan *hari ini*.') +
                 (i.lewat ? '' : '\nBila ingin memperpanjang, kabari kami ya.') + '\n' + jamBuka() + 'Terima kasih 🙏';
         },

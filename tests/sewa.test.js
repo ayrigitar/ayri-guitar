@@ -37,10 +37,15 @@ test('hitung sewa: telat dihitung tambahan hari, harga custom ikut, kembali lebi
     const mulaiTgl = L.tambahHari(hariIni(), -5);
     const w = sewaContoh(L, { tgl_mulai: mulaiTgl, hari: 3, biaya_custom: null });
     assert.equal(L.infoSewa(w).hariTelat, 2);
-    assert.equal(L.hitungSewa(w).hari, 5, 'sudah 5 hari dipakai, dipesan 3');
-    assert.equal(L.hitungSewa(w).tarif, 225000, 'tarif standar 5 hari');
-    /* harga custom 3 hari = 300 ribu: hari lebihnya ditambah selisih tarif standar (225 - 175 = 50 ribu) */
-    assert.equal(L.hitungSewa(sewaContoh(L, { tgl_mulai: mulaiTgl, hari: 3, biaya_custom: 300000 })).tarif, 350000);
+    assert.equal(L.hitungSewa(w).hari, 4, '5 hari dipakai dikurangi toleransi 1 hari');
+    assert.equal(L.hitungSewa(w).tarif, 200000, 'tarif standar 4 hari');
+    /* telat 1 hari masih dalam toleransi 24 jam: tidak ada biaya tambahan */
+    const dalamToleransi = sewaContoh(L, { tgl_mulai: L.tambahHari(hariIni(), -4), hari: 3, biaya_custom: null });
+    assert.deepEqual([L.infoSewa(dalamToleransi).hariTelat, L.infoSewa(dalamToleransi).kenaBiaya, L.hitungSewa(dalamToleransi).hari], [1, false, 3]);
+    assert.equal(L.infoSewa(w).kenaBiaya, true);
+    assert.match(L.pesanSewa.pengingat(dalamToleransi), /toleransi 1x24 jam/);
+    /* harga custom 3 hari = 300 ribu: hari lebihnya ditambah selisih tarif standar (200 - 175 = 25 ribu) */
+    assert.equal(L.hitungSewa(sewaContoh(L, { tgl_mulai: mulaiTgl, hari: 3, biaya_custom: 300000 })).tarif, 325000);
     const awal = sewaContoh(L, { tgl_mulai: mulaiTgl, hari: 3, status: 'selesai', tgl_kembali: L.tambahHari(mulaiTgl, 1) });
     assert.equal(L.hitungSewa(awal).hari, 3, 'kembali hari ke-1, tetap ditagih 3 hari');
     assert.equal(L.batasSewa(w), L.tambahHari(mulaiTgl, 3));
@@ -94,7 +99,7 @@ test('pesan WA sewa memuat batas kembali, deposit, dan ketentuan; pengingat memb
     const { L } = await mulai();
     const w = sewaContoh(L, { kode: 'SWA-ABC123', bayar: [{ jumlah: 300000, jenis: 'sewa' }, { jumlah: 500000, jenis: 'deposit' }] });
     const m = L.pesanSewa.mulai(w);
-    assert.match(m, /SWA-ABC123/); assert.match(m, /Ketentuan:\n1\. /); assert.match(m, /SETUJU/); assert.match(m, /denda Rp10\.000 per senar/); assert.match(m, /senar cadangan tersedia di dalam tas/); assert.match(m, /terpakai semua menjadi Rp60\.000/); assert.match(m, /jam operasional toko, yaitu /); assert.match(m, /1x24 jam/);
+    assert.match(m, /SWA-ABC123/); assert.match(m, /Ketentuan:\n1\. /); assert.match(m, /SETUJU/); assert.match(m, /denda Rp10\.000 per senar/); assert.match(m, /senar cadangan tersedia di dalam tas/); assert.match(m, /terpakai semua menjadi Rp60\.000/); assert.match(m, /jam operasional toko, yaitu /); assert.match(m, /1x24 jam/); assert.match(m, /toleransi keterlambatan 1x24 jam/);
     assert.ok(m.includes(L.tglPanjang(L.batasSewa(w))), 'tanggal batas kembali ada di ketentuan');
     assert.ok(m.includes(L.rupiah(500000)), 'deposit disebut');
     const telat = sewaContoh(L, { kode: 'SWA-ABC123', tgl_mulai: L.tambahHari(hariIni(), -5) });

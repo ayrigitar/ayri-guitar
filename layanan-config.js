@@ -84,6 +84,7 @@ var AYRI_LAYANAN = {
         depositPersen: 10,             /* deposit awal = % dari harga jual gitar */
         dendaSenar: 10000,             /* denda per senar putus (senar dari toko baru; senar cadangan ada di tas gitar) */
         senarCadangan: 6,              /* jumlah senar cadangan di tas; bila terpakai semua, dendanya senarCadangan x dendaSenar */
+        toleransiHari: 1,              /* toleransi telat tanpa biaya (1 = 1x24 jam setelah masa sewa berakhir) */
         maksHari: 30,                  /* durasi sewa terpanjang yang bisa dipilih */
         /* tercetak di pesan WhatsApp; {batas}, {tambah}, {deposit}, {senar}, {senarSemua}, {jam} diganti otomatis */
         ketentuan: [
@@ -91,8 +92,8 @@ var AYRI_LAYANAN = {
             'Biaya sewa dan deposit ({deposit}) dibayar di muka sebelum gitar dibawa. Deposit dikembalikan penuh saat gitar kembali tanpa kerusakan.',
             'Senar gitar baru dari toko, dan senar cadangan tersedia di dalam tas gitar. Bila senar putus dikenakan denda {senar} per senar; bila senar cadangan terpakai semua menjadi {senarSemua}.',
             'Bila ada kerusakan lain atau kehilangan, biaya perbaikan/penggantian dipotong dari deposit; kekurangannya ditanggung penyewa.',
-            'Satu hari sewa = 1x24 jam sejak gitar diambil. Gitar dikembalikan langsung ke toko, hanya pada jam operasional toko, yaitu {jam}, paling lambat pada hari berakhirnya masa sewa.',
-            'Keterlambatan dihitung sebagai tambahan hari sewa sesuai daftar tarif (hari ke-4 dan seterusnya {tambah} per hari); pengembalian lebih awal tidak mengurangi biaya sewa.',
+            'Satu hari sewa = 1x24 jam sejak gitar diambil. Gitar dikembalikan langsung ke toko, hanya pada jam operasional toko, yaitu {jam}.',
+            'Ada toleransi keterlambatan 1x24 jam setelah masa sewa berakhir tanpa biaya tambahan. Lewat dari itu dihitung tambahan hari sewa sesuai daftar tarif (hari ke-4 dan seterusnya {tambah} per hari). Pengembalian lebih awal tidak mengurangi biaya sewa.',
             'Gitar tidak boleh dipinjamkan, disewakan kembali, atau dijadikan jaminan kepada pihak lain.'
         ]
     },
