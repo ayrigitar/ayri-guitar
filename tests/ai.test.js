@@ -74,6 +74,9 @@ test('perantara (worker): menolak asal & token tak berhak, meneruskan ke Gemini 
         const isi = JSON.parse(g.op.body);
         assert.equal(isi.systemInstruction.parts[0].text, 'S');
         assert.equal(isi.contents[0].parts[0].text, 'P');
+        assert.ok(g.url.includes('/models/gemini-3.8-flash:'), 'model bawaan terbaru');
+        assert.ok(!isi.generationConfig.thinkingConfig, 'tanpa pengaturan berpikir untuk model non-2.5');
+        assert.ok(isi.generationConfig.maxOutputTokens > 1024, 'ada ruang ekstra untuk proses berpikir');
         /* token yang sudah lolos disimpan sebentar: permintaan kedua tidak bertanya ke GitHub lagi */
         const ghSebelum = panggilan.filter((x) => x.url.startsWith('https://api.github.com/') && x.op.headers.Authorization === 'Bearer tok-baik').length;
         await minta('https://ayrigitar.com', 'tok-baik');
@@ -81,5 +84,36 @@ test('perantara (worker): menolak asal & token tak berhak, meneruskan ke Gemini 
         assert.equal((await minta('https://ayrigitar.com', 'tok-baik', { prompt: '' })).status, 400);
         const pre = await worker.fetch(new Request('https://ai.contoh.workers.dev/', { method: 'OPTIONS', headers: { Origin: 'https://ayrigitar.com' } }), env);
         assert.equal(pre.status, 204);
+    } finally { globalThis.fetch = asli; }
+});
+
+test('perantara (worker): Groq dicoba lebih dulu, Gemini jadi cadangan bila Groq sibuk; keduanya gagal = pesan ramah', async () => {
+    const worker = (await import(pathToFileURL(path.join(REPO, 'ai-worker', 'worker.mjs')).href)).default;
+    const env = { GROQ_KEY: 'kunci-groq', GEMINI_KEY: 'kunci-gemini', REPO_CEK: 'ayrigitar/ayri-toko-data', ORIGIN: 'https://ayrigitar.com' };
+    const asli = globalThis.fetch;
+    let groqSibuk = false, geminiSibuk = false, dipanggil = [];
+    globalThis.fetch = async (url, op) => {
+        url = String(url); dipanggil.push(url);
+        if (url.startsWith('https://api.github.com/')) return new Response('{}', { status: 200 });
+        if (url.endsWith('/openai/v1/models')) return new Response(JSON.stringify({ data: [{ id: 'whisper-large-v3' }, { id: 'meta-llama/llama-guard-4' }, { id: 'openai/gpt-oss-20b' }, { id: 'llama-9-70b-instruktur' }] }), { status: 200 });
+        if (url.includes('api.groq.com')) {
+            assert.equal(op.headers.Authorization, 'Bearer kunci-groq');
+            assert.equal(JSON.parse(op.body).model, 'llama-9-70b-instruktur', 'model dipilih otomatis dari daftar: llama 70b, bukan whisper/guard');
+            const b = JSON.parse(op.body);
+            assert.deepEqual(b.messages.map((m) => m.role), ['system', 'user']);
+            return groqSibuk ? new Response(JSON.stringify({ error: { message: 'Rate limit reached' } }), { status: 429 }) : new Response(JSON.stringify({ choices: [{ message: { content: ' Dari Groq ' } }] }), { status: 200 });
+        }
+        return geminiSibuk ? new Response('{}', { status: 429 }) : new Response(JSON.stringify({ candidates: [{ content: { parts: [{ text: 'Dari Gemini' }] } }] }), { status: 200 });
+    };
+    const minta = () => worker.fetch(new Request('https://ai.contoh.workers.dev/', { method: 'POST', headers: { Origin: 'https://ayrigitar.com', 'Content-Type': 'application/json', Authorization: 'Bearer tok-groq-uji' }, body: JSON.stringify({ sistem: 'S', prompt: 'P' }) }), env);
+    try {
+        assert.deepEqual(await (await minta()).json(), { teks: 'Dari Groq' });
+        assert.ok(!dipanggil.some((u) => u.includes('generativelanguage')), 'Gemini tidak dipanggil bila Groq berhasil');
+        groqSibuk = true;
+        assert.deepEqual(await (await minta()).json(), { teks: 'Dari Gemini' }, 'Groq sibuk: pindah ke Gemini');
+        geminiSibuk = true;
+        const r = await minta();
+        assert.equal(r.status, 502);
+        assert.match((await r.json()).error, /sibuk|kuota/);
     } finally { globalThis.fetch = asli; }
 });
