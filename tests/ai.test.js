@@ -86,3 +86,32 @@ test('perantara (worker): menolak asal & token tak berhak, meneruskan ke Gemini 
         assert.equal(pre.status, 204);
     } finally { globalThis.fetch = asli; }
 });
+
+test('perantara (worker): Groq dicoba lebih dulu, Gemini jadi cadangan bila Groq sibuk; keduanya gagal = pesan ramah', async () => {
+    const worker = (await import(pathToFileURL(path.join(REPO, 'ai-worker', 'worker.mjs')).href)).default;
+    const env = { GROQ_KEY: 'kunci-groq', GEMINI_KEY: 'kunci-gemini', REPO_CEK: 'ayrigitar/ayri-toko-data', ORIGIN: 'https://ayrigitar.com' };
+    const asli = globalThis.fetch;
+    let groqSibuk = false, geminiSibuk = false, dipanggil = [];
+    globalThis.fetch = async (url, op) => {
+        url = String(url); dipanggil.push(url);
+        if (url.startsWith('https://api.github.com/')) return new Response('{}', { status: 200 });
+        if (url.includes('api.groq.com')) {
+            assert.equal(op.headers.Authorization, 'Bearer kunci-groq');
+            const b = JSON.parse(op.body);
+            assert.deepEqual(b.messages.map((m) => m.role), ['system', 'user']);
+            return groqSibuk ? new Response(JSON.stringify({ error: { message: 'Rate limit reached' } }), { status: 429 }) : new Response(JSON.stringify({ choices: [{ message: { content: ' Dari Groq ' } }] }), { status: 200 });
+        }
+        return geminiSibuk ? new Response('{}', { status: 429 }) : new Response(JSON.stringify({ candidates: [{ content: { parts: [{ text: 'Dari Gemini' }] } }] }), { status: 200 });
+    };
+    const minta = () => worker.fetch(new Request('https://ai.contoh.workers.dev/', { method: 'POST', headers: { Origin: 'https://ayrigitar.com', 'Content-Type': 'application/json', Authorization: 'Bearer tok-groq-uji' }, body: JSON.stringify({ sistem: 'S', prompt: 'P' }) }), env);
+    try {
+        assert.deepEqual(await (await minta()).json(), { teks: 'Dari Groq' });
+        assert.ok(!dipanggil.some((u) => u.includes('generativelanguage')), 'Gemini tidak dipanggil bila Groq berhasil');
+        groqSibuk = true;
+        assert.deepEqual(await (await minta()).json(), { teks: 'Dari Gemini' }, 'Groq sibuk: pindah ke Gemini');
+        geminiSibuk = true;
+        const r = await minta();
+        assert.equal(r.status, 502);
+        assert.match((await r.json()).error, /sibuk|kuota/);
+    } finally { globalThis.fetch = asli; }
+});
