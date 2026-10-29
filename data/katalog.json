@@ -1,5 +1,6 @@
 {
  "toko": "Toko Gitar AYRI",
+ "v": 1,
  "item": [
   {
    "kode": "STK-V9FPZW",
@@ -8,7 +9,7 @@
    "kondisi": "bekas",
    "nama": "Fender Aerodyne",
    "warna": "Hitam Glossy",
-   "deskripsi": "Jazz Bass\nMade in Japan 🇯🇵 2003",
+   "deskripsi": "Bass Fender Aerodyne Jazz Bass buatan Jepang tahun 2003 ini berwarna hitam glossy, kondisi Very Good dengan goresan halus yang masih terlihat, dan berfungsi sempurna.  \n\nSpesifikasi:  \n- 4 senar  \n- Body berbentuk Jazz Bass dengan finishing hitam glossy  \n- Neck bolt‑on maple  \n- Fingerboard rosewood  \n- Pickups dua single‑coil Jazz Bass  \n- Scale 34 inch  \n\nAyo coba langsung di toko! 🎸",
    "harga": 13000000,
    "status": "tersedia",
    "sisa": null,
@@ -194,6 +195,57 @@
    "tingkat": "Excellent"
   },
   {
+   "kode": "STK-Z24B4G",
+   "kategori": "gitar",
+   "jenis": "Bass",
+   "kondisi": "bekas",
+   "nama": "Rockwell",
+   "warna": "",
+   "deskripsi": "Bonus softcase",
+   "harga": 1200000,
+   "status": "tersedia",
+   "sisa": null,
+   "foto": [
+    {
+     "src": "foto/stok/f0004ee5c50e4f2bbb95.webp",
+     "kecil": "foto/stok/f0004ee5c50e4f2bbb95-k.webp"
+    },
+    {
+     "src": "foto/stok/fdc6e28fcf0d4749b39e.webp",
+     "kecil": "foto/stok/fdc6e28fcf0d4749b39e-k.webp"
+    },
+    {
+     "src": "foto/stok/1dc27977222c64cc1781.webp",
+     "kecil": "foto/stok/1dc27977222c64cc1781-k.webp"
+    },
+    {
+     "src": "foto/stok/6ecd4687cbf6e0b85c04.webp",
+     "kecil": "foto/stok/6ecd4687cbf6e0b85c04-k.webp"
+    },
+    {
+     "src": "foto/stok/cf235d90dc3a9247df26.webp",
+     "kecil": "foto/stok/cf235d90dc3a9247df26-k.webp"
+    },
+    {
+     "src": "foto/stok/0324a9093fd4cdbeec2c.webp",
+     "kecil": "foto/stok/0324a9093fd4cdbeec2c-k.webp"
+    },
+    {
+     "src": "foto/stok/11aa5b84c775b9ab04e6.webp",
+     "kecil": "foto/stok/11aa5b84c775b9ab04e6-k.webp"
+    },
+    {
+     "src": "foto/stok/f7bfbd26ed16c68b34e3.webp",
+     "kecil": "foto/stok/f7bfbd26ed16c68b34e3-k.webp"
+    },
+    {
+     "src": "foto/stok/6fbad29aa7e6b394d9f7.webp",
+     "kecil": "foto/stok/6fbad29aa7e6b394d9f7-k.webp"
+    }
+   ],
+   "tingkat": "Good"
+  },
+  {
    "kode": "STK-UKV3BK",
    "kategori": "gitar",
    "jenis": "Bass",
@@ -300,57 +352,6 @@
      "kecil": "foto/stok/e485e42c7d7afb2834b5-k.webp"
     }
    ]
-  },
-  {
-   "kode": "STK-Z24B4G",
-   "kategori": "gitar",
-   "jenis": "Bass",
-   "kondisi": "bekas",
-   "nama": "Rockwell",
-   "warna": "",
-   "deskripsi": "Bonus softcase",
-   "harga": 1200000,
-   "status": "tersedia",
-   "sisa": null,
-   "foto": [
-    {
-     "src": "foto/stok/f0004ee5c50e4f2bbb95.webp",
-     "kecil": "foto/stok/f0004ee5c50e4f2bbb95-k.webp"
-    },
-    {
-     "src": "foto/stok/fdc6e28fcf0d4749b39e.webp",
-     "kecil": "foto/stok/fdc6e28fcf0d4749b39e-k.webp"
-    },
-    {
-     "src": "foto/stok/1dc27977222c64cc1781.webp",
-     "kecil": "foto/stok/1dc27977222c64cc1781-k.webp"
-    },
-    {
-     "src": "foto/stok/6ecd4687cbf6e0b85c04.webp",
-     "kecil": "foto/stok/6ecd4687cbf6e0b85c04-k.webp"
-    },
-    {
-     "src": "foto/stok/cf235d90dc3a9247df26.webp",
-     "kecil": "foto/stok/cf235d90dc3a9247df26-k.webp"
-    },
-    {
-     "src": "foto/stok/0324a9093fd4cdbeec2c.webp",
-     "kecil": "foto/stok/0324a9093fd4cdbeec2c-k.webp"
-    },
-    {
-     "src": "foto/stok/11aa5b84c775b9ab04e6.webp",
-     "kecil": "foto/stok/11aa5b84c775b9ab04e6-k.webp"
-    },
-    {
-     "src": "foto/stok/f7bfbd26ed16c68b34e3.webp",
-     "kecil": "foto/stok/f7bfbd26ed16c68b34e3-k.webp"
-    },
-    {
-     "src": "foto/stok/6fbad29aa7e6b394d9f7.webp",
-     "kecil": "foto/stok/6fbad29aa7e6b394d9f7-k.webp"
-    }
-   ],
-   "tingkat": "Good"
   },
   {
    "kode": "STK-YKXTRX",
