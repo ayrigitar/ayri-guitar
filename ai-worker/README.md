@@ -31,6 +31,7 @@ Keduanya gratis untuk pemakaian toko. Di paket gratis Google, isi permintaan bis
    - POS → **Artikel** → isi judul (dan bahan bila ada) → **✨ Tulis draf dengan AI**.
 
 ## Bila ada masalah
+- "User location is not supported for the API use": Gemini menolak lokasi pusat data Cloudflare yang menjalankan Worker. Di Worker → Settings → Runtime → **Placement**, pilih **Smart** (atau wilayah Singapore / Amerika Serikat), simpan, tunggu ±1 menit, coba lagi.
 - "Kuota AI gratis sedang habis": tunggu beberapa saat; batas gratis dihitung per menit dan per hari.
 - "Perangkat ini tidak berhak": buka POS dengan PIN; token POS harus bisa membuka `ayri-toko-data`.
 - "Perantara AI belum diatur": `GEMINI_KEY` atau `REPO_CEK` belum diisi di Cloudflare.
