@@ -325,14 +325,15 @@
         document.body.classList.toggle('ly-detail', !!p[1] || p[0] === 'opname'); document.body.classList.remove('ly-kunci-gulir');
         app.classList.toggle('ly-lebar', (!p[1] && ['hari', 'kasir', 'servis', 'jam', 'opname', 'rekap', 'kas'].indexOf(p[0]) > -1) || (p[0] === 'opname' && !!p[1]));
         window.scrollTo(0, 0);
-        if (!owner() && (p[0] === 'tebus' || p[0] === 'titip' || p[0] === 'artikel' || p[0] === 'rekap' || (p[0] === 'jam' && p[1] === 'atur'))) { toast('Menu ini khusus owner.', true); pindah('#kasir'); return; }
+        if (!owner() && (p[0] === 'tebus' || p[0] === 'titip' || p[0] === 'artikel' || p[0] === 'rekap' || p[0] === 'website' || (p[0] === 'jam' && p[1] === 'atur'))) { toast('Menu ini khusus owner.', true); pindah('#kasir'); return; }
         $('#lainnya').hidden = true; app.onclick = app.oninput = app.onchange = null; clearInterval(detikJam);
-        $('#b-lainnya').setAttribute('aria-current', ['jam', 'opname', 'tebus', 'titip', 'artikel', 'rekap', 'kas', 'sewa'].indexOf(p[0]) > -1 ? 'page' : 'false');
+        $('#b-lainnya').setAttribute('aria-current', ['jam', 'opname', 'tebus', 'titip', 'artikel', 'rekap', 'kas', 'sewa', 'website'].indexOf(p[0]) > -1 ? 'page' : 'false');
         if (p[0] === 'hari') return halamanHari();
         if (p[0] === 'kas') return halamanKas();
         if (p[0] === 'jam') return p[1] === 'atur' ? aturKaryawan() : halamanJam();
         if (p[0] === 'opname') return opname(p[1]);
         if (p[0] === 'rekap') return rekap();
+        if (p[0] === 'website') return halamanWebsite();
         if (p[0] === 'kasir') return kasir();
         if (p[0] === 'titip') return p[1] ? bukaTitip(p[1] === 'baru' ? null : p[1]) : daftarTitip();
         if (p[0] === 'tebus') return p[1] ? bukaTebus(p[1] === 'baru' ? null : p[1]) : daftarTebus();
@@ -2007,6 +2008,66 @@
         var rec = salin(j); rec.pengingat = (rec.pengingat || []).concat(L.hariIni());
         sibuk(btn, true, 'Mencatat…');
         A.simpanJual(rec).then(function (row) { taruh('jual', row); jl = { baru: false, j: salin(row) }; gambarJual2(); }).catch(function (e) { sibuk(btn, false); gagal(e); });
+    }
+
+    /* ================= editor konten website (khusus owner) =================
+       Kolom diambil dari elemen bertanda data-edit di halaman (dikelompokkan per data-edit-bagian, satu baris per data-edit-item).
+       Hanya kolom yang berubah yang dikirim; Layanan.api.terbitkanHalaman menerapkannya ke versi terbaru halaman di repo. */
+    var we = null;
+    function halamanWebsite() {
+        app.innerHTML = '<section class="ly-f" id="we"><div class="ly-head"><h1 style="flex:1">Website</h1><a class="ly-btn" target="_blank" rel="noopener" href="' + E(L.situs()) + '">Buka website</a></div>' +
+            '<p class="ly-muted">Ubah banner promo, teks bagian depan, harga servis, alamat, dan jam buka di halaman depan website. Desain tidak berubah. Tekan <b>Terbitkan</b>; website berubah ±1 menit kemudian.</p>' +
+            '<div id="we-isi" class="ly-f"><p class="ly-kosong">Memuat halaman…</p></div>' +
+            '<div class="ly-save"><span class="ly-dirty" id="dirty" hidden>Belum diterbitkan</span><button type="button" class="ly-btn ly-btn--pri" id="we-terbit" disabled>Terbitkan</button></div></section>';
+        A.bacaHalaman('index.html').then(function (html) {
+            var doc = new DOMParser().parseFromString(html, 'text/html'), bagian = [], per = {}, awal = {};
+            [].forEach.call(doc.querySelectorAll('[data-edit]'), function (el) {
+                var jenis = el.getAttribute('data-edit-jenis') || 'teks', b = el.closest('[data-edit-bagian]'), nb = b ? b.getAttribute('data-edit-bagian') : 'Lainnya', it = el.closest('[data-edit-item]');
+                var f = { kunci: el.getAttribute('data-edit'), jenis: jenis, label: el.getAttribute('data-edit-label') || el.getAttribute('data-edit') };
+                awal[f.kunci] = jenis === 'tampil' ? !el.hasAttribute('hidden') : jenis === 'harga' ? +el.getAttribute('value') || 0 : el.textContent.replace(/\s+/g, ' ').trim();
+                if (!per[nb]) { per[nb] = { nama: nb, baris: [] }; bagian.push(per[nb]); }
+                var baris = per[nb].baris, akhir = baris[baris.length - 1];
+                if (it && akhir && akhir.item === it) akhir.f.push(f); else baris.push({ item: it, f: [f] });
+            });
+            we = { awal: awal, bagian: bagian };
+            gambarWebsite();
+        }).catch(function (e) { $('#we-isi').innerHTML = '<p class="ly-kosong">' + E(e.message || String(e)) + '</p>'; });
+    }
+    function kolomWebsite(f) {
+        if (f.jenis === 'tampil') return '<label class="ly-cek"><input type="checkbox" data-k="' + E(f.kunci) + '"><span>' + E(f.label) + '</span></label>';
+        if (f.jenis === 'harga') return '<label>' + E(f.label) + '<input type="number" inputmode="numeric" min="0" step="5000" data-k="' + E(f.kunci) + '"></label>';
+        return '<label>' + E(f.label) + (String(we.awal[f.kunci]).length > 70 ? '<textarea rows="3" data-k="' + E(f.kunci) + '"></textarea>' : '<input data-k="' + E(f.kunci) + '">') + '</label>';
+    }
+    function gambarWebsite() {
+        $('#we-isi').innerHTML = we.bagian.map(function (b) {
+            return '<fieldset class="ly-card ly-f"><legend>' + E(b.nama) + '</legend>' + b.baris.map(function (r) {
+                return r.item ? '<div class="we-baris">' + r.f.map(kolomWebsite).join('') + '</div>' : r.f.map(kolomWebsite).join('');
+            }).join('') + '</fieldset>';
+        }).join('') + '<p class="ly-hint ly-hint--c">Harga di sini untuk tampilan website. Harga jasa di kasir & servis POS diatur terpisah.</p>';
+        $$('[data-k]', $('#we-isi')).forEach(function (el) { var v = we.awal[el.dataset.k]; if (el.type === 'checkbox') el.checked = !!v; else el.value = v; });
+        var isi = $('#we-isi');
+        isi.oninput = isi.onchange = function () { var n = Object.keys(ubahWebsite()).length; $('#we-terbit').disabled = !n; $('#we-terbit').textContent = n ? 'Terbitkan (' + n + ' perubahan)' : 'Terbitkan'; setDirty(n > 0); };
+        $('#we-terbit').onclick = terbitkanWebsite;
+        setDirty(false);
+    }
+    function ubahWebsite() {
+        var ubah = {};
+        $$('[data-k]', $('#we-isi')).forEach(function (el) {
+            var k = el.dataset.k, v = el.type === 'checkbox' ? el.checked : el.type === 'number' ? Math.max(0, Math.round(+el.value || 0)) : el.value.replace(/\s+/g, ' ').trim();
+            if (v !== we.awal[k]) ubah[k] = v;
+        });
+        return ubah;
+    }
+    function terbitkanWebsite() {
+        var ubah = ubahWebsite(), b = $('#we-terbit'), kosong = Object.keys(ubah).filter(function (k) { return ubah[k] === ''; });
+        if (!Object.keys(ubah).length) return;
+        if (kosong.length && !confirm(kosong.length + ' kolom dikosongkan. Bagian itu akan tampil kosong di website. Lanjutkan?')) return;
+        sibuk(b, true, 'Menerbitkan…'); menyimpan = true;
+        A.terbitkanHalaman('index.html', ubah).then(function () {
+            menyimpan = false; Object.keys(ubah).forEach(function (k) { we.awal[k] = ubah[k]; });
+            sibuk(b, false); b.disabled = true; b.textContent = 'Terbitkan'; setDirty(false);
+            toast('Terbit. Website berubah ±1 menit lagi.');
+        }).catch(function (e) { menyimpan = false; sibuk(b, false); gagal(e); });
     }
 
     /* ================= sewa gitar (unit used dari stok) ================= */

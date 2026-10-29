@@ -990,6 +990,48 @@
         return hapusDua('titip', rec, files, 'Titip: hapus');
     };
 
+    /* ---------- editor konten website ----------
+       Elemen halaman yang boleh diubah ditandai data-edit="kunci" (data-edit-jenis: teks | harga | tampil). Perubahan diterapkan
+       langsung ke teks HTML halaman, hanya isi elemen bertanda yang diganti: desain dan bagian lain tidak tersentuh, dan halaman tetap
+       statis (cepat, terbaca mesin pencari). */
+    function polaEdit(kunci) {
+        var k = kunci.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        return new RegExp('(<([a-z][a-z0-9]*)\\b[^>]*\\sdata-edit="' + k + '"[^>]*>)([\\s\\S]*?)(</\\2>)');
+    }
+    L.terapkanEdit = function (html, ubah) {
+        Object.keys(ubah || {}).forEach(function (kunci) {
+            var m = polaEdit(kunci).exec(html);
+            if (!m) throw new Error('Bagian "' + kunci + '" tidak ditemukan di halaman. Muat ulang menu Website.');
+            var buka = m[1], isi = m[3], jenis = (/\sdata-edit-jenis="([a-z]+)"/.exec(buka) || [])[1] || 'teks', v = ubah[kunci];
+            if (jenis === 'tampil') { buka = buka.replace(/\s+hidden(?=[\s>])/, ''); if (!v) buka = buka.replace(/>$/, ' hidden>'); }
+            else if (jenis === 'harga') {
+                var n = Math.max(0, Math.round(+v || 0));
+                buka = buka.replace(/\svalue="[^"]*"/, ' value="' + n + '"');
+                isi = '<span class="price__cur">Rp</span> ' + L.rupiah(n).replace(/^Rp\s*/, '');
+            } else isi = L.esc(String(v == null ? '' : v).replace(/\s+/g, ' ').trim());
+            html = html.slice(0, m.index) + buka + isi + m[4] + html.slice(m.index + m[0].length);
+        });
+        return html;
+    };
+    /* halaman situs untuk diedit (dibaca langsung dari repo, bukan dari situs yang mungkin belum diperbarui) */
+    L.api.bacaHalaman = function (path) {
+        if (peran !== 'owner') return Promise.reject(new Error('Editor website khusus owner.'));
+        return bacaFile('situs', path).then(function (t) { if (!t) throw new Error('Halaman ' + path + ' tidak ditemukan.'); return t; });
+    };
+    /* terapkan perubahan ke versi terbaru halaman di repo (atomik: perubahan lain yang masuk bersamaan tidak tertimpa) */
+    L.api.terbitkanHalaman = function (path, ubah) {
+        if (peran !== 'owner') return Promise.reject(new Error('Editor website khusus owner.'));
+        if (!Object.keys(ubah || {}).length) return Promise.resolve(null);
+        var hasil;
+        return ubahAtomik('situs', function (baca) {
+            return baca(path).then(function (t) {
+                if (!t) throw new Error('Halaman ' + path + ' tidak ditemukan.');
+                hasil = L.terapkanEdit(t, ubah);
+                return hasil === t ? [] : [{ path: path, teks: hasil }];
+            });
+        }, 'Website: perbarui konten ' + path).then(function () { return hasil; });
+    };
+
     /* ---------- sewa gitar ----------
        Unit used dari stok disewakan tanpa mengubah jumlah stok (unit tetap milik toko); status "sedang disewa" dihitung dari daftar sewa.
        Data lengkap (nama, HP, foto KTP & kondisi terenkripsi) hanya di repo privat bersama (sewa.json); tidak ada halaman publik. */
