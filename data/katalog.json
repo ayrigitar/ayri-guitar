@@ -148,53 +148,6 @@
    "tingkat": "Very Good"
   },
   {
-   "kode": "STK-U3X8N4",
-   "kategori": "gitar",
-   "jenis": "Elektrik",
-   "kondisi": "bekas",
-   "nama": "Samick SS51",
-   "warna": "",
-   "deskripsi": "Include tas dan senar",
-   "harga": 1200000,
-   "status": "tersedia",
-   "sisa": null,
-   "foto": [
-    {
-     "src": "foto/stok/d3d0246ddfcf45063f46.webp",
-     "kecil": "foto/stok/d3d0246ddfcf45063f46-k.webp"
-    },
-    {
-     "src": "foto/stok/a2674762d2ba60b54991.webp",
-     "kecil": "foto/stok/a2674762d2ba60b54991-k.webp"
-    },
-    {
-     "src": "foto/stok/6a0fea42f062a37b1cac.webp",
-     "kecil": "foto/stok/6a0fea42f062a37b1cac-k.webp"
-    },
-    {
-     "src": "foto/stok/bec3ee7c9e469200cf19.webp",
-     "kecil": "foto/stok/bec3ee7c9e469200cf19-k.webp"
-    },
-    {
-     "src": "foto/stok/fd9860386c0cc7e4fda0.webp",
-     "kecil": "foto/stok/fd9860386c0cc7e4fda0-k.webp"
-    },
-    {
-     "src": "foto/stok/91b18234b02b7e4006ab.webp",
-     "kecil": "foto/stok/91b18234b02b7e4006ab-k.webp"
-    },
-    {
-     "src": "foto/stok/ba8ce2c1991be59e87e8.webp",
-     "kecil": "foto/stok/ba8ce2c1991be59e87e8-k.webp"
-    },
-    {
-     "src": "foto/stok/2d99cc104ee2f8d620b5.webp",
-     "kecil": "foto/stok/2d99cc104ee2f8d620b5-k.webp"
-    }
-   ],
-   "tingkat": "Excellent"
-  },
-  {
    "kode": "STK-Z24B4G",
    "kategori": "gitar",
    "jenis": "Bass",
@@ -352,6 +305,53 @@
      "kecil": "foto/stok/e485e42c7d7afb2834b5-k.webp"
     }
    ]
+  },
+  {
+   "kode": "STK-U3X8N4",
+   "kategori": "gitar",
+   "jenis": "Elektrik",
+   "kondisi": "bekas",
+   "nama": "Samick SS51",
+   "warna": "",
+   "deskripsi": "Gitar listrik Samick SS51 ini dalam kondisi bekas tingkat Excellent, pemakaian sangat ringan dengan goresan tipis yang hampir tak terlihat. Dilengkapi tas pelindung dan senar baru, siap pakai langsung. 🎸  \n\nSpesifikasi:  \n- 6 senar  \n- Neck bolt‑on  \n- Skala 25.5 in (≈648 mm)  \n- 22 fret  \n- Hardware standar tipe Stratocaster (tuning machine, bridge)  \n\nAyo coba langsung di toko kami!",
+   "harga": 1200000,
+   "status": "tersedia",
+   "sisa": null,
+   "foto": [
+    {
+     "src": "foto/stok/d3d0246ddfcf45063f46.webp",
+     "kecil": "foto/stok/d3d0246ddfcf45063f46-k.webp"
+    },
+    {
+     "src": "foto/stok/a2674762d2ba60b54991.webp",
+     "kecil": "foto/stok/a2674762d2ba60b54991-k.webp"
+    },
+    {
+     "src": "foto/stok/6a0fea42f062a37b1cac.webp",
+     "kecil": "foto/stok/6a0fea42f062a37b1cac-k.webp"
+    },
+    {
+     "src": "foto/stok/bec3ee7c9e469200cf19.webp",
+     "kecil": "foto/stok/bec3ee7c9e469200cf19-k.webp"
+    },
+    {
+     "src": "foto/stok/fd9860386c0cc7e4fda0.webp",
+     "kecil": "foto/stok/fd9860386c0cc7e4fda0-k.webp"
+    },
+    {
+     "src": "foto/stok/91b18234b02b7e4006ab.webp",
+     "kecil": "foto/stok/91b18234b02b7e4006ab-k.webp"
+    },
+    {
+     "src": "foto/stok/ba8ce2c1991be59e87e8.webp",
+     "kecil": "foto/stok/ba8ce2c1991be59e87e8-k.webp"
+    },
+    {
+     "src": "foto/stok/2d99cc104ee2f8d620b5.webp",
+     "kecil": "foto/stok/2d99cc104ee2f8d620b5-k.webp"
+    }
+   ],
+   "tingkat": "Excellent"
   },
   {
    "kode": "STK-YKXTRX",
