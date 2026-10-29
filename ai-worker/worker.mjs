@@ -5,7 +5,7 @@
      GEMINI_KEY  (Secret)  kunci API dari Google AI Studio
      REPO_CEK    (Text)    repo yang harus bisa dibuka token POS, mis. ayrigitar/ayri-toko-data
      ORIGIN      (Text)    asal yang diizinkan, dipisah koma, mis. https://ayrigitar.com
-     MODEL       (Text)    opsional, bawaan gemini-2.5-flash
+     MODEL       (Text)    opsional, bawaan gemini-3.8-flash (nama model berubah-ubah: bila Google menolak, ganti lewat variabel ini tanpa menempel kode lagi)
    Permintaan: POST { sistem, prompt, maks } + header Authorization: Bearer <token POS>. Jawaban: { teks } atau { error }. */
 
 const IZIN_LAMA = 10 * 60 * 1000; /* token yang sudah lolos cek disimpan (sebagai hash) 10 menit, supaya tidak tiap kali bertanya ke GitHub */
@@ -41,10 +41,11 @@ export default {
         try { b = await req.json(); } catch (e) { return jawab({ error: 'Permintaan tidak valid.' }, 400, cors); }
         const prompt = String(b && b.prompt || '').slice(0, 12000), sistem = String(b && b.sistem || '').slice(0, 4000);
         if (!prompt.trim()) return jawab({ error: 'Permintaan kosong.' }, 400, cors);
-        const model = env.MODEL || 'gemini-2.5-flash', maks = Math.max(64, Math.min(4096, +(b && b.maks) || 1024));
+        const model = env.MODEL || 'gemini-3.8-flash', maks = Math.max(64, Math.min(4096, +(b && b.maks) || 1024));
+        const lama = /^gemini-2\.5-flash/.test(model); /* hanya model 2.5-flash yang boleh dimatikan "berpikir"-nya; model lain: beri ruang ekstra supaya proses berpikir tidak memotong jawaban */
         const isi = {
             contents: [{ role: 'user', parts: [{ text: prompt }] }],
-            generationConfig: Object.assign({ temperature: 0.7, maxOutputTokens: maks }, /^gemini-2\.5-flash/.test(model) ? { thinkingConfig: { thinkingBudget: 0 } } : {})
+            generationConfig: Object.assign({ temperature: 0.7, maxOutputTokens: lama ? maks : maks + 2048 }, lama ? { thinkingConfig: { thinkingBudget: 0 } } : {})
         };
         if (sistem) isi.systemInstruction = { parts: [{ text: sistem }] };
         const r = await fetch('https://generativelanguage.googleapis.com/v1beta/models/' + encodeURIComponent(model) + ':generateContent', {

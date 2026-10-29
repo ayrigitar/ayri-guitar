@@ -74,6 +74,9 @@ test('perantara (worker): menolak asal & token tak berhak, meneruskan ke Gemini 
         const isi = JSON.parse(g.op.body);
         assert.equal(isi.systemInstruction.parts[0].text, 'S');
         assert.equal(isi.contents[0].parts[0].text, 'P');
+        assert.ok(g.url.includes('/models/gemini-3.8-flash:'), 'model bawaan terbaru');
+        assert.ok(!isi.generationConfig.thinkingConfig, 'tanpa pengaturan berpikir untuk model non-2.5');
+        assert.ok(isi.generationConfig.maxOutputTokens > 1024, 'ada ruang ekstra untuk proses berpikir');
         /* token yang sudah lolos disimpan sebentar: permintaan kedua tidak bertanya ke GitHub lagi */
         const ghSebelum = panggilan.filter((x) => x.url.startsWith('https://api.github.com/') && x.op.headers.Authorization === 'Bearer tok-baik').length;
         await minta('https://ayrigitar.com', 'tok-baik');

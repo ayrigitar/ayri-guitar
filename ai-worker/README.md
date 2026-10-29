@@ -19,7 +19,7 @@ Keduanya gratis untuk pemakaian toko. Di paket gratis Google, isi permintaan bis
    - `GEMINI_KEY`, tipe **Secret**: kunci dari langkah 1.
    - `REPO_CEK`, tipe **Text**: `ayrigitar/ayri-toko-data`
    - `ORIGIN`, tipe **Text**: `https://ayrigitar.com`
-   - (Opsional) `MODEL`, tipe **Text**: nama model Gemini lain. Bawaannya `gemini-2.5-flash`.
+   - (Opsional) `MODEL`, tipe **Text**: nama model Gemini lain. Bawaannya `gemini-3.8-flash`. Google sering mengganti nama model; bila muncul pesan "model ... no longer available", isi variabel ini dengan model yang disarankan di pesan itu, tanpa menempel kode lagi.
    - Tekan **Deploy** / simpan.
 
 4. **Sambungkan ke POS**
