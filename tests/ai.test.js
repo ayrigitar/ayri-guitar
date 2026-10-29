@@ -17,7 +17,9 @@ test('permintaan deskripsi: data barang, tingkat kondisi + artinya, catatan penj
     assert.ok(m.prompt.includes('tingkat Very Good (pemakaian wajar'));
     assert.ok(m.prompt.includes('lecet kecil di body, bonus softcase'));
     assert.ok(!/13\.000\.000|13000000|9000000/.test(m.prompt + m.sistem), 'harga & modal tidak dikirim');
-    assert.match(m.sistem, /Jangan mengarang/);
+    assert.match(m.sistem, /jangan mengarang fakta unit ini/);
+    assert.match(m.sistem, /SPESIFIKASI UMUM MODEL/); assert.match(m.sistem, /jangan menebak/);
+    assert.match(m.prompt, /Spesifikasi umum model:/); assert.ok(m.maks >= 900);
     const aks = L.ai.deskripsi(stokContoh('s2', 3, { kategori: 'aksesoris', sub: 'Senar', nama: 'Orphee NX35', warna: 'Nylon Klasik Hard Tension', deskripsi: '' }));
     assert.ok(aks.prompt.includes('Kategori: Senar') && aks.prompt.includes('Varian: Nylon Klasik Hard Tension') && aks.prompt.includes('(tidak ada)'));
 });
