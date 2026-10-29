@@ -147,5 +147,27 @@ var AYRI_LAYANAN = {
             'Bila toko yang membatalkan (misalnya barang rusak atau tidak dapat diserahkan), seluruh uang dikembalikan tanpa potongan.',
             'Pembayaran hanya sah bila tunai di toko atau transfer ke rekening yang tercantum di nota ini. Perubahan batas waktu berlaku bila disepakati kedua pihak secara tertulis (WhatsApp).'
         ]
+    },
+
+    /* ---------- titip jual (konsinyasi): pemilik menitipkan gitar, toko menjualkan dan mengambil komisi ----------
+       Komisi disalin ke tiap catatan titipan saat dibuat (bisa diubah per pemilik). Angka awal: 15% dari harga jual yang sebenarnya, minimal Rp150.000,
+       dan 10% bila harga jual di atas Rp10.000.000. Tanggung jawab dibatasi pada kelalaian toko (UU 8/1999 Pasal 18: tanpa klausul pembebasan total). */
+    titip: {
+        komisiPersen: 15,
+        komisiMin: 150000,
+        batasMahal: 10000000,          /* harga jual di atas ini memakai persenMahal */
+        persenMahal: 10,
+        tinjauHari: 60,                /* pengingat meninjau harga bila belum terjual sekian hari */
+        /* tercetak di surat titip & WA; {harga}, {min}, {komisi}, {tinjau} diganti otomatis */
+        ketentuan: [
+            'Pemilik menyatakan gitar ini miliknya sendiri, bukan barang curian, jaminan, atau sengketa, dan menitipkannya kepada Toko Gitar AYRI untuk dijualkan.',
+            'Harga jual yang disepakati adalah {harga}. Perubahan harga hanya dengan persetujuan pemilik (WhatsApp), dan toko tidak menjual di bawah harga minimum {min}.',
+            'Komisi toko: {komisi}. Hasil penjualan setelah dipotong komisi menjadi hak pemilik.',
+            'Uang pemilik dibayarkan setelah gitar terjual dan pembeli sudah melunasi pembayaran.',
+            'Tidak ada batas waktu titip. Setiap {tinjau} hari toko mengabari pemilik untuk meninjau harga. Pemilik boleh mengambil kembali gitarnya kapan saja dengan memberi tahu toko lebih dulu, tanpa biaya.',
+            'Toko menyimpan gitar dengan baik. Bila gitar rusak atau hilang karena kelalaian toko (misalnya jatuh, hilang, atau dicuri dari toko), toko mengganti sebesar harga minimum {min}.',
+            'Kerusakan yang bukan akibat penyimpanan (misalnya wiring atau elektronik yang bermasalah sendiri) serta cacat yang sudah ada saat gitar diterima (sesuai foto kondisi) bukan tanggung jawab toko.',
+            'Perubahan kesepakatan berlaku bila disetujui kedua pihak secara tertulis (WhatsApp).'
+        ]
     }
 };

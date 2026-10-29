@@ -11,7 +11,8 @@
         github: {}, toko: { nama: 'Toko Gitar AYRI', alamat: '', jam: '', wa: '', rekening: [] },
         tebus: { batasHari: 30, maksHari: 90, pengingatHari: [7, 1], fotoKtpMinHarga: 1000000, hapusKtpHari: 90, ketentuan: [] },
         jual: { batasHari: 30, potonganPersen: 10, pengingatHari: [7, 1], ketentuan: [] },
-        sewa: { tarifHarian: [[1, 100000]], tambahPerHari: 100000, tarifMinggu: 0, batasUnitStandar: 0, depositPersen: 10, dendaSenar: 0, senarCadangan: 6, toleransiHari: 0, maksHari: 30, ketentuan: [] }
+        sewa: { tarifHarian: [[1, 100000]], tambahPerHari: 100000, tarifMinggu: 0, batasUnitStandar: 0, depositPersen: 10, dendaSenar: 0, senarCadangan: 6, toleransiHari: 0, maksHari: 30, ketentuan: [] },
+        titip: { komisiPersen: 15, komisiMin: 150000, batasMahal: 10000000, persenMahal: 10, tinjauHari: 60, ketentuan: [] }
     };
     function lengkapi(c, d) {
         Object.keys(d).forEach(function (k) {
@@ -518,7 +519,7 @@
        Sebelum dipisah (repoBersama kosong), 'data' dan 'owner' adalah repo yang sama. */
     var PISAH = !!G.repoBersama, peran = 'owner';
     function repo(jenis) { return G.pemilik + '/' + (jenis === 'situs' ? G.repoSitus : jenis === 'data' && PISAH ? G.repoBersama : G.repoData); }
-    function repoJenis(jenis) { return PISAH && jenis === 'tebus' ? 'owner' : 'data'; }
+    function repoJenis(jenis) { return PISAH && (jenis === 'tebus' || jenis === 'titip') ? 'owner' : 'data'; }
     L.api.peran = function () { return peran; };
     L.api.pisah = function () { return PISAH; };
     function jalur(p) { return p.split('/').map(encodeURIComponent).join('/'); }
@@ -629,7 +630,7 @@
     L.api.lupakan = function () { L.api.kunci(); bersihkanGagal(); try { localStorage.removeItem(KUNCI_TOKEN); } catch (e) {} return Promise.resolve(); };
 
     /* ---------- data (repo privat) ---------- */
-    var data = { servis: [], artikel: [], tebus: [], stok: [], jual: [], absen: [], opname: [], pengaturan: {}, kas: [], sewa: [] }, rahasia = {}, statusPisah = null;
+    var data = { servis: [], artikel: [], tebus: [], stok: [], jual: [], absen: [], opname: [], pengaturan: {}, kas: [], sewa: [], titip: [] }, rahasia = {}, statusPisah = null;
     function cari(list, id) { return list.filter(function (x) { return x.id === id; })[0] || null; }
     function bacaJson(nama, rp) { return bacaFile(rp || 'data', nama).then(function (t) { return t ? JSON.parse(t) : []; }); }
     /* modal & asal barang: setelah dipisah, disimpan di repo owner (stok-rahasia.json), bukan di stok.json bersama */
@@ -649,7 +650,8 @@
                 Promise.all(['servis', 'artikel', 'stok', 'jual', 'absen', 'opname', 'pengaturan', 'kas', 'sewa'].map(function (j) { return bacaFile('data', j + '.json'); })),
                 owner ? bacaJson('tebus.json', repoJenis('tebus')) : Promise.resolve([]),
                 owner && PISAH ? bacaFile('owner', 'stok-rahasia.json') : Promise.resolve(null),
-                owner && PISAH ? bacaFile('owner', 'servis.json') : Promise.resolve(null)
+                owner && PISAH ? bacaFile('owner', 'servis.json') : Promise.resolve(null),
+                owner ? bacaJson('titip.json', repoJenis('titip')) : Promise.resolve([])
             ]);
         }).then(function (r) {
             var b = r[0], json = function (t) { return t ? JSON.parse(t) : []; };
@@ -657,13 +659,13 @@
             statusPisah = PISAH && !b[0] ? (peran === 'owner' && r[3] ? 'pindah' : 'kosong') : null;
             rahasia = r[2] ? JSON.parse(r[2]) : {};
             data.servis = json(b[0]); data.artikel = json(b[1]); data.stok = gabungStok(json(b[2])); data.jual = json(b[3]); data.tebus = r[1];
-            data.absen = json(b[4]); data.opname = json(b[5]); data.pengaturan = b[6] ? JSON.parse(b[6]) : {}; data.kas = json(b[7]); data.sewa = json(b[8]);
+            data.absen = json(b[4]); data.opname = json(b[5]); data.pengaturan = b[6] ? JSON.parse(b[6]) : {}; data.kas = json(b[7]); data.sewa = json(b[8]); data.titip = r[4];
             return salin(data);
         });
     }
     L.api.statusPisah = function () { return statusPisah; };
     /* cadangan: hanya data yang boleh dilihat pemegang token ini */
-    L.api.cadangan = function () { var c = salin(data); if (peran !== 'owner') { delete c.tebus; c.stok = c.stok.map(bersihStok); } return c; };
+    L.api.cadangan = function () { var c = salin(data); if (peran !== 'owner') { delete c.tebus; delete c.titip; c.stok = c.stok.map(bersihStok); } return c; };
     /* cadangan terenkripsi: berisi data pelanggan (dan kunci foto), jadi dikunci dengan sandi pilihan pemilik (AES-GCM, PBKDF2 600.000 putaran) */
     var CAD_PUTARAN = 600000;
     L.api.cadanganTerenkripsi = function (sandi) {
@@ -903,6 +905,82 @@
     L.api.hapusTebus = function (rec) {
         var files = hapusFoto(rec.foto || [], { situs: rec.pubId ? [{ path: 'data/tebus/' + rec.pubId + '.json', hapus: true }] : [], data: [], owner: [] });
         return hapusDua('tebus', rec, files, 'Tebus: hapus surat perjanjian');
+    };
+
+    /* ---------- titip jual (konsinyasi) ----------
+       Pemilik menitipkan gitar, toko menjualkan dan mengambil komisi. Data (pemilik, KTP opsional, harga minimum, foto) HANYA di repo owner (titip.json);
+       tidak ada halaman publik. Stok hanya membawa penanda sumber_titip (tanpa nama, HP, atau harga minimum).
+       Tahap 1: terima titipan + surat. Selama itu gitar titipan belum boleh dijual lewat Kasir (L.titipanTerkunci): penjualan dan pembayaran ke pemilik menyusul. */
+    var TT = C.titip;
+    L.STATUS_TITIP = { aktif: 'Dititipkan', diambil: 'Diambil pemilik', batal: 'Dibatalkan' };
+    L.titipanTerkunci = function (s) { return !!(s && s.sumber_titip); };
+    /* ketentuan komisi disalin ke tiap catatan saat dibuat, supaya surat dan pembayaran selalu sesuai kesepakatan walau pengaturan berubah */
+    L.komisiBawaanTitip = function () { return { komisi_persen: TT.komisiPersen, komisi_min: TT.komisiMin, batas_mahal: TT.batasMahal, persen_mahal: TT.persenMahal }; };
+    /* komisi = persen harga jual yang sebenarnya (persen_mahal bila harga di atas batas_mahal), minimal komisi_min, paling banyak sebesar harganya */
+    L.hitungKomisiTitip = function (t, harga) {
+        harga = Math.max(0, Math.round(+harga) || 0);
+        var mahal = +t.batas_mahal > 0 && harga > +t.batas_mahal, persen = mahal ? +t.persen_mahal : +t.komisi_persen;
+        var komisi = Math.min(harga, Math.max(Math.round(harga * persen / 100), +t.komisi_min || 0));
+        return { harga: harga, persen: persen, komisi: komisi, bagianPemilik: harga - komisi };
+    };
+    L.ringkasKomisiTitip = function (t) {
+        var s = t.komisi_persen + '% dari harga jual (minimal ' + L.rupiah(t.komisi_min) + ')';
+        if (+t.batas_mahal > 0) s += ', dan ' + t.persen_mahal + '% bila harga jual di atas ' + L.rupiah(t.batas_mahal);
+        return s;
+    };
+    L.hariTitip = function (t, hariIni) { return L.hariAntara(t.tgl_masuk, hariIni || L.hariIni()); };
+    /* belum terjual setelah tinjauHari hari (sejak masuk, atau sejak pengingat terakhir): saatnya meninjau harga dengan pemilik */
+    L.perluTinjauTitip = function (t, hariIni) {
+        if (t.status !== 'aktif' || !t.tgl_masuk) return false;
+        return L.hariAntara((t.pengingat || []).slice(-1)[0] || t.tgl_masuk, hariIni || L.hariIni()) >= TT.tinjauHari;
+    };
+    L.ketentuanTitip = function (t) {
+        return (TT.ketentuan || []).map(function (k) {
+            return k.split('{komisi}').join(L.ringkasKomisiTitip(t)).split('{min}').join(L.rupiah(t.harga_min)).split('{harga}').join(L.rupiah(t.harga_jual)).split('{tinjau}').join(String(TT.tinjauHari));
+        });
+    };
+    L.pesanTitip = {
+        konfirmasi: function (t) {
+            var n = 0;
+            return 'Halo Kak ' + t.nama + ', terima kasih sudah menitipkan gitar di ' + C.toko.nama + ' 🙏\n\n' +
+                '🎸 *' + L.namaGitar(t, 'Gitar') + '*\nKode titipan: *' + t.kode + '*\nTanggal titip: ' + L.tgl(t.tgl_masuk) + '\nHarga jual yang disepakati: *' + L.rupiah(t.harga_jual) + '*\n\n' +
+                'Ketentuan titip jual:\n' + L.ketentuanTitip(t).map(function (k) { return ++n + '. ' + k; }).join('\n') + '\n\nBila Kakak setuju, balas *SETUJU* ya. Terima kasih 🙏';
+        },
+        pengingat: function (t) {
+            return 'Halo Kak ' + t.nama + ', kami dari ' + C.toko.nama + '. Gitar titipan Kakak (' + L.namaGitar(t, 'gitar') + ', kode *' + t.kode + '*) sudah ' + L.hariTitip(t) + ' hari terpajang dan belum terjual. ' +
+                'Harga sekarang ' + L.rupiah(t.harga_jual) + '. Mau kita tinjau harganya bersama? Kabari kami ya Kak 🙏';
+        },
+        diambil: function (t) {
+            return 'Halo Kak ' + t.nama + ', gitar titipan ' + L.namaGitar(t, 'gitar') + ' (kode *' + t.kode + '*) sudah diserahkan kembali pada ' + L.tgl(t.tgl_diambil || L.hariIni()) + '. Terima kasih sudah menitipkan di ' + C.toko.nama + ' 🙏';
+        }
+    };
+    L.strukTitip = function (t, opsi) {
+        opsi = opsi || {};
+        var p = penyusunStruk(opsi.lebar);
+        p.kop(); p.tengah('BUKTI TITIP JUAL GITAR', { b: true }); p.tengah(t.kode, { b: true, besar: true }); p.garis();
+        p.dua('Pemilik', t.nama); p.dua('No. HP', '****' + L.hp4(t.hp)); p.kiri('Gitar: ' + L.namaGitar(t, 'Gitar') + (t.warna ? ' (' + t.warna + ')' : ''));
+        p.dua('Tanggal titip', L.tgl(t.tgl_masuk)); p.dua('Harga jual', L.rupiah(t.harga_jual), { b: true }); p.garis();
+        p.kiri('Komisi toko: ' + L.ringkasKomisiTitip(t) + '.');
+        p.kiri('Uang pemilik dibayar setelah gitar terjual dan pembeli lunas.');
+        p.kosong(); p.tengah('Terima kasih'); p.kosong(); p.kosong();
+        return p.out;
+    };
+    /* hanya owner; foto (gitar & KTP opsional) terenkripsi di repo owner, tidak pernah di situs */
+    L.api.simpanTitip = function (rec, fotoBaru) {
+        rec = salin(rec);
+        if (peran !== 'owner') return Promise.reject(new Error('Titip jual hanya untuk owner.'));
+        var dasar = ambilDasar(rec).d, sekarang = new Date().toISOString(), lama = cari(data.titip, rec.id), files = { situs: [], data: [], owner: [] };
+        siapkanBaru(rec, data.titip, 'TTP', sekarang);
+        if (!rec.fk) rec.fk = b64(crypto.getRandomValues(new Uint8Array(32)));
+        rec.foto = rec.foto || []; rec.updated_at = sekarang;
+        if (rec.status === 'diambil' && !rec.tgl_diambil) rec.tgl_diambil = L.hariIni();
+        return cekBentrok('titip', rec, dasar, lama)
+            .then(function () { return unggahTerkunci(rec, fotoBaru || [], 'foto/', files[repoJenis('titip')], function () { return { repo: 'data', created_at: sekarang }; }); })
+            .then(function () { hapusFotoHilang(lama, rec, files); return simpanDua('titip', rec, files, 'Titip: tidak ada perubahan di situs', true, dasar); });
+    };
+    L.api.hapusTitip = function (rec) {
+        var files = hapusFoto(rec.foto || [], { situs: [], data: [], owner: [] });
+        return hapusDua('titip', rec, files, 'Titip: hapus');
     };
 
     /* ---------- sewa gitar ----------

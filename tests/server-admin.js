@@ -1,7 +1,7 @@
 'use strict';
 /* Server uji tampilan admin (bukan bagian node --test): menyajikan repo apa adanya, tetapi admin.html bicara dengan "GitHub" palsu di memori (helper.js) lewat /__gh/.
    Jalankan: node tests/server-admin.js 8783, buka http://127.0.0.1:8783/admin.html, token apa saja (mis. tok-owner) + PIN 6 angka.
-   Data contoh: 1 servis (#servis/sv1), 1 stok berfoto (#stok/sk1), 1 jual DP (#jual/jl1), 1 tebus (#tebus/tb1), 1 artikel (#artikel/ar1).
+   Data contoh: 1 servis (#servis/sv1), 1 stok berfoto (#stok/sk1), 1 jual DP (#jual/jl1), 1 tebus (#tebus/tb1), 1 titip jual (#titip/tt1), 1 artikel (#artikel/ar1).
    /__putus?v=1 membuat semua panggilan GitHub gagal, /__log melihat panggilan terakhir. Untuk menguji tombol Bagikan/Cetak di luar APK: window.AyriApp = { postMessage: function (m) { window.__pesan = JSON.parse(m); } }. */
 const http = require('http'), fs = require('fs'), path = require('path');
 const H = require('./helper.js');
@@ -28,12 +28,17 @@ const tebus = [{
     id: 'tb1', kode: 'TBS-ZZZ111', nama: 'Hadi', hp: '0857 1111 2222', gitar_jenis: 'Elektrik', gitar_merk: 'Fender Strat', tgl_beli: hari, harga_beli: 2500000, batas_tebus: '2026-12-01',
     metode: 'tunai', status: 'aktif', foto: [], created_at: '2026-10-22T00:00:00.000Z', updated_at: '2026-10-22T00:00:00.000Z'
 }];
+const titip = [{
+    id: 'tt1', kode: 'TTP-ABC123', nama: 'Bu Sari', hp: '0813 5555 0001', nik: '', gitar_jenis: 'Elektrik', gitar_merk: 'Ibanez RG', warna: 'Hitam', no_seri: '', kelengkapan: 'Lecet kecil, softcase',
+    tgl_masuk: '2026-08-20', harga_jual: 6000000, harga_min: 5200000, komisi_persen: 15, komisi_min: 150000, batas_mahal: 10000000, persen_mahal: 10, status: 'aktif', disetujui: '2026-08-20',
+    catatan_admin: '', foto: [], pengingat: [], created_at: '2026-08-20T00:00:00.000Z', updated_at: '2026-08-20T00:00:00.000Z'
+}];
 const artikel = [{ id: 'ar1', slug: 'uji', judul: 'Artikel uji', isi: 'isi', status: 'draf', foto: [], created_at: '2026-10-22T00:00:00.000Z', updated_at: '2026-10-22T00:00:00.000Z' }];
 
 const gh = H.siapkanRepo(H.bikinGitHub(), {
     situs: { 'foto/stok/uji.webp': foto, 'foto/stok/uji-k.webp': foto },
     data: { 'servis.json': JSON.stringify(servis), 'stok.json': JSON.stringify(stok), 'jual.json': JSON.stringify(jual), 'artikel.json': JSON.stringify(artikel) },
-    owner: { 'tebus.json': JSON.stringify(tebus) }
+    owner: { 'tebus.json': JSON.stringify(tebus), 'titip.json': JSON.stringify(titip) }
 });
 let putus = false;   /* /__putus=1: semua panggilan GitHub gagal (uji cadangan foto) */
 
