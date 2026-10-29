@@ -2497,15 +2497,30 @@
             return navigator.share({ files: [new File([blob], nama, { type: 'image/jpeg' })], text: teks, title: C.toko.nama });
         }).catch(function (e) { if (e && e.name !== 'AbortError') toast('Gagal membagikan: ' + (e.message || e), true); }).then(lepas);
     }
-    /* AI: draf deskripsi dari data barang + catatan di kolom deskripsi */
+    /* AI: draf deskripsi dari data barang + catatan + foto barang (maks. 3: yang sudah diunggah, lalu yang baru dipilih) */
+    function keJpegAi(im) {
+        var k = Math.min(1, 896 / Math.max(im.width, im.height)), cv = document.createElement('canvas');
+        cv.width = Math.max(1, Math.round(im.width * k)); cv.height = Math.max(1, Math.round(im.height * k));
+        cv.getContext('2d').drawImage(im, 0, 0, cv.width, cv.height);
+        return cv.toDataURL('image/jpeg', 0.8);
+    }
+    function fotoUntukAi(s) {
+        var sumber = (s.foto || []).filter(function (f) { return f.repo === 'publik'; }).slice(0, 3).map(function (f) { return function () { return muatFotoPoster(s, f); }; });
+        (sk && sk.antri || []).forEach(function (q) { if (q.hasil && sumber.length < 3) sumber.push(function () { return gambarDari(q.hasil.kecil); }); });
+        return Promise.all(sumber.map(function (ambil) { return ambil().then(keJpegAi).catch(function () { return null; }); })).then(function (l) { return l.filter(Boolean); });
+    }
     function tulisDeskripsiAi(b) {
         var s = sk.s, ada = String(s.deskripsi || '').trim();
-        sibuk(b, true, 'AI menulis…');
-        A.ai(L.ai.deskripsi(s)).then(function (teks) {
+        sibuk(b, true, 'AI melihat foto…');
+        fotoUntukAi(s).then(function (gambar) {
+            var minta = L.ai.deskripsi(s, gambar.length); minta.gambar = gambar;
+            $('#sk-ai').textContent = 'AI menulis…';
+            return A.ai(minta);
+        }).then(function (teks) {
             sibuk(b, false);
             if (ada && !confirm('Ganti isi deskripsi dengan tulisan AI?\n\n' + teks)) return;
             s.deskripsi = teks; $('[data-s="deskripsi"]').value = teks; setDirty(true);
-            toast('Draf dari AI. Periksa dan ubah bila perlu, lalu Simpan.');
+            toast(A.ai.catatan || 'Draf dari AI. Periksa dan ubah bila perlu, lalu Simpan.', !!A.ai.catatan);
         }).catch(function (e) { sibuk(b, false); gagal(e); });
     }
     function stokKosong() {
@@ -2531,7 +2546,7 @@
             '<div id="sk-aks"' + (aks ? '' : ' hidden') + ' class="ly-f"><div class="ly-row2"><label>Kategori<select data-s="sub">' + opsi(subs, s.sub) + '</select></label><label>Nama produk<input data-s="nama" placeholder="mis. Senar Elixir Nanoweb 11-52"></label></div></div>' +
             '<label><span id="sk-lbl-warna">' + (aks ? LBL_VARIAN : 'Warna') + '</span><input data-s="warna" placeholder="' + (aks ? PH_VARIAN : 'mis. Hitam Glossy') + '"></label>' +
             '<label>Deskripsi (kondisi, spesifikasi, kelengkapan)<textarea data-s="deskripsi" rows="3" placeholder="mis. mulus, action rendah, bonus softcase"></textarea></label>' +
-            (L.ai.aktif ? '<div class="ly-btns"><button type="button" class="ly-btn ly-btn--sm" id="sk-ai">✨ Tulis deskripsi dengan AI</button></div><p class="ly-hint" style="margin:0">Tulis catatan singkat dulu (mis. lecet kecil di body, bonus softcase); AI merapikannya dan menambah spesifikasi umum model (jumlah senar, bahan, konstruksi). Spesifikasi itu dari pengetahuan AI, jadi cek lagi dengan barangnya sebelum menyimpan.</p>' : '') + '</fieldset>' +
+            (L.ai.aktif ? '<div class="ly-btns"><button type="button" class="ly-btn ly-btn--sm" id="sk-ai">✨ Tulis deskripsi dengan AI</button></div><p class="ly-hint" style="margin:0">Tulis catatan singkat dulu (mis. lecet kecil di body, bonus softcase); AI ikut melihat foto yang sudah diunggah (maks. 3) dan menambah spesifikasi model (jumlah senar, bahan, konstruksi). Spesifikasi itu dari pengetahuan AI, jadi cek lagi dengan barangnya sebelum menyimpan.</p>' : '') + '</fieldset>' +
             '<fieldset class="ly-card ly-f"><legend>Harga &amp; jumlah</legend>' +
             '<div class="ly-row2">' + (owner() ? '<label>Modal / harga beli per unit (Rp)<input type="number" inputmode="numeric" min="0" step="10000" data-s="harga_beli"></label>' : '') + '<label>Harga jual (Rp)<input type="number" inputmode="numeric" min="0" step="10000" data-s="harga_jual"></label></div>' +
             '<div class="ly-row2"><label>Jumlah tersedia<input type="number" inputmode="numeric" min="0" data-s="jumlah"></label><label>Tanggal masuk (tidak tampil di website)<input type="date" data-s="tgl_masuk"></label></div>' +

@@ -18,8 +18,11 @@ test('permintaan deskripsi: data barang, tingkat kondisi + artinya, catatan penj
     assert.ok(m.prompt.includes('lecet kecil di body, bonus softcase'));
     assert.ok(!/13\.000\.000|13000000|9000000/.test(m.prompt + m.sistem), 'harga & modal tidak dikirim');
     assert.match(m.sistem, /jangan mengarang fakta unit ini/);
-    assert.match(m.sistem, /SPESIFIKASI UMUM MODEL/); assert.match(m.sistem, /jangan menebak/);
-    assert.match(m.prompt, /Spesifikasi umum model:/); assert.ok(m.maks >= 900);
+    assert.match(m.sistem, /SPESIFIKASI MODEL/); assert.match(m.sistem, /jangan menebak/); assert.match(m.sistem, /TERLIHAT JELAS/);
+    assert.match(m.prompt, /Baris "Spesifikasi:"/); assert.ok(m.maks >= 900);
+    assert.ok(!m.prompt.includes('(umumnya)') && /tanpa kata "umumnya"/.test(m.sistem), 'tanpa label umumnya di hasil');
+    assert.ok(!/foto barang ini terlampir/.test(m.prompt), 'tanpa foto: tidak menyebut foto terlampir');
+    assert.match(L.ai.deskripsi(stokContoh('s9', 1), 3).prompt, /3 foto barang ini terlampir/);
     const aks = L.ai.deskripsi(stokContoh('s2', 3, { kategori: 'aksesoris', sub: 'Senar', nama: 'Orphee NX35', warna: 'Nylon Klasik Hard Tension', deskripsi: '' }));
     assert.ok(aks.prompt.includes('Kategori: Senar') && aks.prompt.includes('Varian: Nylon Klasik Hard Tension') && aks.prompt.includes('(tidak ada)'));
 });
@@ -117,5 +120,39 @@ test('perantara (worker): Groq dicoba lebih dulu, Gemini jadi cadangan bila Groq
         const r = await minta();
         assert.equal(r.status, 502);
         assert.match((await r.json()).error, /sibuk|kuota/);
+    } finally { globalThis.fetch = asli; }
+});
+
+test('perantara (worker): foto dikirim ke model Groq yang bisa melihat gambar; gambar tak sah dibuang; gagal baca foto = jawaban dari teks + catatan', async () => {
+    const worker = (await import(pathToFileURL(path.join(REPO, 'ai-worker', 'worker.mjs')).href)).default;
+    const env = { GROQ_KEY: 'kunci-groq', REPO_CEK: 'ayrigitar/ayri-toko-data', ORIGIN: 'https://ayrigitar.com' };
+    const JPEG = 'data:image/jpeg;base64,/9j/4AAQSkZJRg==', asli = globalThis.fetch;
+    let daftar = [{ id: 'llama-9-70b-instruktur' }, { id: 'meta-llama/llama-4-scout-17b-16e-instruct' }], bodi = [];
+    globalThis.fetch = async (url, op) => {
+        url = String(url);
+        if (url.startsWith('https://api.github.com/')) return new Response('{}', { status: 200 });
+        if (url.endsWith('/openai/v1/models')) return new Response(JSON.stringify({ data: daftar }), { status: 200 });
+        const b = JSON.parse(op.body); bodi.push(b);
+        return new Response(JSON.stringify({ choices: [{ message: { content: 'Hasil' } }] }), { status: 200 });
+    };
+    const minta = (isi) => worker.fetch(new Request('https://ai.contoh.workers.dev/', { method: 'POST', headers: { Origin: 'https://ayrigitar.com', 'Content-Type': 'application/json', Authorization: 'Bearer tok-foto-uji' }, body: JSON.stringify(isi) }), env);
+    try {
+        const r = await minta({ sistem: 'S', prompt: 'P', gambar: [JPEG, 'http://jahat.example/x.jpg', 'data:text/html;base64,AAAA', JPEG] });
+        assert.deepEqual(await r.json(), { teks: 'Hasil' });
+        const b = bodi.pop();
+        assert.match(b.model, /scout/, 'model yang bisa melihat gambar');
+        const isi = b.messages[1].content;
+        assert.equal(isi[0].type, 'text'); assert.equal(isi.length, 3, 'teks + 2 gambar JPEG yang sah; sisanya dibuang');
+        assert.equal(isi[1].image_url.url, JPEG);
+        /* tanpa gambar: model teks biasa, isi pesan berupa teks */
+        await minta({ prompt: 'P' });
+        const t = bodi.pop(); assert.match(t.model, /70b/); assert.equal(typeof t.messages[0].content, 'string');
+        /* tidak ada model gambar & tidak ada penyedia lain: jawaban dari teks saja + catatan */
+        daftar = [{ id: 'llama-9-70b-instruktur' }];
+        const modelLama = bodi.length, segar = (await import(pathToFileURL(path.join(REPO, 'ai-worker', 'worker.mjs')).href + '?segar')).default; /* salinan baru: pilihan model lama tidak diingat */
+        const r2 = await (await segar.fetch(new Request('https://ai.contoh.workers.dev/', { method: 'POST', headers: { Origin: 'https://ayrigitar.com', 'Content-Type': 'application/json', Authorization: 'Bearer tok-foto-uji' }, body: JSON.stringify({ prompt: 'P', gambar: [JPEG] }) }), env)).json();
+        assert.equal(r2.teks, 'Hasil'); assert.match(r2.catatan, /Foto belum bisa dibaca/);
+        assert.equal(typeof bodi[bodi.length - 1].messages[0].content, 'string', 'percobaan ulang tanpa gambar');
+        assert.ok(bodi.length >= modelLama + 1);
     } finally { globalThis.fetch = asli; }
 });
