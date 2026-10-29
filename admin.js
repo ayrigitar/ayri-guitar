@@ -2497,6 +2497,17 @@
             return navigator.share({ files: [new File([blob], nama, { type: 'image/jpeg' })], text: teks, title: C.toko.nama });
         }).catch(function (e) { if (e && e.name !== 'AbortError') toast('Gagal membagikan: ' + (e.message || e), true); }).then(lepas);
     }
+    /* AI: draf deskripsi dari data barang + catatan di kolom deskripsi */
+    function tulisDeskripsiAi(b) {
+        var s = sk.s, ada = String(s.deskripsi || '').trim();
+        sibuk(b, true, 'AI menulis…');
+        A.ai(L.ai.deskripsi(s)).then(function (teks) {
+            sibuk(b, false);
+            if (ada && !confirm('Ganti isi deskripsi dengan tulisan AI?\n\n' + teks)) return;
+            s.deskripsi = teks; $('[data-s="deskripsi"]').value = teks; setDirty(true);
+            toast('Draf dari AI. Periksa dan ubah bila perlu, lalu Simpan.');
+        }).catch(function (e) { sibuk(b, false); gagal(e); });
+    }
     function stokKosong() {
         return { kategori: 'gitar', kondisi: 'bekas', tingkat: '', gitar_jenis: C.jenisGitar[0], gitar_merk: '', sub: C.kategoriAksesoris[0], nama: '', warna: '', no_seri: '', deskripsi: '', jumlah: 1, harga_beli: 0, harga_jual: 0, tgl_masuk: L.hariIni(), asal: '', status: 'tersedia', tampil: true, penjualan: [], foto: [], catatan_admin: '' };
     }
@@ -2519,7 +2530,8 @@
             '<label>Nomor seri (tidak tampil di website)<input data-s="no_seri" autocapitalize="characters"></label></div>' +
             '<div id="sk-aks"' + (aks ? '' : ' hidden') + ' class="ly-f"><div class="ly-row2"><label>Kategori<select data-s="sub">' + opsi(subs, s.sub) + '</select></label><label>Nama produk<input data-s="nama" placeholder="mis. Senar Elixir Nanoweb 11-52"></label></div></div>' +
             '<label><span id="sk-lbl-warna">' + (aks ? LBL_VARIAN : 'Warna') + '</span><input data-s="warna" placeholder="' + (aks ? PH_VARIAN : 'mis. Hitam Glossy') + '"></label>' +
-            '<label>Deskripsi (kondisi, spesifikasi, kelengkapan)<textarea data-s="deskripsi" rows="3" placeholder="mis. mulus, action rendah, bonus softcase"></textarea></label></fieldset>' +
+            '<label>Deskripsi (kondisi, spesifikasi, kelengkapan)<textarea data-s="deskripsi" rows="3" placeholder="mis. mulus, action rendah, bonus softcase"></textarea></label>' +
+            (L.ai.aktif ? '<div class="ly-btns"><button type="button" class="ly-btn ly-btn--sm" id="sk-ai">✨ Tulis deskripsi dengan AI</button></div><p class="ly-hint" style="margin:0">Tulis catatan singkat dulu (mis. lecet kecil di body, bonus softcase); AI merapikannya. Periksa lagi sebelum menyimpan.</p>' : '') + '</fieldset>' +
             '<fieldset class="ly-card ly-f"><legend>Harga &amp; jumlah</legend>' +
             '<div class="ly-row2">' + (owner() ? '<label>Modal / harga beli per unit (Rp)<input type="number" inputmode="numeric" min="0" step="10000" data-s="harga_beli"></label>' : '') + '<label>Harga jual (Rp)<input type="number" inputmode="numeric" min="0" step="10000" data-s="harga_jual"></label></div>' +
             '<div class="ly-row2"><label>Jumlah tersedia<input type="number" inputmode="numeric" min="0" data-s="jumlah"></label><label>Tanggal masuk (tidak tampil di website)<input type="date" data-s="tgl_masuk"></label></div>' +
@@ -2560,6 +2572,7 @@
                 $$('#sk-kategori button').forEach(function (x) { x.setAttribute('aria-pressed', x.dataset.kategori === s.kategori); });
                 $('#sk-gitar').hidden = aks; $('#sk-aks').hidden = !aks; $('#sk-kondisi').hidden = aks; if (aks) s.kondisi = 'baru'; tampilTingkat(); $('#sk-lbl-warna').textContent = aks ? LBL_VARIAN : 'Warna'; $('[data-s="warna"]').placeholder = aks ? PH_VARIAN : 'mis. Hitam Glossy'; setDirty(true);
             }
+            else if (b.id === 'sk-ai') tulisDeskripsiAi(b);
             else if (d.sts) { s.status = d.sts; gambarStatusStok(); setDirty(true); }
             else if (d.deljual != null) { var p = s.penjualan[+d.deljual]; if (confirm('Hapus catatan penjualan ' + p.qty + ' unit tanggal ' + L.tgl(p.tgl) + '? Jumlah stok dikembalikan.')) { s.jumlah = (+s.jumlah || 0) + p.qty; s.penjualan.splice(+d.deljual, 1); if (s.status === 'terjual') s.status = 'tersedia'; $('[data-s="jumlah"]').value = s.jumlah; gambarJual(); gambarSumStok(); gambarStatusStok(); setDirty(true); } }
             else if (d.hapusfoto) { if (confirm('Hapus foto ini? (terhapus permanen saat Simpan)')) { s.foto = s.foto.filter(function (f) { return f.id !== d.hapusfoto; }); gambarFotoStok(); setDirty(true); } }
@@ -2651,6 +2664,20 @@
             ae = { baru: !id, a: a, slugManual: !!id, servis: a.servis_id && cariId('servis', a.servis_id) || null }; gambarArtikel();
         });
     }
+    /* AI: draf isi + ringkasan artikel dari judul, bahan di kotak isi, dan kasus servis (tanpa data pelanggan) */
+    function tulisArtikelAi(b) {
+        var a = ae.a;
+        if (!String(a.judul || '').trim()) return toast('Isi judul artikel dulu.', true);
+        sibuk(b, true, 'AI menulis…');
+        A.ai(L.ai.artikel(a, ae.servis)).then(function (teks) {
+            sibuk(b, false);
+            var h = L.ai.pisahArtikel(teks);
+            if (String(a.isi || '').trim() && !confirm('Ganti isi artikel dengan draf dari AI? Isi sekarang sudah dipakai sebagai bahan.')) return;
+            a.isi = h.isi; $('[data-a="isi"]').value = h.isi;
+            if (h.ringkasan && (!String(a.ringkasan || '').trim() || confirm('Ganti ringkasan Google dengan:\n' + h.ringkasan))) { a.ringkasan = h.ringkasan; $('[data-a="ringkasan"]').value = h.ringkasan; }
+            setDirty(true); infoArtikel(); toast('Draf dari AI. Baca dan sesuaikan, lalu Simpan.');
+        }).catch(function (e) { sibuk(b, false); gagal(e); });
+    }
     function gambarArtikel() {
         var a = ae.a, url = L.situs() + 'artikel-' + a.slug + '.html', terbit = !ae.baru && cache.artikel.some(function (x) { return x.id === a.id && x.status === 'terbit'; });
         app.innerHTML = '<section id="ar" class="ly-f"><div class="ly-head"><a class="ly-back" href="#artikel">‹ Daftar artikel</a></div>' +
@@ -2662,7 +2689,8 @@
             '<label>Ringkasan untuk Google (maks. 160 huruf)<textarea data-a="ringkasan" rows="2" maxlength="160"></textarea><span class="ly-hint" id="ar-n"></span></label></fieldset>' +
             '<fieldset class="ly-card ly-f"><legend>Isi artikel</legend>' +
             '<p class="ly-hint">Format: <b>## Judul bagian</b>, <b>- poin</b>, <b>**tebal**</b>, <b>_miring_</b>, <b>[teks](https://alamat)</b>, baris kosong = paragraf baru.</p>' +
-            '<textarea data-a="isi" rows="16"></textarea><div class="ly-btns"><button type="button" class="ly-btn ly-btn--sm" id="ar-prev">Pratinjau</button></div><div class="ly-prev" id="ar-pv" hidden></div></fieldset>' +
+            '<textarea data-a="isi" rows="16"></textarea><div class="ly-btns"><button type="button" class="ly-btn ly-btn--sm" id="ar-prev">Pratinjau</button>' + (L.ai.aktif ? '<button type="button" class="ly-btn ly-btn--sm" id="ar-ai">✨ Tulis draf dengan AI</button>' : '') + '</div>' +
+            (L.ai.aktif ? '<p class="ly-hint" style="margin:0">AI memakai judul dan isi kotak di atas sebagai bahan. Periksa faktanya sebelum diterbitkan.</p>' : '') + '<div class="ly-prev" id="ar-pv" hidden></div></fieldset>' +
             '<fieldset class="ly-card"><legend>Foto</legend><div class="ly-afoto" id="ar-foto"></div><div id="ar-pick"></div>' +
             '<div class="ly-btns" style="margin-top:10px"><label class="ly-btn ly-btn--sm ly-file">+ Unggah foto<input type="file" accept="image/*" multiple id="ar-file"></label></div>' +
             '<p class="ly-hint" style="margin-top:8px">Foto pertama menjadi sampul. Isi keterangan singkat tiap foto (membantu Google). Pastikan tidak ada wajah, nota, atau nomor seri gitar. Foto artikel bersifat publik.</p></fieldset>' +
@@ -2684,7 +2712,8 @@
         ar.addEventListener('change', function (e) { if (e.target.dataset.a === 'status') { a.status = e.target.value; setDirty(true); } });
         ar.addEventListener('click', function (e) {
             var t = e.target.closest('button'); if (!t) return; var d = t.dataset;
-            if (t.id === 'ar-prev') { var pv = $('#ar-pv'); pv.hidden = !pv.hidden; t.textContent = pv.hidden ? 'Pratinjau' : 'Tutup pratinjau'; if (!pv.hidden) pratinjau(); }
+            if (t.id === 'ar-ai') tulisArtikelAi(t);
+            else if (t.id === 'ar-prev') { var pv = $('#ar-pv'); pv.hidden = !pv.hidden; t.textContent = pv.hidden ? 'Pratinjau' : 'Tutup pratinjau'; if (!pv.hidden) pratinjau(); }
             else if (d.fdel != null) { a.foto.splice(+d.fdel, 1); gambarAFoto(); setDirty(true); }
             else if (d.fup != null) { var i = +d.fup; if (i > 0) { var x = a.foto[i]; a.foto[i] = a.foto[i - 1]; a.foto[i - 1] = x; gambarAFoto(); setDirty(true); } }
             else if (d.pick) {
