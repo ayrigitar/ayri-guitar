@@ -999,13 +999,18 @@
             var data = aks ? ['Kategori: ' + (s.sub || 'Aksesoris'), 'Nama: ' + (s.nama || '-'), s.warna ? 'Varian: ' + s.warna : '', 'Kondisi: baru']
                 : ['Barang: ' + L.judulStok(s), s.warna ? 'Warna: ' + s.warna : '', 'Kondisi: ' + (s.kondisi === 'bekas' ? 'bekas (used)' + (t ? ', tingkat ' + t[1] + ' (' + t[2] + ')' : '') : 'baru')];
             return {
-                sistem: 'Kamu menulis deskripsi produk untuk katalog online ' + C.toko.nama + ', toko gitar di Bogor. Tulis dalam bahasa Indonesia yang santai, sopan, dan jujur. ' +
-                    'Jangan mengarang spesifikasi, tahun, asal pembuatan, atau kelengkapan yang tidak disebut di data atau catatan. Jangan menyebut harga, nomor telepon, atau alamat. ' +
-                    'Tanpa tagar, paling banyak satu emoji. Tulis langsung teks deskripsinya saja, tanpa judul dan tanpa kalimat pengantar.',
+                sistem: 'Kamu menulis deskripsi produk untuk katalog online ' + C.toko.nama + ', toko gitar di Bogor. Bahasa Indonesia yang santai, sopan, dan jujur. ' +
+                    'Ada dua jenis informasi. (1) FAKTA UNIT INI: kondisi, tahun, asal pembuatan, kelengkapan, lecet, bonus. Hanya dari data dan catatan penjual: jangan mengarang fakta unit ini yang tidak disebut. ' +
+                    '(2) SPESIFIKASI UMUM MODEL: kamu BOLEH memakai pengetahuanmu tentang merk dan model ini (jumlah senar, bahan body/neck/fingerboard, konstruksi neck, pickup, skala, jenis bridge, dsb.), tetapi hanya yang kamu yakin benar untuk model atau serinya, ' +
+                    'dan tulis sebagai spesifikasi umum model, bukan klaim pasti untuk unit ini. Kalau tidak yakin, lewati bagian itu, jangan menebak. Jumlah senar boleh diturunkan dari jenis (bass biasanya 4 senar, gitar 6, ukulele 4) dengan kata "umumnya". ' +
+                    'Jangan menyebut harga, nomor telepon, atau alamat. Tanpa tagar, paling banyak dua emoji. Tulis langsung isinya tanpa judul dan tanpa kalimat pengantar.',
                 prompt: 'Data barang:\n' + data.filter(Boolean).map(function (x) { return '- ' + x; }).join('\n') +
                     '\n\nCatatan dari penjual (fakta utama, wajib dipakai apa adanya):\n' + (String(s.deskripsi || '').trim() || '(tidak ada)') +
-                    '\n\nTulis deskripsi 3 sampai 5 kalimat pendek.' + (aks ? '' : s.kondisi === 'bekas' ? ' Sebutkan kondisinya apa adanya sesuai tingkat dan catatan.' : '') + ' Akhiri dengan ajakan mencoba langsung di toko.',
-                maks: 600
+                    (aks ? '\n\nTulis deskripsi 3 sampai 4 kalimat pendek tentang kegunaan dan keunggulannya. Akhiri dengan ajakan mencoba langsung di toko.'
+                        : '\n\nFormat jawaban:\n1) Satu paragraf pendek (2 sampai 3 kalimat) tentang barangnya dan kondisi unit ini' + (s.kondisi === 'bekas' ? ' apa adanya sesuai tingkat dan catatan' : '') + '.\n' +
+                          '2) Baris "Spesifikasi umum model:" diikuti 4 sampai 6 poin, tiap poin satu baris diawali "- " (mis. jumlah senar, bahan body, neck dan fingerboard, konstruksi, pickup), hanya yang kamu yakin.\n' +
+                          '3) Satu kalimat penutup berisi ajakan mencoba langsung di toko.'),
+                maks: aks ? 600 : 900
             };
         },
         artikel: function (a, servis) {
