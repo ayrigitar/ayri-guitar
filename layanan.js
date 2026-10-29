@@ -994,21 +994,24 @@
        Yang dikirim hanya data barang / bahan artikel; tidak pernah nama, nomor HP, atau data pribadi pelanggan. Hasilnya draf yang diperiksa admin. */
     L.ai = {
         aktif: !!C.ai.url,
-        deskripsi: function (s) {
+        /* adaFoto = jumlah foto yang ikut dikirim ke AI (model bisa membaca gambar) */
+        deskripsi: function (s, adaFoto) {
             var aks = s.kategori === 'aksesoris', t = aks ? null : C.tingkatKondisi.filter(function (x) { return x[0] === s.tingkat; })[0];
             var data = aks ? ['Kategori: ' + (s.sub || 'Aksesoris'), 'Nama: ' + (s.nama || '-'), s.warna ? 'Varian: ' + s.warna : '', 'Kondisi: baru']
                 : ['Barang: ' + L.judulStok(s), s.warna ? 'Warna: ' + s.warna : '', 'Kondisi: ' + (s.kondisi === 'bekas' ? 'bekas (used)' + (t ? ', tingkat ' + t[1] + ' (' + t[2] + ')' : '') : 'baru')];
             return {
                 sistem: 'Kamu menulis deskripsi produk untuk katalog online ' + C.toko.nama + ', toko gitar di Bogor. Bahasa Indonesia yang santai, sopan, dan jujur. ' +
-                    'Ada dua jenis informasi. (1) FAKTA UNIT INI: kondisi, tahun, asal pembuatan, kelengkapan, lecet, bonus. Hanya dari data dan catatan penjual: jangan mengarang fakta unit ini yang tidak disebut. ' +
-                    '(2) SPESIFIKASI UMUM MODEL: kamu BOLEH memakai pengetahuanmu tentang merk dan model ini (jumlah senar, bahan body/neck/fingerboard, konstruksi neck, pickup, skala, jenis bridge, dsb.), tetapi hanya yang kamu yakin benar untuk model atau serinya, ' +
-                    'dan tulis sebagai spesifikasi umum model, bukan klaim pasti untuk unit ini. Kalau tidak yakin, lewati bagian itu, jangan menebak. Jumlah senar boleh diturunkan dari jenis (bass biasanya 4 senar, gitar 6, ukulele 4) dengan kata "umumnya". ' +
+                    'Ada tiga sumber informasi. (1) FAKTA UNIT INI: kondisi, tahun, asal pembuatan, kelengkapan, lecet, bonus: hanya dari data dan catatan penjual, jangan mengarang fakta unit ini yang tidak disebut. ' +
+                    '(2) FOTO (bila terlampir): sebut hanya hal yang TERLIHAT JELAS, misalnya warna dan finishing, bentuk body, hardware, jumlah senar, logo, tanda pemakaian; jangan menebak yang tidak terlihat jelas. ' +
+                    '(3) SPESIFIKASI MODEL: kamu boleh memakai pengetahuanmu tentang merk dan model ini (jumlah senar, bahan body/neck/fingerboard, konstruksi neck, pickup, skala, dsb.), tetapi HANYA yang kamu yakin benar; kalau tidak yakin, lewati, jangan menebak. ' +
+                    'Tulis spesifikasi dengan lugas, tanpa kata "umumnya" atau "biasanya". Bila catatan penjual bertentangan dengan foto atau pengetahuanmu, utamakan catatan penjual. ' +
                     'Jangan menyebut harga, nomor telepon, atau alamat. Tanpa tagar, paling banyak dua emoji. Tulis langsung isinya tanpa judul dan tanpa kalimat pengantar.',
                 prompt: 'Data barang:\n' + data.filter(Boolean).map(function (x) { return '- ' + x; }).join('\n') +
                     '\n\nCatatan dari penjual (fakta utama, wajib dipakai apa adanya):\n' + (String(s.deskripsi || '').trim() || '(tidak ada)') +
+                    (adaFoto ? '\n\n' + adaFoto + ' foto barang ini terlampir. Pakai untuk menyebut hal yang terlihat jelas (warna, finishing, hardware, jumlah senar, tanda pemakaian).' : '') +
                     (aks ? '\n\nTulis deskripsi 3 sampai 4 kalimat pendek tentang kegunaan dan keunggulannya. Akhiri dengan ajakan mencoba langsung di toko.'
-                        : '\n\nFormat jawaban:\n1) Satu paragraf pendek (2 sampai 3 kalimat) tentang barangnya dan kondisi unit ini' + (s.kondisi === 'bekas' ? ' apa adanya sesuai tingkat dan catatan' : '') + '.\n' +
-                          '2) Baris "Spesifikasi umum model:" diikuti 4 sampai 6 poin, tiap poin satu baris diawali "- " (mis. jumlah senar, bahan body, neck dan fingerboard, konstruksi, pickup), hanya yang kamu yakin.\n' +
+                        : '\n\nFormat jawaban:\n1) Satu paragraf pendek (2 sampai 3 kalimat) tentang barangnya dan kondisi unit ini' + (s.kondisi === 'bekas' ? ' apa adanya sesuai tingkat, catatan' + (adaFoto ? ', dan foto' : '') : '') + '.\n' +
+                          '2) Baris "Spesifikasi:" diikuti 4 sampai 6 poin, tiap poin satu baris diawali "- " (mis. jumlah senar, bahan body, neck dan fingerboard, konstruksi, pickup, hardware), hanya yang kamu yakin.\n' +
                           '3) Satu kalimat penutup berisi ajakan mencoba langsung di toko.'),
                 maks: aks ? 600 : 900
             };
@@ -1039,7 +1042,7 @@
         return fetch(C.ai.url, { method: 'POST', headers: { Authorization: 'Bearer ' + token, 'Content-Type': 'application/json' }, body: JSON.stringify(minta) })
             .catch(function () { throw new Error('Tidak bisa menghubungi AI. Periksa internet.'); })
             .then(function (r) {
-                return r.json().catch(function () { return {}; }).then(function (d) { if (!r.ok || !d.teks) throw new Error(d.error || 'AI gagal (' + r.status + ').'); return d.teks; });
+                return r.json().catch(function () { return {}; }).then(function (d) { if (!r.ok || !d.teks) throw new Error(d.error || 'AI gagal (' + r.status + ').'); L.api.ai.catatan = d.catatan || ''; return d.teks; });
             });
     };
 
