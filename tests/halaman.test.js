@@ -77,7 +77,10 @@ test('halaman admin: tanpa skrip/handler inline, CSP ketat, koneksi hanya ke sit
     assert.deepEqual(arahan['script-src'], ["'self'"], 'skrip hanya dari situs sendiri (tanpa unsafe-inline / unsafe-eval)');
     assert.deepEqual(arahan['object-src'], ["'none'"]);
     assert.deepEqual(arahan['base-uri'], ["'self'"]);
-    for (const host of arahan['connect-src']) assert.ok(["'self'", 'https://api.github.com', 'https://ayrigitar.com'].includes(host), 'connect-src tidak boleh mengizinkan ' + host);
+    /* perantara AI (ai.url di layanan-config.js) boleh dihubungi; selain itu hanya situs sendiri & GitHub */
+    const aiUrl = (/\bai:\s*\{\s*url:\s*'([^']*)'/.exec(baca('layanan-config.js')) || [])[1] || '';
+    for (const host of arahan['connect-src']) assert.ok(["'self'", 'https://api.github.com', 'https://ayrigitar.com'].concat(aiUrl ? [new URL(aiUrl).origin] : []).includes(host), 'connect-src tidak boleh mengizinkan ' + host);
+    if (aiUrl) assert.ok(arahan['connect-src'].includes(new URL(aiUrl).origin), 'alamat perantara AI harus diizinkan di connect-src, kalau tidak tombol AI diblokir browser');
     assert.equal(skripDi(teks).filter((s) => !s.src).length, 0, 'tidak boleh ada <script> inline di admin.html');
     assert.ok(!/\son[a-z]+\s*=/i.test(teks.replace(/<!--[\s\S]*?-->/g, '')), 'tidak boleh ada atribut onclick= dsb. di admin.html');
     assert.ok(!/javascript:/i.test(teks));

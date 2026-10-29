@@ -129,6 +129,10 @@ Tarif standar untuk unit di bawah Rp2 juta (ubah di `layanan-config.js` bagian `
 
 Ubah **banner promo** (nyalakan/matikan + teksnya), teks **bagian depan** (label, judul, kalimat pembuka, info jam & lokasi singkat), **harga servis** (nama, keterangan, harga), **alamat**, dan **jam buka**. Desain tidak berubah. Tekan **Terbitkan**; website berubah ±1 menit kemudian. Harga di sini hanya untuk tampilan website; harga jasa di kasir & servis POS diatur terpisah.
 
+## AI penulis: deskripsi barang & draf artikel
+
+Setelah perantara AI dipasang (langkah di `ai-worker/README.md`), muncul tombol **✨ Tulis deskripsi dengan AI** di form Stok dan **✨ Tulis draf dengan AI** di form Artikel. Tulis catatan singkat dulu (kondisi, kelengkapan, atau bahan artikel), lalu tekan tombolnya. Hasil AI hanya **draf**: periksa faktanya, ubah bila perlu, lalu Simpan. Yang dikirim ke AI hanya data barang dan bahan artikel, tidak pernah nama, nomor HP, harga modal, atau KTP pelanggan. Sebelum dipasang, tombol AI tidak tampil.
+
 ## Katalog & halaman per unit
 
 Barang yang tersedia, berharga jual, dan berlabel 🌐 tampil di **katalog website** (gaya marketplace: kartu foto, harga, lencana Baru/Used + tingkat kondisi, pencarian, filter jenis, urutan harga). Tiap barang punya **halaman sendiri** (foto geser, spesifikasi, deskripsi, tombol WhatsApp, barang lainnya) dan **tautan yang bisa dibagikan**: `ayrigitar.com/unit/KODE.html`. Tautan itu tampil dengan foto dan harga saat dikirim lewat WhatsApp. Tautan muncul otomatis di teks **Bagikan** dan di **penawaran sewa**, dan tombol **Lihat halaman unit** ada di halaman stok. Barang yang terjual, ditahan, atau disembunyikan otomatis hilang dari katalog dan halamannya dihapus; tautan lama akan menampilkan "barang sudah terjual".

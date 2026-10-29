@@ -8,7 +8,7 @@
     var BAWAAN = {
         dpJasaPersen: 50, bulatkanKe: 1000, gratisTitipHari: 14, biayaTitipPerHari: 5000, garansiHangusHari: 30, penyimpananLamaHari: 90,
         pengingatHari: [7, 12], katalogSisaTampil: 3, jenisGitar: ['Akustik'], kategoriAksesoris: ['Lainnya'], katalogJasa: [], ketentuan: [], syaratJatuh: '',
-        github: {}, toko: { nama: 'Toko Gitar AYRI', alamat: '', jam: '', wa: '', rekening: [] },
+        github: {}, ai: { url: '' }, toko: { nama: 'Toko Gitar AYRI', alamat: '', jam: '', wa: '', rekening: [] },
         tebus: { batasHari: 30, maksHari: 90, pengingatHari: [7, 1], fotoKtpMinHarga: 1000000, hapusKtpHari: 90, ketentuan: [] },
         jual: { batasHari: 30, potonganPersen: 10, pengingatHari: [7, 1], ketentuan: [] },
         sewa: { tarifHarian: [[1, 100000]], tambahPerHari: 100000, tarifMinggu: 0, batasUnitStandar: 0, depositPersen: 10, dendaSenar: 0, senarCadangan: 6, toleransiHari: 0, maksHari: 30, ketentuan: [] },
@@ -988,6 +988,54 @@
     L.api.hapusTitip = function (rec) {
         var files = hapusFoto(rec.foto || [], { situs: [], data: [], owner: [] });
         return hapusDua('titip', rec, files, 'Titip: hapus');
+    };
+
+    /* ---------- AI penulis (lewat perantara, lihat ai-worker/worker.mjs) ----------
+       Yang dikirim hanya data barang / bahan artikel; tidak pernah nama, nomor HP, atau data pribadi pelanggan. Hasilnya draf yang diperiksa admin. */
+    L.ai = {
+        aktif: !!C.ai.url,
+        deskripsi: function (s) {
+            var aks = s.kategori === 'aksesoris', t = aks ? null : C.tingkatKondisi.filter(function (x) { return x[0] === s.tingkat; })[0];
+            var data = aks ? ['Kategori: ' + (s.sub || 'Aksesoris'), 'Nama: ' + (s.nama || '-'), s.warna ? 'Varian: ' + s.warna : '', 'Kondisi: baru']
+                : ['Barang: ' + L.judulStok(s), s.warna ? 'Warna: ' + s.warna : '', 'Kondisi: ' + (s.kondisi === 'bekas' ? 'bekas (used)' + (t ? ', tingkat ' + t[1] + ' (' + t[2] + ')' : '') : 'baru')];
+            return {
+                sistem: 'Kamu menulis deskripsi produk untuk katalog online ' + C.toko.nama + ', toko gitar di Bogor. Tulis dalam bahasa Indonesia yang santai, sopan, dan jujur. ' +
+                    'Jangan mengarang spesifikasi, tahun, asal pembuatan, atau kelengkapan yang tidak disebut di data atau catatan. Jangan menyebut harga, nomor telepon, atau alamat. ' +
+                    'Tanpa tagar, paling banyak satu emoji. Tulis langsung teks deskripsinya saja, tanpa judul dan tanpa kalimat pengantar.',
+                prompt: 'Data barang:\n' + data.filter(Boolean).map(function (x) { return '- ' + x; }).join('\n') +
+                    '\n\nCatatan dari penjual (fakta utama, wajib dipakai apa adanya):\n' + (String(s.deskripsi || '').trim() || '(tidak ada)') +
+                    '\n\nTulis deskripsi 3 sampai 5 kalimat pendek.' + (aks ? '' : s.kondisi === 'bekas' ? ' Sebutkan kondisinya apa adanya sesuai tingkat dan catatan.' : '') + ' Akhiri dengan ajakan mencoba langsung di toko.',
+                maks: 600
+            };
+        },
+        artikel: function (a, servis) {
+            var kasus = servis ? ['Gitar: ' + L.namaGitar(servis, 'gitar'), servis.keluhan ? 'Keluhan: ' + servis.keluhan : '',
+                (servis.items || []).length ? 'Pekerjaan: ' + servis.items.map(function (i) { return i.nama; }).join(', ') : ''].filter(Boolean).join('\n') : '';
+            return {
+                sistem: 'Kamu menulis artikel blog untuk website ' + C.toko.nama + ', bengkel dan toko gitar di Bogor. Bahasa Indonesia yang jelas dan bersahabat untuk pemilik gitar awam. ' +
+                    'Jujur: jangan mengarang data kasus, merk, harga, atau janji garansi yang tidak ada di bahan. Jangan menyebut nama atau nomor pelanggan. ' +
+                    'Format jawaban: baris pertama "RINGKASAN: " diikuti ringkasan paling banyak 150 huruf untuk Google, lalu satu baris kosong, lalu isi artikel. ' +
+                    'Isi memakai subjudul "## ...", poin "- ...", dan **tebal** seperlunya, tanpa judul utama (judul sudah ada). Panjang 350 sampai 600 kata. ' +
+                    'Akhiri dengan ajakan konsultasi atau servis ke ' + C.toko.nama + ' di Bogor lewat WhatsApp.',
+                prompt: 'Judul artikel: ' + (a.judul || '') + (a.tag ? '\nLabel: ' + a.tag : '') + (kasus ? '\n\nKasus servis di toko (tanpa data pelanggan):\n' + kasus : '') +
+                    '\n\nBahan / catatan dari toko:\n' + (String(a.isi || '').trim() || '(tidak ada, tulis dari pengetahuan umum yang aman tentang topik di judul)'),
+                maks: 2048
+            };
+        },
+        /* jawaban artikel: "RINGKASAN: ..." di baris pertama, lalu isi */
+        pisahArtikel: function (teks) {
+            var m = /^\s*RINGKASAN:\s*(.*)\n/i.exec(String(teks || ''));
+            return m ? { ringkasan: m[1].trim().slice(0, 160), isi: teks.slice(m.index + m[0].length).replace(/^\s+/, '') } : { ringkasan: '', isi: String(teks || '').trim() };
+        }
+    };
+    L.api.ai = function (minta) {
+        if (!C.ai.url) return Promise.reject(new Error('AI belum diaktifkan. Lihat panduan admin bagian AI.'));
+        if (!token) return Promise.reject(new Error('Admin terkunci. Masukkan PIN dulu.'));
+        return fetch(C.ai.url, { method: 'POST', headers: { Authorization: 'Bearer ' + token, 'Content-Type': 'application/json' }, body: JSON.stringify(minta) })
+            .catch(function () { throw new Error('Tidak bisa menghubungi AI. Periksa internet.'); })
+            .then(function (r) {
+                return r.json().catch(function () { return {}; }).then(function (d) { if (!r.ok || !d.teks) throw new Error(d.error || 'AI gagal (' + r.status + ').'); return d.teks; });
+            });
     };
 
     /* ---------- editor konten website ----------

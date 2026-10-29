@@ -19,6 +19,9 @@ var AYRI_LAYANAN = {
         cabang: 'main'
     },
 
+    /* AI penulis (deskripsi barang & draf artikel) lewat perantara Cloudflare Worker (ai-worker/). Kosong = tombol AI disembunyikan.
+       Isi dengan alamat Worker, mis. 'https://ayri-ai.namaanda.workers.dev'. Kunci AI TIDAK PERNAH ditulis di sini. */
+    ai: { url: 'https://ayri-ai.alamnurrio.workers.dev' },
     toko: {
         nama: 'Toko Gitar AYRI',
         alamat: 'Jln. Jabaru II, Bojong Baru, Pasirkuda, Kota Bogor',
