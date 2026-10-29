@@ -7,7 +7,7 @@
      GEMINI_KEY  (Secret)  kunci API dari Google AI Studio            (opsional, cadangan)
      REPO_CEK    (Text)    repo yang harus bisa dibuka token POS, mis. ayrigitar/ayri-toko-data
      ORIGIN      (Text)    asal yang diizinkan, dipisah koma, mis. https://ayrigitar.com
-     GROQ_MODEL  (Text)    opsional, bawaan llama-3.3-70b-versatile
+     GROQ_MODEL  (Text)    opsional; kosong = Worker memilih sendiri model chat terbaik yang tersedia untuk kunci Groq Anda
      MODEL       (Text)    opsional, model Gemini, bawaan gemini-3.8-flash
    Nama model sering berubah: bila penyedia menolak nama model, ganti lewat variabel di atas tanpa menempel kode lagi.
    Permintaan: POST { sistem, prompt, maks } + header Authorization: Bearer <token POS>. Jawaban: { teks } atau { error }. */
@@ -38,13 +38,32 @@ async function kirim(url, op) {
     if (!r.ok) throw new Error((r.status === 429 ? 'kuota 429 ' : r.status + ' ') + ((d.error && (d.error.message || d.error)) || ''));
     return d;
 }
-/* Groq: format OpenAI (chat completions) */
+/* Groq: format OpenAI (chat completions). Nama model sering berganti, jadi bila GROQ_MODEL kosong Worker menanyakan daftar model yang
+   tersedia untuk kunci ini dan memilih model chat terbaik (utamakan keluarga llama 70b, lalu gpt-oss, lalu lainnya); pilihan diingat sementara. */
+let modelGroq = null;
+async function pilihModelGroq(env, ulang) {
+    if (env.GROQ_MODEL) return env.GROQ_MODEL;
+    if (modelGroq && !ulang) return modelGroq;
+    const d = await kirim('https://api.groq.com/openai/v1/models', { method: 'GET', headers: { Authorization: 'Bearer ' + env.GROQ_KEY } });
+    const ids = (d.data || []).filter((m) => m.active !== false).map((m) => String(m.id)).filter((id) => !/whisper|guard|tts|playai|orpheus|embed|safeguard|transcri|vision-preview/i.test(id));
+    for (const p of [/llama.*70b/i, /gpt-oss-120b/i, /gpt-oss/i, /llama/i, /qwen/i, /kimi|mixtral|gemma/i]) {
+        const h = ids.filter((id) => p.test(id));
+        if (h.length) return (modelGroq = h[0]);
+    }
+    if (ids.length) return (modelGroq = ids[0]);
+    throw new Error('tidak ada model chat yang tersedia untuk kunci ini');
+}
 async function groq(sistem, prompt, maks, env) {
-    const d = await kirim('https://api.groq.com/openai/v1/chat/completions', {
+    const minta = async (model) => kirim('https://api.groq.com/openai/v1/chat/completions', {
         method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + env.GROQ_KEY },
-        body: JSON.stringify({ model: env.GROQ_MODEL || 'llama-3.3-70b-versatile', temperature: 0.7, max_tokens: maks,
-            messages: (sistem ? [{ role: 'system', content: sistem }] : []).concat([{ role: 'user', content: prompt }]) })
+        body: JSON.stringify({ model: model, temperature: 0.7, max_tokens: maks, messages: (sistem ? [{ role: 'system', content: sistem }] : []).concat([{ role: 'user', content: prompt }]) })
     });
+    let d;
+    try { d = await minta(await pilihModelGroq(env, false)); }
+    catch (e) {
+        if (env.GROQ_MODEL || !/^404|does not exist|model/i.test(String(e && e.message))) throw e;
+        modelGroq = null; d = await minta(await pilihModelGroq(env, true)); /* model yang diingat sudah tidak ada: pilih ulang */
+    }
     const teks = String((((d.choices || [])[0] || {}).message || {}).content || '').trim();
     if (!teks) throw new Error('jawaban kosong');
     return teks;

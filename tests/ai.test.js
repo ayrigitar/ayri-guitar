@@ -95,8 +95,10 @@ test('perantara (worker): Groq dicoba lebih dulu, Gemini jadi cadangan bila Groq
     globalThis.fetch = async (url, op) => {
         url = String(url); dipanggil.push(url);
         if (url.startsWith('https://api.github.com/')) return new Response('{}', { status: 200 });
+        if (url.endsWith('/openai/v1/models')) return new Response(JSON.stringify({ data: [{ id: 'whisper-large-v3' }, { id: 'meta-llama/llama-guard-4' }, { id: 'openai/gpt-oss-20b' }, { id: 'llama-9-70b-instruktur' }] }), { status: 200 });
         if (url.includes('api.groq.com')) {
             assert.equal(op.headers.Authorization, 'Bearer kunci-groq');
+            assert.equal(JSON.parse(op.body).model, 'llama-9-70b-instruktur', 'model dipilih otomatis dari daftar: llama 70b, bukan whisper/guard');
             const b = JSON.parse(op.body);
             assert.deepEqual(b.messages.map((m) => m.role), ['system', 'user']);
             return groqSibuk ? new Response(JSON.stringify({ error: { message: 'Rate limit reached' } }), { status: 429 }) : new Response(JSON.stringify({ choices: [{ message: { content: ' Dari Groq ' } }] }), { status: 200 });

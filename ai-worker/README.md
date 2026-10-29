@@ -25,7 +25,7 @@ Keduanya gratis untuk pemakaian toko. Di paket gratis Google, isi permintaan bis
    - `GEMINI_KEY`, tipe **Secret** (opsional): kunci Gemini dari langkah 1b.
    - `REPO_CEK`, tipe **Text**: `ayrigitar/ayri-toko-data`
    - `ORIGIN`, tipe **Text**: `https://ayrigitar.com`
-   - (Opsional) `GROQ_MODEL`, tipe **Text**: nama model Groq lain. Bawaannya `llama-3.3-70b-versatile`.
+   - (Opsional) `GROQ_MODEL`, tipe **Text**: nama model Groq tertentu. Dikosongkan: Worker memilih sendiri model chat terbaik yang tersedia untuk kunci Anda (nama model Groq sering berganti).
    - (Opsional) `MODEL`, tipe **Text**: nama model Gemini lain. Bawaannya `gemini-3.8-flash`. Google sering mengganti nama model; bila muncul pesan "model ... no longer available", isi variabel ini dengan model yang disarankan di pesan itu, tanpa menempel kode lagi.
    - Tekan **Deploy** / simpan.
 
