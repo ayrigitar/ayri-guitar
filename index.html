@@ -182,19 +182,20 @@
 
     <main id="konten">
     <!-- Hero Section -->
-    <section id="beranda" class="hero" aria-labelledby="hero-title">
+    <section id="beranda" class="hero" aria-labelledby="hero-title" data-edit-bagian="Bagian depan">
         <div class="container hero__grid">
             <div class="hero__content">
-                <p class="hero__badge"><span class="hero__badge-dot" aria-hidden="true"></span>Bengkel &amp; Toko Gitar di Bogor</p>
-                <h1 id="hero-title" class="hero__title">Servis, Jual Beli &amp; Tukar Tambah <span class="text-accent">Gitar di Bogor</span></h1>
-                <p class="hero__lead">Setup, servis, dan nut/saddle custom presisi dari tulang atau brass. Jual atau tukar tambah gitar dengan penilaian jujur.</p>
+                <p class="hero__promo" data-edit="promo.tampil" data-edit-jenis="tampil" data-edit-label="Tampilkan banner promo" data-edit-bagian="Banner promo" hidden><span class="hero__promo-tag">Promo</span><span data-edit="promo.teks" data-edit-label="Teks promo">Tulis promo di menu Website POS</span></p>
+                <p class="hero__badge"><span class="hero__badge-dot" aria-hidden="true"></span><span data-edit="hero.badge" data-edit-label="Label kecil di atas judul">Bengkel &amp; Toko Gitar di Bogor</span></p>
+                <h1 id="hero-title" class="hero__title"><span data-edit="hero.judul" data-edit-label="Judul">Servis, Jual Beli &amp; Tukar Tambah</span> <span class="text-accent" data-edit="hero.aksen" data-edit-label="Judul (warna emas)">Gitar di Bogor</span></h1>
+                <p class="hero__lead" data-edit="hero.lead" data-edit-label="Kalimat pembuka">Setup, servis, dan nut/saddle custom presisi dari tulang atau brass. Jual atau tukar tambah gitar dengan penilaian jujur.</p>
                 <div class="hero__actions">
                     <a href="https://wa.me/6285795738637?text=Halo%20AYRI%2C%20saya%20mau%20tanya%20servis%20gitar" target="_blank" rel="noopener" class="btn btn--wa btn--lg">
                         <svg class="ic ic--fill" aria-hidden="true"><use href="#i-wa"/></svg> Tanya Servis / Harga Gitar di WA
                     </a>
                     <a href="#harga" class="btn btn--ghost btn--lg">Lihat Estimasi Biaya <svg class="ic btn__arrow" aria-hidden="true"><use href="#i-arrow"/></svg></a>
                 </div>
-                <p class="hero__meta"><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg><span>Buka Sen&ndash;Min 12.00&ndash;19.00 (Jumat mulai 13.00) &middot; Pasirkuda, Bogor</span></p>
+                <p class="hero__meta"><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg><span data-edit="hero.info" data-edit-label="Info singkat (jam &amp; lokasi)">Buka Sen&ndash;Min 12.00&ndash;19.00 (Jumat mulai 13.00) &middot; Pasirkuda, Bogor</span></p>
             </div>
 
             <!-- Visual: material nut & saddle (dekoratif) -->
@@ -251,7 +252,7 @@
     </section>
 
     <!-- Harga Section -->
-    <section id="harga" class="section section--alt">
+    <section id="harga" class="section section--alt" data-edit-bagian="Harga servis">
         <div class="container">
             <header class="section-head" data-reveal>
                 <p class="eyebrow">Harga transparan</p>
@@ -270,149 +271,149 @@
 
             <div class="price-grid">
                 <!-- 1. Setup & Perawatan -->
-                <article id="harga-setup" class="price-card price-card--setup" data-reveal>
+                <article id="harga-setup" data-edit-bagian="Harga: Setup &amp; Perawatan" class="price-card price-card--setup" data-reveal>
                     <header class="price-card__head">
                         <span class="icon-tile"><svg class="ic" aria-hidden="true"><use href="#i-sliders"/></svg></span>
                         <h3 class="price-card__title">Setup &amp; Perawatan</h3>
                     </header>
                     <ul class="price-list">
-                        <li class="price-item">
+                        <li class="price-item" data-edit-item>
                             <div>
-                                <h4 class="price-item__name">Basic Setup (Akustik)</h4>
-                                <p class="price-item__desc">Meliputi: setting action, setting neck, setting nut, setting saddle.</p>
+                                <h4 class="price-item__name" data-edit="harga.0.nama" data-edit-label="Nama">Basic Setup (Akustik)</h4>
+                                <p class="price-item__desc" data-edit="harga.0.ket" data-edit-label="Keterangan">Meliputi: setting action, setting neck, setting nut, setting saddle.</p>
                             </div>
-                            <data class="price" value="100000"><span class="price__cur">Rp</span> 100.000</data>
+                            <data class="price" data-edit="harga.0.harga" data-edit-jenis="harga" data-edit-label="Harga (Rp)" value="100000"><span class="price__cur">Rp</span> 100.000</data>
                         </li>
-                        <li class="price-item">
+                        <li class="price-item" data-edit-item>
                             <div>
-                                <h4 class="price-item__name">Basic Setup (Elektrik)</h4>
-                                <p class="price-item__desc">Meliputi: setting action, neck, nut, bridge.</p>
+                                <h4 class="price-item__name" data-edit="harga.1.nama" data-edit-label="Nama">Basic Setup (Elektrik)</h4>
+                                <p class="price-item__desc" data-edit="harga.1.ket" data-edit-label="Keterangan">Meliputi: setting action, neck, nut, bridge.</p>
                             </div>
-                            <data class="price" value="150000"><span class="price__cur">Rp</span> 150.000</data>
+                            <data class="price" data-edit="harga.1.harga" data-edit-jenis="harga" data-edit-label="Harga (Rp)" value="150000"><span class="price__cur">Rp</span> 150.000</data>
                         </li>
-                        <li class="price-item">
+                        <li class="price-item" data-edit-item>
                             <div>
-                                <h4 class="price-item__name">Full Setup (Akustik)</h4>
-                                <p class="price-item__desc">Basic setup + vacuum bodi dalam gitar, fret crowning polishing, fretboard cleaning.</p>
+                                <h4 class="price-item__name" data-edit="harga.2.nama" data-edit-label="Nama">Full Setup (Akustik)</h4>
+                                <p class="price-item__desc" data-edit="harga.2.ket" data-edit-label="Keterangan">Basic setup + vacuum bodi dalam gitar, fret crowning polishing, fretboard cleaning.</p>
                             </div>
-                            <data class="price" value="350000"><span class="price__cur">Rp</span> 350.000</data>
+                            <data class="price" data-edit="harga.2.harga" data-edit-jenis="harga" data-edit-label="Harga (Rp)" value="350000"><span class="price__cur">Rp</span> 350.000</data>
                         </li>
-                        <li class="price-item">
+                        <li class="price-item" data-edit-item>
                             <div>
-                                <h4 class="price-item__name">Full Setup (Elektrik)</h4>
-                                <p class="price-item__desc">Basic setup + setting intonasi, fret crowning polishing, fretboard cleaning.</p>
+                                <h4 class="price-item__name" data-edit="harga.3.nama" data-edit-label="Nama">Full Setup (Elektrik)</h4>
+                                <p class="price-item__desc" data-edit="harga.3.ket" data-edit-label="Keterangan">Basic setup + setting intonasi, fret crowning polishing, fretboard cleaning.</p>
                             </div>
-                            <data class="price" value="400000"><span class="price__cur">Rp</span> 400.000</data>
+                            <data class="price" data-edit="harga.3.harga" data-edit-jenis="harga" data-edit-label="Harga (Rp)" value="400000"><span class="price__cur">Rp</span> 400.000</data>
                         </li>
                     </ul>
                 </article>
 
                 <!-- 2. Custom Nut & Saddle -->
-                <article id="harga-custom" class="price-card price-card--custom" data-reveal style="--i:1">
+                <article id="harga-custom" data-edit-bagian="Harga: Custom Nut &amp; Saddle" class="price-card price-card--custom" data-reveal style="--i:1">
                     <header class="price-card__head">
                         <span class="icon-tile"><svg class="ic" aria-hidden="true"><use href="#i-nut"/></svg></span>
                         <h3 class="price-card__title">Custom Nut &amp; Saddle <span class="badge">Termasuk Basic Setup</span></h3>
                     </header>
                     <ul class="price-list">
-                        <li class="price-item">
+                        <li class="price-item" data-edit-item>
                             <div>
-                                <h4 class="price-item__name">Custom Akustik (Nut &amp; Saddle)</h4>
-                                <p class="price-item__desc">Pilihan material mentah: Tulang, Brass, atau Tanduk.</p>
+                                <h4 class="price-item__name" data-edit="harga.4.nama" data-edit-label="Nama">Custom Akustik (Nut &amp; Saddle)</h4>
+                                <p class="price-item__desc" data-edit="harga.4.ket" data-edit-label="Keterangan">Pilihan material mentah: Tulang, Brass, atau Tanduk.</p>
                             </div>
-                            <data class="price" value="400000"><span class="price__cur">Rp</span> 400.000</data>
+                            <data class="price" data-edit="harga.4.harga" data-edit-jenis="harga" data-edit-label="Harga (Rp)" value="400000"><span class="price__cur">Rp</span> 400.000</data>
                         </li>
-                        <li class="price-item">
+                        <li class="price-item" data-edit-item>
                             <div>
-                                <h4 class="price-item__name">Custom Elektrik (Nut Saja)</h4>
-                                <p class="price-item__desc">Pilihan material mentah: Tulang, Brass, atau Tanduk.</p>
+                                <h4 class="price-item__name" data-edit="harga.5.nama" data-edit-label="Nama">Custom Elektrik (Nut Saja)</h4>
+                                <p class="price-item__desc" data-edit="harga.5.ket" data-edit-label="Keterangan">Pilihan material mentah: Tulang, Brass, atau Tanduk.</p>
                             </div>
-                            <data class="price" value="300000"><span class="price__cur">Rp</span> 300.000</data>
+                            <data class="price" data-edit="harga.5.harga" data-edit-jenis="harga" data-edit-label="Harga (Rp)" value="300000"><span class="price__cur">Rp</span> 300.000</data>
                         </li>
                     </ul>
                 </article>
 
                 <!-- 3. Kelistrikan & Modifikasi -->
-                <article id="harga-listrik" class="price-card price-card--listrik" data-reveal style="--i:2">
+                <article id="harga-listrik" data-edit-bagian="Harga: Kelistrikan &amp; Modifikasi" class="price-card price-card--listrik" data-reveal style="--i:2">
                     <header class="price-card__head">
                         <span class="icon-tile"><svg class="ic" aria-hidden="true"><use href="#i-bolt"/></svg></span>
                         <h3 class="price-card__title">Kelistrikan &amp; Modifikasi</h3>
                     </header>
                     <ul class="price-list">
-                        <li class="price-item">
+                        <li class="price-item" data-edit-item>
                             <div>
-                                <h4 class="price-item__name">Wiring Gitar Elektrik</h4>
-                                <p class="price-item__desc">Harga sudah termasuk Basic Setup.</p>
+                                <h4 class="price-item__name" data-edit="harga.6.nama" data-edit-label="Nama">Wiring Gitar Elektrik</h4>
+                                <p class="price-item__desc" data-edit="harga.6.ket" data-edit-label="Keterangan">Harga sudah termasuk Basic Setup.</p>
                             </div>
-                            <data class="price" value="350000"><span class="price__cur">Rp</span> 350.000</data>
+                            <data class="price" data-edit="harga.6.harga" data-edit-jenis="harga" data-edit-label="Harga (Rp)" value="350000"><span class="price__cur">Rp</span> 350.000</data>
                         </li>
-                        <li class="price-item">
+                        <li class="price-item" data-edit-item>
                             <div>
-                                <h4 class="price-item__name">Shielding Copper Sheet</h4>
-                                <p class="price-item__desc">Sudah termasuk jasa bongkar pasang &amp; Basic Setup.</p>
+                                <h4 class="price-item__name" data-edit="harga.7.nama" data-edit-label="Nama">Shielding Copper Sheet</h4>
+                                <p class="price-item__desc" data-edit="harga.7.ket" data-edit-label="Keterangan">Sudah termasuk jasa bongkar pasang &amp; Basic Setup.</p>
                             </div>
-                            <data class="price" value="500000"><span class="price__cur">Rp</span> 500.000</data>
+                            <data class="price" data-edit="harga.7.harga" data-edit-jenis="harga" data-edit-label="Harga (Rp)" value="500000"><span class="price__cur">Rp</span> 500.000</data>
                         </li>
                     </ul>
                 </article>
 
                 <!-- Fret & Neck -->
-                <article id="harga-fret" class="price-card price-card--fret" data-reveal>
+                <article id="harga-fret" data-edit-bagian="Harga: Fret &amp; Neck" class="price-card price-card--fret" data-reveal>
                     <header class="price-card__head">
                         <span class="icon-tile"><svg class="ic" aria-hidden="true"><use href="#i-wrench"/></svg></span>
                         <h3 class="price-card__title">Fret &amp; Neck <span class="badge">Garansi 7 hari</span></h3>
                     </header>
                     <ul class="price-list">
-                        <li class="price-item">
+                        <li class="price-item" data-edit-item>
                             <div>
-                                <h4 class="price-item__name">Refret Nickel</h4>
-                                <p class="price-item__desc">Sudah termasuk fret dan Basic Setup. Belum termasuk senar.</p>
+                                <h4 class="price-item__name" data-edit="harga.8.nama" data-edit-label="Nama">Refret Nickel</h4>
+                                <p class="price-item__desc" data-edit="harga.8.ket" data-edit-label="Keterangan">Sudah termasuk fret dan Basic Setup. Belum termasuk senar.</p>
                             </div>
-                            <data class="price" value="500000"><span class="price__cur">Rp</span> 500.000</data>
+                            <data class="price" data-edit="harga.8.harga" data-edit-jenis="harga" data-edit-label="Harga (Rp)" value="500000"><span class="price__cur">Rp</span> 500.000</data>
                         </li>
-                        <li class="price-item">
+                        <li class="price-item" data-edit-item>
                             <div>
-                                <h4 class="price-item__name">Refret Stainless</h4>
-                                <p class="price-item__desc">Fret stainless belum termasuk. Sudah termasuk Basic Setup. Belum termasuk senar.</p>
+                                <h4 class="price-item__name" data-edit="harga.9.nama" data-edit-label="Nama">Refret Stainless</h4>
+                                <p class="price-item__desc" data-edit="harga.9.ket" data-edit-label="Keterangan">Fret stainless belum termasuk. Sudah termasuk Basic Setup. Belum termasuk senar.</p>
                             </div>
-                            <data class="price" value="600000"><span class="price__cur">Rp</span> 600.000</data>
+                            <data class="price" data-edit="harga.9.harga" data-edit-jenis="harga" data-edit-label="Harga (Rp)" value="600000"><span class="price__cur">Rp</span> 600.000</data>
                         </li>
-                        <li class="price-item">
+                        <li class="price-item" data-edit-item>
                             <div>
-                                <h4 class="price-item__name">Ganti Fretboard + Refret</h4>
-                                <p class="price-item__desc">Penggantian fretboard sekaligus refret. Belum termasuk senar.</p>
+                                <h4 class="price-item__name" data-edit="harga.10.nama" data-edit-label="Nama">Ganti Fretboard + Refret</h4>
+                                <p class="price-item__desc" data-edit="harga.10.ket" data-edit-label="Keterangan">Penggantian fretboard sekaligus refret. Belum termasuk senar.</p>
                             </div>
-                            <data class="price" value="1000000"><span class="price__cur">Rp</span> 1.000.000</data>
+                            <data class="price" data-edit="harga.10.harga" data-edit-jenis="harga" data-edit-label="Harga (Rp)" value="1000000"><span class="price__cur">Rp</span> 1.000.000</data>
                         </li>
-                        <li class="price-item">
+                        <li class="price-item" data-edit-item>
                             <div>
-                                <h4 class="price-item__name">Ganti Truss Rod</h4>
-                                <p class="price-item__desc">Sudah termasuk Basic Setup. Belum termasuk senar.</p>
+                                <h4 class="price-item__name" data-edit="harga.11.nama" data-edit-label="Nama">Ganti Truss Rod</h4>
+                                <p class="price-item__desc" data-edit="harga.11.ket" data-edit-label="Keterangan">Sudah termasuk Basic Setup. Belum termasuk senar.</p>
                             </div>
-                            <data class="price" value="500000"><span class="price__cur">Rp</span> 500.000</data>
+                            <data class="price" data-edit="harga.11.harga" data-edit-jenis="harga" data-edit-label="Harga (Rp)" value="500000"><span class="price__cur">Rp</span> 500.000</data>
                         </li>
                     </ul>
                 </article>
 
                 <!-- 4. Repair Fisik -->
-                <article id="harga-repair" class="price-card price-card--repair" data-reveal>
+                <article id="harga-repair" data-edit-bagian="Harga: Repair Fisik &amp; Kerusakan Berat" class="price-card price-card--repair" data-reveal>
                     <header class="price-card__head">
                         <span class="icon-tile"><svg class="ic" aria-hidden="true"><use href="#i-hammer"/></svg></span>
                         <h3 class="price-card__title">Repair Fisik &amp; Kerusakan Berat</h3>
                     </header>
                     <ul class="price-list">
-                        <li class="price-item">
+                        <li class="price-item" data-edit-item>
                             <div>
-                                <h4 class="price-item__name">Repair Neck Patah</h4>
-                                <p class="price-item__desc">Penyambungan ulang lembaran kayu, press, dan penguatan struktur.</p>
+                                <h4 class="price-item__name" data-edit="harga.12.nama" data-edit-label="Nama">Repair Neck Patah</h4>
+                                <p class="price-item__desc" data-edit="harga.12.ket" data-edit-label="Keterangan">Penyambungan ulang lembaran kayu, press, dan penguatan struktur.</p>
                             </div>
-                            <data class="price" value="300000"><span class="price__cur">Rp</span> 300.000</data>
+                            <data class="price" data-edit="harga.12.harga" data-edit-jenis="harga" data-edit-label="Harga (Rp)" value="300000"><span class="price__cur">Rp</span> 300.000</data>
                         </li>
-                        <li class="price-item">
+                        <li class="price-item" data-edit-item>
                             <div>
-                                <h4 class="price-item__name">Repair Bridge Lepas</h4>
-                                <p class="price-item__desc">Pembersihan lem lama, pengeleman ulang, dan press presisi.</p>
+                                <h4 class="price-item__name" data-edit="harga.13.nama" data-edit-label="Nama">Repair Bridge Lepas</h4>
+                                <p class="price-item__desc" data-edit="harga.13.ket" data-edit-label="Keterangan">Pembersihan lem lama, pengeleman ulang, dan press presisi.</p>
                             </div>
-                            <data class="price" value="300000"><span class="price__cur">Rp</span> 300.000</data>
+                            <data class="price" data-edit="harga.13.harga" data-edit-jenis="harga" data-edit-label="Harga (Rp)" value="300000"><span class="price__cur">Rp</span> 300.000</data>
                         </li>
                     </ul>
                 </article>
@@ -537,7 +538,7 @@
     </section>
 
     <!-- Location & Operating Hours Section -->
-    <section id="lokasi" class="section section--alt">
+    <section id="lokasi" class="section section--alt" data-edit-bagian="Alamat &amp; jam buka">
         <div class="container location">
             <div class="location__info" data-reveal>
                 <p class="eyebrow">Datang langsung</p>
@@ -546,15 +547,15 @@
 
                 <address class="address">
                     <span class="icon-tile"><svg class="ic" aria-hidden="true"><use href="#i-pin"/></svg></span>
-                    <span>Jln. Jabaru II, Bojong Baru, Pasirkuda, Kota Bogor</span>
+                    <span data-edit="lokasi.alamat" data-edit-label="Alamat">Jln. Jabaru II, Bojong Baru, Pasirkuda, Kota Bogor</span>
                 </address>
 
                 <div class="hours-card">
                     <h3 class="hours-card__title"><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg> Jam Operasional</h3>
                     <ul class="hours">
-                        <li class="hours__row" data-days="1 2 3 4 6 0"><span class="hours__day">Senin - Kamis &amp; Sabtu - Minggu:</span><span class="hours__time">12:00 - 19:00</span></li>
-                        <li class="hours__row" data-days="5"><span class="hours__day">Jumat:</span><span class="hours__time">13:00 - 19:00</span></li>
-                        <li class="hours__row hours__row--closed"><span class="hours__day">Hari Libur Nasional:</span><span class="hours__time">Tutup</span></li>
+                        <li class="hours__row" data-edit-item data-days="1 2 3 4 6 0"><span class="hours__day" data-edit="jam.0.hari" data-edit-label="Hari">Senin - Kamis &amp; Sabtu - Minggu:</span><span class="hours__time" data-edit="jam.0.jam" data-edit-label="Jam">12:00 - 19:00</span></li>
+                        <li class="hours__row" data-edit-item data-days="5"><span class="hours__day" data-edit="jam.1.hari" data-edit-label="Hari">Jumat:</span><span class="hours__time" data-edit="jam.1.jam" data-edit-label="Jam">13:00 - 19:00</span></li>
+                        <li class="hours__row hours__row--closed" data-edit-item><span class="hours__day" data-edit="jam.2.hari" data-edit-label="Hari">Hari Libur Nasional:</span><span class="hours__time" data-edit="jam.2.jam" data-edit-label="Jam">Tutup</span></li>
                     </ul>
                 </div>
 

@@ -441,6 +441,10 @@ body.ly-kunci-gulir { overflow: hidden; }
 .ly-seg button[aria-pressed="true"] { background: var(--surface); color: var(--ink); box-shadow: var(--shadow-sm); }
 .ly-filter[hidden] { display: none; }
 .ly-status[hidden] { display: none; }
+/* editor website: satu baris harga/jam = beberapa kolom */
+.we-baris { display: grid; gap: 8px; padding-top: 12px; border-top: 1px solid var(--line); }
+.we-baris:first-of-type { padding-top: 0; border-top: 0; }
+@media (min-width: 720px) { .we-baris { grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); } }
 
 /* ---------- kasir ---------- */
 .ks { display: grid; gap: 14px; align-items: start; }

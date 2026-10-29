@@ -36,7 +36,7 @@ const titip = [{
 const artikel = [{ id: 'ar1', slug: 'uji', judul: 'Artikel uji', isi: 'isi', status: 'draf', foto: [], created_at: '2026-10-22T00:00:00.000Z', updated_at: '2026-10-22T00:00:00.000Z' }];
 
 const gh = H.siapkanRepo(H.bikinGitHub(), {
-    situs: { 'foto/stok/uji.webp': foto, 'foto/stok/uji-k.webp': foto },
+    situs: { 'foto/stok/uji.webp': foto, 'foto/stok/uji-k.webp': foto, 'index.html': fs.readFileSync(H.REPO + 'index.html') }, /* index.html: untuk menu Website */
     data: { 'servis.json': JSON.stringify(servis), 'stok.json': JSON.stringify(stok), 'jual.json': JSON.stringify(jual), 'artikel.json': JSON.stringify(artikel) },
     owner: { 'tebus.json': JSON.stringify(tebus), 'titip.json': JSON.stringify(titip) }
 });
