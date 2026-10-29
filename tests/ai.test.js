@@ -35,6 +35,7 @@ test('permintaan artikel: judul, bahan, kasus servis tanpa nama/HP pelanggan; ja
 
 test('api.ai: ditolak bila belum diaktifkan; mengirim token POS ke perantara dan mengembalikan teks atau pesan galat', async () => {
     const { d, L, A } = await mulai();
+    L.C.ai.url = '';
     await assert.rejects(A.ai({ prompt: 'x' }), /belum diaktifkan/);
     L.C.ai.url = 'https://ai.contoh.workers.dev';
     let kirim;
