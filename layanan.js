@@ -23,8 +23,15 @@
     var C = lengkapi(window.AYRI_LAYANAN || {}, BAWAAN), TB = C.tebus, E;
     var L = window.Layanan = { C: C }, salin = AYRI_UTIL.salin;
 
-    /* ---------- tema (sama dengan situs) ---------- */
-    try { if (window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches) document.documentElement.setAttribute('data-theme', 'dark'); } catch (e) {}
+    /* ---------- tema (sama dengan theme.js: ikut terang/gelap perangkat, juga saat berubah ketika halaman terbuka) ---------- */
+    try {
+        var mqGelap = window.matchMedia ? matchMedia('(prefers-color-scheme: dark)') : null;
+        var terapkanTema = function () { var r = document.documentElement; if (mqGelap.matches) r.setAttribute('data-theme', 'dark'); else r.removeAttribute('data-theme'); };
+        if (mqGelap) {
+            terapkanTema();
+            if (mqGelap.addEventListener) mqGelap.addEventListener('change', terapkanTema); else if (mqGelap.addListener) mqGelap.addListener(terapkanTema);
+        }
+    } catch (e) {}
 
     /* ---------- format & tanggal ---------- */
     var BLN = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
