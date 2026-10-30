@@ -131,7 +131,7 @@ Ubah **banner promo** (nyalakan/matikan + teksnya), teks **bagian depan** (label
 
 ## Bagikan artikel yang sudah terbit
 
-Di menu **Artikel**, artikel berstatus **Terbit** punya dua tombol (juga di halaman edit artikel): **Link** mengirim hanya tautan artikel (di WhatsApp tampil sebagai kartu pratinjau yang bisa diketuk), dan **Story** membuat poster ukuran Story untuk Status WhatsApp atau Instagram, berisi foto **sebelum dan sesudah** (bila artikel punya keduanya; selain itu foto sampul), judul, ringkasan, dan kontak.
+Di menu **Artikel**, artikel berstatus **Terbit** punya dua tombol (juga di halaman edit artikel): **Link** mengirim hanya tautan artikel (di WhatsApp tampil sebagai kartu pratinjau yang bisa diketuk), dan **Story** membuat poster ukuran Story untuk Status WhatsApp atau Instagram, berisi sampai **3 foto utuh tanpa dipotong** (gitar utuh, sebelum, sesudah), judul, ringkasan, dan kontak. Peran tiap foto dipilih di editor artikel, di bawah setiap foto (**Poster: gitar utuh / sebelum / sesudah**); artikel yang dibuat dari menu servis otomatis memberi peran sebelum dan sesudah pada foto pertama tiap tahap, sedangkan **gitar utuh** dipilih sendiri. Tanpa pilihan, poster memakai satu foto sampul.
 
 ## AI penulis: deskripsi barang & draf artikel
 
