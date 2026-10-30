@@ -2421,8 +2421,60 @@
         return baris;
     }
     function rect(c, x, y, w, h, r) { c.beginPath(); c.moveTo(x + r, y); c.arcTo(x + w, y, x + w, y + h, r); c.arcTo(x + w, y + h, x, y + h, r); c.arcTo(x, y + h, x, y, r); c.arcTo(x, y, x + w, y, r); c.closePath(); }
+    /* ---------- bagikan artikel yang sudah terbit (Story WhatsApp / Instagram, dll.): poster 1080×1920 + teks + tautan ---------- */
+    function ringkasArtikel(a) {
+        var r = String(a.ringkasan || '').trim();
+        if (r) return r;
+        return String(a.isi || '').replace(/^#+\s.*$/gm, '').replace(/[*_`>\[\]()-]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 160);
+    }
+    function urlArtikel(a) { return L.situs() + 'artikel-' + a.slug + '.html'; }
+    function teksArtikel(a) { return a.judul + '\n\n' + ringkasArtikel(a) + '\n\nBaca selengkapnya: ' + urlArtikel(a); }
+    function buatPosterArtikel(a) {
+        var fp = (a.foto || []).filter(function (f) { return f.path; })[0];
+        var fonts = Promise.all(['700 70px Fraunces', '700 40px "Plus Jakarta Sans"'].map(function (f) { return document.fonts && document.fonts.load ? document.fonts.load(f) : null; }));
+        fonts = Promise.race([fonts, new Promise(function (ok) { setTimeout(ok, 1200); })]).catch(function () {});
+        var foto = fp ? muatGambar(L.situs() + fp.path, 'no-cache').catch(function () { return null; }) : Promise.resolve(null);
+        return Promise.all([foto, muatGambar(L.situs() + 'logo/ayri-logo-putih.svg').catch(function () { return null; }), fonts]).then(function (r) {
+            var cv = document.createElement('canvas'), W = 1080, H = 1920, EMAS = '#E0A95C', SERIF = 'Fraunces, Georgia, serif', SANS = '"Plus Jakarta Sans", system-ui, sans-serif';
+            cv.width = W; cv.height = H;
+            var c = cv.getContext('2d'), g = c.createLinearGradient(0, 0, 0, H), wa = '0' + String(C.toko.wa).slice(2);
+            wa = wa.replace(/^(\d{4})(\d{4})(\d+)$/, '$1-$2-$3'); c.textBaseline = 'alphabetic';
+            g.addColorStop(0, '#1d1812'); g.addColorStop(1, '#0d0a07'); c.fillStyle = g; c.fillRect(0, 0, W, H);
+            var gl = c.createRadialGradient(W / 2, 620, 60, W / 2, 620, 760); gl.addColorStop(0, 'rgba(224,169,92,.20)'); gl.addColorStop(1, 'rgba(224,169,92,0)'); c.fillStyle = gl; c.fillRect(0, 0, W, 1300);
+            /* foto sampul: memenuhi bingkai (dipotong di tengah), ±250 px atas & bawah dikosongkan untuk tampilan Story */
+            var fx = 60, fy = 250, fw = 960, fh = 720;
+            if (r[0]) {
+                var im = r[0], k = Math.max(fw / im.width, fh / im.height), w = im.width * k, h = im.height * k;
+                c.save(); c.shadowColor = 'rgba(0,0,0,.55)'; c.shadowBlur = 50; c.shadowOffsetY = 18; rect(c, fx, fy, fw, fh, 40); c.fillStyle = '#000'; c.fill(); c.restore();
+                c.save(); rect(c, fx, fy, fw, fh, 40); c.clip(); c.drawImage(im, fx + (fw - w) / 2, fy + (fh - h) / 2, w, h); c.restore();
+                rect(c, fx, fy, fw, fh, 40); c.strokeStyle = 'rgba(224,169,92,.55)'; c.lineWidth = 3; c.stroke();
+            } else if (r[1]) { var lw = 240, lh = lw * r[1].height / r[1].width; c.globalAlpha = .25; c.drawImage(r[1], fx + (fw - lw) / 2, fy + (fh - lh) / 2, lw, lh); c.globalAlpha = 1; }
+            /* label + judul + ringkasan */
+            var cy = 1020, tag = String(a.tag || 'Artikel').toUpperCase(); c.font = '800 28px ' + SANS;
+            var bw = c.measureText(tag).width + 52; rect(c, 60, cy, bw, 56, 28); c.fillStyle = EMAS; c.fill(); c.fillStyle = '#1a1510'; c.fillText(tag, 86, cy + 38);
+            c.fillStyle = '#fff'; c.font = '700 64px ' + SERIF;
+            var y = 1156; barisTeks(c, a.judul, 960, 3).forEach(function (b) { c.fillText(b, 60, y); y += 74; });
+            var rs = ringkasArtikel(a);
+            if (rs) { c.fillStyle = '#d8cfc3'; c.font = '500 32px ' + SANS; barisTeks(c, rs, 960, Math.max(0, Math.min(4, Math.floor((1500 - y) / 44)))).forEach(function (b) { y += 44; c.fillText(b, 60, y); }); }
+            /* penutup: logo, ajakan membaca, WhatsApp, alamat */
+            c.fillStyle = 'rgba(224,169,92,.35)'; c.fillRect(60, 1528, 960, 2);
+            var tx = 60; if (r[1]) { var lh1 = 120, lw1 = lh1 * r[1].width / r[1].height; c.drawImage(r[1], 60, 1546, lw1, lh1); tx = 60 + lw1 + 32; }
+            c.fillStyle = '#25D366'; c.beginPath(); c.arc(tx + 24, 1584, 24, 0, 7); c.fill();
+            c.save(); c.translate(tx + 24 - 14, 1584 - 14); c.scale(28 / 24, 28 / 24); c.fillStyle = '#fff'; c.fill(new Path2D(WA_IKON.match(/ d="([^"]+)"/)[1])); c.restore();
+            c.fillStyle = '#fff'; c.font = '800 42px ' + SANS; c.fillText(wa, tx + 64, 1598);
+            var web = L.situs().replace(/^https?:\/\//, '').replace(/\/$/, '');
+            c.fillStyle = EMAS; c.font = '700 30px ' + SANS; c.fillText('Baca selengkapnya di ' + web, tx, 1642);
+            c.fillStyle = '#b9ad9d'; c.font = '500 24px ' + SANS; c.fillText(barisTeks(c, C.toko.alamat, 1020 - tx, 1)[0], tx, 1672);
+            return new Promise(function (ok, gagal) { cv.toBlob(function (b) { b ? ok(b) : gagal(new Error('Gagal membuat gambar.')); }, 'image/jpeg', .85); });
+        });
+    }
+    function bagikanArtikel(a, tombol) {
+        if (a.status !== 'terbit') return toast('Hanya artikel yang sudah terbit yang bisa dibagikan.', true);
+        bagikanPoster(null, teksArtikel(a), { artikel: a }, tombol);
+    }
     /* opsi.sewa = { harian: tarif 1 hari (0 = sesuai lama sewa), deposit } membuat poster penawaran SEWA dengan foto unit */
     function buatPoster(s, opsi) {
+        if (opsi && opsi.artikel) return buatPosterArtikel(opsi.artikel);
         var sewa = opsi && opsi.sewa;
         var fp = (s.foto || []).filter(function (f) { return f.repo === 'publik'; })[0];
         var judul = L.judulStok(s);
@@ -2486,7 +2538,7 @@
     /* Bagikan: poster + teks lewat menu bagikan HP (WA, Status WA, Instagram, Threads, X, dll). Di PC tanpa menu bagikan berkas: hanya teks, lewat menu bagikan atau WhatsApp. */
     function bagikanStok(s, tombol) { bagikanPoster(s, teksTawar(s), null, tombol); }
     function bagikanPoster(s, teks, opsi, tombol) {
-        var nama = 'ayri-' + (opsi && opsi.sewa ? 'sewa-' : '') + String(s.kode || 'barang').toLowerCase() + '.jpg';
+        var nama = 'ayri-' + (opsi && opsi.artikel ? 'artikel-' + String(opsi.artikel.slug || 'artikel').slice(0, 60) : (opsi && opsi.sewa ? 'sewa-' : '') + String(s.kode || 'barang').toLowerCase()) + '.jpg';
         if (tombol) sibuk(tombol, true, 'Menyiapkan…');
         function lepas() { if (tombol) sibuk(tombol, false); }
         /* PC / browser tanpa menu bagikan berkas: tanpa unduhan gambar, kirim teks penawaran lewat WhatsApp */
@@ -2668,9 +2720,11 @@
             '<div class="ly-list" id="list"></div></section>';
         var rows = cache.artikel;
         $('#list').innerHTML = rows.length ? rows.map(function (a) {
-            return '<a class="ly-item" href="#artikel/' + E(a.id) + '"><span class="ly-item__k">' + L.tgl((a.status === 'terbit' && a.terbit_at || a.created_at || '').slice(0, 10)) + '</span><span class="st-chip ' + (a.status === 'terbit' ? 'st-selesai' : 'st-menunggu_dp') + '">' + (a.status === 'terbit' ? 'Terbit' : 'Draf') + '</span>' +
-                '<span class="ly-item__t">' + E(a.judul) + '</span><span class="ly-item__m"><span>artikel-' + E(a.slug) + '.html</span><span>Diubah ' + L.tgl((a.updated_at || '').slice(0, 10)) + '</span></span></a>';
+            return '<div class="ly-item"><a class="ly-item__a" href="#artikel/' + E(a.id) + '"><span class="ly-item__k">' + L.tgl((a.status === 'terbit' && a.terbit_at || a.created_at || '').slice(0, 10)) + '</span></a><span class="st-chip ' + (a.status === 'terbit' ? 'st-selesai' : 'st-menunggu_dp') + '">' + (a.status === 'terbit' ? 'Terbit' : 'Draf') + '</span>' +
+                '<span class="ly-item__t">' + E(a.judul) + '</span><span class="ly-item__m"><span>artikel-' + E(a.slug) + '.html</span><span>Diubah ' + L.tgl((a.updated_at || '').slice(0, 10)) + '</span></span>' +
+                (a.status === 'terbit' ? '<span class="ly-item__b"><button type="button" class="ly-btn ly-btn--sm" data-bagikan-ar="' + E(a.id) + '">Bagikan</button></span>' : '') + '</div>';
         }).join('') : '<p class="ly-kosong">Belum ada artikel.</p>';
+        $('#list').onclick = function (e) { var b = e.target.closest('[data-bagikan-ar]'); if (b) { e.preventDefault(); bagikanArtikel(cariId('artikel', b.dataset.bagikanAr), b); } };
     }
     function artikelKosong() { return { judul: '', slug: '', ringkasan: '', isi: '', tag: 'Tips Servis', foto: [], status: 'draf', servis_id: null }; }
     function bukaArtikel(id) {
@@ -2710,6 +2764,7 @@
             '<div class="ly-btns" style="margin-top:10px"><label class="ly-btn ly-btn--sm ly-file">+ Unggah foto<input type="file" accept="image/*" multiple id="ar-file"></label></div>' +
             '<p class="ly-hint" style="margin-top:8px">Foto pertama menjadi sampul. Isi keterangan singkat tiap foto (membantu Google). Pastikan tidak ada wajah, nota, atau nomor seri gitar. Foto artikel bersifat publik.</p></fieldset>' +
             (ae.baru ? '' : '<fieldset class="ly-card"><legend>Lainnya</legend>' + kisiAksi([].concat(terbit ? [aksi({ href: E(url), luar: true, ikon: 'luar', teks: 'Lihat di situs' })] : [])
+                .concat(terbit ? [aksi({ id: 'ar-bagikan', ikon: 'bagikan', teks: 'Bagikan ke Story / WhatsApp', kelas: 'ly-akt--pri' })] : [])
                 .concat([aksi({ id: 'ar-hapus', ikon: 'hapus', teks: 'Hapus artikel', kelas: 'ly-akt--del' })])) + '</fieldset>') +
             '<div class="ly-save"><span class="ly-dirty" id="dirty" hidden>Belum disimpan</span><button type="button" class="ly-btn ly-btn--pri" id="ar-simpan">Simpan</button></div></section>';
         $$('[data-a]', app).forEach(function (el) { el.value = a[el.dataset.a] == null ? '' : a[el.dataset.a]; });
@@ -2728,6 +2783,7 @@
         ar.addEventListener('click', function (e) {
             var t = e.target.closest('button'); if (!t) return; var d = t.dataset;
             if (t.id === 'ar-ai') tulisArtikelAi(t);
+            else if (t.id === 'ar-bagikan') { if (dirty) return toast('Simpan perubahan dulu.', true); bagikanArtikel(cariId('artikel', a.id), t); }
             else if (t.id === 'ar-prev') { var pv = $('#ar-pv'); pv.hidden = !pv.hidden; t.textContent = pv.hidden ? 'Pratinjau' : 'Tutup pratinjau'; if (!pv.hidden) pratinjau(); }
             else if (d.fdel != null) { a.foto.splice(+d.fdel, 1); gambarAFoto(); setDirty(true); }
             else if (d.fup != null) { var i = +d.fup; if (i > 0) { var x = a.foto[i]; a.foto[i] = a.foto[i - 1]; a.foto[i - 1] = x; gambarAFoto(); setDirty(true); } }

@@ -11,3 +11,13 @@ test('admin: tombol aksi memakai komponen seragam dan poster memuat foto lewat G
     assert.doesNotMatch(js, /muatGambar\(L\.situs\(\) \+ fp\.path\)/, 'foto poster tidak boleh hanya dari situs (cache force-cache bisa menyimpan 404)');
     assert.match(css, /\.ly-akt--del/);
 });
+
+test('artikel terbit bisa dibagikan: poster 1080x1920 + teks + tautan, tombol di daftar dan di halaman edit', () => {
+    const kode = baca('admin.js');
+    assert.match(kode, /function teksArtikel\(a\) \{ return a\.judul \+ '\\n\\n' \+ ringkasArtikel\(a\) \+ '\\n\\nBaca selengkapnya: ' \+ urlArtikel\(a\); \}/);
+    assert.match(kode, /function urlArtikel\(a\) \{ return L\.situs\(\) \+ 'artikel-' \+ a\.slug \+ '\.html'; \}/);
+    assert.match(kode, /if \(opsi && opsi\.artikel\) return buatPosterArtikel\(opsi\.artikel\);/);
+    assert.match(kode, /data-bagikan-ar/); assert.match(kode, /id: 'ar-bagikan'/);
+    assert.match(kode, /if \(a\.status !== 'terbit'\) return toast\('Hanya artikel yang sudah terbit/, 'draf tidak bisa dibagikan');
+    assert.match(kode, /\(a\.status === 'terbit' \? '<span class="ly-item__b"><button type="button" class="ly-btn ly-btn--sm" data-bagikan-ar=/, 'tombol hanya di artikel terbit');
+});
