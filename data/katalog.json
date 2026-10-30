@@ -46,53 +46,6 @@
    "tingkat": "Very Good"
   },
   {
-   "kode": "STK-6J8WP3",
-   "kategori": "gitar",
-   "jenis": "Bass",
-   "kondisi": "bekas",
-   "nama": "Yamaha RBX 100",
-   "warna": "Hitam",
-   "deskripsi": "Free softcase",
-   "harga": 1000000,
-   "status": "tersedia",
-   "sisa": null,
-   "foto": [
-    {
-     "src": "foto/stok/df93134f5c3336458552.webp",
-     "kecil": "foto/stok/df93134f5c3336458552-k.webp"
-    },
-    {
-     "src": "foto/stok/59d0ca5acae9228bb270.webp",
-     "kecil": "foto/stok/59d0ca5acae9228bb270-k.webp"
-    },
-    {
-     "src": "foto/stok/7410036dfd3b0fc6af6f.webp",
-     "kecil": "foto/stok/7410036dfd3b0fc6af6f-k.webp"
-    },
-    {
-     "src": "foto/stok/0d44ea863968333750bc.webp",
-     "kecil": "foto/stok/0d44ea863968333750bc-k.webp"
-    },
-    {
-     "src": "foto/stok/5d0a1967264d4b5b6131.webp",
-     "kecil": "foto/stok/5d0a1967264d4b5b6131-k.webp"
-    },
-    {
-     "src": "foto/stok/da5dab74addf00dc9b26.webp",
-     "kecil": "foto/stok/da5dab74addf00dc9b26-k.webp"
-    },
-    {
-     "src": "foto/stok/e268080c9b4cbe19e063.webp",
-     "kecil": "foto/stok/e268080c9b4cbe19e063-k.webp"
-    },
-    {
-     "src": "foto/stok/3445c9bc80e4fed739cb.webp",
-     "kecil": "foto/stok/3445c9bc80e4fed739cb-k.webp"
-    }
-   ],
-   "tingkat": "Good"
-  },
-  {
    "kode": "STK-TZEN4Z",
    "kategori": "gitar",
    "jenis": "Elektrik",
@@ -352,6 +305,53 @@
      "kecil": "foto/stok/e485e42c7d7afb2834b5-k.webp"
     }
    ]
+  },
+  {
+   "kode": "STK-6J8WP3",
+   "kategori": "gitar",
+   "jenis": "Bass",
+   "kondisi": "bekas",
+   "nama": "Yamaha RBX 100",
+   "warna": "Hitam",
+   "deskripsi": "Bass Yamaha RBX 100 warna hitam ini dalam kondisi good; terlihat goresan ringan dan penyok kecil namun semua fungsi masih prima. Dari foto terlihat empat senar, hardware berwarna perak, dan logo Yamaha terukir jelas pada headstock. 🎸  \n\nSpesifikasi:  \n- Jumlah senar: 4  \n- Body: alder (kayu ringan) dengan finishing hitam mengkilap  \n- Neck: maple, bolt‑on, skala 34 in (86,4 cm)  \n- Fingerboard: rosewood, 20 fret  \n- Pickup: single‑coil Yamaha HB‑1  \n- Bridge: fixed saddle dengan tuner chrome  \n\nSilakan coba langsung di toko untuk merasakan suaranya!",
+   "harga": 1000000,
+   "status": "tersedia",
+   "sisa": null,
+   "foto": [
+    {
+     "src": "foto/stok/df93134f5c3336458552.webp",
+     "kecil": "foto/stok/df93134f5c3336458552-k.webp"
+    },
+    {
+     "src": "foto/stok/59d0ca5acae9228bb270.webp",
+     "kecil": "foto/stok/59d0ca5acae9228bb270-k.webp"
+    },
+    {
+     "src": "foto/stok/7410036dfd3b0fc6af6f.webp",
+     "kecil": "foto/stok/7410036dfd3b0fc6af6f-k.webp"
+    },
+    {
+     "src": "foto/stok/0d44ea863968333750bc.webp",
+     "kecil": "foto/stok/0d44ea863968333750bc-k.webp"
+    },
+    {
+     "src": "foto/stok/5d0a1967264d4b5b6131.webp",
+     "kecil": "foto/stok/5d0a1967264d4b5b6131-k.webp"
+    },
+    {
+     "src": "foto/stok/da5dab74addf00dc9b26.webp",
+     "kecil": "foto/stok/da5dab74addf00dc9b26-k.webp"
+    },
+    {
+     "src": "foto/stok/e268080c9b4cbe19e063.webp",
+     "kecil": "foto/stok/e268080c9b4cbe19e063-k.webp"
+    },
+    {
+     "src": "foto/stok/3445c9bc80e4fed739cb.webp",
+     "kecil": "foto/stok/3445c9bc80e4fed739cb-k.webp"
+    }
+   ],
+   "tingkat": "Good"
   },
   {
    "kode": "STK-YKXTRX",
