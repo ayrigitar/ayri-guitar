@@ -119,6 +119,8 @@ document.addEventListener('DOMContentLoaded', function () {
     var situs = (C.situsUrl || location.origin + '/');
 
     function judul(y) { return y.kategori === 'gitar' ? ((C.jenisTanpaGitar || []).indexOf(y.jenis) > -1 ? y.jenis : 'Gitar ' + y.jenis) + ' ' + y.nama : y.nama; }
+    /* teks alt foto: judul + warna + kondisi bekas + nomor foto */
+    function altFoto(y, n) { return judul(y) + (y.warna ? ' ' + y.warna : '') + (y.kategori === 'gitar' && y.kondisi === 'bekas' ? ' bekas' + (y.tingkat ? ' ' + y.tingkat : '') : '') + (n ? ' – foto ' + n : ''); }
     function kelompok(y) { return y.kategori === 'gitar' ? y.kondisi : 'aksesoris'; }
     function lencana(y) {
         return '<span class="kat-badge kat-' + (y.kategori === 'gitar' ? y.kondisi : 'aks') + '">' + (y.kategori === 'gitar' ? (y.kondisi === 'baru' ? 'Baru' : 'Used') : esc(y.jenis)) + '</span>' + (y.tingkat ? '<span class="kat-badge kat-tingkat">' + esc(y.tingkat) + '</span>' : '');
@@ -146,7 +148,7 @@ document.addEventListener('DOMContentLoaded', function () {
     function galeri(y) {
         if (!y.foto.length) return '<div class="unit-galeri"><div class="unit-utama"><span class="kat-nofoto">Foto menyusul</span></div></div>';
         return '<div class="unit-galeri"><div class="unit-utama" id="unit-utama">' + y.foto.map(function (f, i) {
-            return '<img src="' + esc(f.src) + '" alt="' + esc(judul(y)) + ' foto ' + (i + 1) + '"' + (i ? ' loading="lazy"' : '') + ' decoding="async">';
+            return '<img src="' + esc(f.src) + '" alt="' + esc(altFoto(y, i + 1)) + '"' + (i ? ' loading="lazy"' : '') + ' decoding="async">';
         }).join('') + '</div>' + (y.foto.length > 1 ? '<span class="unit-hitung" id="unit-hitung">1 / ' + y.foto.length + '</span>' +
             '<div class="unit-thumbs" id="unit-thumbs">' + y.foto.map(function (f, i) { return '<button type="button" data-i="' + i + '" aria-label="Foto ' + (i + 1) + '" aria-current="' + (i === 0) + '"><img src="' + esc(f.kecil) + '" alt=""></button>'; }).join('') + '</div>' : '') + '</div>';
     }
@@ -181,7 +183,7 @@ document.addEventListener('DOMContentLoaded', function () {
             if (navigator.share) navigator.share(data).catch(function () {});
             else if (navigator.clipboard) navigator.clipboard.writeText(url).then(function () { document.getElementById('unit-bagikan').textContent = 'Tautan disalin'; });
         });
-        var ld = { '@context': 'https://schema.org', '@type': 'Product', name: judul(x), sku: x.kode, description: x.deskripsi || undefined, image: x.foto.map(function (f) { return situs + f.src; }),
+        var ld = { '@context': 'https://schema.org', '@type': 'Product', name: judul(x), sku: x.kode, description: x.deskripsi || undefined, image: x.foto.map(function (f, i) { return { '@type': 'ImageObject', contentUrl: situs + f.src, name: altFoto(x), caption: altFoto(x, i + 1) }; }),
             offers: { '@type': 'Offer', price: x.harga, priceCurrency: 'IDR', availability: 'https://schema.org/' + (x.status === 'dipesan' ? 'LimitedAvailability' : 'InStock'), itemCondition: 'https://schema.org/' + (x.kondisi === 'bekas' ? 'UsedCondition' : 'NewCondition') } };
         var s = document.createElement('script'); s.type = 'application/ld+json'; s.textContent = JSON.stringify(ld); document.head.appendChild(s);
     }
