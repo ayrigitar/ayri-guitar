@@ -19,7 +19,10 @@ test('artikel terbit bisa dibagikan: poster 1080x1920 + teks + tautan, tombol di
     assert.match(kode, /if \(opsi && opsi\.artikel\) return buatPosterArtikel\(opsi\.artikel\);/);
     assert.match(kode, /data-bagikan-ar/); assert.match(kode, /id: 'ar-bagikan'/);
     assert.match(kode, /if \(a\.status !== 'terbit'\) return toast\('Hanya artikel yang sudah terbit/, 'draf tidak bisa dibagikan');
-    assert.match(kode, /\(a\.status === 'terbit' \? '<span class="ly-item__b"><button type="button" class="ly-btn ly-btn--sm" data-bagikan-ar=/, 'tombol hanya di artikel terbit');
+    assert.match(kode, /\(a\.status === 'terbit' \? '<span class="ly-item__b"><button type="button" class="ly-btn ly-btn--sm" data-link-ar=/, 'tombol hanya di artikel terbit');
+    assert.match(kode, /function bagikanLinkArtikel\(a\)/); assert.match(kode, /navigator\.share\(\{ title: a\.judul, url: url \}\)/, 'tautan saja, tanpa gambar');
+    assert.match(kode, /id: 'ar-link'/);
+    assert.match(kode, /label: 'SEBELUM'/); assert.match(kode, /label: 'SESUDAH'/); assert.match(kode, /\/sebelum\|before\/i/, 'foto sebelum/sesudah dikenali dari keterangan');
 });
 
 test('pilih dari kontak: tombol di form servis, tebus/titip, jual, dan sewa; hanya muncul bila browser mendukung', () => {

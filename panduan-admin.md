@@ -131,7 +131,7 @@ Ubah **banner promo** (nyalakan/matikan + teksnya), teks **bagian depan** (label
 
 ## Bagikan artikel yang sudah terbit
 
-Di menu **Artikel**, artikel berstatus **Terbit** punya tombol **Bagikan** (juga di halaman edit artikel: **Bagikan ke Story / WhatsApp**). Yang dibagikan: poster ukuran Story (foto sampul, judul, ringkasan, kontak) dan teks berisi tautan artikel. Pilih WhatsApp (Status atau chat) atau Instagram dari menu bagikan HP.
+Di menu **Artikel**, artikel berstatus **Terbit** punya dua tombol (juga di halaman edit artikel): **Link** mengirim hanya tautan artikel (di WhatsApp tampil sebagai kartu pratinjau yang bisa diketuk), dan **Story** membuat poster ukuran Story untuk Status WhatsApp atau Instagram, berisi foto **sebelum dan sesudah** (bila artikel punya keduanya; selain itu foto sampul), judul, ringkasan, dan kontak.
 
 ## AI penulis: deskripsi barang & draf artikel
 
