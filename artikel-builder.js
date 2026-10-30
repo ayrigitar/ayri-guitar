@@ -5,7 +5,7 @@
     var PENANDA = '<meta name="generator" content="ayri-artikel">';
     /* alamat halaman jadi nama berkas (artikel-<slug>.html) dan tautan: hanya huruf kecil, angka, tanda minus */
     function slugAman(a) { if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(String(a && a.slug || ''))) throw new Error('Alamat halaman artikel tidak valid: hanya huruf kecil, angka, dan tanda minus.'); return a.slug; }
-    function jalurAman(p) { return /^foto\/artikel\/[a-z0-9]+\.(webp|jpg)$/.test(String(p || '')); }
+    function jalurAman(p) { return /^foto\/artikel\/[a-z0-9]+(?:-[a-z0-9]+)*\.(webp|jpg)$/.test(String(p || '')); }
     function fotoValid(a) { return (Array.isArray(a.foto) ? a.foto : []).filter(function (f) { return f && jalurAman(f.path); }); }
     function bulan(ts) { return new Date(ts || Date.now()).toLocaleDateString('id-ID', { month: 'long', year: 'numeric', timeZone: 'Asia/Jakarta' }); }
     function tanggal(ts) { return new Date(ts || Date.now()).toLocaleDateString('sv-SE', { timeZone: 'Asia/Jakarta' }); } /* YYYY-MM-DD */
@@ -18,7 +18,7 @@
         var ld = {
             '@context': 'https://schema.org', '@type': 'Article', headline: a.judul.slice(0, 110), description: desk, inLanguage: 'id',
             datePublished: a.terbit_at || undefined, dateModified: a.updated_at || a.terbit_at || undefined, mainEntityOfPage: url,
-            image: foto.length ? foto.map(function (f) { return situs + f.path; }) : undefined,
+            image: foto.length ? foto.map(function (f) { return { '@type': 'ImageObject', contentUrl: situs + f.path, caption: f.alt || a.judul }; }) : undefined,
             author: { '@type': 'Organization', name: 'Toko Gitar AYRI', url: situs },
             publisher: { '@type': 'Organization', name: 'Toko Gitar AYRI', url: situs }
         };
@@ -56,7 +56,10 @@
             '                        <span class="article-card__more" aria-hidden="true">Baca artikel <svg class="ic"><use href="#i-arrow"/></svg></span>\n' +
             '                    </div>\n                </a>';
     }
-    function entriSitemap(a, situs) { return '  <url>\n    <loc>' + esc(situs + 'artikel-' + slugAman(a) + '.html') + '</loc>\n    <lastmod>' + tanggal(a.updated_at || a.terbit_at) + '</lastmod>\n  </url>'; }
+    function entriSitemap(a, situs) {
+        var gambar = fotoValid(a).map(function (f) { return '    <image:image>\n      <image:loc>' + esc(situs + f.path) + '</image:loc>\n      <image:caption>' + esc(f.alt || a.judul) + '</image:caption>\n    </image:image>\n'; }).join('');
+        return '  <url>\n    <loc>' + esc(situs + 'artikel-' + slugAman(a) + '.html') + '</loc>\n    <lastmod>' + tanggal(a.updated_at || a.terbit_at) + '</lastmod>\n' + gambar + '  </url>';
+    }
     function gantiBlok(teks, isiBaru, namaFile) {
         var re = /(<!-- ARTIKEL-OTOMATIS:MULAI[^>]*-->)[\s\S]*?(\r?\n[ \t]*<!-- ARTIKEL-OTOMATIS:SELESAI -->)/;
         if (!re.test(teks)) throw new Error('Penanda ARTIKEL-OTOMATIS tidak ditemukan di ' + namaFile);
