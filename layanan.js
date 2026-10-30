@@ -1018,7 +1018,53 @@
                 maks: aks ? 600 : 900
             };
         },
-        artikel: function (a, servis) {
+        /* artikel profil satu unit stok (gitar atau aksesoris): spesifikasi model, merek, perawatan, tanya jawab.
+           Fakta UNIT hanya dari data & catatan toko; fakta model/merek hanya yang diyakini benar oleh AI (lalu diperiksa admin). */
+        artikelUnit: function (a, s) {
+            var aks = s.kategori === 'aksesoris', t = aks ? null : C.tingkatKondisi.filter(function (x) { return x[0] === s.tingkat; })[0];
+            var data = aks ? ['Kategori: ' + (s.sub || 'Aksesoris'), 'Nama: ' + (s.nama || '-'), s.warna ? 'Varian: ' + s.warna : '', 'Kondisi: baru']
+                : ['Barang: ' + L.judulStok(s), s.merek ? 'Merek: ' + s.merek : '', s.merek && s.gitar_merk ? 'Model: ' + s.gitar_merk : '', 'Jenis: ' + (s.gitar_jenis || 'Gitar'), s.warna ? 'Warna: ' + s.warna : '', 'Kondisi: ' + (s.kondisi === 'bekas' ? 'bekas (used)' + (t ? ', tingkat ' + t[1] + ' (' + t[2] + ')' : '') : 'baru')];
+            var bagian = aks
+                ? ['## Apa itu dan untuk apa', '## Cara memilih (jenis, ukuran, atau bahan yang cocok)', '## Cara memakai dan merawat', '## Tanya jawab (4 sampai 5 pertanyaan, tiap pertanyaan **tebal** lalu jawabannya)', '## Di ' + C.toko.nama + ' (ajak bertanya atau mencoba lewat WhatsApp)']
+                : ['## Sekilas tentang model ini', '## Spesifikasi (poin-poin)', '## Cocok untuk siapa', '## Kelebihan dan hal yang perlu diperhatikan', '## Tentang merek ' + (s.merek || 'ini') + ' (SATU sampai DUA kalimat saja; sejarah merek lengkap ada di artikel merek terpisah, jangan diulang di sini)',
+                    '## Dipakai oleh siapa (LEWATI bagian ini bila kamu tidak yakin ada pemakai terdokumentasi)', s.kondisi === 'bekas' ? '## Kalau membeli bekas, cek ini (sesuai jenis instrumennya)' : '## Yang perlu dicek saat membeli',
+                    '## Cara merawat', '## Tanya jawab (4 sampai 5 pertanyaan, tiap pertanyaan **tebal** lalu jawabannya)', '## Unit ini di ' + C.toko.nama + ' (dari catatan toko saja, lalu ajak bertanya lewat WhatsApp)'];
+            return {
+                sistem: 'Kamu menulis artikel panduan produk untuk website ' + C.toko.nama + ', toko gitar di Bogor. Bahasa Indonesia yang jelas dan bersahabat untuk calon pembeli awam. ' +
+                    'Ada dua jenis fakta. (1) FAKTA UNIT INI (kondisi, tahun, kelengkapan, lecet, bonus): hanya dari data dan catatan toko, jangan mengarang. ' +
+                    '(2) FAKTA MODEL DAN MEREK (spesifikasi, sejarah, pemakai, cara merawat): hanya yang kamu yakin benar; kalau tidak yakin, lewati, jangan menebak angka, tahun, atau nama. ' +
+                    'Pemakai terkenal hanya boleh disebut bila terdokumentasi, ditulis sebagai fakta netral, tanpa kesan endorsement atau kerja sama dengan merek. ' +
+                    'Jangan menyebut harga, nomor telepon, atau alamat. Jangan menyebut nama pelanggan. ' +
+                    'Format jawaban: baris pertama "RINGKASAN: " diikuti ringkasan paling banyak 150 huruf untuk Google, lalu satu baris kosong, lalu isi artikel. ' +
+                    'Isi memakai subjudul "## ...", poin "- ...", dan **tebal** seperlunya, tanpa judul utama (judul sudah ada). Panjang ' + (aks ? '400 sampai 600' : '700 sampai 1000') + ' kata.',
+                prompt: 'Judul artikel: ' + (a.judul || '') + '\n\nData barang:\n' + data.filter(Boolean).map(function (x) { return '- ' + x; }).join('\n') +
+                    '\n\nCatatan dari toko (fakta unit ini, wajib dipakai apa adanya):\n' + (String(s.deskripsi || '').trim() || '(tidak ada)') +
+                    (String(a.isi || '').trim() ? '\n\nBahan tambahan dari admin:\n' + String(a.isi).trim() : '') +
+                    '\n\nSusun artikel dengan subjudul berikut, berurutan:\n' + bagian.join('\n'),
+                maks: 3200
+            };
+        },
+        /* artikel profil MEREK (satu per merek, ditautkan dari semua artikel unit merek itu): sejarah, ciri khas, lini produk, tips, tanya jawab */
+        artikelMerek: function (a) {
+            var m = a.merek_nama || a.judul || '', ada = [];
+            data.stok.forEach(function (x) { if (L.kunciMerek(x.merek || '') === a.merek_kunci) { var n = L.namaStok(x); if (ada.indexOf(n) < 0) ada.push(n); } });
+            return {
+                sistem: 'Kamu menulis artikel profil merek untuk website ' + C.toko.nama + ', toko gitar di Bogor. Bahasa Indonesia yang jelas dan bersahabat untuk calon pembeli awam. ' +
+                    'Semua isi adalah fakta merek: tulis hanya yang kamu yakin benar; kalau tidak yakin, lewati, jangan menebak angka, tahun, nama, atau model. ' +
+                    'Pemakai terkenal hanya boleh disebut bila terdokumentasi, ditulis sebagai fakta netral, tanpa kesan endorsement atau kerja sama dengan merek. ' +
+                    'Jangan menyebut harga, nomor telepon, alamat, atau klaim tentang unit tertentu di toko. ' +
+                    'Format jawaban: baris pertama "RINGKASAN: " diikuti ringkasan paling banyak 150 huruf untuk Google, lalu satu baris kosong, lalu isi artikel. ' +
+                    'Isi memakai subjudul "## ...", poin "- ...", dan **tebal** seperlunya, tanpa judul utama (judul sudah ada). Panjang 600 sampai 900 kata.',
+                prompt: 'Merek: ' + m + '\nJudul artikel: ' + (a.judul || '') + (ada.length ? '\n\nModel ' + m + ' yang pernah atau sedang ada di toko (boleh disinggung sebagai contoh, tanpa klaim tentang kondisi unit):\n' + ada.slice(0, 12).map(function (x) { return '- ' + x; }).join('\n') : '') +
+                    (String(a.isi || '').trim() ? '\n\nBahan tambahan dari admin:\n' + String(a.isi).trim() : '') +
+                    '\n\nSusun artikel dengan subjudul berikut, berurutan:\n## Sekilas tentang ' + m + '\n## Sejarah singkat\n## Ciri khas suara dan kualitas\n## Lini produk yang populer (hanya yang kamu yakin)\n' +
+                    '## Dipakai oleh siapa (LEWATI bagian ini bila kamu tidak yakin ada pemakai terdokumentasi)\n## Tips memilih dan membeli ' + m + ' bekas\n## Tanya jawab (4 sampai 5 pertanyaan tentang merek, tiap pertanyaan **tebal** lalu jawabannya)\n## ' + m + ' di ' + C.toko.nama + ' (ajak bertanya lewat WhatsApp atau melihat katalog)',
+                maks: 3200
+            };
+        },
+        artikel: function (a, servis, stok) {
+            if (a.jenis_artikel === 'merek') return L.ai.artikelMerek(a);
+            if (stok) return L.ai.artikelUnit(a, stok);
             var kasus = servis ? ['Gitar: ' + L.namaGitar(servis, 'gitar'), servis.keluhan ? 'Keluhan: ' + servis.keluhan : '',
                 (servis.items || []).length ? 'Pekerjaan: ' + servis.items.map(function (i) { return i.nama; }).join(', ') : ''].filter(Boolean).join('\n') : '';
             return {
@@ -1281,7 +1327,13 @@
     };
     L.namaFotoStok = function (s) { return L.slugFoto(L.judulStok(s) + ' ' + (s.warna || ''), 60) + (s.kode ? '-' + String(s.kode).toLowerCase() : ''); };
     L.STATUS_STOK = { tersedia: 'Tersedia', dipesan: 'Dipesan', terjual: 'Terjual', ditarik: 'Ditarik' };
-    L.namaStok = function (s) { return s.kategori === 'aksesoris' ? (s.nama || 'Aksesoris') : (s.gitar_merk || s.gitar_jenis || 'Gitar'); };
+    /* merek dan model dipisah (s.merek + s.gitar_merk / s.nama); stok lama yang nama/model-nya sudah memuat merek ("Yamaha F310") tidak digandakan */
+    L.namaStok = function (s) {
+        var aks = s.kategori === 'aksesoris', dasar = String((aks ? s.nama : s.gitar_merk) || '').trim(), m = String(s.merek || '').trim();
+        if (m && dasar.toLowerCase().indexOf(m.toLowerCase()) < 0) dasar = (m + ' ' + dasar).trim();
+        return dasar || (aks ? 'Aksesoris' : (s.gitar_jenis || 'Gitar'));
+    };
+    L.kunciMerek = function (m) { return L.slugFoto(m, 40); };
     L.jenisStok = function (s) { return s.kategori === 'aksesoris' ? (s.sub || 'Aksesoris') : (s.gitar_jenis || 'Gitar'); };
     L.diKatalog = function (s) { return s.tampil !== false && (s.status === 'tersedia' || s.status === 'dipesan') && +s.harga_jual > 0 && +s.jumlah > 0; };
     function versiKatalog(s) {
@@ -1666,7 +1718,7 @@
         });
     };
     function fotoServisArtikel(f) {
-        var s = cari(data.servis, f.servis), ff = s && cari(s.foto || [], f.foto);
+        var s = f.stok ? cari(data.stok, f.stok) : cari(data.servis, f.servis), ff = s && cari(s.foto || [], f.foto); /* foto servis (terenkripsi) atau foto produk stok (publik) */
         return ff ? { s: s, f: ff } : null;
     }
     L.api.fotoArtikel = function (f) {
@@ -1681,7 +1733,7 @@
         return Promise.all((tampil ? art.foto || [] : []).map(function (f, i) {
             if (f.path) return;
             var x = fotoServisArtikel(f);
-            if (!x) throw new Error('Foto servis untuk artikel tidak ditemukan.');
+            if (!x) throw new Error('Foto ' + (f.stok ? 'stok' : 'servis') + ' untuk artikel tidak ditemukan.');
             return fotoMentah(x.s, x.f, true).then(function (b) { return b.arrayBuffer(); }).then(function (buf) {
                 var p2 = 'foto/artikel/' + L.slugFoto(art.slug + ' ' + (f.poster || ''), 70) + '-' + acakHex(3) + (x.f.tipe === 'image/jpeg' ? '.jpg' : '.webp');
                 fotoFile.push({ path: p2, base64: b64(buf) }); art.foto[i] = Object.assign({ path: p2, alt: f.alt || '' }, f.poster ? { poster: f.poster } : {});
@@ -1693,8 +1745,15 @@
                     if (!tpl || !beranda || !peta) throw new Error('File template/beranda/sitemap tidak ditemukan di repo situs.');
                     if (ada && ada.indexOf(B.PENANDA) < 0) throw new Error('Alamat artikel-' + art.slug + '.html sudah dipakai halaman buatan tangan. Ganti alamatnya.');
                     if (lama && lama.status === 'terbit' && lama.slug !== art.slug) files.push({ path: 'artikel-' + lama.slug + '.html', hapus: true });
-                    if (tampil) files.push({ path: 'artikel-' + art.slug + '.html', teks: B.halaman(tpl, art, L.situs()) });
+                    /* artikel unit menautkan ke artikel merek (bila sudah terbit); terbitnya/ditariknya artikel merek memperbarui semua halaman unit merek itu dalam commit yang sama */
+                    var terbitMerek = function (x) { return x.jenis_artikel === 'merek' && x.status === 'terbit'; };
+                    var merek = art.jenis_artikel !== 'merek' && art.merek_kunci ? data.artikel.filter(function (x) { return terbitMerek(x) && x.id !== art.id && x.merek_kunci === art.merek_kunci; })[0] : null;
+                    if (tampil) files.push({ path: 'artikel-' + art.slug + '.html', teks: B.halaman(tpl, art, L.situs(), { merek: merek }) });
                     else if (lama) files.push({ path: 'artikel-' + lama.slug + '.html', hapus: true });
+                    if (art.jenis_artikel === 'merek' && art.merek_kunci) data.artikel.forEach(function (x) {
+                        if (x.id === art.id || x.status !== 'terbit' || x.jenis_artikel === 'merek' || x.merek_kunci !== art.merek_kunci) return;
+                        files.push({ path: 'artikel-' + x.slug + '.html', teks: B.halaman(tpl, x, L.situs(), { merek: tampil ? art : null }) });
+                    });
                     var semua = data.artikel.filter(function (x) { return x.id !== art.id && x.status === 'terbit'; }).concat(tampil ? [art] : [])
                         .sort(function (a, b) { return a.terbit_at < b.terbit_at ? 1 : -1; });
                     files.push({ path: 'index.html', teks: B.gantiBlok(beranda, semua.slice(0, 12).map(B.kartu).join('\n'), 'index.html') });

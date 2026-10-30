@@ -101,7 +101,7 @@ function bikinPerangkat(gh, o) {
     const sb = {
         console, setTimeout, clearTimeout, clearInterval, Uint8Array, Float32Array, Float64Array, Int16Array, Uint16Array, ArrayBuffer, Promise, JSON, Math, Date, Object, Array, String, Number, Boolean, Error, RegExp, Map, Set,
         setInterval: (f, t) => { const h = setInterval(f, t); if (h.unref) h.unref(); return h; },
-        crypto: crypto.webcrypto, TextEncoder, TextDecoder, btoa, atob, URL, URLSearchParams,
+        crypto: crypto.webcrypto, TextEncoder, TextDecoder, Blob, btoa, atob, URL, URLSearchParams,
         navigator: { onLine: true }, location: { origin: 'https://ayrigitar.com', search: '' },
         localStorage: kv(mem), sessionStorage: kv(sesi),
         document: { documentElement: { setAttribute() {} }, createElement: () => ({ getContext: () => ({}), toBlob() {} }) },
