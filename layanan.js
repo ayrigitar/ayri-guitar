@@ -59,7 +59,9 @@
         batal: { label: 'Dibatalkan', ket: '' }
     };
     L.URUT_STATUS = ['menunggu_dp', 'antri', 'dikerjakan', 'selesai', 'diambil'];
-    L.TAHAP = { sebelum: 'Sebelum servis', kerusakan: 'Kerusakan tambahan', sesudah: 'Sesudah servis' };
+    /* tiga tahap foto servis. Foto lama bertahap "kerusakan tambahan" dianggap foto sebelum servis (bagian yang rusak difoto di tahap Sebelum, penggantinya di Sesudah) */
+    L.TAHAP = { gitar: 'Gitar', sebelum: 'Sebelum servis', sesudah: 'Sesudah servis' };
+    L.tahapFoto = function (f) { return f.tahap === 'kerusakan' ? 'sebelum' : f.tahap; };
     L.beres = function (s) { return s.status === 'selesai' || s.status === 'diambil'; };
 
     /* ---------- garansi: '7h' = 7 hari, '6b' = 6 bulan ---------- */
@@ -1682,7 +1684,7 @@
             if (!x) throw new Error('Foto servis untuk artikel tidak ditemukan.');
             return fotoMentah(x.s, x.f, true).then(function (b) { return b.arrayBuffer(); }).then(function (buf) {
                 var p2 = 'foto/artikel/' + L.slugFoto(art.slug + ' ' + (f.poster || ''), 70) + '-' + acakHex(3) + (x.f.tipe === 'image/jpeg' ? '.jpg' : '.webp');
-                fotoFile.push({ path: p2, base64: b64(buf) }); art.foto[i] = { path: p2, alt: f.alt || '' };
+                fotoFile.push({ path: p2, base64: b64(buf) }); art.foto[i] = Object.assign({ path: p2, alt: f.alt || '' }, f.poster ? { poster: f.poster } : {});
             });
         })).then(function () {
             return ubahAtomik('situs', function (baca) {

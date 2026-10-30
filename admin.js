@@ -207,7 +207,7 @@
     /* satu grup foto: yang tersimpan (img data-foto = indeks, diisi L.isiFoto) + antrian. tahap null = semua foto */
     function grupFoto(judul, tahap, foto, antri, tampil) {
         var ada = [], tunggu = antri.filter(function (q) { return !tahap || q.tahap === tahap; });
-        foto.forEach(function (f, i) { if (!tahap || f.tahap === tahap) ada.push([f, i]); });
+        foto.forEach(function (f, i) { if (!tahap || L.tahapFoto(f) === tahap) ada.push([f, i]); });
         return '<div class="ly-fgrup"><h3>' + judul + '<label class="ly-btn ly-btn--sm ly-file">+ Foto<input type="file" accept="image/*" multiple' + (tahap ? ' data-tahap="' + tahap + '"' : '') + '></label></h3>' +
             (ada.length || tunggu.length ? '<div class="ly-foto">' + ada.map(function (x) {
                 return '<figure><img data-foto="' + x[1] + '" alt="">' + (tampil ? tombolTampil(x[0].tampil, 'data-tampil', x[0].id) : '') + '<button type="button" class="ly-fx" data-hapusfoto="' + E(x[0].id) + '" aria-label="Hapus foto">×</button></figure>';
@@ -1404,7 +1404,7 @@
     }
     function gambarFoto() {
         var el = $('#sv-foto'); if (!el) return;
-        el.innerHTML = ['sebelum', 'kerusakan', 'sesudah'].map(function (t) { return grupFoto(L.TAHAP[t], t, ed.s.foto, ed.antri, true); }).join('');
+        el.innerHTML = ['gitar', 'sebelum', 'sesudah'].map(function (t) { return grupFoto(L.TAHAP[t], t, ed.s.foto, ed.antri, true); }).join('');
         L.isiFoto(el, ed.s, A.fotoAdmin);
     }
     function klikServis(e) {
@@ -1504,13 +1504,18 @@
             .concat(['', '## Hasil', '(Ceritakan hasilnya: misalnya action lebih rendah, tidak fret buzz lagi, suara lebih jernih.)'])
             .concat(s.saran ? ['', '## Saran dari kami', s.saran] : [])
             .concat(['', '> Gitar Anda mengalami masalah serupa? Konsultasikan gratis lewat WhatsApp atau mampir ke toko kami di Bogor.']).join('\n');
-        var urutan = ['sebelum', 'kerusakan', 'sesudah'], slug = ArtikelMd.slug(judul), n = 1;
+        var urutan = ['gitar', 'sebelum', 'sesudah'], slug = ArtikelMd.slug(judul), n = 1;
         while (cache.artikel.some(function (a) { return a.slug === slug; })) slug = ArtikelMd.slug(judul) + '-' + (++n);
+        var peranPoster = {};
         var draf = {
             judul: judul, slug: slug, tag: 'Hasil Servis', status: 'draf', servis_id: s.id, isi: isi,
             ringkasan: ('Hasil ' + (jasa.join(', ') || 'servis') + ' gitar ' + gitar + ' di Toko Gitar AYRI Bogor, lengkap dengan foto sebelum dan sesudah.').slice(0, 160),
-            foto: s.foto.slice().sort(function (a, b) { return urutan.indexOf(a.tahap) - urutan.indexOf(b.tahap); })
-                .map(function (f) { return { servis: s.id, foto: f.id, alt: L.TAHAP[f.tahap] + ': ' + gitar }; })
+            foto: s.foto.slice().sort(function (a, b) { return urutan.indexOf(L.tahapFoto(a)) - urutan.indexOf(L.tahapFoto(b)); })
+                .map(function (f) {
+                    var t = L.tahapFoto(f), o = { servis: s.id, foto: f.id, alt: L.TAHAP[t] + ': ' + gitar };
+                    if (!peranPoster[t]) { peranPoster[t] = 1; o.poster = t; } /* foto pertama tiap tahap (gitar, sebelum, sesudah) dipakai di poster Story */
+                    return o;
+                })
         };
         var b = $('#sv-artikel'); sibuk(b, true, 'Membuat draf…');
         A.simpanArtikel(draf).then(function (row) {
@@ -2460,21 +2465,34 @@
     }
     function urlArtikel(a) { return L.situs() + 'artikel-' + a.slug + '.html'; }
     function teksArtikel(a) { return a.judul + '\n\n' + ringkasArtikel(a) + '\n\nBaca selengkapnya: ' + urlArtikel(a); }
-    /* foto sebelum & sesudah dikenali dari keterangan foto (mis. "Sebelum servis", "Sesudah servis"); tanpa pasangan itu: satu foto sampul */
+    /* Poster Story memuat sampai 3 foto TANPA dipotong: gitar (besar), sebelum, sesudah. Peran tiap foto dipilih di editor artikel (f.poster);
+       bila belum dipilih, foto sebelum & sesudah dikenali dari keterangannya; selain itu satu foto sampul. */
+    var PERAN_POSTER = { gitar: '', sebelum: 'SEBELUM', sesudah: 'SESUDAH' }; /* foto gitar tanpa tulisan; hanya sebelum & sesudah yang berlabel */
     function fotoArtikelPublik(a) { return (a.foto || []).filter(function (f) { return f.path; }); }
-    function pasanganFotoArtikel(a) {
-        var f = fotoArtikelPublik(a);
+    function fotoPosterArtikel(a) {
+        var f = fotoArtikelPublik(a), hasil = [];
+        ['gitar', 'sebelum', 'sesudah'].forEach(function (p) {
+            var x = f.filter(function (y) { return y.poster === p; })[0];
+            if (x) hasil.push({ f: x, peran: p, label: PERAN_POSTER[p] });
+        });
+        if (hasil.length) return hasil;
         function cari(re) { return f.filter(function (x) { return re.test(String(x.alt || '')); })[0]; }
         var sb = cari(/sebelum|before/i), ss = cari(/sesudah|after/i);
-        return sb && ss && sb !== ss ? [{ f: sb, label: 'SEBELUM' }, { f: ss, label: 'SESUDAH' }] : [];
+        return sb && ss && sb !== ss ? [{ f: sb, peran: 'sebelum', label: 'SEBELUM' }, { f: ss, peran: 'sesudah', label: 'SESUDAH' }] : [];
+    }
+    /* tata letak area foto (960 x 760): 1 foto = penuh; 2 foto = berdampingan; 3 foto = gitar besar di kiri, sebelum & sesudah bertumpuk di kanan */
+    function selFotoPoster(n) {
+        if (n === 1) return [{ x: 60, y: 235, w: 960, h: 760 }];
+        if (n === 2) return [{ x: 60, y: 235, w: 470, h: 760 }, { x: 550, y: 235, w: 470, h: 760 }];
+        return [{ x: 60, y: 235, w: 570, h: 760 }, { x: 650, y: 235, w: 370, h: 370 }, { x: 650, y: 625, w: 370, h: 370 }];
     }
     function buatPosterArtikel(a) {
-        var pasangan = pasanganFotoArtikel(a), sampul = fotoArtikelPublik(a)[0];
+        var pilihan = fotoPosterArtikel(a), sampul = fotoArtikelPublik(a)[0];
+        var daftar = pilihan.length ? pilihan : sampul ? [{ f: sampul, label: '' }] : [];
         var fonts = Promise.all(['700 70px Fraunces', '700 40px "Plus Jakarta Sans"'].map(function (f) { return document.fonts && document.fonts.load ? document.fonts.load(f) : null; }));
         fonts = Promise.race([fonts, new Promise(function (ok) { setTimeout(ok, 1200); })]).catch(function () {});
-        function muat(f) { return muatGambar(L.situs() + f.path, 'no-cache').catch(function () { return null; }); }
-        var daftarFoto = pasangan.length ? pasangan.map(function (p) { return p.f; }) : sampul ? [sampul] : [];
-        return Promise.all([Promise.all(daftarFoto.map(muat)), muatGambar(L.situs() + 'logo/ayri-logo-putih.svg').catch(function () { return null; }), fonts]).then(function (r) {
+        function muat(d) { return muatGambar(L.situs() + d.f.path, 'no-cache').catch(function () { return null; }); }
+        return Promise.all([Promise.all(daftar.map(muat)), muatGambar(L.situs() + 'logo/ayri-logo-putih.svg').catch(function () { return null; }), fonts]).then(function (r) {
             var im = r[0], logo = r[1];
             var cv = document.createElement('canvas'), W = 1080, H = 1920, EMAS = '#E0A95C', SERIF = 'Fraunces, Georgia, serif', SANS = '"Plus Jakarta Sans", system-ui, sans-serif';
             cv.width = W; cv.height = H;
@@ -2482,20 +2500,20 @@
             wa = wa.replace(/^(\d{4})(\d{4})(\d+)$/, '$1-$2-$3'); c.textBaseline = 'alphabetic';
             g.addColorStop(0, '#1d1812'); g.addColorStop(1, '#0d0a07'); c.fillStyle = g; c.fillRect(0, 0, W, H);
             var gl = c.createRadialGradient(W / 2, 620, 60, W / 2, 620, 760); gl.addColorStop(0, 'rgba(224,169,92,.20)'); gl.addColorStop(1, 'rgba(224,169,92,0)'); c.fillStyle = gl; c.fillRect(0, 0, W, 1300);
-            /* foto memenuhi bingkai (dipotong di tengah); ±250 px atas & bawah dikosongkan untuk tampilan Story */
-            function bingkai(foto, x, y, w0, h0, label) {
-                var k = Math.max(w0 / foto.width, h0 / foto.height), w = foto.width * k, h = foto.height * k;
-                c.save(); c.shadowColor = 'rgba(0,0,0,.55)'; c.shadowBlur = 40; c.shadowOffsetY = 14; rect(c, x, y, w0, h0, 36); c.fillStyle = '#000'; c.fill(); c.restore();
-                c.save(); rect(c, x, y, w0, h0, 36); c.clip(); c.drawImage(foto, x + (w0 - w) / 2, y + (h0 - h) / 2, w, h); c.restore();
-                rect(c, x, y, w0, h0, 36); c.strokeStyle = 'rgba(224,169,92,.55)'; c.lineWidth = 3; c.stroke();
+            /* foto utuh (tidak dipotong), dipusatkan di selnya; bingkai mengikuti ukuran foto */
+            function bingkai(foto, sel, label) {
+                var k = Math.min(sel.w / foto.width, sel.h / foto.height), w = foto.width * k, h = foto.height * k, x = sel.x + (sel.w - w) / 2, y = sel.y + (sel.h - h) / 2;
+                c.save(); c.shadowColor = 'rgba(0,0,0,.55)'; c.shadowBlur = 36; c.shadowOffsetY = 12; rect(c, x, y, w, h, 28); c.fillStyle = '#000'; c.fill(); c.restore();
+                c.save(); rect(c, x, y, w, h, 28); c.clip(); c.drawImage(foto, x, y, w, h); c.restore();
+                rect(c, x, y, w, h, 28); c.strokeStyle = 'rgba(224,169,92,.55)'; c.lineWidth = 3; c.stroke();
                 if (label) {
-                    c.font = '800 26px ' + SANS; var lw = c.measureText(label).width + 44; rect(c, x + 22, y + 22, lw, 50, 25); c.fillStyle = 'rgba(13,10,7,.78)'; c.fill();
-                    c.fillStyle = EMAS; c.fillText(label, x + 44, y + 57);
+                    c.font = '800 ' + (w < 300 ? 20 : 24) + 'px ' + SANS; var lw = c.measureText(label).width + 36; rect(c, x + 14, y + 14, lw, 42, 21); c.fillStyle = 'rgba(13,10,7,.8)'; c.fill();
+                    c.fillStyle = EMAS; c.fillText(label, x + 32, y + 43);
                 }
             }
-            if (pasangan.length && im[0] && im[1]) { bingkai(im[0], 60, 235, 960, 372, pasangan[0].label); bingkai(im[1], 60, 622, 960, 372, pasangan[1].label); }
-            else if (im[0] || im[1]) bingkai(im[0] || im[1], 60, 250, 960, 720, '');
-            else if (logo) { var lw0 = 240, lh0 = lw0 * logo.height / logo.width; c.globalAlpha = .25; c.drawImage(logo, 60 + (960 - lw0) / 2, 250 + (720 - lh0) / 2, lw0, lh0); c.globalAlpha = 1; }
+            var sel = selFotoPoster(Math.max(1, daftar.length)), ada = 0;
+            im.forEach(function (foto, n) { if (foto) { bingkai(foto, sel[n], daftar[n].label); ada++; } });
+            if (!ada && logo) { var lw0 = 240, lh0 = lw0 * logo.height / logo.width; c.globalAlpha = .25; c.drawImage(logo, 60 + (960 - lw0) / 2, 235 + (760 - lh0) / 2, lw0, lh0); c.globalAlpha = 1; }
             /* label + judul + ringkasan */
             var cy = 1020, tag = String(a.tag || 'Artikel').toUpperCase(); c.font = '800 28px ' + SANS;
             var bw = c.measureText(tag).width + 52; rect(c, 60, cy, bw, 56, 28); c.fillStyle = EMAS; c.fill(); c.fillStyle = '#1a1510'; c.fillText(tag, 86, cy + 38);
@@ -2836,7 +2854,16 @@
                 infoArtikel(); if (!$('#ar-pv').hidden) { clearTimeout(pratinjau.t); pratinjau.t = setTimeout(pratinjau, 300); }
             } else if (i != null) { a.foto[+i].alt = t.value; setDirty(true); }
         });
-        ar.addEventListener('change', function (e) { if (e.target.dataset.a === 'status') { a.status = e.target.value; setDirty(true); } });
+        ar.addEventListener('change', function (e) {
+            if (e.target.dataset.a === 'status') { a.status = e.target.value; setDirty(true); }
+            var pi = e.target.dataset.poster;
+            if (pi != null) { /* tiap peran hanya untuk satu foto */
+                var peran = e.target.value;
+                if (peran) a.foto.forEach(function (x, j) { if (j !== +pi && x.poster === peran) delete x.poster; });
+                if (peran) a.foto[+pi].poster = peran; else delete a.foto[+pi].poster;
+                gambarAFoto(); setDirty(true);
+            }
+        });
         ar.addEventListener('click', function (e) {
             var t = e.target.closest('button'); if (!t) return; var d = t.dataset;
             if (t.id === 'ar-ai') tulisArtikelAi(t);
@@ -2848,7 +2875,7 @@
             else if (d.pick) {
                 var f = ae.servis.foto.filter(function (x) { return x.id === d.pick; })[0], ada = -1;
                 a.foto.forEach(function (x, j) { if (x.foto === f.id) ada = j; });
-                if (ada > -1) a.foto.splice(ada, 1); else a.foto.push({ servis: ae.servis.id, foto: f.id, alt: L.TAHAP[f.tahap] });
+                if (ada > -1) a.foto.splice(ada, 1); else a.foto.push({ servis: ae.servis.id, foto: f.id, alt: L.TAHAP[L.tahapFoto(f)] });
                 gambarAFoto(); setDirty(true);
             }
         });
@@ -2881,12 +2908,13 @@
         var a = ae.a;
         $('#ar-foto').innerHTML = a.foto.length ? a.foto.map(function (f, i) {
             return '<div><img data-af="' + i + '" alt=""><input class="ly-in" data-alt="' + i + '" value="' + E(f.alt) + '" placeholder="Keterangan foto"><span class="ly-btns" style="flex-wrap:nowrap">' +
-                (i ? '<button type="button" class="ly-x" data-fup="' + i + '" aria-label="Naikkan">↑</button>' : '') + '<button type="button" class="ly-x" data-fdel="' + i + '" aria-label="Hapus dari artikel">×</button></span></div>';
+                (i ? '<button type="button" class="ly-x" data-fup="' + i + '" aria-label="Naikkan">↑</button>' : '') + '<button type="button" class="ly-x" data-fdel="' + i + '" aria-label="Hapus dari artikel">×</button></span>' +
+                '<select class="ly-in" data-poster="' + i + '" style="grid-column: 1 / -1" aria-label="Peran foto di poster Story">' + opsi([['', 'Poster: otomatis'], ['gitar', 'Poster: gitar'], ['sebelum', 'Poster: sebelum'], ['sesudah', 'Poster: sesudah']], f.poster || '') + '</select></div>';
         }).join('') : '<p class="ly-muted">Belum ada foto.</p>';
         isiGambar($('#ar-foto'));
         var pick = $('#ar-pick'), s = ae.servis, dipakai = a.foto.map(function (x) { return x.foto; });
         pick.innerHTML = s && s.foto && s.foto.length ? '<p class="ly-hint" style="margin:12px 0 6px">Foto dari data servis ' + E(s.kode) + ' (ketuk untuk pakai/lepas):</p><div class="ly-pick">' + s.foto.map(function (f, i) {
-            return '<button type="button" data-pick="' + E(f.id) + '" aria-pressed="' + (dipakai.indexOf(f.id) > -1) + '"><img data-foto="' + i + '" alt="' + E(L.TAHAP[f.tahap]) + '"></button>';
+            return '<button type="button" data-pick="' + E(f.id) + '" aria-pressed="' + (dipakai.indexOf(f.id) > -1) + '"><img data-foto="' + i + '" alt="' + E(L.TAHAP[L.tahapFoto(f)]) + '"></button>';
         }).join('') + '</div>' : '';
         if (s) L.isiFoto(pick, s, A.fotoAdmin);
     }
