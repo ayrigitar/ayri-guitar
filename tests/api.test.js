@@ -54,7 +54,7 @@ test('stok: aksesoris selalu tersimpan sebagai baru, tanpa tingkat kondisi', asy
 test('stok: tiap barang di katalog punya halaman pratinjau unit/<kode>.html (tag WhatsApp), terhapus saat barang tidak lagi tampil', async () => {
     const { gh, A, L } = await mulai();
     const r = await A.simpanStok(stokContoh(null, 1, { id: undefined, kode: undefined, created_at: undefined, gitar_jenis: 'Bass', gitar_merk: 'Fender Aerodyne', warna: 'Hitam', tingkat: 'excellent', deskripsi: 'Jazz "Bass" <2003>' }), []);
-    assert.equal(gh.json('ayri-guitar', 'data/katalog.json').v, 1);
+    assert.equal(gh.json('ayri-guitar', 'data/katalog.json').v, 2);
     const halaman = gh.isi('ayri-guitar', 'unit/' + r.kode + '.html');
     assert.ok(halaman, 'halaman unit dibuat');
     assert.ok(halaman.includes('<meta property="og:title" content="Bass Fender Aerodyne – Rp1.000.000">'), 'judul tanpa kata Gitar untuk bass + harga');

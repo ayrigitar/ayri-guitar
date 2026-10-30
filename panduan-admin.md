@@ -129,6 +129,10 @@ Tarif standar untuk unit di bawah Rp2 juta (ubah di `layanan-config.js` bagian `
 
 Ubah **banner promo** (nyalakan/matikan + teksnya), teks **bagian depan** (label, judul, kalimat pembuka, info jam & lokasi singkat), **harga servis** (nama, keterangan, harga), **alamat**, dan **jam buka**. Desain tidak berubah. Tekan **Terbitkan**; website berubah ±1 menit kemudian. Harga di sini hanya untuk tampilan website; harga jasa di kasir & servis POS diatur terpisah.
 
+## Foto & SEO (otomatis)
+
+Foto **baru** yang Anda unggah ke stok dan artikel otomatis diberi **nama file deskriptif**, misalnya `bass-fender-aerodyne-hitam-glossy-stk-v9fpzw-a1b2c3.webp` (stok: jenis, merk, warna, kode) dan `basic-setup-yamaha-f310-nut-rusak-d4e5f6.webp` (artikel: judul). Nama file tidak pernah memuat nomor seri, harga, atau data pelanggan. Keterangan (alt) foto juga diisi otomatis (stok: "Bass Fender Aerodyne Hitam Glossy bekas Excellent – foto 2"; artikel: judul + nomor foto, bisa diubah), dan Google menerima data gambar terstruktur serta sitemap gambar untuk artikel. Foto lama tidak diganti namanya (alamat lama tetap berfungsi). Foto servis pelanggan tetap bernama acak dan terenkripsi.
+
 ## Bagikan artikel yang sudah terbit
 
 Di menu **Artikel**, artikel berstatus **Terbit** punya dua tombol (juga di halaman edit artikel): **Link** mengirim hanya tautan artikel (di WhatsApp tampil sebagai kartu pratinjau yang bisa diketuk), dan **Story** membuat poster ukuran Story untuk Status WhatsApp atau Instagram, berisi foto **sebelum dan sesudah** (bila artikel punya keduanya; selain itu foto sampul), judul, ringkasan, dan kontak.
