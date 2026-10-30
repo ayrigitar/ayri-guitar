@@ -207,7 +207,7 @@
     /* satu grup foto: yang tersimpan (img data-foto = indeks, diisi L.isiFoto) + antrian. tahap null = semua foto */
     function grupFoto(judul, tahap, foto, antri, tampil) {
         var ada = [], tunggu = antri.filter(function (q) { return !tahap || q.tahap === tahap; });
-        foto.forEach(function (f, i) { if (!tahap || f.tahap === tahap) ada.push([f, i]); });
+        foto.forEach(function (f, i) { if (!tahap || L.tahapFoto(f) === tahap) ada.push([f, i]); });
         return '<div class="ly-fgrup"><h3>' + judul + '<label class="ly-btn ly-btn--sm ly-file">+ Foto<input type="file" accept="image/*" multiple' + (tahap ? ' data-tahap="' + tahap + '"' : '') + '></label></h3>' +
             (ada.length || tunggu.length ? '<div class="ly-foto">' + ada.map(function (x) {
                 return '<figure><img data-foto="' + x[1] + '" alt="">' + (tampil ? tombolTampil(x[0].tampil, 'data-tampil', x[0].id) : '') + '<button type="button" class="ly-fx" data-hapusfoto="' + E(x[0].id) + '" aria-label="Hapus foto">×</button></figure>';
@@ -1404,7 +1404,7 @@
     }
     function gambarFoto() {
         var el = $('#sv-foto'); if (!el) return;
-        el.innerHTML = ['sebelum', 'kerusakan', 'sesudah'].map(function (t) { return grupFoto(L.TAHAP[t], t, ed.s.foto, ed.antri, true); }).join('');
+        el.innerHTML = ['gitar', 'sebelum', 'sesudah'].map(function (t) { return grupFoto(L.TAHAP[t], t, ed.s.foto, ed.antri, true); }).join('');
         L.isiFoto(el, ed.s, A.fotoAdmin);
     }
     function klikServis(e) {
@@ -1504,16 +1504,16 @@
             .concat(['', '## Hasil', '(Ceritakan hasilnya: misalnya action lebih rendah, tidak fret buzz lagi, suara lebih jernih.)'])
             .concat(s.saran ? ['', '## Saran dari kami', s.saran] : [])
             .concat(['', '> Gitar Anda mengalami masalah serupa? Konsultasikan gratis lewat WhatsApp atau mampir ke toko kami di Bogor.']).join('\n');
-        var urutan = ['sebelum', 'kerusakan', 'sesudah'], slug = ArtikelMd.slug(judul), n = 1;
+        var urutan = ['gitar', 'sebelum', 'sesudah'], slug = ArtikelMd.slug(judul), n = 1;
         while (cache.artikel.some(function (a) { return a.slug === slug; })) slug = ArtikelMd.slug(judul) + '-' + (++n);
         var peranPoster = {};
         var draf = {
             judul: judul, slug: slug, tag: 'Hasil Servis', status: 'draf', servis_id: s.id, isi: isi,
             ringkasan: ('Hasil ' + (jasa.join(', ') || 'servis') + ' gitar ' + gitar + ' di Toko Gitar AYRI Bogor, lengkap dengan foto sebelum dan sesudah.').slice(0, 160),
-            foto: s.foto.slice().sort(function (a, b) { return urutan.indexOf(a.tahap) - urutan.indexOf(b.tahap); })
+            foto: s.foto.slice().sort(function (a, b) { return urutan.indexOf(L.tahapFoto(a)) - urutan.indexOf(L.tahapFoto(b)); })
                 .map(function (f) {
-                    var o = { servis: s.id, foto: f.id, alt: L.TAHAP[f.tahap] + ': ' + gitar };
-                    if ((f.tahap === 'sebelum' || f.tahap === 'sesudah') && !peranPoster[f.tahap]) { peranPoster[f.tahap] = 1; o.poster = f.tahap; }
+                    var t = L.tahapFoto(f), o = { servis: s.id, foto: f.id, alt: L.TAHAP[t] + ': ' + gitar };
+                    if (!peranPoster[t]) { peranPoster[t] = 1; o.poster = t; } /* foto pertama tiap tahap (gitar, sebelum, sesudah) dipakai di poster Story */
                     return o;
                 })
         };
@@ -2465,13 +2465,13 @@
     }
     function urlArtikel(a) { return L.situs() + 'artikel-' + a.slug + '.html'; }
     function teksArtikel(a) { return a.judul + '\n\n' + ringkasArtikel(a) + '\n\nBaca selengkapnya: ' + urlArtikel(a); }
-    /* Poster Story memuat sampai 3 foto TANPA dipotong: gitar utuh (besar), sebelum, sesudah. Peran tiap foto dipilih di editor artikel (f.poster);
+    /* Poster Story memuat sampai 3 foto TANPA dipotong: gitar (besar), sebelum, sesudah. Peran tiap foto dipilih di editor artikel (f.poster);
        bila belum dipilih, foto sebelum & sesudah dikenali dari keterangannya; selain itu satu foto sampul. */
-    var PERAN_POSTER = { utuh: 'GITAR UTUH', sebelum: 'SEBELUM', sesudah: 'SESUDAH' };
+    var PERAN_POSTER = { gitar: '', sebelum: 'SEBELUM', sesudah: 'SESUDAH' }; /* foto gitar tanpa tulisan; hanya sebelum & sesudah yang berlabel */
     function fotoArtikelPublik(a) { return (a.foto || []).filter(function (f) { return f.path; }); }
     function fotoPosterArtikel(a) {
         var f = fotoArtikelPublik(a), hasil = [];
-        ['utuh', 'sebelum', 'sesudah'].forEach(function (p) {
+        ['gitar', 'sebelum', 'sesudah'].forEach(function (p) {
             var x = f.filter(function (y) { return y.poster === p; })[0];
             if (x) hasil.push({ f: x, peran: p, label: PERAN_POSTER[p] });
         });
@@ -2480,7 +2480,7 @@
         var sb = cari(/sebelum|before/i), ss = cari(/sesudah|after/i);
         return sb && ss && sb !== ss ? [{ f: sb, peran: 'sebelum', label: 'SEBELUM' }, { f: ss, peran: 'sesudah', label: 'SESUDAH' }] : [];
     }
-    /* tata letak area foto (960 x 760): 1 foto = penuh; 2 foto = berdampingan; 3 foto = utuh besar di kiri, sebelum & sesudah bertumpuk di kanan */
+    /* tata letak area foto (960 x 760): 1 foto = penuh; 2 foto = berdampingan; 3 foto = gitar besar di kiri, sebelum & sesudah bertumpuk di kanan */
     function selFotoPoster(n) {
         if (n === 1) return [{ x: 60, y: 235, w: 960, h: 760 }];
         if (n === 2) return [{ x: 60, y: 235, w: 470, h: 760 }, { x: 550, y: 235, w: 470, h: 760 }];
@@ -2875,7 +2875,7 @@
             else if (d.pick) {
                 var f = ae.servis.foto.filter(function (x) { return x.id === d.pick; })[0], ada = -1;
                 a.foto.forEach(function (x, j) { if (x.foto === f.id) ada = j; });
-                if (ada > -1) a.foto.splice(ada, 1); else a.foto.push({ servis: ae.servis.id, foto: f.id, alt: L.TAHAP[f.tahap] });
+                if (ada > -1) a.foto.splice(ada, 1); else a.foto.push({ servis: ae.servis.id, foto: f.id, alt: L.TAHAP[L.tahapFoto(f)] });
                 gambarAFoto(); setDirty(true);
             }
         });
@@ -2909,12 +2909,12 @@
         $('#ar-foto').innerHTML = a.foto.length ? a.foto.map(function (f, i) {
             return '<div><img data-af="' + i + '" alt=""><input class="ly-in" data-alt="' + i + '" value="' + E(f.alt) + '" placeholder="Keterangan foto"><span class="ly-btns" style="flex-wrap:nowrap">' +
                 (i ? '<button type="button" class="ly-x" data-fup="' + i + '" aria-label="Naikkan">↑</button>' : '') + '<button type="button" class="ly-x" data-fdel="' + i + '" aria-label="Hapus dari artikel">×</button></span>' +
-                '<select class="ly-in" data-poster="' + i + '" style="grid-column: 1 / -1" aria-label="Peran foto di poster Story">' + opsi([['', 'Poster: otomatis'], ['utuh', 'Poster: gitar utuh'], ['sebelum', 'Poster: sebelum'], ['sesudah', 'Poster: sesudah']], f.poster || '') + '</select></div>';
+                '<select class="ly-in" data-poster="' + i + '" style="grid-column: 1 / -1" aria-label="Peran foto di poster Story">' + opsi([['', 'Poster: otomatis'], ['gitar', 'Poster: gitar'], ['sebelum', 'Poster: sebelum'], ['sesudah', 'Poster: sesudah']], f.poster || '') + '</select></div>';
         }).join('') : '<p class="ly-muted">Belum ada foto.</p>';
         isiGambar($('#ar-foto'));
         var pick = $('#ar-pick'), s = ae.servis, dipakai = a.foto.map(function (x) { return x.foto; });
         pick.innerHTML = s && s.foto && s.foto.length ? '<p class="ly-hint" style="margin:12px 0 6px">Foto dari data servis ' + E(s.kode) + ' (ketuk untuk pakai/lepas):</p><div class="ly-pick">' + s.foto.map(function (f, i) {
-            return '<button type="button" data-pick="' + E(f.id) + '" aria-pressed="' + (dipakai.indexOf(f.id) > -1) + '"><img data-foto="' + i + '" alt="' + E(L.TAHAP[f.tahap]) + '"></button>';
+            return '<button type="button" data-pick="' + E(f.id) + '" aria-pressed="' + (dipakai.indexOf(f.id) > -1) + '"><img data-foto="' + i + '" alt="' + E(L.TAHAP[L.tahapFoto(f)]) + '"></button>';
         }).join('') + '</div>' : '';
         if (s) L.isiFoto(pick, s, A.fotoAdmin);
     }

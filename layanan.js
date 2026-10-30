@@ -59,7 +59,9 @@
         batal: { label: 'Dibatalkan', ket: '' }
     };
     L.URUT_STATUS = ['menunggu_dp', 'antri', 'dikerjakan', 'selesai', 'diambil'];
-    L.TAHAP = { sebelum: 'Sebelum servis', kerusakan: 'Kerusakan tambahan', sesudah: 'Sesudah servis' };
+    /* tiga tahap foto servis. Foto lama bertahap "kerusakan tambahan" dianggap foto sebelum servis (bagian yang rusak difoto di tahap Sebelum, penggantinya di Sesudah) */
+    L.TAHAP = { gitar: 'Gitar', sebelum: 'Sebelum servis', sesudah: 'Sesudah servis' };
+    L.tahapFoto = function (f) { return f.tahap === 'kerusakan' ? 'sebelum' : f.tahap; };
     L.beres = function (s) { return s.status === 'selesai' || s.status === 'diambil'; };
 
     /* ---------- garansi: '7h' = 7 hari, '6b' = 6 bulan ---------- */

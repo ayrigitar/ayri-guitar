@@ -60,7 +60,7 @@ Setelah terpasang, token tidak perlu disimpan di tempat lain. Kalau suatu saat l
 | Gitar masuk | **+ Gitar masuk** → isi data, jasa/part, foto *sebelum*, estimasi → **Simpan** → **WA: Tanda terima** |
 | DP / part dibayar | Bagian **Pembayaran** → **Catat pembayaran** → **Simpan**. Status otomatis jadi **Antri** saat DP 50% jasa + part lunas terpenuhi |
 | Mulai dikerjakan | Status **Sedang dikerjakan** → Simpan → (opsional) **WA: Update status** |
-| Ada kerusakan tambahan | Tambah jasa/part, foto di **Kerusakan tambahan**, ubah estimasi, tulis **Pesan untuk pelanggan** → Simpan → **WA: Update status** |
+| Ada kerusakan tambahan | Tambah jasa/part, foto bagian yang rusak di **Sebelum servis** (dan penggantinya di **Sesudah servis**), ubah estimasi, tulis **Pesan untuk pelanggan** → Simpan → **WA: Update status** |
 | Selesai | Status **Selesai**, tambah foto *sesudah*, tulis **Saran** (upgrade/perbaikan lain) → Simpan → **WA: Kabari selesai** |
 | Belum diambil | Daftar servis menampilkan **🔔 … gitar perlu diingatkan** pada hari ke-7 dan ke-12 setelah selesai (lalu seminggu sekali bila biaya titip sudah berjalan). Ketuk **Lihat** → **Ingatkan via WA**; tanggal pengingat tercatat otomatis |
 | Diambil | Kalau lewat masa gratis: bagian Status → **+ Tambah biaya penitipan**. Catat pelunasan → status **Sudah diambil** → Simpan → **WA: Kirim nota**. Garansi mulai dihitung hari ini |
@@ -131,7 +131,7 @@ Ubah **banner promo** (nyalakan/matikan + teksnya), teks **bagian depan** (label
 
 ## Bagikan artikel yang sudah terbit
 
-Di menu **Artikel**, artikel berstatus **Terbit** punya dua tombol (juga di halaman edit artikel): **Link** mengirim hanya tautan artikel (di WhatsApp tampil sebagai kartu pratinjau yang bisa diketuk), dan **Story** membuat poster ukuran Story untuk Status WhatsApp atau Instagram, berisi sampai **3 foto utuh tanpa dipotong** (gitar utuh, sebelum, sesudah), judul, ringkasan, dan kontak. Peran tiap foto dipilih di editor artikel, di bawah setiap foto (**Poster: gitar utuh / sebelum / sesudah**); artikel yang dibuat dari menu servis otomatis memberi peran sebelum dan sesudah pada foto pertama tiap tahap, sedangkan **gitar utuh** dipilih sendiri. Tanpa pilihan, poster memakai satu foto sampul.
+Di menu **Artikel**, artikel berstatus **Terbit** punya dua tombol (juga di halaman edit artikel): **Link** mengirim hanya tautan artikel (di WhatsApp tampil sebagai kartu pratinjau yang bisa diketuk), dan **Story** membuat poster ukuran Story untuk Status WhatsApp atau Instagram, berisi sampai **3 foto utuh tanpa dipotong** (gitar, sebelum, sesudah), judul, ringkasan, dan kontak. Foto servis punya tiga tahap: **Gitar**, **Sebelum servis**, dan **Sesudah servis**. Artikel yang dibuat dari menu servis (**Jadikan artikel**) otomatis memberi peran poster pada foto pertama tiap tahap; peran tiap foto juga bisa diubah di editor artikel, di bawah setiap foto (**Poster: gitar / sebelum / sesudah**). Hanya foto sebelum dan sesudah yang diberi label di poster. Tanpa pilihan, poster memakai satu foto sampul.
 
 ## AI penulis: deskripsi barang & draf artikel
 

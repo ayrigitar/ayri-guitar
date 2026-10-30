@@ -161,3 +161,10 @@ test('nama barang: bass dan ukulele tanpa kata Gitar, tingkat kondisi hanya untu
     assert.equal(L.tingkatStok(g('Bass', 'X', { tingkat: 'ngawur' })), '', 'nilai tak dikenal diabaikan');
     assert.equal(L.KONDISI.bekas, 'Used');
 });
+
+test('tahap foto servis: tiga tahap (gitar, sebelum, sesudah); foto lama "kerusakan tambahan" dianggap sebelum', () => {
+    assert.deepEqual(Object.keys(L.TAHAP), ['gitar', 'sebelum', 'sesudah']);
+    assert.equal(L.TAHAP.gitar, 'Gitar');
+    assert.equal(L.tahapFoto({ tahap: 'kerusakan' }), 'sebelum');
+    assert.deepEqual(['gitar', 'sebelum', 'sesudah'].map((t) => L.tahapFoto({ tahap: t })), ['gitar', 'sebelum', 'sesudah']);
+});

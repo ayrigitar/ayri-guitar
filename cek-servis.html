@@ -177,15 +177,16 @@ document.addEventListener('DOMContentLoaded', function () {
             '<p style="margin-top:12px"><a class="ly-btn ly-btn--wa" target="_blank" rel="noopener" href="' + E(waToko('Halo AYRI, saya pemilik servis ' + s.kode + '. Saya mau tanya soal saran dari bengkel: ')) + '">Tanya / setujui lewat WhatsApp</a></p></section>';
 
         var foto = s.foto || [];
-        function kelompokFoto(t) { var fs = []; foto.forEach(function (x, i) { if (x.tahap === t) fs.push([x, i]); }); return fs; }
+        function kelompokFoto(t) { var fs = []; foto.forEach(function (x, i) { if (L.tahapFoto(x) === t) fs.push([x, i]); }); return fs; }
         function fig(p) {
             var x = p[0];
-            return '<figure><button type="button" data-besar="' + p[1] + '"><img data-foto="' + p[1] + '" alt="' + E(L.TAHAP[x.tahap] + (x.keterangan ? ': ' + x.keterangan : '')) + '"></button>' +
+            return '<figure><button type="button" data-besar="' + p[1] + '"><img data-foto="' + p[1] + '" alt="' + E(L.TAHAP[L.tahapFoto(x)] + (x.keterangan ? ': ' + x.keterangan : '')) + '"></button>' +
                 (x.keterangan ? '<figcaption>' + E(x.keterangan) + '</figcaption>' : '') + '</figure>';
         }
         function seksi(judul, isi) { return '<section class="ly-card"><h2>' + judul + '</h2>' + isi + '</section>'; }
         function grid(fs) { return '<div class="ly-foto cek-foto">' + fs.map(fig).join('') + '</div>'; }
-        var fSebelum = kelompokFoto('sebelum'), fSesudah = kelompokFoto('sesudah'), fRusak = kelompokFoto('kerusakan');
+        var fGitar = kelompokFoto('gitar'), fSebelum = kelompokFoto('sebelum'), fSesudah = kelompokFoto('sesudah');
+        if (fGitar.length) html += seksi('Gitar', grid(fGitar));
         if (fSebelum.length && fSesudah.length) {
             /* pembanding: kolom kiri sebelum, kolom kanan sesudah; labelnya cukup sekali di kepala kolom */
             var n = Math.max(fSebelum.length, fSesudah.length), baris = '';
@@ -195,7 +196,6 @@ document.addEventListener('DOMContentLoaded', function () {
             if (fSesudah.length) html += seksi(L.TAHAP.sesudah, grid(fSesudah));
             if (fSebelum.length) html += seksi('Kondisi saat masuk', grid(fSebelum));
         }
-        if (fRusak.length) html += seksi(L.TAHAP.kerusakan, grid(fRusak));
 
         if (hit.total) {
             html += '<section class="ly-card"><h2>Biaya</h2><div class="ly-sum" style="margin:0;padding:0;border:0">' +

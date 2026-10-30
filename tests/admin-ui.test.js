@@ -22,10 +22,10 @@ test('artikel terbit bisa dibagikan: poster 1080x1920 + teks + tautan, tombol di
     assert.match(kode, /\(a\.status === 'terbit' \? '<span class="ly-item__b"><button type="button" class="ly-btn ly-btn--sm" data-link-ar=/, 'tombol hanya di artikel terbit');
     assert.match(kode, /function bagikanLinkArtikel\(a\)/); assert.match(kode, /navigator\.share\(\{ title: a\.judul, url: url \}\)/, 'tautan saja, tanpa gambar');
     assert.match(kode, /id: 'ar-link'/);
-    assert.match(kode, /var PERAN_POSTER = \{ utuh: 'GITAR UTUH', sebelum: 'SEBELUM', sesudah: 'SESUDAH' \};/); assert.match(kode, /\/sebelum\|before\/i/, 'foto sebelum/sesudah dikenali dari keterangan bila belum dipilih');
+    assert.match(kode, /var PERAN_POSTER = \{ gitar: '', sebelum: 'SEBELUM', sesudah: 'SESUDAH' \};/); assert.doesNotMatch(kode, /GITAR UTUH|gitar utuh/i, 'poster & editor tanpa tulisan "gitar utuh"'); assert.match(kode, /\/sebelum\|before\/i/, 'foto sebelum/sesudah dikenali dari keterangan bila belum dipilih');
     assert.match(kode, /Math\.min\(sel\.w \/ foto\.width, sel\.h \/ foto\.height\)/, 'foto utuh di dalam sel (contain), tidak dipotong');
     assert.doesNotMatch(kode.slice(kode.indexOf('function buatPosterArtikel'), kode.indexOf('function bagikanLinkArtikel')), /Math\.max\(w0 \/ foto/, 'tidak ada pemotongan (cover) di poster artikel');
-    assert.match(kode, /data-poster=/); assert.match(kode, /peranPoster\[f\.tahap\]/, 'draf dari servis memberi peran sebelum & sesudah otomatis');
+    assert.match(kode, /data-poster=/); assert.match(kode, /if \(!peranPoster\[t\]\) \{ peranPoster\[t\] = 1; o\.poster = t; \}/, 'draf dari servis memberi peran gitar, sebelum & sesudah otomatis');
 });
 
 test('pilih dari kontak: tombol di form servis, tebus/titip, jual, dan sewa; hanya muncul bila browser mendukung', () => {
