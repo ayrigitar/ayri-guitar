@@ -1018,7 +1018,34 @@
                 maks: aks ? 600 : 900
             };
         },
-        artikel: function (a, servis) {
+        /* artikel profil satu unit stok (gitar atau aksesoris): spesifikasi model, merek, perawatan, tanya jawab.
+           Fakta UNIT hanya dari data & catatan toko; fakta model/merek hanya yang diyakini benar oleh AI (lalu diperiksa admin). */
+        artikelUnit: function (a, s) {
+            var aks = s.kategori === 'aksesoris', t = aks ? null : C.tingkatKondisi.filter(function (x) { return x[0] === s.tingkat; })[0];
+            var data = aks ? ['Kategori: ' + (s.sub || 'Aksesoris'), 'Nama: ' + (s.nama || '-'), s.warna ? 'Varian: ' + s.warna : '', 'Kondisi: baru']
+                : ['Barang: ' + L.judulStok(s), 'Jenis: ' + (s.gitar_jenis || 'Gitar'), s.warna ? 'Warna: ' + s.warna : '', 'Kondisi: ' + (s.kondisi === 'bekas' ? 'bekas (used)' + (t ? ', tingkat ' + t[1] + ' (' + t[2] + ')' : '') : 'baru')];
+            var bagian = aks
+                ? ['## Apa itu dan untuk apa', '## Cara memilih (jenis, ukuran, atau bahan yang cocok)', '## Cara memakai dan merawat', '## Tanya jawab (4 sampai 5 pertanyaan, tiap pertanyaan **tebal** lalu jawabannya)', '## Di ' + C.toko.nama + ' (ajak bertanya atau mencoba lewat WhatsApp)']
+                : ['## Sekilas tentang model ini', '## Spesifikasi (poin-poin)', '## Cocok untuk siapa', '## Kelebihan dan hal yang perlu diperhatikan', '## Sejarah singkat merek',
+                    '## Dipakai oleh siapa (LEWATI bagian ini bila kamu tidak yakin ada pemakai terdokumentasi)', s.kondisi === 'bekas' ? '## Kalau membeli bekas, cek ini (sesuai jenis instrumennya)' : '## Yang perlu dicek saat membeli',
+                    '## Cara merawat', '## Tanya jawab (4 sampai 5 pertanyaan, tiap pertanyaan **tebal** lalu jawabannya)', '## Unit ini di ' + C.toko.nama + ' (dari catatan toko saja, lalu ajak bertanya lewat WhatsApp)'];
+            return {
+                sistem: 'Kamu menulis artikel panduan produk untuk website ' + C.toko.nama + ', toko gitar di Bogor. Bahasa Indonesia yang jelas dan bersahabat untuk calon pembeli awam. ' +
+                    'Ada dua jenis fakta. (1) FAKTA UNIT INI (kondisi, tahun, kelengkapan, lecet, bonus): hanya dari data dan catatan toko, jangan mengarang. ' +
+                    '(2) FAKTA MODEL DAN MEREK (spesifikasi, sejarah, pemakai, cara merawat): hanya yang kamu yakin benar; kalau tidak yakin, lewati, jangan menebak angka, tahun, atau nama. ' +
+                    'Pemakai terkenal hanya boleh disebut bila terdokumentasi, ditulis sebagai fakta netral, tanpa kesan endorsement atau kerja sama dengan merek. ' +
+                    'Jangan menyebut harga, nomor telepon, atau alamat. Jangan menyebut nama pelanggan. ' +
+                    'Format jawaban: baris pertama "RINGKASAN: " diikuti ringkasan paling banyak 150 huruf untuk Google, lalu satu baris kosong, lalu isi artikel. ' +
+                    'Isi memakai subjudul "## ...", poin "- ...", dan **tebal** seperlunya, tanpa judul utama (judul sudah ada). Panjang ' + (aks ? '400 sampai 600' : '700 sampai 1000') + ' kata.',
+                prompt: 'Judul artikel: ' + (a.judul || '') + '\n\nData barang:\n' + data.filter(Boolean).map(function (x) { return '- ' + x; }).join('\n') +
+                    '\n\nCatatan dari toko (fakta unit ini, wajib dipakai apa adanya):\n' + (String(s.deskripsi || '').trim() || '(tidak ada)') +
+                    (String(a.isi || '').trim() ? '\n\nBahan tambahan dari admin:\n' + String(a.isi).trim() : '') +
+                    '\n\nSusun artikel dengan subjudul berikut, berurutan:\n' + bagian.join('\n'),
+                maks: 3200
+            };
+        },
+        artikel: function (a, servis, stok) {
+            if (stok) return L.ai.artikelUnit(a, stok);
             var kasus = servis ? ['Gitar: ' + L.namaGitar(servis, 'gitar'), servis.keluhan ? 'Keluhan: ' + servis.keluhan : '',
                 (servis.items || []).length ? 'Pekerjaan: ' + servis.items.map(function (i) { return i.nama; }).join(', ') : ''].filter(Boolean).join('\n') : '';
             return {
@@ -1666,7 +1693,7 @@
         });
     };
     function fotoServisArtikel(f) {
-        var s = cari(data.servis, f.servis), ff = s && cari(s.foto || [], f.foto);
+        var s = f.stok ? cari(data.stok, f.stok) : cari(data.servis, f.servis), ff = s && cari(s.foto || [], f.foto); /* foto servis (terenkripsi) atau foto produk stok (publik) */
         return ff ? { s: s, f: ff } : null;
     }
     L.api.fotoArtikel = function (f) {
@@ -1681,7 +1708,7 @@
         return Promise.all((tampil ? art.foto || [] : []).map(function (f, i) {
             if (f.path) return;
             var x = fotoServisArtikel(f);
-            if (!x) throw new Error('Foto servis untuk artikel tidak ditemukan.');
+            if (!x) throw new Error('Foto ' + (f.stok ? 'stok' : 'servis') + ' untuk artikel tidak ditemukan.');
             return fotoMentah(x.s, x.f, true).then(function (b) { return b.arrayBuffer(); }).then(function (buf) {
                 var p2 = 'foto/artikel/' + L.slugFoto(art.slug + ' ' + (f.poster || ''), 70) + '-' + acakHex(3) + (x.f.tipe === 'image/jpeg' ? '.jpg' : '.webp');
                 fotoFile.push({ path: p2, base64: b64(buf) }); art.foto[i] = Object.assign({ path: p2, alt: f.alt || '' }, f.poster ? { poster: f.poster } : {});

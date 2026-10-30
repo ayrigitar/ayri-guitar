@@ -14,7 +14,7 @@
         return d.length > 160 ? d.slice(0, 157).replace(/\s+\S*$/, '') + '…' : d;
     }
     function halaman(tpl, a, situs) {
-        var url = situs + 'artikel-' + slugAman(a) + '.html', foto = fotoValid(a), desk = deskripsi(a);
+        var url = situs + 'artikel-' + slugAman(a) + '.html', foto = fotoValid(a), desk = deskripsi(a), unit = /^[A-Za-z0-9-]{1,30}$/.test(String(a.stok_kode || '')) ? a.stok_kode : '';
         var ld = {
             '@context': 'https://schema.org', '@type': 'Article', headline: a.judul.slice(0, 110), description: desk, inLanguage: 'id',
             datePublished: a.terbit_at || undefined, dateModified: a.updated_at || a.terbit_at || undefined, mainEntityOfPage: url,
@@ -40,7 +40,13 @@
             SAMPUL: foto.length ? fig(foto[0], 'article-photo container container--article', false) : '',
             ISI: md.keHtml(a.isi).split('\n').map(function (l) { return '                ' + l; }).join('\n'),
             GALERI: foto.length > 1 ? '                <div class="article-gallery">\n' + foto.slice(1).map(function (f) { return fig(f, 'article-gallery__item', true); }).join('\n') + '\n                </div>' : '',
-            WA_TEKS: esc('?text=' + encodeURIComponent('Halo AYRI, saya baca artikel "' + a.judul + '" dan mau konsultasi gitar saya'))
+            WA_TEKS: esc('?text=' + encodeURIComponent(unit ? 'Halo AYRI, saya baca artikel "' + a.judul + '" dan mau tanya unit ' + unit : 'Halo AYRI, saya baca artikel "' + a.judul + '" dan mau konsultasi gitar saya')),
+            /* artikel profil unit stok: kotak ketersediaan (diperbarui artikel-unit.js dari data/katalog.json, tetap tayang setelah unit terjual) */
+            UNIT: unit ? '                <aside class="unit-box" data-unit="' + esc(unit) + '">\n                    <p class="unit-box__teks" data-unit-teks>Ingin tahu apakah unit ini masih tersedia? Tanyakan lewat WhatsApp.</p>\n' +
+                '                    <div class="unit-box__aksi" data-unit-aksi><a class="btn btn--wa btn--sm" href="https://wa.me/6285795738637' + esc('?text=' + encodeURIComponent('Halo AYRI, apakah unit ' + unit + ' masih ada?')) + '" target="_blank" rel="noopener">Tanya via WhatsApp</a></div>\n                </aside>' : '',
+            OFFER_JUDUL: unit ? 'Tertarik dengan unit ini?' : 'Gitar Anda mengalami masalah serupa?',
+            OFFER_TEKS: unit ? 'Datang langsung ke toko kami di Bogor untuk mencoba, atau tanya dulu lewat WhatsApp. Kami bantu cari unit yang paling cocok untuk Anda.'
+                : 'Bawa ke bengkel kami di Bogor, atau konsultasi gratis dulu lewat WhatsApp. Kirim foto gitarnya, kami bantu perkirakan pekerjaan dan biayanya.'
         };
         return tpl.replace(/\{\{([A-Z_]+)\}\}/g, function (m, k) { return k in isi ? isi[k] : m; });
     }

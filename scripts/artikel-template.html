@@ -35,6 +35,7 @@
     <script src="theme.js"></script>
     <script src="pwa.js" defer></script>
     <script src="site.js" defer></script>
+    <script src="artikel-unit.js" defer></script>
 </head>
 <body>
     <a class="skip-link" href="#konten">Langsung ke konten</a>
@@ -137,11 +138,12 @@
             </header>
 {{SAMPUL}}
             <div class="article-body container container--article prose" data-read-body>
+{{UNIT}}
 {{ISI}}
 {{GALERI}}
                 <div class="offer" data-reveal>
-                    <h2 class="offer__title">Gitar Anda mengalami masalah serupa?</h2>
-                    <p class="offer__text">Bawa ke bengkel kami di Bogor, atau konsultasi gratis dulu lewat WhatsApp. Kirim foto gitarnya, kami bantu perkirakan pekerjaan dan biayanya.</p>
+                    <h2 class="offer__title">{{OFFER_JUDUL}}</h2>
+                    <p class="offer__text">{{OFFER_TEKS}}</p>
                     <a href="https://wa.me/6285795738637{{WA_TEKS}}" target="_blank" rel="noopener" class="btn btn--wa btn--lg offer__cta">
                         <svg class="ic ic--fill" aria-hidden="true"><use href="#i-wa"/></svg> Konsultasi via WhatsApp
                     </a>

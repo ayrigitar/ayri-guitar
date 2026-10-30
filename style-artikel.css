@@ -259,3 +259,10 @@ html[data-theme="dark"] .offer { border: 1px solid var(--line); }
 .prose ol:not([class]) { list-style: decimal; }
 .prose ul:not([class]) li + li, .prose ol:not([class]) li + li { margin-top: .4em; }
 .prose blockquote { margin: 0; padding: 14px 18px; border-left: 3px solid var(--accent); border-radius: 0 var(--r-sm) var(--r-sm) 0; background: var(--accent-soft); color: var(--ink-2); }
+
+/* Kotak ketersediaan unit (artikel profil unit stok; diisi artikel-unit.js)
+   ========================================================================== */
+.unit-box { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 16px; margin: 0 0 1.75em; padding: 16px 18px; border: 1px solid var(--accent-line); border-radius: var(--r-md, 14px); background: var(--accent-soft); }
+.unit-box__teks { margin: 0; font-weight: 650; color: var(--ink); }
+.unit-box__aksi { display: flex; flex-wrap: wrap; gap: 8px; }
+.unit-box[data-status="tidak-tersedia"] { background: var(--surface-2); border-color: var(--line-strong); }
