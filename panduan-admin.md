@@ -129,6 +129,10 @@ Tarif standar untuk unit di bawah Rp2 juta (ubah di `layanan-config.js` bagian `
 
 Ubah **banner promo** (nyalakan/matikan + teksnya), teks **bagian depan** (label, judul, kalimat pembuka, info jam & lokasi singkat), **harga servis** (nama, keterangan, harga), **alamat**, dan **jam buka**. Desain tidak berubah. Tekan **Terbitkan**; website berubah ±1 menit kemudian. Harga di sini hanya untuk tampilan website; harga jasa di kasir & servis POS diatur terpisah.
 
+## Bagikan artikel yang sudah terbit
+
+Di menu **Artikel**, artikel berstatus **Terbit** punya tombol **Bagikan** (juga di halaman edit artikel: **Bagikan ke Story / WhatsApp**). Yang dibagikan: poster ukuran Story (foto sampul, judul, ringkasan, kontak) dan teks berisi tautan artikel. Pilih WhatsApp (Status atau chat) atau Instagram dari menu bagikan HP.
+
 ## AI penulis: deskripsi barang & draf artikel
 
 Setelah perantara AI dipasang (langkah di `ai-worker/README.md`), muncul tombol **✨ Tulis deskripsi dengan AI** di form Stok dan **✨ Tulis draf dengan AI** di form Artikel. Tulis catatan singkat dulu (kondisi, kelengkapan, atau bahan artikel), lalu tekan tombolnya. Hasil AI hanya **draf**: periksa faktanya, ubah bila perlu, lalu Simpan. Yang dikirim ke AI hanya data barang dan bahan artikel, tidak pernah nama, nomor HP, harga modal, atau KTP pelanggan. Sebelum dipasang, tombol AI tidak tampil.
