@@ -45,12 +45,12 @@ test('kode unit berbahaya tidak masuk halaman', () => {
 
 test('permintaan AI artikel unit: gitar vs aksesoris, fakta unit dari catatan toko, tanpa harga', async () => {
     const { L } = await mulai();
-    const g = L.ai.artikel({ judul: 'Akustik Yamaha F310' }, null, stokContoh('s1', 1, { gitar_jenis: 'Akustik', gitar_merk: 'Yamaha F310', kondisi: 'bekas', deskripsi: 'lecet kecil di body', harga_jual: 1500000, harga_beli: 900000 }));
+    const g = L.ai.artikel({ judul: 'Akustik Yamaha F310' }, null, stokContoh('s1', 1, { gitar_jenis: 'Akustik', merek: 'Yamaha', gitar_merk: 'F310', kondisi: 'bekas', deskripsi: 'lecet kecil di body', harga_jual: 1500000, harga_beli: 900000 }));
     assert.match(g.sistem, /FAKTA UNIT INI/); assert.match(g.sistem, /tanpa kesan endorsement/);
-    assert.match(g.prompt, /Sejarah singkat merek/); assert.match(g.prompt, /Kalau membeli bekas/); assert.match(g.prompt, /lecet kecil di body/);
+    assert.match(g.prompt, /Tentang merek Yamaha/); assert.match(g.prompt, /jangan diulang/); assert.doesNotMatch(g.prompt, /Sejarah singkat/); assert.match(g.prompt, /Kalau membeli bekas/); assert.match(g.prompt, /lecet kecil di body/);
     assert.ok(!/1500000|900000|1\.500\.000/.test(g.prompt), 'harga tidak dikirim ke AI');
     const a = L.ai.artikel({ judul: 'Senar' }, null, stokContoh('s2', 3, { kategori: 'aksesoris', sub: 'Senar', nama: 'Orphee NX35' }));
-    assert.match(a.prompt, /Cara memilih/); assert.doesNotMatch(a.prompt, /Sejarah singkat merek/);
+    assert.match(a.prompt, /Cara memilih/); assert.doesNotMatch(a.prompt, /Tentang merek/);
     assert.match(L.ai.artikel({ judul: 'x' }, null, null).sistem, /artikel blog/, 'tanpa stok: artikel servis seperti biasa');
 });
 
@@ -74,4 +74,34 @@ test('skrip kotak unit: tersedia, dipesan, tidak tersedia, dan gagal memuat', as
     assert.equal(r.kotak.attrs['data-status'], 'tidak-tersedia'); assert.match(r.teks.textContent, /sudah tidak tersedia/);
     r = await jalankan(() => Promise.reject(new Error('offline')));
     assert.equal(r.kotak.attrs['data-status'], undefined, 'gagal memuat: teks bawaan dibiarkan'); assert.equal(r.teks.textContent, '');
+});
+
+test('merek dan model dipisah: nama stok tidak menggandakan merek, stok lama tetap sama', async () => {
+    const { L } = await mulai();
+    assert.equal(L.namaStok({ kategori: 'gitar', merek: 'Fender', gitar_merk: 'Aerodyne' }), 'Fender Aerodyne');
+    assert.equal(L.namaStok({ kategori: 'gitar', merek: 'Yamaha', gitar_merk: 'Yamaha F310' }), 'Yamaha F310', 'model lama yang sudah memuat merek tidak digandakan');
+    assert.equal(L.namaStok({ kategori: 'gitar', gitar_merk: 'Yamaha F310' }), 'Yamaha F310', 'stok lama tanpa merek tidak berubah');
+    assert.equal(L.namaStok({ kategori: 'gitar', merek: 'Cort', gitar_merk: '', gitar_jenis: 'Akustik' }), 'Cort');
+    assert.equal(L.namaStok({ kategori: 'aksesoris', merek: 'Elixir', nama: 'Nanoweb 11-52' }), 'Elixir Nanoweb 11-52');
+    assert.equal(L.judulStok({ kategori: 'gitar', gitar_jenis: 'Akustik', merek: 'Yamaha', gitar_merk: 'F310' }), 'Gitar Akustik Yamaha F310');
+    assert.equal(L.kunciMerek('Yamaha '), 'yamaha');
+});
+
+test('artikel merek: tautan di artikel unit muncul saat artikel merek terbit, hilang saat ditarik, dan prompt AI-nya khusus merek', async () => {
+    const { gh, A, L } = await mulai();
+    const unit = await A.simpanArtikel({ judul: 'Yamaha F310 bekas', slug: 'yamaha-f310-bekas', tag: 'Profil Gitar', ringkasan: 'r', isi: '## Spek\n\nisi', status: 'terbit', stok_kode: 'STK-AAA111', merek_nama: 'Yamaha', merek_kunci: 'yamaha', foto: [] });
+    const lain = await A.simpanArtikel({ judul: 'Fender Aerodyne', slug: 'fender-aerodyne', tag: 'Profil Gitar', ringkasan: 'r', isi: '## Spek\n\nisi', status: 'terbit', stok_kode: 'STK-BBB222', merek_nama: 'Fender', merek_kunci: 'fender', foto: [] });
+    const halUnit = () => gh.isi('ayri-guitar', 'artikel-yamaha-f310-bekas.html');
+    assert.ok(!halUnit().includes('Baca selengkapnya tentang mereknya'), 'belum ada artikel merek: tanpa tautan');
+    const merek = await A.simpanArtikel({ judul: 'Yamaha: Sejarah', slug: 'yamaha-sejarah', tag: 'Profil Merek', ringkasan: 'r', isi: '## Sejarah\n\nisi', status: 'terbit', jenis_artikel: 'merek', merek_nama: 'Yamaha', merek_kunci: 'yamaha', foto: [] });
+    assert.ok(halUnit().includes('href="artikel-yamaha-sejarah.html"') && halUnit().includes('Yamaha: Sejarah'), 'artikel unit memuat tautan ke artikel merek');
+    assert.ok(!gh.isi('ayri-guitar', 'artikel-fender-aerodyne.html').includes('yamaha-sejarah'), 'merek lain tidak ikut tertaut');
+    const halMerek = gh.isi('ayri-guitar', 'artikel-yamaha-sejarah.html');
+    assert.ok(!halMerek.includes('data-unit=') && halMerek.includes('Cari Yamaha bekas atau baru?') && !halMerek.includes('{{'));
+    await A.simpanArtikel(Object.assign({}, merek, { status: 'draf' })); /* ditarik */
+    assert.ok(!halUnit().includes('yamaha-sejarah'), 'artikel merek ditarik: tautan hilang');
+    assert.equal(gh.isi('ayri-guitar', 'artikel-yamaha-sejarah.html'), null);
+    const p = L.ai.artikel(merek, null, null);
+    assert.match(p.prompt, /Merek: Yamaha/); assert.match(p.prompt, /Sejarah singkat/); assert.match(p.sistem, /fakta merek/); assert.doesNotMatch(p.prompt, /Unit ini di/);
+    assert.ok(unit && lain);
 });

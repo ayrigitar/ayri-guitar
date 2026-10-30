@@ -2419,7 +2419,7 @@
         }).join('');
         var hasil = rows.filter(function (s) {
             var ok = filterSk === 'semua' ? true : filterSk === 'terjual' ? (s.penjualan || []).length > 0 : filterSk === 'tersedia' ? adaStok(s) : adaStok(s) && kelStok(s) === filterSk;
-            return ok && (!c || [s.kode, s.nama, s.sub, s.gitar_jenis, s.gitar_merk, s.warna, s.no_seri, s.deskripsi].join(' ').toLowerCase().indexOf(c) > -1);
+            return ok && (!c || [s.kode, s.merek, s.nama, s.sub, s.gitar_jenis, s.gitar_merk, s.warna, s.no_seri, s.deskripsi].join(' ').toLowerCase().indexOf(c) > -1);
         });
         $('#list').innerHTML = hasil.length ? hasil.map(function (s) {
             var u = L.untungStok(s), lama = L.hariAntara(s.tgl_masuk, hari);
@@ -2657,6 +2657,7 @@
         while (cache.artikel.some(function (x) { return x.slug === slug; })) slug = ArtikelMd.slug(judul) + '-' + (++n);
         var draf = {
             judul: judul, slug: slug, tag: aks ? 'Panduan Aksesoris' : 'Profil Gitar', status: 'draf', stok_id: s.id, stok_kode: s.kode, isi: '', ringkasan: '',
+            merek_nama: s.merek || undefined, merek_kunci: s.merek ? L.kunciMerek(s.merek) : undefined,
             foto: (s.foto || []).filter(function (f) { return f.repo === 'publik'; }).slice(0, 6).map(function (f, i) {
                 var o = { stok: s.id, foto: f.id, alt: nama + (s.warna ? ' ' + s.warna : '') + ' – foto ' + (i + 1) };
                 if (!i) o.poster = 'gitar';
@@ -2665,12 +2666,25 @@
         };
         sibuk(b, true, 'Membuat draf…');
         A.simpanArtikel(draf).then(function (row) {
-            taruh('artikel', row); toast('Draf artikel dibuat. Tekan “Tulis draf dengan AI”, periksa faktanya, lalu terbitkan.');
+            taruh('artikel', row);
+            toast('Draf artikel dibuat. Tekan “Tulis draf dengan AI”, periksa faktanya, lalu terbitkan.' + (!s.merek ? ' Isi Merek di data stok agar artikel terhubung ke artikel merek.' : !artikelMerekStok(s) ? ' Artikel merek ' + s.merek + ' belum ada; buat dari kartu stok, tautannya terpasang otomatis.' : ''));
+            pindah('#artikel/' + row.id);
+        }).catch(function (e) { sibuk(b, false); gagal(e); });
+    }
+    /* artikel MEREK: satu per merek (sejarah, ciri khas, lini produk, tanya jawab), ditautkan otomatis dari semua artikel unit merek itu */
+    function artikelMerekStok(s) { var k = s.merek ? L.kunciMerek(s.merek) : ''; return k ? cache.artikel.filter(function (a) { return a.jenis_artikel === 'merek' && a.merek_kunci === k; })[0] : null; }
+    function buatArtikelMerek(s, b) {
+        var ada = artikelMerekStok(s); if (ada) return pindah('#artikel/' + ada.id);
+        var judul = (s.merek + ': Sejarah, Ciri Khas, dan Pilihan ' + (s.kategori === 'aksesoris' ? 'Produknya' : 'Gitarnya')).slice(0, 110), slug = ArtikelMd.slug(judul), n = 1;
+        while (cache.artikel.some(function (x) { return x.slug === slug; })) slug = ArtikelMd.slug(judul) + '-' + (++n);
+        sibuk(b, true, 'Membuat draf…');
+        A.simpanArtikel({ judul: judul, slug: slug, tag: 'Profil Merek', status: 'draf', jenis_artikel: 'merek', merek_nama: s.merek, merek_kunci: L.kunciMerek(s.merek), isi: '', ringkasan: '', foto: [] }).then(function (row) {
+            taruh('artikel', row); toast('Draf artikel merek dibuat. Tekan “Tulis draf dengan AI”, periksa faktanya, lalu terbitkan. Tautan ke artikel unit terpasang otomatis.');
             pindah('#artikel/' + row.id);
         }).catch(function (e) { sibuk(b, false); gagal(e); });
     }
     function stokKosong() {
-        return { kategori: 'gitar', kondisi: 'bekas', tingkat: '', gitar_jenis: C.jenisGitar[0], gitar_merk: '', sub: C.kategoriAksesoris[0], nama: '', warna: '', no_seri: '', deskripsi: '', jumlah: 1, harga_beli: 0, harga_jual: 0, tgl_masuk: L.hariIni(), asal: '', status: 'tersedia', tampil: true, penjualan: [], foto: [], catatan_admin: '' };
+        return { kategori: 'gitar', kondisi: 'bekas', tingkat: '', gitar_jenis: C.jenisGitar[0], merek: '', gitar_merk: '', sub: C.kategoriAksesoris[0], nama: '', warna: '', no_seri: '', deskripsi: '', jumlah: 1, harga_beli: 0, harga_jual: 0, tgl_masuk: L.hariIni(), asal: '', status: 'tersedia', tampil: true, penjualan: [], foto: [], catatan_admin: '' };
     }
     function bukaStok(id) { ambilCatatan('stok', id, stokKosong, function (s) { s.foto = s.foto || []; s.penjualan = s.penjualan || []; sk = { baru: !id, s: s, antri: [] }; gambarStok(); }); }
     function gambarStok() {
@@ -2687,9 +2701,10 @@
             '<div class="ly-status" id="sk-kondisi"' + (aks ? ' hidden' : '') + '>' + ['baru', 'bekas'].map(function (k) { return '<button type="button" data-kondisi="' + k + '" aria-pressed="' + (s.kondisi === k) + '">' + L.KONDISI[k] + '</button>'; }).join('') + '</div>' +
             '<div id="sk-tingkat" class="ly-f"' + (!aks && s.kondisi === 'bekas' ? '' : ' hidden') + '><label>Tingkat kondisi (tampil di poster &amp; katalog)<select data-s="tingkat">' + opsi([['', 'Belum dinilai']].concat(C.tingkatKondisi.map(function (t) { return [t[0], t[1]]; })), s.tingkat || '') + '</select></label>' +
             '<p class="ly-hint" style="margin:0">' + C.tingkatKondisi.map(function (t) { return '<b>' + E(t[1]) + '</b>: ' + E(t[2]); }).join('. ') + '. Cacat yang ada tetap ditulis di deskripsi.</p></div>' +
-            '<div id="sk-gitar"' + (aks ? ' hidden' : '') + ' class="ly-f"><div class="ly-row2"><label>Jenis gitar<select data-s="gitar_jenis">' + opsi(jenis, s.gitar_jenis) + '</select></label><label>Merk / model<input data-s="gitar_merk" placeholder="mis. Yamaha F310"></label></div>' +
+            '<label>Merek<input data-s="merek" autocapitalize="words" placeholder="mis. Yamaha"></label><span class="ly-hint" style="margin-top:-6px">Merek dipisah dari model, supaya satu artikel merek bisa dipakai semua unit merek itu.</span>' +
+            '<div id="sk-gitar"' + (aks ? ' hidden' : '') + ' class="ly-f"><div class="ly-row2"><label>Jenis gitar<select data-s="gitar_jenis">' + opsi(jenis, s.gitar_jenis) + '</select></label><label>Model<input data-s="gitar_merk" placeholder="mis. F310"></label></div>' +
             '<label>Nomor seri (tidak tampil di website)<input data-s="no_seri" autocapitalize="characters"></label></div>' +
-            '<div id="sk-aks"' + (aks ? '' : ' hidden') + ' class="ly-f"><div class="ly-row2"><label>Kategori<select data-s="sub">' + opsi(subs, s.sub) + '</select></label><label>Nama produk<input data-s="nama" placeholder="mis. Senar Elixir Nanoweb 11-52"></label></div></div>' +
+            '<div id="sk-aks"' + (aks ? '' : ' hidden') + ' class="ly-f"><div class="ly-row2"><label>Kategori<select data-s="sub">' + opsi(subs, s.sub) + '</select></label><label>Nama / model produk<input data-s="nama" placeholder="mis. Nanoweb 11-52"></label></div></div>' +
             '<label><span id="sk-lbl-warna">' + (aks ? LBL_VARIAN : 'Warna') + '</span><input data-s="warna" placeholder="' + (aks ? PH_VARIAN : 'mis. Hitam Glossy') + '"></label>' +
             '<label>Deskripsi (kondisi, spesifikasi, kelengkapan)<textarea data-s="deskripsi" rows="3" placeholder="mis. mulus, action rendah, bonus softcase"></textarea></label>' +
             (L.ai.aktif ? '<div class="ly-btns"><button type="button" class="ly-btn ly-btn--sm" id="sk-ai">✨ Tulis deskripsi dengan AI</button></div><p class="ly-hint" style="margin:0">Tulis catatan singkat dulu (mis. lecet kecil di body, bonus softcase); AI ikut melihat foto yang sudah diunggah (maks. 3) dan menambah spesifikasi model (jumlah senar, bahan, konstruksi). Spesifikasi itu dari pengetahuan AI, jadi cek lagi dengan barangnya sebelum menyimpan.</p>' : '') + '</fieldset>' +
@@ -2710,6 +2725,7 @@
             (sk.baru ? '' : '<fieldset class="ly-card"><legend>Lainnya</legend>' + kisiAksi([].concat(s.harga_jual && adaStok(s) ? [aksi({ id: 'sk-tawar', ikon: 'bagikan', teks: 'Bagikan poster &amp; penawaran', kelas: 'ly-akt--pri ly-akt--lebar' })] : [])
                 .concat(L.diKatalog(s) ? [aksi({ href: E(L.urlUnit(s.kode)), luar: true, ikon: 'lihat', teks: 'Lihat halaman unit' })] : [])
                 .concat(owner() ? [aksi({ id: 'sk-artikel', ikon: 'artikel', teks: artikelStok(s) ? 'Buka artikel unit' : 'Buat artikel unit' })] : [])
+                .concat(owner() && s.merek ? [aksi({ id: 'sk-artikel-merek', ikon: 'artikel', teks: artikelMerekStok(s) ? 'Buka artikel merek ' + E(s.merek) : 'Buat artikel merek ' + E(s.merek) })] : [])
                 .concat(owner() ? [aksi({ id: 'sk-hapus', ikon: 'hapus', teks: 'Hapus data', kelas: 'ly-akt--del' })] : [])) + '</fieldset>') +
             '<div class="ly-save"><span class="ly-dirty" id="dirty" hidden>Belum disimpan</span><button type="button" class="ly-btn ly-btn--pri" id="sk-simpan">' + (sk.baru ? 'Simpan stok' : 'Simpan perubahan') + '</button></div></section>';
         $$('[data-s]', app).forEach(function (el) { var v = s[el.dataset.s]; el.value = v == null ? '' : v; });
@@ -2743,6 +2759,7 @@
             else if (b.id === 'sk-jual-baru') { if (dirty) return toast('Simpan perubahan stok dulu.', true); pindah('#jual/baru/' + s.id); }
             else if (b.id === 'sk-tawar') { if (dirty) return toast('Simpan perubahan dulu.', true); bagikanStok(s, b); }
             else if (b.id === 'sk-artikel') { if (dirty) return toast('Simpan perubahan dulu.', true); buatArtikelStok(s, b); }
+            else if (b.id === 'sk-artikel-merek') { if (dirty) return toast('Simpan perubahan dulu.', true); buatArtikelMerek(s, b); }
         });
         pilihFoto($('#sk-foto'), function (tahap, files) { antriFoto(sk.antri, files, {}, gambarFotoStok); });
         $('#sk-simpan').addEventListener('click', simpanStok);
@@ -2774,7 +2791,9 @@
     }
     function simpanStok() {
         var s = sk.s;
-        if (s.kategori === 'aksesoris' ? !String(s.nama || '').trim() : !String(s.gitar_merk || '').trim()) return toast(s.kategori === 'aksesoris' ? 'Isi nama produk.' : 'Isi merk / model gitar.', true);
+        s.merek = String(s.merek || '').trim();
+        if (sk.baru && !s.merek) return toast('Isi merek.', true);
+        if (s.kategori === 'aksesoris' ? !String(s.nama || '').trim() : !String(s.gitar_merk || '').trim()) return toast(s.kategori === 'aksesoris' ? 'Isi nama / model produk.' : 'Isi model gitar.', true);
         if (s.tampil !== false && adaStok(s) && s.harga_jual > 0 && !s.foto.length && !sk.antri.length && !confirm('Barang ini akan tampil di katalog website tanpa foto. Lanjutkan?')) return;
         if (sk.antri.some(function (q) { return !q.hasil; })) return toast('Foto masih diproses, tunggu sebentar.', true);
         if (s.harga_jual && s.harga_jual < s.harga_beli && !confirm('Harga jual lebih rendah dari modal. Tetap simpan?')) return;
@@ -2945,6 +2964,7 @@
     function simpanArtikel() {
         var a = ae.a;
         a.judul = (a.judul || '').trim(); a.slug = ArtikelMd.slug(a.slug || a.judul);
+        if (ae.stok && ae.stok.merek) { a.merek_nama = ae.stok.merek; a.merek_kunci = L.kunciMerek(ae.stok.merek); } /* artikel unit mengikuti merek di data stok (tautan ke artikel merek) */
         if (!a.judul) return toast('Judul belum diisi.', true);
         if (!a.slug) return toast('Alamat halaman belum benar.', true);
         if (a.status === 'terbit') {
