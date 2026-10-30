@@ -49,21 +49,35 @@
     function owner() { return A.peran() === 'owner'; }
     function setDirty(v) { dirty = v; var d = $('#dirty'); if (d) d.hidden = !v; }
     function opsi(list, cur) { return list.map(function (o) { var v = Array.isArray(o) ? o[0] : o, t = Array.isArray(o) ? o[1] : o; return '<option value="' + E(v) + '"' + (String(v) === String(cur == null ? '' : cur) ? ' selected' : '') + '>' + E(t) + '</option>'; }).join(''); }
-    /* pilih pelanggan dari kontak HP (Contact Picker API: Chrome Android, harus HTTPS dan dari ketukan); hanya nama & nomor yang dipilih dibaca */
-    function bisaPilihKontak() { return !!(navigator.contacts && typeof navigator.contacts.select === 'function' && window.ContactsManager); }
+    /* pilih pelanggan dari kontak HP. Di browser: Contact Picker API (Chrome Android, HTTPS, dari ketukan). Di aplikasi AYRI POS 1.4.0 ke atas:
+       pemilih kontak bawaan Android lewat jembatan (op pilihKontak), hasilnya datang sebagai peristiwa 'ayri-kontak'. Hanya satu kontak yang dipilih yang terbaca. */
+    function kontakAplikasi() {
+        var m = /AyriApp\/(\d+)\.(\d+)/.exec(navigator.userAgent);
+        return !!m && adaAplikasi() && typeof window.AyriApp.postMessage === 'function' && (+m[1] > 1 || (+m[1] === 1 && +m[2] >= 4));
+    }
+    function bisaPilihKontak() { return kontakAplikasi() || !!(navigator.contacts && typeof navigator.contacts.select === 'function' && window.ContactsManager); }
     function tombolKontak(selNama, selHp) {
         return bisaPilihKontak() ? '<div class="ly-btns"><button type="button" class="ly-btn ly-btn--sm" data-kn="' + E(selNama) + '" data-kh="' + E(selHp) + '">📇 Pilih dari kontak</button></div>' : '';
     }
     function bersihHp(t) { var n = String(t || '').replace(/[^\d+]/g, ''); return n.charAt(0) === '+' ? '+' + n.slice(1).replace(/\+/g, '') : n.replace(/\+/g, ''); }
     function isiKolom(sel, nilai) { var el = sel && $(sel); if (!el || !nilai) return; el.value = nilai; el.dispatchEvent(new Event('input', { bubbles: true })); el.dispatchEvent(new Event('change', { bubbles: true })); }
+    var tombolKontakAktif = null;
+    function terapkanKontak(b, nama, hp) {
+        nama = String(nama || '').trim(); hp = bersihHp(hp);
+        if (!nama && !hp) return toast('Kontak itu tidak punya nama atau nomor.', true);
+        isiKolom(b.dataset.kn, nama); isiKolom(b.dataset.kh, hp);
+        toast(hp ? 'Kontak dipilih: ' + (nama || hp) : 'Kontak dipilih, tetapi tidak punya nomor. Isi nomornya.', !hp);
+    }
+    window.addEventListener('ayri-kontak', function (e) {
+        var d = e.detail || {}, b = tombolKontakAktif; tombolKontakAktif = null;
+        if (d.galat) return toast(d.galat, true);
+        if (b && document.body.contains(b)) terapkanKontak(b, d.nama, d.hp);
+    });
     document.addEventListener('click', function (e) {
         var b = e.target.closest && e.target.closest('[data-kn]'); if (!b) return;
+        if (kontakAplikasi()) { tombolKontakAktif = b; kirimKeAplikasi('pilihKontak', {}); return; }
         navigator.contacts.select(['name', 'tel'], { multiple: false }).then(function (daftar) {
-            var k = daftar && daftar[0]; if (!k) return;
-            var nama = String((k.name || [])[0] || '').trim(), hp = bersihHp((k.tel || [])[0]);
-            if (!nama && !hp) return toast('Kontak itu tidak punya nama atau nomor.', true);
-            isiKolom(b.dataset.kn, nama); isiKolom(b.dataset.kh, hp);
-            toast(hp ? 'Kontak dipilih: ' + (nama || hp) : 'Kontak dipilih, tetapi tidak punya nomor. Isi nomornya.', !hp);
+            var k = daftar && daftar[0]; if (k) terapkanKontak(b, (k.name || [])[0], (k.tel || [])[0]);
         }).catch(function (err) { if (err && err.name !== 'AbortError') toast('Tidak bisa membuka kontak: ' + (err.message || err), true); });
     });
     function bukaWa(hp, teks) { window.open(L.waLink(hp, teks), '_blank', 'noopener'); }
