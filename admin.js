@@ -49,6 +49,37 @@
     function owner() { return A.peran() === 'owner'; }
     function setDirty(v) { dirty = v; var d = $('#dirty'); if (d) d.hidden = !v; }
     function opsi(list, cur) { return list.map(function (o) { var v = Array.isArray(o) ? o[0] : o, t = Array.isArray(o) ? o[1] : o; return '<option value="' + E(v) + '"' + (String(v) === String(cur == null ? '' : cur) ? ' selected' : '') + '>' + E(t) + '</option>'; }).join(''); }
+    /* pilih pelanggan dari kontak HP. Di browser: Contact Picker API (Chrome Android, HTTPS, dari ketukan). Di aplikasi AYRI POS 1.4.0 ke atas:
+       pemilih kontak bawaan Android lewat jembatan (op pilihKontak), hasilnya datang sebagai peristiwa 'ayri-kontak'. Hanya satu kontak yang dipilih yang terbaca. */
+    function kontakAplikasi() {
+        var m = /AyriApp\/(\d+)\.(\d+)/.exec(navigator.userAgent);
+        return !!m && adaAplikasi() && typeof window.AyriApp.postMessage === 'function' && (+m[1] > 1 || (+m[1] === 1 && +m[2] >= 4));
+    }
+    function bisaPilihKontak() { return kontakAplikasi() || !!(navigator.contacts && typeof navigator.contacts.select === 'function' && window.ContactsManager); }
+    function tombolKontak(selNama, selHp) {
+        return bisaPilihKontak() ? '<div class="ly-btns"><button type="button" class="ly-btn ly-btn--sm" data-kn="' + E(selNama) + '" data-kh="' + E(selHp) + '">📇 Pilih dari kontak</button></div>' : '';
+    }
+    function bersihHp(t) { var n = String(t || '').replace(/[^\d+]/g, ''); return n.charAt(0) === '+' ? '+' + n.slice(1).replace(/\+/g, '') : n.replace(/\+/g, ''); }
+    function isiKolom(sel, nilai) { var el = sel && $(sel); if (!el || !nilai) return; el.value = nilai; el.dispatchEvent(new Event('input', { bubbles: true })); el.dispatchEvent(new Event('change', { bubbles: true })); }
+    var tombolKontakAktif = null;
+    function terapkanKontak(b, nama, hp) {
+        nama = String(nama || '').trim(); hp = bersihHp(hp);
+        if (!nama && !hp) return toast('Kontak itu tidak punya nama atau nomor.', true);
+        isiKolom(b.dataset.kn, nama); isiKolom(b.dataset.kh, hp);
+        toast(hp ? 'Kontak dipilih: ' + (nama || hp) : 'Kontak dipilih, tetapi tidak punya nomor. Isi nomornya.', !hp);
+    }
+    window.addEventListener('ayri-kontak', function (e) {
+        var d = e.detail || {}, b = tombolKontakAktif; tombolKontakAktif = null;
+        if (d.galat) return toast(d.galat, true);
+        if (b && document.body.contains(b)) terapkanKontak(b, d.nama, d.hp);
+    });
+    document.addEventListener('click', function (e) {
+        var b = e.target.closest && e.target.closest('[data-kn]'); if (!b) return;
+        if (kontakAplikasi()) { tombolKontakAktif = b; kirimKeAplikasi('pilihKontak', {}); return; }
+        navigator.contacts.select(['name', 'tel'], { multiple: false }).then(function (daftar) {
+            var k = daftar && daftar[0]; if (k) terapkanKontak(b, (k.name || [])[0], (k.tel || [])[0]);
+        }).catch(function (err) { if (err && err.name !== 'AbortError') toast('Tidak bisa membuka kontak: ' + (err.message || err), true); });
+    });
     function bukaWa(hp, teks) { window.open(L.waLink(hp, teks), '_blank', 'noopener'); }
     var salin = AYRI_UTIL.salin;
     function idAcak() { var r = new Uint8Array(6); crypto.getRandomValues(r); return Date.now().toString(36) + [].map.call(r, function (x) { return ('0' + x.toString(16)).slice(-2); }).join(''); }
@@ -1241,7 +1272,7 @@
             '<div class="ly-head"><h1>' + (ed.baru ? 'Gitar masuk' : E(L.namaGitar(s, 'Gitar'))) + '</h1>' + (ed.baru ? '' : '<span class="st-chip st-' + s.status + '" id="sv-chip">' + E(L.STATUS[s.status].label) + '</span>') + '</div>' +
             (ed.baru ? '<p class="ly-muted">Kode servis dibuat otomatis saat disimpan.</p>' : kodeBaris(s)) +
 
-            '<fieldset class="ly-card ly-f"><legend>Pelanggan</legend>' +
+            '<fieldset class="ly-card ly-f"><legend>Pelanggan</legend>' + tombolKontak('[data-f="nama"]', '[data-f="hp"]') +
             '<label>Nama<input data-f="nama" autocomplete="off" required></label>' +
             '<label>No. HP / WhatsApp<input data-f="hp" type="tel" inputmode="tel" autocomplete="off" placeholder="08xxxxxxxxxx" required>' + (ed.baru ? '' : '<span class="ly-hint">Mengubah nomor HP mengubah 4 digit untuk cek status; kirim ulang tautan ke pelanggan.</span>') + '</label></fieldset>' +
 
@@ -1546,7 +1577,7 @@
         app.innerHTML = '<section id="tb" class="ly-f"><div class="ly-head"><a class="ly-back" href="#tebus">‹ Daftar tebus</a></div>' +
             '<div class="ly-head"><h1>' + (te.baru ? 'Beli gitar (hak tebus)' : E(L.namaGitar(t, 'Gitar'))) + '</h1>' + (te.baru ? '' : chipTebus(t)) + '</div>' +
             (te.baru ? '<p class="ly-muted">Kode dibuat otomatis saat disimpan.</p>' : kodeBaris(t)) +
-            '<fieldset class="ly-card ly-f"><legend>Penjual</legend>' +
+            '<fieldset class="ly-card ly-f"><legend>Penjual</legend>' + tombolKontak('[data-t="nama"]', '[data-t="hp"]') +
             '<label>Nama (sesuai KTP)<input data-t="nama" autocomplete="off" required></label>' +
             '<div class="ly-row2"><label>No. HP / WhatsApp<input data-t="hp" type="tel" inputmode="tel" autocomplete="off" required></label><label>NIK (No. KTP, opsional)<input data-t="nik" inputmode="numeric" maxlength="16" autocomplete="off"></label></div>' +
             '<p class="ly-hint">Di surat perjanjian, NIK dan HP hanya tampil 4 digit terakhir.</p></fieldset>' +
@@ -1699,7 +1730,7 @@
         app.innerHTML = '<section id="tp" class="ly-f"><div class="ly-head"><a class="ly-back" href="#titip">‹ Titip jual</a></div>' +
             '<div class="ly-head"><h1>' + (tp.baru ? 'Terima titipan' : E(L.namaGitar(t, 'Gitar'))) + '</h1>' + (tp.baru ? '' : chipTitip(t)) + '</div>' +
             (tp.baru ? '<p class="ly-muted">Kode dibuat otomatis saat disimpan.</p>' : kodeBaris(t, '')) +
-            '<fieldset class="ly-card ly-f"><legend>Pemilik</legend>' +
+            '<fieldset class="ly-card ly-f"><legend>Pemilik</legend>' + tombolKontak('[data-t="nama"]', '[data-t="hp"]') +
             '<label>Nama<input data-t="nama" autocomplete="off" required></label>' +
             '<div class="ly-row2"><label>No. HP / WhatsApp<input data-t="hp" type="tel" inputmode="tel" autocomplete="off" required></label><label>NIK / No. KTP (opsional)<input data-t="nik" inputmode="numeric" maxlength="16" autocomplete="off"></label></div>' +
             '<p class="ly-hint">NIK dan foto KTP tidak wajib. Bila diisi, hanya tersimpan di repo owner dan tidak pernah tampil di situs.</p></fieldset>' +
@@ -1878,7 +1909,7 @@
             '<fieldset class="ly-card ly-f"><legend>Barang</legend><p style="margin:0"><b>' + E(nama) + '</b><br><small class="ly-muted">' + E(s.kode) + ' · stok ' + s.jumlah + ' · harga jual ' + L.rupiah(s.harga_jual) + '</small></p>' +
             '<div class="ly-row2"><label>Jumlah<input type="number" inputmode="numeric" min="1" max="' + s.jumlah + '" id="jb-qty" value="1"' + (+s.jumlah > 1 ? '' : ' disabled') + '></label>' +
             '<label>Harga deal per unit (Rp)<input type="number" inputmode="numeric" min="0" step="10000" id="jb-harga"></label></div></fieldset>' +
-            '<fieldset class="ly-card ly-f"><legend>Pembeli</legend><div class="ly-row2"><label>Nama<input id="jb-nama" autocomplete="off"></label>' +
+            '<fieldset class="ly-card ly-f"><legend>Pembeli</legend>' + tombolKontak('#jb-nama', '#jb-hp') + '<div class="ly-row2"><label>Nama<input id="jb-nama" autocomplete="off"></label>' +
             '<label>No. WhatsApp<input id="jb-hp" type="tel" inputmode="tel" autocomplete="off" placeholder="08…"></label></div>' +
             '<p class="ly-hint" style="margin:0">Wajib untuk DP (nota & pengingat dikirim lewat WA). Untuk jual lunas langsung boleh dikosongkan.</p></fieldset>' +
             '<fieldset class="ly-card ly-f"><legend>Pembayaran sekarang</legend><div class="ly-row2"><label>Jumlah dibayar (Rp)<input type="number" inputmode="numeric" min="0" step="10000" id="jb-bayar"></label>' +
@@ -2128,7 +2159,7 @@
         app.innerHTML = '<section id="sw" class="ly-f"><div class="ly-head"><a class="ly-back" href="#sewa">‹ Sewa gitar</a></div><div class="ly-head"><h1>Sewa baru</h1></div>' +
             '<fieldset class="ly-card ly-f"><legend>Gitar</legend><p style="margin:0"><b>' + E(nama) + '</b><br><small class="ly-muted">' + E(s.kode) + ' · harga jual ' + (s.harga_jual ? L.rupiah(s.harga_jual) : 'belum diisi') + '</small></p></fieldset>' +
             barisWa([['unit', 'Kirim unit &amp; estimasi biaya', 'Poster foto unit + estimasi sewa, deposit, link foto'], ['ketentuan', 'Kirim ketentuan sewa', 'Kirim sekali saja, tidak diulang per unit'], ['formulir', 'Kirim formulir pendaftaran', 'Isian nama, WA, tanggal & lama sewa'], ['bayar', 'Kirim info pembayaran', 'Total bayar di muka + rekening']], 'wa') +
-            '<fieldset class="ly-card ly-f"><legend>Penyewa</legend><div class="ly-row2"><label>Nama<input data-w="nama" autocomplete="off"></label><label>No. WhatsApp<input data-w="hp" type="tel" inputmode="tel" autocomplete="off" placeholder="08…"></label></div>' +
+            '<fieldset class="ly-card ly-f"><legend>Penyewa</legend>' + tombolKontak('[data-w="nama"]', '[data-w="hp"]') + '<div class="ly-row2"><label>Nama<input data-w="nama" autocomplete="off"></label><label>No. WhatsApp<input data-w="hp" type="tel" inputmode="tel" autocomplete="off" placeholder="08…"></label></div>' +
             '<p class="ly-hint" style="margin:0">Wajib: bukti sewa dan pengingat dikirim lewat WA.</p></fieldset>' +
             '<fieldset class="ly-card ly-f"><legend>Sewa</legend><div class="ly-row2"><label>Mulai<input type="date" data-w="tgl_mulai"></label><label>Lama (hari)<input type="number" inputmode="numeric" min="1" max="' + SWC.maksHari + '" data-w="hari"></label></div>' +
             '<div class="ly-btns" id="sw-cepat">' + [1, 2, 3, 7, 14].map(function (d) { return '<button type="button" class="ly-btn ly-btn--sm" data-hari="' + d + '">' + d + ' hari</button>'; }).join('') + '</div>' +
