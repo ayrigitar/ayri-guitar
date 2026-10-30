@@ -2480,11 +2480,12 @@
         var sb = cari(/sebelum|before/i), ss = cari(/sesudah|after/i);
         return sb && ss && sb !== ss ? [{ f: sb, peran: 'sebelum', label: 'SEBELUM' }, { f: ss, peran: 'sesudah', label: 'SESUDAH' }] : [];
     }
-    /* tata letak area foto (960 x 760): 1 foto = penuh; 2 foto = berdampingan; 3 foto = gitar besar di kiri, sebelum & sesudah bertumpuk di kanan */
+    /* tata letak area foto (960 x 680, y 235-915): 1 foto = penuh; 2 foto = berdampingan; 3 foto = gitar besar di kiri, sebelum & sesudah bertumpuk di kanan.
+       Ruang kosong y 915-1040 sengaja disisakan untuk stiker tautan yang ditambahkan manual lewat Instagram. */
     function selFotoPoster(n) {
-        if (n === 1) return [{ x: 60, y: 235, w: 960, h: 760 }];
-        if (n === 2) return [{ x: 60, y: 235, w: 470, h: 760 }, { x: 550, y: 235, w: 470, h: 760 }];
-        return [{ x: 60, y: 235, w: 570, h: 760 }, { x: 650, y: 235, w: 370, h: 370 }, { x: 650, y: 625, w: 370, h: 370 }];
+        if (n === 1) return [{ x: 60, y: 235, w: 960, h: 680 }];
+        if (n === 2) return [{ x: 60, y: 235, w: 470, h: 680 }, { x: 550, y: 235, w: 470, h: 680 }];
+        return [{ x: 60, y: 235, w: 570, h: 680 }, { x: 650, y: 235, w: 370, h: 330 }, { x: 650, y: 585, w: 370, h: 330 }];
     }
     function buatPosterArtikel(a) {
         var pilihan = fotoPosterArtikel(a), sampul = fotoArtikelPublik(a)[0];
@@ -2513,12 +2514,12 @@
             }
             var sel = selFotoPoster(Math.max(1, daftar.length)), ada = 0;
             im.forEach(function (foto, n) { if (foto) { bingkai(foto, sel[n], daftar[n].label); ada++; } });
-            if (!ada && logo) { var lw0 = 240, lh0 = lw0 * logo.height / logo.width; c.globalAlpha = .25; c.drawImage(logo, 60 + (960 - lw0) / 2, 235 + (760 - lh0) / 2, lw0, lh0); c.globalAlpha = 1; }
+            if (!ada && logo) { var lw0 = 240, lh0 = lw0 * logo.height / logo.width; c.globalAlpha = .25; c.drawImage(logo, 60 + (960 - lw0) / 2, 235 + (680 - lh0) / 2, lw0, lh0); c.globalAlpha = 1; }
             /* label + judul + ringkasan */
-            var cy = 1020, tag = String(a.tag || 'Artikel').toUpperCase(); c.font = '800 28px ' + SANS;
+            var cy = 1040, tag = String(a.tag || 'Artikel').toUpperCase(); c.font = '800 28px ' + SANS;
             var bw = c.measureText(tag).width + 52; rect(c, 60, cy, bw, 56, 28); c.fillStyle = EMAS; c.fill(); c.fillStyle = '#1a1510'; c.fillText(tag, 86, cy + 38);
             c.fillStyle = '#fff'; c.font = '700 64px ' + SERIF;
-            var y = 1156; barisTeks(c, a.judul, 960, 3).forEach(function (b) { c.fillText(b, 60, y); y += 74; });
+            var y = 1176; barisTeks(c, a.judul, 960, 3).forEach(function (b) { c.fillText(b, 60, y); y += 74; });
             var rs = ringkasArtikel(a);
             if (rs) { c.fillStyle = '#d8cfc3'; c.font = '500 32px ' + SANS; barisTeks(c, rs, 960, Math.max(0, Math.min(4, Math.floor((1500 - y) / 44)))).forEach(function (b) { y += 44; c.fillText(b, 60, y); }); }
             /* penutup: logo, ajakan membaca, WhatsApp, alamat */
