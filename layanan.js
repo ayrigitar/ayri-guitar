@@ -1369,7 +1369,7 @@
         var e = L.esc, judul = judulKatalog(x), url = L.urlUnit(x.kode), tujuan = 'unit.html?k=' + encodeURIComponent(x.kode);
         var kondisi = x.kategori === 'gitar' ? (x.kondisi === 'baru' ? 'Baru' : 'Used' + (x.tingkat ? ' ' + x.tingkat : '')) : x.jenis;
         var deskripsi = [kondisi, x.warna].filter(Boolean).join(' · ') + ' – ' + L.rupiah(x.harga) + '. Tersedia di ' + C.toko.nama + ' Bogor.';
-        var gambar = L.situs() + (x.foto[0] ? x.foto[0].src : 'og/katalog.jpg');
+        var gambar = L.situs() + (x.foto[0] ? x.foto[0].src : 'og/katalog.jpg?v=2');
         var ld = { '@context': 'https://schema.org', '@type': 'Product', name: judul, sku: x.kode, description: x.deskripsi || deskripsi, image: x.foto.map(function (f, i) { return { '@type': 'ImageObject', contentUrl: L.situs() + f.src, name: L.altKatalog(x), caption: L.altKatalog(x, i + 1) }; }),
             offers: { '@type': 'Offer', url: url, price: x.harga, priceCurrency: 'IDR', availability: 'https://schema.org/' + (x.status === 'dipesan' ? 'LimitedAvailability' : 'InStock'),
                 itemCondition: 'https://schema.org/' + (x.kondisi === 'bekas' ? 'UsedCondition' : 'NewCondition'), seller: { '@type': 'Organization', name: C.toko.nama } } };
