@@ -13,7 +13,7 @@
             var dipesan = x.status === 'dipesan';
             kotak.setAttribute('data-status', dipesan ? 'dipesan' : 'tersedia');
             teks.textContent = (dipesan ? 'Unit ini sedang dipesan pembeli lain. ' : 'Unit ini masih tersedia di AYRI. ') + 'Harga Rp ' + Number(x.harga).toLocaleString('id-ID') + '.';
-            tautan('unit.html?k=' + encodeURIComponent(kode), 'Lihat unit', 'btn--ghost');
+            tautan('unit/' + encodeURIComponent(kode) + '.html', 'Lihat unit', 'btn--ghost');
         } else {
             kotak.setAttribute('data-status', 'tidak-tersedia');
             teks.textContent = 'Unit ini sudah tidak tersedia. Tanyakan unit serupa lewat WhatsApp, atau lihat katalog kami.';

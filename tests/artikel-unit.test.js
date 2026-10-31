@@ -67,7 +67,7 @@ test('skrip kotak unit: tersedia, dipesan, tidak tersedia, dan gagal memuat', as
     }
     const ok = (item) => () => Promise.resolve({ ok: true, json: () => Promise.resolve({ item }) });
     let r = await jalankan(ok([{ kode: 'STK-001', harga: 1500000, status: 'tersedia' }]));
-    assert.equal(r.kotak.attrs['data-status'], 'tersedia'); assert.match(r.teks.textContent, /masih tersedia/); assert.match(r.aksi.children[0].href, /^unit\.html\?k=STK-001$/);
+    assert.equal(r.kotak.attrs['data-status'], 'tersedia'); assert.match(r.teks.textContent, /masih tersedia/); assert.match(r.aksi.children[0].href, /^unit\/STK-001\.html$/);
     r = await jalankan(ok([{ kode: 'STK-001', harga: 1500000, status: 'dipesan' }]));
     assert.equal(r.kotak.attrs['data-status'], 'dipesan');
     r = await jalankan(ok([{ kode: 'STK-002', harga: 1, status: 'tersedia' }]));
@@ -138,4 +138,45 @@ test('alamat artikel dipotong di batas kata, bukan di tengah kata', async () => 
 test('cek-servis tidak diindeks Google dan tidak ada di sitemap', () => {
     assert.match(baca('cek-servis.html'), /<meta name="robots" content="noindex, follow">/);
     assert.ok(!baca('sitemap.xml').includes('cek-servis.html'));
+});
+
+test('halaman unit statis: tautan ke artikel unit muncul saat artikel terbit dan hilang saat ditarik; peta situs unit', async () => {
+    const { gh, A, L } = await mulai();
+    const s = await A.simpanStok(stokContoh(null, 1, { id: undefined, kode: undefined, created_at: undefined, gitar_jenis: 'Akustik', gitar_merk: 'Yamaha F310', harga_jual: 1500000 }), []);
+    const halUnit = () => gh.isi('ayri-guitar', 'unit/' + s.kode + '.html');
+    assert.ok(!halUnit().includes('unit-panduan'), 'belum ada artikel');
+    const art = await A.simpanArtikel({ judul: 'Akustik Yamaha F310', slug: 'akustik-yamaha-f310', tag: 'Profil Gitar', ringkasan: 'r', isi: '## S\n\nisi', status: 'terbit', stok_id: s.id, stok_kode: s.kode, foto: [] });
+    assert.ok(halUnit().includes('href="../artikel-akustik-yamaha-f310.html"') && halUnit().includes('unit-panduan'), 'halaman unit menautkan ke artikel');
+    assert.equal(gh.json('ayri-guitar', 'data/katalog.json').item[0].artikel, 'akustik-yamaha-f310');
+    await A.simpanArtikel(Object.assign({}, art, { status: 'draf' }));
+    assert.ok(!halUnit().includes('unit-panduan'), 'artikel ditarik: tautan hilang');
+    assert.equal(gh.json('ayri-guitar', 'data/katalog.json').item[0].artikel, undefined);
+    assert.ok(gh.isi('ayri-guitar', 'sitemap-unit.xml').includes(s.kode));
+    await A.simpanStok(Object.assign({}, s, { tampil: false }), []);
+    assert.ok(!gh.isi('ayri-guitar', 'sitemap-unit.xml').includes(s.kode), 'barang keluar katalog: keluar dari peta situs unit');
+    assert.ok(L);
+});
+
+test('skrip halaman unit statis: status terbaru, barang terjual, dan barang lainnya', async () => {
+    const kode = baca('unit-statis.js');
+    async function jalankan(respons, kodeUnit) {
+        const el = (id) => ({ id, attrs: {}, children: [], hidden: false, className: '', textContent: '', innerHTML: '', getAttribute(k) { return this.attrs[k]; }, setAttribute(k, v) { this.attrs[k] = v; }, addEventListener() {}, querySelector(q) { return q === '.unit-status' ? status : null; } });
+        const status = el('status'), box = el('unit'), bar = el('unit-bar'), serupa = el('unit-serupa'); box.attrs['data-kode'] = kodeUnit; serupa.hidden = true;
+        const m = { unit: box, 'unit-bar': bar, 'unit-serupa': serupa };
+        const doc = { addEventListener: (_, f) => f(), getElementById: (i) => m[i] || null, querySelector: () => null };
+        const esc = (x) => String(x), rupiah = (n) => 'Rp' + n;
+        const sb = { document: doc, window: { AYRI_LAYANAN: { jenisTanpaGitar: ['Bass'] } }, AYRI_UTIL: { esc, rupiah }, fetch: () => respons(), encodeURIComponent, console };
+        vm.createContext(sb); vm.runInContext(kode, sb); await new Promise((ok) => setTimeout(ok, 20));
+        return { status, bar, serupa };
+    }
+    const item = (k, st) => ({ kode: k, kategori: 'gitar', kondisi: 'bekas', jenis: 'Akustik', nama: 'Yamaha', warna: '', harga: 1000, status: st || 'tersedia', foto: [] });
+    const ok = (items) => () => Promise.resolve({ ok: true, json: () => Promise.resolve({ item: items }) });
+    let r = await jalankan(ok([item('A'), item('B')]), 'A');
+    assert.equal(r.status.textContent, '', 'masih dijual: teks statis dibiarkan'); assert.equal(r.serupa.hidden, false); assert.match(r.serupa.innerHTML, /href="B\.html"/);
+    r = await jalankan(ok([item('B')]), 'A');
+    assert.match(r.status.textContent, /sudah terjual/); assert.equal(r.bar.hidden, true);
+    r = await jalankan(ok([item('A', 'dipesan')]), 'A');
+    assert.match(r.status.textContent, /dipesan/);
+    r = await jalankan(() => Promise.reject(new Error('offline')), 'A');
+    assert.equal(r.status.textContent, '', 'gagal memuat: isi statis dibiarkan');
 });

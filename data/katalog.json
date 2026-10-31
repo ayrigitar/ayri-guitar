@@ -1,6 +1,6 @@
 {
  "toko": "Toko Gitar AYRI",
- "v": 2,
+ "v": 3,
  "item": [
   {
    "kode": "STK-V9FPZW",
@@ -43,7 +43,8 @@
      "kecil": "foto/stok/643405e66222084090fe-k.webp"
     }
    ],
-   "tingkat": "Very Good"
+   "tingkat": "Very Good",
+   "artikel": "bass-fender-aerodyne-jazz-bass-hitam-glossy-spesifikasi-perawatan-dan-tips-membe"
   },
   {
    "kode": "STK-6J8WP3",
@@ -90,7 +91,8 @@
      "kecil": "foto/stok/3445c9bc80e4fed739cb-k.webp"
     }
    ],
-   "tingkat": "Good"
+   "tingkat": "Good",
+   "artikel": "bass-yamaha-rbx-100-hitam-spesifikasi-perawatan-dan-tips-membeli-bekas"
   },
   {
    "kode": "STK-TZEN4Z",
@@ -192,7 +194,8 @@
      "kecil": "foto/stok/2d99cc104ee2f8d620b5-k.webp"
     }
    ],
-   "tingkat": "Excellent"
+   "tingkat": "Excellent",
+   "artikel": "gitar-elektrik-samick-ss51-hitam-glossy-spesifikasi-perawatan-dan-tips-membeli-b"
   },
   {
    "kode": "STK-UKV3BK",
