@@ -16,7 +16,7 @@
     function gagal(e) { if (window.console) console.error(e); toast(pesanError(e), true); }
     function sibuk(btn, on, teks) {
         if (!btn) return;
-        if (on) { if (btn._asli == null) btn._asli = btn.innerHTML; btn.textContent = teks || 'Menyimpan…'; btn.disabled = true; }
+        if (on) { if (btn._asli == null) btn._asli = btn.innerHTML; if (!btn.classList.contains('ly-btn--ikon')) btn.textContent = teks || 'Menyimpan…'; btn.disabled = true; } /* tombol ikon tetap berikon, hanya dinonaktifkan */
         else { if (btn._asli != null) { btn.innerHTML = btn._asli; btn._asli = null; } btn.disabled = false; }
     }
     /* ---------- tombol aksi seragam: baris WhatsApp (judul + keterangan + panah) dan kartu aksi berikon ---------- */
@@ -26,12 +26,16 @@
         nota: '<path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6"/>',
         artikel: '<path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5M9 13h7M9 17h5"/>',
         hapus: '<path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/>',
+        kirim: '<path d="M12 15V4"/><path d="M8 7.5 12 3.5l4 4"/><path d="M6.5 11H6a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-5a2 2 0 0 0-2-2h-.5"/>',
+        tautan: '<path d="M10.5 8H8a4 4 0 0 0 0 8h2.5"/><path d="M13.5 8H16a4 4 0 0 1 0 8h-2.5"/><path d="M8.5 12h7"/>',
         bagikan: '<circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="6" r="2.5"/><circle cx="18" cy="18" r="2.5"/><path d="M8.2 10.8l7.6-3.6M8.2 13.2l7.6 3.6"/>',
         luar: '<path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/>',
         stok: '<path d="M3 7.5 12 3l9 4.5v9L12 21l-9-4.5z"/><path d="M3 7.5 12 12l9-4.5M12 12v9"/>',
         surat: '<path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5M9 13h7M9 17h4"/>'
     };
     function ikon(n) { return '<svg viewBox="0 0 24 24" aria-hidden="true">' + IKON[n] + '</svg>'; }
+    /* tombol kecil hanya berikon (kirim = bagikan poster/penawaran, tautan = salin/bagikan link); label untuk pembaca layar dan tooltip */
+    function tombolIkon(atr, id, nama, label) { return '<button type="button" class="ly-btn ly-btn--sm ly-btn--ikon" data-' + atr + '="' + E(id) + '" aria-label="' + E(label) + '" title="' + E(label) + '">' + ikon(nama) + '</button>'; }
     var PANAH = '<svg class="ly-wa__go" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>';
     /* baris WhatsApp: w = [kunci, judul, keterangan]; atr = nama atribut data (data-wa / data-wat) */
     function barisWa(daftar, atr) {
@@ -2374,8 +2378,8 @@
     var LBL_VARIAN = 'Varian / tipe (opsional)', PH_VARIAN = 'mis. Nylon Klasik Hard Tension, ukuran 11-52';
     function tombolKartuStok(s) {
         var b = (L.bisaDisewa(s, cache.sewa) ? '<button type="button" class="ly-btn ly-btn--sm" data-sewa="' + E(s.id) + '">Sewa</button>' : '') +
-            (adaStok(s) && s.harga_jual ? '<button type="button" class="ly-btn ly-btn--sm" data-tawar="' + E(s.id) + '">Bagikan</button>' : '') +
-            (bisaPosterSold(s) ? '<button type="button" class="ly-btn ly-btn--sm" data-sold="' + E(s.id) + '">Poster SOLD</button>' : '');
+            (adaStok(s) && s.harga_jual ? tombolIkon('tawar', s.id, 'kirim', 'Bagikan poster & penawaran') : '') +
+            (bisaPosterSold(s) ? tombolIkon('sold', s.id, 'kirim', 'Bagikan poster SOLD') : '');
         return b ? '<span class="ly-item__b">' + b + '</span>' : '';
     }
     function daftarStok() {
@@ -2740,8 +2744,8 @@
                 (+s.jumlah > 0 && s.status !== 'ditarik' && !L.sewaAktifStok(s.id, cache.sewa) && !L.titipanTerkunci(s) ? '<div class="ly-btns" style="margin-top:10px"><button type="button" class="ly-btn ly-btn--pri" id="sk-jual-baru">Jual / pesan dengan DP</button></div>' +
                     '<p class="ly-hint" style="margin:8px 0 0">Bayar penuh = langsung terjual. Bayar sebagian = DP: barang ditahan ' + C.jual.batasHari + ' hari, nota & pengingat pelunasan dikirim lewat WA.</p>' : '') + '</fieldset>') +
             '<fieldset class="ly-card ly-f"><legend>Status</legend><div class="ly-status" id="sk-status"></div><label>Catatan internal<textarea data-s="catatan_admin" rows="2"></textarea></label></fieldset>' +
-            (sk.baru ? '' : '<fieldset class="ly-card"><legend>Lainnya</legend>' + kisiAksi([].concat(s.harga_jual && adaStok(s) ? [aksi({ id: 'sk-tawar', ikon: 'bagikan', teks: 'Bagikan poster &amp; penawaran', kelas: 'ly-akt--pri ly-akt--lebar' })] : [])
-                .concat(bisaPosterSold(s) ? [aksi({ id: 'sk-sold', ikon: 'bagikan', teks: 'Poster SOLD (Story)', kelas: 'ly-akt--pri ly-akt--lebar' })] : [])
+            (sk.baru ? '' : '<fieldset class="ly-card"><legend>Lainnya</legend>' + kisiAksi([].concat(s.harga_jual && adaStok(s) ? [aksi({ id: 'sk-tawar', ikon: 'kirim', teks: 'Bagikan poster &amp; penawaran', kelas: 'ly-akt--pri ly-akt--lebar' })] : [])
+                .concat(bisaPosterSold(s) ? [aksi({ id: 'sk-sold', ikon: 'kirim', teks: 'Poster SOLD (Story)', kelas: 'ly-akt--pri ly-akt--lebar' })] : [])
                 .concat(L.diKatalog(s) ? [aksi({ href: E(L.urlUnit(s.kode)), luar: true, ikon: 'lihat', teks: 'Lihat halaman unit' })] : [])
                 .concat(owner() ? [aksi({ id: 'sk-artikel', ikon: 'artikel', teks: artikelStok(s) ? 'Buka artikel unit' : 'Buat artikel unit' })] : [])
                 .concat(owner() && s.merek ? [aksi({ id: 'sk-artikel-merek', ikon: 'artikel', teks: artikelMerekStok(s) ? 'Buka artikel merek ' + E(s.merek) : 'Buat artikel merek ' + E(s.merek) })] : [])
@@ -2857,7 +2861,7 @@
         $('#list').innerHTML = rows.length ? rows.map(function (a) {
             return '<div class="ly-item"><a class="ly-item__a" href="#artikel/' + E(a.id) + '"><span class="ly-item__k">' + L.tgl((a.status === 'terbit' && a.terbit_at || a.created_at || '').slice(0, 10)) + '</span></a><span class="st-chip ' + (a.status === 'terbit' ? 'st-selesai' : 'st-menunggu_dp') + '">' + (a.status === 'terbit' ? 'Terbit' : 'Draf') + '</span>' +
                 '<span class="ly-item__t">' + E(a.judul) + '</span><span class="ly-item__m"><span>artikel-' + E(a.slug) + '.html</span><span>Diubah ' + L.tgl((a.updated_at || '').slice(0, 10)) + '</span></span>' +
-                (a.status === 'terbit' ? '<span class="ly-item__b"><button type="button" class="ly-btn ly-btn--sm" data-link-ar="' + E(a.id) + '">Link</button><button type="button" class="ly-btn ly-btn--sm" data-bagikan-ar="' + E(a.id) + '">Story</button></span>' : '') + '</div>';
+                (a.status === 'terbit' ? '<span class="ly-item__b">' + tombolIkon('link-ar', a.id, 'tautan', 'Bagikan link artikel') + tombolIkon('bagikan-ar', a.id, 'kirim', 'Bagikan poster Story') + '</span>' : '') + '</div>';
         }).join('') : '<p class="ly-kosong">Belum ada artikel.</p>';
         $('#list').onclick = function (e) {
             var l = e.target.closest('[data-link-ar]'); if (l) { e.preventDefault(); bagikanLinkArtikel(cariId('artikel', l.dataset.linkAr)); return; }
@@ -2902,7 +2906,7 @@
             '<div class="ly-btns" style="margin-top:10px"><label class="ly-btn ly-btn--sm ly-file">+ Unggah foto<input type="file" accept="image/*" multiple id="ar-file"></label></div>' +
             '<p class="ly-hint" style="margin-top:8px">Foto pertama menjadi sampul. Isi keterangan singkat tiap foto (membantu Google). Pastikan tidak ada wajah, nota, atau nomor seri gitar. Foto artikel bersifat publik.</p></fieldset>' +
             (ae.baru ? '' : '<fieldset class="ly-card"><legend>Lainnya</legend>' + kisiAksi([].concat(terbit ? [aksi({ href: E(url), luar: true, ikon: 'luar', teks: 'Lihat di situs' })] : [])
-                .concat(terbit ? [aksi({ id: 'ar-link', ikon: 'bagikan', teks: 'Bagikan link (WhatsApp)', kelas: 'ly-akt--pri' }), aksi({ id: 'ar-bagikan', ikon: 'bagikan', teks: 'Poster Story (Instagram / Status)' })] : [])
+                .concat(terbit ? [aksi({ id: 'ar-link', ikon: 'tautan', teks: 'Bagikan link (WhatsApp)', kelas: 'ly-akt--pri' }), aksi({ id: 'ar-bagikan', ikon: 'kirim', teks: 'Poster Story (Instagram / Status)' })] : [])
                 .concat([aksi({ id: 'ar-hapus', ikon: 'hapus', teks: 'Hapus artikel', kelas: 'ly-akt--del' })])) + '</fieldset>') +
             '<div class="ly-save"><span class="ly-dirty" id="dirty" hidden>Belum disimpan</span><button type="button" class="ly-btn ly-btn--pri" id="ar-simpan">Simpan</button></div></section>';
         $$('[data-a]', app).forEach(function (el) { el.value = a[el.dataset.a] == null ? '' : a[el.dataset.a]; });
