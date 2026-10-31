@@ -16,7 +16,7 @@
 
 const IZIN_LAMA = 10 * 60 * 1000; /* token yang sudah lolos cek disimpan (sebagai hash) 10 menit, supaya tidak tiap kali bertanya ke GitHub */
 const lolos = new Map();
-const BATAS_WAKTU = 25000; /* jangan menunggu lebih dari 25 detik: lebih baik pindah ke penyedia berikutnya */
+const BATAS_WAKTU = 25000, BATAS_WAKTU_GAMBAR = 55000; /* teks: jangan menunggu lebih dari 25 detik, lebih baik pindah ke penyedia berikutnya; membaca foto lebih lama */
 const MAKS_GAMBAR = 4, MAKS_GAMBAR_PANJANG = 2200000; /* karakter base64 per gambar (±1,6 MB) */
 const POLA_GAMBAR = /^data:image\/jpeg;base64,[A-Za-z0-9+/=]+$/;
 
@@ -34,9 +34,9 @@ async function bolehPakai(token, env) {
     return true;
 }
 
-async function kirim(url, op) {
+async function kirim(url, op, batas) {
     let r;
-    try { r = await fetch(url, Object.assign({ signal: AbortSignal.timeout(BATAS_WAKTU) }, op)); }
+    try { r = await fetch(url, Object.assign({ signal: AbortSignal.timeout(batas || BATAS_WAKTU) }, op)); }
     catch (e) { throw new Error(e && e.name === 'TimeoutError' ? 'terlalu lama menjawab' : 'tidak bisa dihubungi'); }
     const d = await r.json().catch(() => ({}));
     if (!r.ok) throw new Error((r.status === 429 ? 'kuota 429 ' : r.status + ' ') + ((d.error && (d.error.message || d.error)) || ''));
@@ -57,7 +57,7 @@ async function pilihModelGroq(env, ulang, gambar) {
     if (!ulang && (gambar ? modelGroqGambar : modelGroq)) return gambar ? modelGroqGambar : modelGroq;
     const ids = await daftarModelGroq(env);
     if (gambar) {
-        const h = ids.filter((id) => /llama-4|scout|maverick|vision|pixtral|qwen.*vl|-vl\b/i.test(id));
+        const h = ids.filter((id) => /llama-4|scout|maverick|vision|pixtral|qwen.*vl|-vl\b|qwen\/?qwen3/i.test(id)); /* qwen3.x multimodal (daftar Groq Okt 2026); bila model berganti lagi, isi GROQ_VISION_MODEL */
         if (!h.length) throw new Error('tidak ada model gambar untuk kunci ini');
         return (modelGroqGambar = h[0]);
     }
@@ -80,7 +80,7 @@ async function groq(sistem, prompt, maks, env, gambar) {
                 content: ada ? [{ type: 'text', text: prompt }].concat(gambar.map((u) => ({ type: 'image_url', image_url: { url: u } }))) : prompt
             }])
         })
-    });
+    }, ada ? BATAS_WAKTU_GAMBAR : undefined);
     const khusus = ada ? env.GROQ_VISION_MODEL : env.GROQ_MODEL;
     let d;
     try { d = await minta(await pilihModelGroq(env, false, ada)); }
@@ -93,16 +93,22 @@ async function groq(sistem, prompt, maks, env, gambar) {
     if (!teks) throw new Error('jawaban kosong');
     return teks;
 }
-/* Gemini: hanya model 2.5-flash yang boleh dimatikan "berpikir"-nya; model lain diberi ruang token ekstra supaya jawaban tidak terpotong */
+/* Gemini: 2.5-flash boleh dimatikan "berpikir"-nya; seri 3.x hanya bisa dikecilkan (thinkingLevel low); semuanya diberi ruang token ekstra supaya jawaban tidak terpotong */
 async function gemini(sistem, prompt, maks, env, gambar) {
     const model = env.MODEL || 'gemini-3.8-flash', lama = /^gemini-2\.5-flash/.test(model);
     const bagian = [{ text: prompt }].concat(gambar.map((u) => ({ inline_data: { mime_type: 'image/jpeg', data: u.slice(u.indexOf(',') + 1) } })));
-    const isi = { contents: [{ role: 'user', parts: bagian }],
-        generationConfig: Object.assign({ temperature: 0.7, maxOutputTokens: lama ? maks : maks + 2048 }, lama ? { thinkingConfig: { thinkingBudget: 0 } } : {}) };
-    if (sistem) isi.systemInstruction = { parts: [{ text: sistem }] };
-    const d = await kirim('https://generativelanguage.googleapis.com/v1beta/models/' + encodeURIComponent(model) + ':generateContent', {
-        method: 'POST', headers: { 'Content-Type': 'application/json', 'x-goog-api-key': env.GEMINI_KEY }, body: JSON.stringify(isi)
-    });
+    const baru = /^gemini-3/.test(model); /* seri 3.x: "berpikir" tidak bisa dimatikan, hanya dikecilkan (thinkingLevel low) supaya tidak kena batas waktu */
+    const panggil = (pikir) => {
+        const isi = { contents: [{ role: 'user', parts: bagian }],
+            generationConfig: Object.assign({ temperature: 0.7, maxOutputTokens: lama ? maks : maks + 2048 }, pikir ? { thinkingConfig: pikir } : {}) };
+        if (sistem) isi.systemInstruction = { parts: [{ text: sistem }] };
+        return kirim('https://generativelanguage.googleapis.com/v1beta/models/' + encodeURIComponent(model) + ':generateContent', {
+            method: 'POST', headers: { 'Content-Type': 'application/json', 'x-goog-api-key': env.GEMINI_KEY }, body: JSON.stringify(isi)
+        }, gambar.length ? BATAS_WAKTU_GAMBAR : undefined);
+    };
+    let d;
+    try { d = await panggil(lama ? { thinkingBudget: 0 } : baru ? { thinkingLevel: 'low' } : null); }
+    catch (e) { if (!baru || !/thinking/i.test(String(e && e.message))) throw e; d = await panggil(null); } /* nama pengaturan ditolak: ulangi tanpa pengaturan */
     const c = (d.candidates || [])[0], teks = ((c && c.content && c.content.parts) || []).map((p) => p.text || '').join('').trim();
     if (!teks) throw new Error('jawaban kosong');
     return teks;

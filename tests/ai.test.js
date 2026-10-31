@@ -80,7 +80,7 @@ test('perantara (worker): menolak asal & token tak berhak, meneruskan ke Gemini 
         assert.equal(isi.systemInstruction.parts[0].text, 'S');
         assert.equal(isi.contents[0].parts[0].text, 'P');
         assert.ok(g.url.includes('/models/gemini-3.8-flash:'), 'model bawaan terbaru');
-        assert.ok(!isi.generationConfig.thinkingConfig, 'tanpa pengaturan berpikir untuk model non-2.5');
+        assert.deepEqual(isi.generationConfig.thinkingConfig, { thinkingLevel: 'low' }, 'seri 3.x: berpikir dikecilkan (tidak bisa dimatikan)');
         assert.ok(isi.generationConfig.maxOutputTokens > 1024, 'ada ruang ekstra untuk proses berpikir');
         /* token yang sudah lolos disimpan sebentar: permintaan kedua tidak bertanya ke GitHub lagi */
         const ghSebelum = panggilan.filter((x) => x.url.startsWith('https://api.github.com/') && x.op.headers.Authorization === 'Bearer tok-baik').length;
@@ -157,5 +157,37 @@ test('perantara (worker): foto dikirim ke model Groq yang bisa melihat gambar; g
         assert.ok(!r2.catatan.includes('kunci-groq'), 'kunci tidak pernah ikut tertulis');
         assert.equal(typeof bodi[bodi.length - 1].messages[0].content, 'string', 'percobaan ulang tanpa gambar');
         assert.ok(bodi.length >= modelLama + 1);
+    } finally { globalThis.fetch = asli; }
+});
+
+test('perantara (worker): model gambar qwen3 Groq dikenali; Gemini 3.x diberi thinkingLevel rendah dan diulang tanpa itu bila ditolak', async () => {
+    const worker = (await import(pathToFileURL(path.join(REPO, 'ai-worker', 'worker.mjs')).href + '?qwen')).default;
+    const JPEG = 'data:image/jpeg;base64,/9j/4AAQSkZJRg==', asli = globalThis.fetch;
+    const minta = (env, isi) => worker.fetch(new Request('https://ai.contoh.workers.dev/', { method: 'POST', headers: { Origin: 'https://ayrigitar.com', 'Content-Type': 'application/json', Authorization: 'Bearer tok-qwen-uji' }, body: JSON.stringify(isi) }), env);
+    try {
+        /* Groq: hanya qwen/qwen3.8-27b yang bisa melihat gambar */
+        let model = null;
+        globalThis.fetch = async (url, op) => {
+            url = String(url);
+            if (url.startsWith('https://api.github.com/')) return new Response('{}', { status: 200 });
+            if (url.endsWith('/openai/v1/models')) return new Response(JSON.stringify({ data: [{ id: 'llama-3.3-70b-versatile' }, { id: 'qwen/qwen3.8-27b' }] }), { status: 200 });
+            model = JSON.parse(op.body).model;
+            return new Response(JSON.stringify({ choices: [{ message: { content: 'Hasil gambar' } }] }), { status: 200 });
+        };
+        const r = await (await minta({ GROQ_KEY: 'kg', REPO_CEK: 'a/b', ORIGIN: 'https://ayrigitar.com' }, { prompt: 'P', gambar: [JPEG] })).json();
+        assert.equal(r.teks, 'Hasil gambar'); assert.equal(model, 'qwen/qwen3.8-27b');
+        assert.equal(r.catatan, undefined, 'foto terbaca: tanpa catatan gagal');
+        /* Gemini 3.x: thinkingLevel low; bila ditolak karena pengaturan itu, diulang tanpa pengaturan berpikir */
+        const config = [];
+        globalThis.fetch = async (url, op) => {
+            url = String(url);
+            if (url.startsWith('https://api.github.com/')) return new Response('{}', { status: 200 });
+            const gc = JSON.parse(op.body).generationConfig; config.push(gc.thinkingConfig || null);
+            if (gc.thinkingConfig) return new Response(JSON.stringify({ error: { message: 'Unknown name "thinkingLevel": Cannot find field.' } }), { status: 400 });
+            return new Response(JSON.stringify({ candidates: [{ content: { parts: [{ text: 'Dari Gemini' }] } }] }), { status: 200 });
+        };
+        const g = await (await minta({ GEMINI_KEY: 'kgem', REPO_CEK: 'a/b', ORIGIN: 'https://ayrigitar.com' }, { prompt: 'P', gambar: [JPEG] })).json();
+        assert.equal(g.teks, 'Dari Gemini');
+        assert.deepEqual(config, [{ thinkingLevel: 'low' }, null]);
     } finally { globalThis.fetch = asli; }
 });
