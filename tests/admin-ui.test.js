@@ -27,7 +27,7 @@ test('artikel terbit bisa dibagikan: poster 1080x1920 + teks + tautan, tombol di
     assert.match(tautan, /navigator\.share\(\{ title: a\.judul, url: url \}\)/, 'browser: menu bagikan bawaan');
     assert.match(tautan, /else salinLink\(url\)/, 'tanpa menu bagikan: tautan disalin');
     assert.doesNotMatch(tautan, /bukaWa/, 'tidak lagi memaksa WhatsApp');
-    assert.match(kode, /(?:\+m\[1\] === 1 && \+m\[2\] >= 4)/, 'aplikasi 1.4 ke atas');
+    assert.match(kode, /\+m\[2\] === 4 && \+\(m\[3\] \|\| 0\) >= 1/, 'bagikanTeks: aplikasi 1.4.1 ke atas (1.4.0 belum punya op itu)');
     assert.match(kode, /id: 'ar-link'/);
     assert.match(kode, /var PERAN_POSTER = \{ gitar: '', sebelum: 'SEBELUM', sesudah: 'SESUDAH' \};/); assert.doesNotMatch(kode, /GITAR UTUH|gitar utuh/i, 'poster & editor tanpa tulisan "gitar utuh"'); assert.match(kode, /\/sebelum\|before\/i/, 'foto sebelum/sesudah dikenali dari keterangan bila belum dipilih');
     assert.match(kode, /Math\.min\(sel\.w \/ foto\.width, sel\.h \/ foto\.height\)/, 'foto utuh di dalam sel (contain), tidak dipotong');
