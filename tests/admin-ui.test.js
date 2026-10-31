@@ -37,3 +37,16 @@ test('pilih dari kontak: tombol di form servis, tebus/titip, jual, dan sewa; han
     for (const pasangan of ['[data-f="nama"]', '[data-t="nama"]', '#jb-nama', '[data-w="nama"]']) assert.ok(kode.includes("tombolKontak('" + pasangan), 'tombol kontak untuk ' + pasangan);
     assert.match(kode, /navigator\.contacts\.select\(\['name', 'tel'\], \{ multiple: false \}\)/, 'hanya nama dan nomor yang diminta, satu kontak');
 });
+
+test('poster SOLD: hanya gitar terjual berfoto publik, cap SOLD tanpa harga/modal/pembeli, tombol di daftar dan halaman stok', () => {
+    const kode = baca('admin.js');
+    assert.match(kode, /function bisaPosterSold\(s\) \{ return s\.status === 'terjual' && s\.kategori !== 'aksesoris' && /, 'hanya gitar yang sudah terjual');
+    assert.match(kode, /data-sold="' \+ E\(s\.id\) \+ '">Poster SOLD</, 'tombol di kartu daftar stok');
+    assert.match(kode, /id: 'sk-sold'/, 'tombol di halaman stok');
+    assert.match(kode, /bagikanPoster\(s, teksTerjual\(s\), \{ terjual: true \}, tombol\)/);
+    const poster = kode.slice(kode.indexOf('function buatPoster(s, opsi)'), kode.indexOf('function blobBase64'));
+    assert.match(poster, /fillText\('SOLD'/, 'cap SOLD digambar');
+    assert.match(poster, /if \(sold\) \{\s*c\.fillStyle = EMAS; c\.font = '700 66px ' \+ SERIF; c\.fillText\('Sudah punya pemilik baru'/, 'poster sold mengganti harga dengan ucapan terima kasih');
+    const teks = kode.slice(kode.indexOf('function teksTerjual'), kode.indexOf('function bagikanTerjual'));
+    assert.ok(!/harga|modal|nama|hp|nik/i.test(teks.replace(/Tanya \/ pesan/g, '')), 'teks story tanpa harga, modal, atau data pembeli');
+});
