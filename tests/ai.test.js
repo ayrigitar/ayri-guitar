@@ -152,6 +152,9 @@ test('perantara (worker): foto dikirim ke model Groq yang bisa melihat gambar; g
         const modelLama = bodi.length, segar = (await import(pathToFileURL(path.join(REPO, 'ai-worker', 'worker.mjs')).href + '?segar')).default; /* salinan baru: pilihan model lama tidak diingat */
         const r2 = await (await segar.fetch(new Request('https://ai.contoh.workers.dev/', { method: 'POST', headers: { Origin: 'https://ayrigitar.com', 'Content-Type': 'application/json', Authorization: 'Bearer tok-foto-uji' }, body: JSON.stringify({ prompt: 'P', gambar: [JPEG] }) }), env)).json();
         assert.equal(r2.teks, 'Hasil'); assert.match(r2.catatan, /Foto belum bisa dibaca/);
+        assert.match(r2.catatan, /Groq: tidak ada model gambar/, 'alasan Groq ikut dicatat');
+        assert.match(r2.catatan, /Gemini: kunci belum dipasang/, 'cadangan yang belum dipasang disebut');
+        assert.ok(!r2.catatan.includes('kunci-groq'), 'kunci tidak pernah ikut tertulis');
         assert.equal(typeof bodi[bodi.length - 1].messages[0].content, 'string', 'percobaan ulang tanpa gambar');
         assert.ok(bodi.length >= modelLama + 1);
     } finally { globalThis.fetch = asli; }
