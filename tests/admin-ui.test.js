@@ -19,8 +19,15 @@ test('artikel terbit bisa dibagikan: poster 1080x1920 + teks + tautan, tombol di
     assert.match(kode, /if \(opsi && opsi\.artikel\) return buatPosterArtikel\(opsi\.artikel\);/);
     assert.match(kode, /data-bagikan-ar/); assert.match(kode, /id: 'ar-bagikan'/);
     assert.match(kode, /if \(a\.status !== 'terbit'\) return toast\('Hanya artikel yang sudah terbit/, 'draf tidak bisa dibagikan');
-    assert.match(kode, /\(a\.status === 'terbit' \? '<span class="ly-item__b"><button type="button" class="ly-btn ly-btn--sm" data-link-ar=/, 'tombol hanya di artikel terbit');
+    assert.match(kode, /\(a\.status === 'terbit' \? '<span class="ly-item__b">' \+ tombolIkon\('link-ar', a\.id, 'tautan', /, 'tombol ikon hanya di artikel terbit');
+    assert.match(kode, /tombolIkon\('bagikan-ar', a\.id, 'kirim', 'Bagikan poster Story'\)/);
     assert.match(kode, /function bagikanLinkArtikel\(a\)/); assert.match(kode, /navigator\.share\(\{ title: a\.judul, url: url \}\)/, 'tautan saja, tanpa gambar');
+    const tautan = kode.slice(kode.indexOf('function bagikanLinkArtikel'), kode.indexOf('function bagikanArtikel'));
+    assert.match(tautan, /kirimKeAplikasi\('bagikanTeks'/, 'aplikasi baru: menu bagikan Android');
+    assert.match(tautan, /navigator\.share\(\{ title: a\.judul, url: url \}\)/, 'browser: menu bagikan bawaan');
+    assert.match(tautan, /else salinLink\(url\)/, 'tanpa menu bagikan: tautan disalin');
+    assert.doesNotMatch(tautan, /bukaWa/, 'tidak lagi memaksa WhatsApp');
+    assert.match(kode, /(?:\+m\[1\] === 1 && \+m\[2\] >= 4)/, 'aplikasi 1.4 ke atas');
     assert.match(kode, /id: 'ar-link'/);
     assert.match(kode, /var PERAN_POSTER = \{ gitar: '', sebelum: 'SEBELUM', sesudah: 'SESUDAH' \};/); assert.doesNotMatch(kode, /GITAR UTUH|gitar utuh/i, 'poster & editor tanpa tulisan "gitar utuh"'); assert.match(kode, /\/sebelum\|before\/i/, 'foto sebelum/sesudah dikenali dari keterangan bila belum dipilih');
     assert.match(kode, /Math\.min\(sel\.w \/ foto\.width, sel\.h \/ foto\.height\)/, 'foto utuh di dalam sel (contain), tidak dipotong');
@@ -41,7 +48,7 @@ test('pilih dari kontak: tombol di form servis, tebus/titip, jual, dan sewa; han
 test('poster SOLD: hanya gitar terjual berfoto publik, cap SOLD tanpa harga/modal/pembeli, tombol di daftar dan halaman stok', () => {
     const kode = baca('admin.js');
     assert.match(kode, /function bisaPosterSold\(s\) \{ return s\.status === 'terjual' && s\.kategori !== 'aksesoris' && /, 'hanya gitar yang sudah terjual');
-    assert.match(kode, /data-sold="' \+ E\(s\.id\) \+ '">Poster SOLD</, 'tombol di kartu daftar stok');
+    assert.match(kode, /tombolIkon\('sold', s\.id, 'kirim', 'Bagikan poster SOLD'\)/, 'tombol ikon di kartu daftar stok');
     assert.match(kode, /id: 'sk-sold'/, 'tombol di halaman stok');
     assert.match(kode, /bagikanPoster\(s, teksTerjual\(s\), \{ terjual: true \}, tombol\)/);
     const poster = kode.slice(kode.indexOf('function buatPoster(s, opsi)'), kode.indexOf('function blobBase64'));
@@ -49,4 +56,13 @@ test('poster SOLD: hanya gitar terjual berfoto publik, cap SOLD tanpa harga/moda
     assert.match(poster, /if \(sold\) \{\s*c\.fillStyle = EMAS; c\.font = '700 66px ' \+ SERIF; c\.fillText\('Sudah punya pemilik baru'/, 'poster sold mengganti harga dengan ucapan terima kasih');
     const teks = kode.slice(kode.indexOf('function teksTerjual'), kode.indexOf('function bagikanTerjual'));
     assert.ok(!/harga|modal|nama|hp|nik/i.test(teks.replace(/Tanya \/ pesan/g, '')), 'teks story tanpa harga, modal, atau data pembeli');
+});
+
+test('tombol ikon: berlabel untuk pembaca layar, tetap berikon saat sibuk, ikon kirim & tautan ada', () => {
+    const kode = baca('admin.js'), css = baca('layanan.css');
+    assert.match(kode, /function tombolIkon\(atr, id, nama, label\) \{ return '<button type="button" class="ly-btn ly-btn--sm ly-btn--ikon" data-' \+ atr \+ '="' \+ E\(id\) \+ '" aria-label="' \+ E\(label\) \+ '" title="'/);
+    assert.match(kode, /if \(!btn\.classList\.contains\('ly-btn--ikon'\)\) btn\.textContent = teks/, 'tombol ikon tidak diganti teks saat sibuk');
+    assert.match(kode, /\n {8}kirim: '<path/); assert.match(kode, /\n {8}tautan: '<path/);
+    assert.match(css, /\.ly-btn--ikon \{ width: 40px;/);
+    assert.ok(!/>Story<\/button>|>Link<\/button>|>Poster SOLD<\/button>/.test(kode), 'tidak ada lagi tombol bertulisan Link/Story/Poster SOLD di daftar');
 });

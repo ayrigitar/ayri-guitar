@@ -85,6 +85,9 @@ body.ly { min-height: 100dvh; background: var(--bg); color: var(--ink); font-fam
 .ly-btn--wa { border-color: var(--wa); background: var(--wa); color: #fff; }
 .ly-btn--del { color: var(--danger); }
 .ly-btn--sm { min-height: 34px; padding: 0 11px; font-size: .8125rem; }
+.ly-btn--ikon { width: 40px; min-height: 40px; padding: 0; }
+.ly-btn--ikon svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
+.ly-item__b { gap: 8px; }
 .ly-btns { display: flex; flex-wrap: wrap; gap: 8px; }
 
 /* tombol kirim WhatsApp: kartu dengan ikon, judul, dan keterangan singkat */
