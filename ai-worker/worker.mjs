@@ -144,7 +144,11 @@ export default {
             catch (e) {
                 if (!gambar.length) throw e;
                 /* foto tidak bisa dibaca penyedia mana pun: tetap beri jawaban dari teks saja, dengan catatan */
-                return jawab({ teks: await jalankan(urutan, sistem, prompt, maks, env, []), catatan: 'Foto belum bisa dibaca AI; jawaban dibuat dari catatan saja.' }, 200, cors);
+                /* alasan tiap penyedia ikut dicatat (kunci disamarkan) supaya penyebabnya bisa diketahui: kuota, nama model, atau kunci cadangan belum dipasang */
+                let sebab = ((e && e.galat) || [String(e && e.message || e)]).join(' · ');
+                [env.GROQ_KEY, env.GEMINI_KEY].forEach((k) => { if (k) sebab = sebab.split(k).join('…'); });
+                if (!env.GEMINI_KEY) sebab += ' · Gemini: kunci belum dipasang';
+                return jawab({ teks: await jalankan(urutan, sistem, prompt, maks, env, []), catatan: 'Foto belum bisa dibaca AI; jawaban dibuat dari catatan saja. (' + sebab.slice(0, 280) + ')' }, 200, cors);
             }
         } catch (e) {
             const galat = e && e.galat || [String(e && e.message || e)];
