@@ -2542,8 +2542,23 @@
     function bagikanLinkArtikel(a) {
         if (a.status !== 'terbit') return toast('Hanya artikel yang sudah terbit yang bisa dibagikan.', true);
         var url = urlArtikel(a);
-        if (!adaAplikasi() && navigator.share) navigator.share({ title: a.judul, url: url }).catch(function () {});
-        else bukaWa('', url);
+        /* menu bagikan HP yang universal (WhatsApp, Instagram, Telegram, SMS, dll): lewat aplikasi AYRI POS 1.4+ atau menu bagikan browser; bila tidak ada, tautan disalin */
+        if (bisaBagikanTeksApp()) kirimKeAplikasi('bagikanTeks', { teks: a.judul + '\n' + url });
+        else if (navigator.share) navigator.share({ title: a.judul, url: url }).catch(function (e) { if (!e || e.name !== 'AbortError') salinLink(url); });
+        else salinLink(url);
+    }
+    function bisaBagikanTeksApp() {
+        var m = /AyriApp\/(\d+)\.(\d+)/.exec(navigator.userAgent);
+        return !!m && adaAplikasi() && typeof window.AyriApp.postMessage === 'function' && (+m[1] > 1 || (+m[1] === 1 && +m[2] >= 4));
+    }
+    function salinLink(url) {
+        function ok() { toast('Link disalin. Tempel di aplikasi mana pun.'); }
+        function cadangan() {
+            var t = document.createElement('textarea'); t.value = url; t.style.cssText = 'position:fixed;opacity:0'; document.body.appendChild(t); t.select();
+            var berhasil = false; try { berhasil = document.execCommand('copy'); } catch (e) {} document.body.removeChild(t);
+            if (berhasil) ok(); else toast('Link: ' + url, true);
+        }
+        if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(url).then(ok, cadangan); else cadangan();
     }
     function bagikanArtikel(a, tombol) {
         if (a.status !== 'terbit') return toast('Hanya artikel yang sudah terbit yang bisa dibagikan.', true);

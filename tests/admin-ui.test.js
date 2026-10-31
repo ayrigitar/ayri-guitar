@@ -22,6 +22,12 @@ test('artikel terbit bisa dibagikan: poster 1080x1920 + teks + tautan, tombol di
     assert.match(kode, /\(a\.status === 'terbit' \? '<span class="ly-item__b">' \+ tombolIkon\('link-ar', a\.id, 'tautan', /, 'tombol ikon hanya di artikel terbit');
     assert.match(kode, /tombolIkon\('bagikan-ar', a\.id, 'kirim', 'Bagikan poster Story'\)/);
     assert.match(kode, /function bagikanLinkArtikel\(a\)/); assert.match(kode, /navigator\.share\(\{ title: a\.judul, url: url \}\)/, 'tautan saja, tanpa gambar');
+    const tautan = kode.slice(kode.indexOf('function bagikanLinkArtikel'), kode.indexOf('function bagikanArtikel'));
+    assert.match(tautan, /kirimKeAplikasi\('bagikanTeks'/, 'aplikasi baru: menu bagikan Android');
+    assert.match(tautan, /navigator\.share\(\{ title: a\.judul, url: url \}\)/, 'browser: menu bagikan bawaan');
+    assert.match(tautan, /else salinLink\(url\)/, 'tanpa menu bagikan: tautan disalin');
+    assert.doesNotMatch(tautan, /bukaWa/, 'tidak lagi memaksa WhatsApp');
+    assert.match(kode, /(?:\+m\[1\] === 1 && \+m\[2\] >= 4)/, 'aplikasi 1.4 ke atas');
     assert.match(kode, /id: 'ar-link'/);
     assert.match(kode, /var PERAN_POSTER = \{ gitar: '', sebelum: 'SEBELUM', sesudah: 'SESUDAH' \};/); assert.doesNotMatch(kode, /GITAR UTUH|gitar utuh/i, 'poster & editor tanpa tulisan "gitar utuh"'); assert.match(kode, /\/sebelum\|before\/i/, 'foto sebelum/sesudah dikenali dari keterangan bila belum dipilih');
     assert.match(kode, /Math\.min\(sel\.w \/ foto\.width, sel\.h \/ foto\.height\)/, 'foto utuh di dalam sel (contain), tidak dipotong');
