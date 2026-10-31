@@ -85,7 +85,7 @@ function bikinGitHub(opsi) {
 /* repo-repo standar milik toko: situs (publik), data bersama, dan data khusus owner */
 function siapkanRepo(gh, o) {
     o = o || {};
-    gh.awal('ayri-guitar', Object.assign({ 'README.md': 'x', 'index.html': baca('index.html'), 'sitemap.xml': baca('sitemap.xml'), 'scripts/artikel-template.html': baca('scripts/artikel-template.html') }, o.situs));
+    gh.awal('ayri-guitar', Object.assign({ 'README.md': 'x', 'index.html': baca('index.html'), 'sitemap.xml': baca('sitemap.xml'), 'scripts/artikel-template.html': baca('scripts/artikel-template.html'), 'scripts/unit-template.html': baca('scripts/unit-template.html') }, o.situs));
     gh.awal('ayri-toko-data', Object.assign({ 'servis.json': '[]', 'stok.json': '[]', 'jual.json': '[]', 'artikel.json': '[]', 'absen.json': '[]', 'opname.json': '[]', 'kas.json': '[]', 'pengaturan.json': '{}' }, o.data));
     gh.awal('ayri-servis-data', Object.assign({ 'README.md': 'x' }, o.owner));
     gh.izin['tok-karyawan'] = ['ayri-guitar', 'ayri-toko-data'];   /* karyawan tidak boleh membuka repo owner */

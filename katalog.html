@@ -154,7 +154,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
     function kartu(x) {
         var f = x.foto[0];
-        return '<a class="kat-item" href="unit.html?k=' + encodeURIComponent(x.kode) + '">' +
+        return '<a class="kat-item" href="unit/' + encodeURIComponent(x.kode) + '.html">' +
             '<span class="kat-foto">' + (f ? '<img src="' + esc(f.kecil) + '" alt="' + esc(judul(x)) + '" loading="lazy" decoding="async">' : '<span class="kat-nofoto">Foto menyusul</span>') +
             '<span class="kat-badges kat-badges--foto">' + lencana(x) + '</span>' +
             (x.status === 'dipesan' ? '<span class="kat-pita">Dipesan</span>' : '') +

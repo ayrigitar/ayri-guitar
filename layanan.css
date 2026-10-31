@@ -785,3 +785,7 @@ html[data-theme="dark"] .rk-naik { color: #5CD196 !important; }
 .kas-detail td { padding-top: 0; }
 .kas-detail span { display: block; color: var(--ink-3); font-size: .75rem; }
 .kas-detail b { color: var(--danger); }
+
+/* tautan dari halaman unit ke artikel panduannya */
+.unit-panduan { margin: 14px 0 0; }
+.unit-panduan a { font-weight: 700; color: var(--accent); }

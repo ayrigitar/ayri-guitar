@@ -54,13 +54,18 @@ test('stok: aksesoris selalu tersimpan sebagai baru, tanpa tingkat kondisi', asy
 test('stok: tiap barang di katalog punya halaman pratinjau unit/<kode>.html (tag WhatsApp), terhapus saat barang tidak lagi tampil', async () => {
     const { gh, A, L } = await mulai();
     const r = await A.simpanStok(stokContoh(null, 1, { id: undefined, kode: undefined, created_at: undefined, gitar_jenis: 'Bass', gitar_merk: 'Fender Aerodyne', warna: 'Hitam', tingkat: 'excellent', deskripsi: 'Jazz "Bass" <2003>' }), []);
-    assert.equal(gh.json('ayri-guitar', 'data/katalog.json').v, 2);
+    assert.equal(gh.json('ayri-guitar', 'data/katalog.json').v, 3);
     const halaman = gh.isi('ayri-guitar', 'unit/' + r.kode + '.html');
     assert.ok(halaman, 'halaman unit dibuat');
     assert.ok(halaman.includes('<meta property="og:title" content="Bass Fender Aerodyne – Rp1.000.000">'), 'judul tanpa kata Gitar untuk bass + harga');
     assert.ok(halaman.includes('Used Excellent') && halaman.includes('<link rel="canonical" href="' + L.urlUnit(r.kode) + '">'));
     assert.ok(halaman.includes('"@type":"Product"') && !halaman.includes('<2003>'), 'data produk ada, teks bebas di-escape');
-    assert.ok(halaman.includes('unit.html?k=' + r.kode), 'diteruskan ke halaman unit');
+    assert.ok(halaman.includes('<h1>Bass Fender Aerodyne</h1>') && halaman.includes('Rp1.000.000') && halaman.includes('Hitam'), 'isi sudah HTML biasa (judul, harga, warna) tanpa menunggu JavaScript');
+    assert.ok(!halaman.includes('location.replace'), 'tidak lagi diteruskan lewat JavaScript');
+    assert.ok(halaman.includes('Jazz &quot;Bass&quot; &lt;2003&gt;'), 'deskripsi di-escape di isi halaman');
+    assert.ok(halaman.includes('href="../style-artikel.css"') && halaman.includes('src="../unit-statis.js"') && !halaman.includes('{{'), 'alamat berkas relatif ke ../, tanpa penanda tersisa');
+    assert.ok(!/name="robots"[^>]*noindex/.test(halaman), 'boleh diindeks');
+    assert.ok(gh.isi('ayri-guitar', 'sitemap-unit.xml').includes('<loc>' + L.urlUnit(r.kode) + '</loc>'), 'masuk peta situs unit');
     assert.ok(!halaman.includes('harga_beli'));
     /* ubah harga: halaman diperbarui; ditarik dari katalog: halaman dihapus */
     const r2 = await A.simpanStok(Object.assign({}, r, { harga_jual: 1250000 }), []);

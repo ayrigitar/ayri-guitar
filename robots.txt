@@ -5,3 +5,4 @@ Disallow: /data/
 Disallow: /scripts/
 
 Sitemap: https://ayrigitar.com/sitemap.xml
+Sitemap: https://ayrigitar.com/sitemap-unit.xml

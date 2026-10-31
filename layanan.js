@@ -1336,13 +1336,16 @@
     L.kunciMerek = function (m) { return L.slugFoto(m, 40); };
     L.jenisStok = function (s) { return s.kategori === 'aksesoris' ? (s.sub || 'Aksesoris') : (s.gitar_jenis || 'Gitar'); };
     L.diKatalog = function (s) { return s.tampil !== false && (s.status === 'tersedia' || s.status === 'dipesan') && +s.harga_jual > 0 && +s.jumlah > 0; };
-    function versiKatalog(s) {
+    /* alamat artikel profil unit yang sudah terbit (tautan dari halaman unit ke artikelnya); undefined bila tidak ada */
+    function slugArtikelUnit(s) { var a = data.artikel.filter(function (x) { return x.stok_id === s.id && x.status === 'terbit'; })[0]; return a ? a.slug : undefined; }
+    function versiKatalog(s, slugArtikel) {
         var aks = s.kategori === 'aksesoris';
         return {
             kode: s.kode, kategori: aks ? 'aksesoris' : 'gitar', jenis: L.jenisStok(s), kondisi: s.kondisi || 'baru', nama: L.namaStok(s), warna: s.warna || '',
             deskripsi: s.deskripsi || '', harga: +s.harga_jual, status: s.status, sisa: aks && +s.jumlah <= C.katalogSisaTampil ? +s.jumlah : null,
             foto: (s.foto || []).filter(function (f) { return f.repo === 'publik'; }).map(function (f) { return { src: f.path, kecil: f.thumb_path || f.path }; }),
-            tingkat: L.tingkatStok(s) || undefined   /* tanpa tingkat = kunci tidak ditulis (katalog lama tidak berubah) */
+            tingkat: L.tingkatStok(s) || undefined,   /* tanpa tingkat = kunci tidak ditulis (katalog lama tidak berubah) */
+            artikel: arguments.length > 1 ? slugArtikel : slugArtikelUnit(s)   /* tanpa artikel = kunci tidak ditulis */
         };
     }
     L.untungStok = function (s) {
@@ -1356,16 +1359,37 @@
             return fileKatalogDari(list.filter(function (x) { return x.id !== (ganti || hapus).id; }).concat(ganti ? [ganti] : []));
         });
     }
-    /* tautan halaman satu unit (dibagikan ke calon pembeli/penyewa): unit/<kode>.html memuat pratinjau WhatsApp lalu meneruskan ke unit.html */
+    /* tautan halaman satu unit (dibagikan ke calon pembeli/penyewa, dan dibaca Google): unit/<kode>.html adalah HTML biasa berisi foto, harga, spesifikasi, dan deskripsi */
     L.urlUnit = function (kode) { return L.situs() + 'unit/' + encodeURIComponent(kode) + '.html'; };
-    var VERSI_HALAMAN_UNIT = 2; /* naikkan bila bentuk halaman pratinjau berubah: semua halaman dibuat ulang pada simpan stok berikutnya */
+    var VERSI_HALAMAN_UNIT = 3; /* naikkan bila bentuk halaman unit berubah: semua halaman dibuat ulang pada simpan stok berikutnya */
     function judulKatalog(x) { return x.kategori === 'gitar' ? (C.jenisTanpaGitar.indexOf(x.jenis) > -1 ? x.jenis : 'Gitar ' + x.jenis) + ' ' + x.nama : x.nama; }
-    /* halaman pratinjau kecil per unit: tag Open Graph + data produk supaya tautan tampil dengan foto & harga di WhatsApp/Google; pengunjung diteruskan ke unit.html */
     /* teks alt foto produk: judul + warna + kondisi bekas + nomor foto, tanpa pengulangan kata kunci */
     L.altKatalog = function (x, n) {
         return judulKatalog(x) + (x.warna ? ' ' + x.warna : '') + (x.kategori === 'gitar' && x.kondisi === 'bekas' ? ' bekas' + (x.tingkat ? ' ' + x.tingkat : '') : '') + (n ? ' – foto ' + n : '');
     };
-    L.halamanUnit = function (x) {
+    /* isi halaman unit sebagai HTML biasa (sama dengan tampilan unit.html, tetapi sudah jadi di server supaya Google langsung membacanya) */
+    function isiUnit(x) {
+        var e = L.esc, judul = judulKatalog(x), aks = x.kategori === 'aksesoris', tingkatArti = '';
+        if (x.tingkat) C.tingkatKondisi.forEach(function (k) { if (k[1] === x.tingkat) tingkatArti = k[2]; });
+        var lencana = '<span class="kat-badge kat-' + (aks ? 'aks' : x.kondisi) + '">' + (aks ? e(x.jenis) : x.kondisi === 'baru' ? 'Baru' : 'Used') + '</span>' + (x.tingkat ? '<span class="kat-badge kat-tingkat">' + e(x.tingkat) + '</span>' : '');
+        var baris = aks ? [['Kategori', x.jenis], ['Nama', x.nama]].concat(x.warna ? [['Varian', x.warna]] : [])
+            : [['Jenis', x.jenis], ['Merk / model', x.nama]].concat(x.warna ? [['Warna', x.warna]] : [], [['Kondisi', x.kondisi === 'baru' ? 'Baru' : 'Used' + (x.tingkat ? ' · ' + x.tingkat : '')]]);
+        if (x.sisa) baris.push(['Stok', 'Sisa ' + x.sisa]);
+        baris.push(['Kode', x.kode]);
+        var spek = '<dl class="unit-spek">' + baris.map(function (r) { return '<div><dt>' + e(r[0]) + '</dt><dd>' + e(r[1]) + '</dd></div>'; }).join('') + '</dl>' + (tingkatArti ? '<p class="unit-tingkat"><b>' + e(x.tingkat) + ':</b> ' + e(tingkatArti) + '.</p>' : '');
+        var galeri = !x.foto.length ? '<div class="unit-galeri"><div class="unit-utama"><span class="kat-nofoto">Foto menyusul</span></div></div>'
+            : '<div class="unit-galeri"><div class="unit-utama" id="unit-utama">' + x.foto.map(function (f, i) { return '<img src="../' + e(f.src) + '" alt="' + e(L.altKatalog(x, i + 1)) + '"' + (i ? ' loading="lazy"' : '') + ' decoding="async">'; }).join('') + '</div>' +
+                (x.foto.length > 1 ? '<span class="unit-hitung" id="unit-hitung">1 / ' + x.foto.length + '</span><div class="unit-thumbs" id="unit-thumbs">' + x.foto.map(function (f, i) { return '<button type="button" data-i="' + i + '" aria-label="Foto ' + (i + 1) + '" aria-current="' + (i === 0) + '"><img src="../' + e(f.kecil) + '" alt=""></button>'; }).join('') + '</div>' : '') + '</div>';
+        var wa = 'https://wa.me/' + C.toko.wa + '?text=' + encodeURIComponent('Halo AYRI, saya tertarik dengan ' + judul + (x.warna ? ' (' + x.warna + ')' : '') + ' kode ' + x.kode + ' harga ' + L.rupiah(x.harga) + '. Apakah masih tersedia?');
+        return '<div class="unit-grid">' + galeri + '<section class="unit-info"><div class="kat-badges">' + lencana + '</div><h1>' + e(judul) + '</h1><p class="kat-harga kat-harga--besar">' + L.rupiah(x.harga) + '</p>' +
+            (x.status === 'dipesan' ? '<p class="unit-status unit-status--pesan">Sedang dipesan pembeli lain. Tanyakan bila batal.</p>' : '<p class="unit-status">Tersedia di toko</p>') + spek +
+            (x.deskripsi ? '<div class="unit-desk"><h2>Deskripsi</h2><p>' + e(x.deskripsi) + '</p></div>' : '') +
+            (x.artikel && /^[a-z0-9-]+$/.test(x.artikel) ? '<p class="unit-panduan"><a href="../artikel-' + x.artikel + '.html">Baca panduan lengkap: spesifikasi, perawatan, dan tips membeli &rsaquo;</a></p>' : '') +
+            '<div class="unit-aksi"><a class="ly-btn ly-btn--wa unit-wa" target="_blank" rel="noopener" href="' + e(wa) + '">Tanya / pesan via WhatsApp</a><button type="button" class="ly-btn" id="unit-bagikan">Bagikan</button></div>' +
+            '<div class="unit-toko"><b>' + e(C.toko.nama) + '</b><span>' + e(C.toko.alamat || '') + '</span>' + (C.toko.jam ? '<span>Jam buka: ' + e(C.toko.jam) + '</span>' : '') + '<span class="ly-muted">Lihat langsung, coba, dan bayar di toko.</span></div></section></div>';
+    }
+    /* tpl = isi scripts/unit-template.html. Tanpa templat (repo situs lama): halaman pratinjau kecil yang meneruskan ke unit.html */
+    L.halamanUnit = function (x, tpl) {
         var e = L.esc, judul = judulKatalog(x), url = L.urlUnit(x.kode), tujuan = 'unit.html?k=' + encodeURIComponent(x.kode);
         var kondisi = x.kategori === 'gitar' ? (x.kondisi === 'baru' ? 'Baru' : 'Used' + (x.tingkat ? ' ' + x.tingkat : '')) : x.jenis;
         var deskripsi = [kondisi, x.warna].filter(Boolean).join(' · ') + ' – ' + L.rupiah(x.harga) + '. Tersedia di ' + C.toko.nama + ' Bogor.';
@@ -1373,23 +1397,38 @@
         var ld = { '@context': 'https://schema.org', '@type': 'Product', name: judul, sku: x.kode, description: x.deskripsi || deskripsi, image: x.foto.map(function (f, i) { return { '@type': 'ImageObject', contentUrl: L.situs() + f.src, name: L.altKatalog(x), caption: L.altKatalog(x, i + 1) }; }),
             offers: { '@type': 'Offer', url: url, price: x.harga, priceCurrency: 'IDR', availability: 'https://schema.org/' + (x.status === 'dipesan' ? 'LimitedAvailability' : 'InStock'),
                 itemCondition: 'https://schema.org/' + (x.kondisi === 'bekas' ? 'UsedCondition' : 'NewCondition'), seller: { '@type': 'Organization', name: C.toko.nama } } };
+        var ldTeks = JSON.stringify(ld).split('<').join('\\u003c');
+        if (tpl) {
+            var wa = 'https://wa.me/' + C.toko.wa + '?text=' + encodeURIComponent('Halo AYRI, saya tertarik dengan ' + judul + (x.warna ? ' (' + x.warna + ')' : '') + ' kode ' + x.kode + ' harga ' + L.rupiah(x.harga) + '. Apakah masih tersedia?');
+            var nilai = {
+                JUDUL: e(judul), HARGA: e(L.rupiah(x.harga)), DESKRIPSI: e(deskripsi), URL: e(url), GAMBAR: e(gambar), LDJSON: ldTeks, KODE: e(x.kode), ISI: isiUnit(x),
+                BAR: '<div class="unit-bar__harga"><small>Harga</small><b>' + e(L.rupiah(x.harga)) + '</b></div><a class="ly-btn ly-btn--wa" target="_blank" rel="noopener" href="' + e(wa) + '">WhatsApp</a>'
+            };
+            return tpl.replace(/\{\{([A-Z_]+)\}\}/g, function (m, k) { return k in nilai ? nilai[k] : m; });
+        }
         return '<!DOCTYPE html>\n<html lang="id">\n<head>\n<meta charset="UTF-8">\n<meta name="viewport" content="width=device-width, initial-scale=1">\n' +
             '<title>' + e(judul) + ' | ' + e(C.toko.nama) + ' Bogor</title>\n<meta name="description" content="' + e(deskripsi) + '">\n<link rel="canonical" href="' + e(url) + '">\n' +
             '<meta property="og:type" content="product">\n<meta property="og:locale" content="id_ID">\n<meta property="og:site_name" content="' + e(C.toko.nama) + '">\n' +
             '<meta property="og:title" content="' + e(judul + ' – ' + L.rupiah(x.harga)) + '">\n<meta property="og:description" content="' + e(deskripsi) + '">\n<meta property="og:url" content="' + e(url) + '">\n' +
             '<meta property="og:image" content="' + e(gambar) + '">\n<meta name="twitter:card" content="summary_large_image">\n<meta name="twitter:image" content="' + e(gambar) + '">\n' +
-            '<script type="application/ld+json">' + JSON.stringify(ld).split('<').join('\\u003c') + '</script>\n' +
+            '<script type="application/ld+json">' + ldTeks + '</script>\n' +
             '</head>\n<body>\n<p><a href="../' + e(tujuan) + '">' + e(judul) + ' – ' + e(L.rupiah(x.harga)) + '</a></p>\n<script>location.replace("../' + tujuan.split('"').join('') + '");</script>\n</body>\n</html>\n';
     };
+    /* peta situs khusus halaman unit (file terpisah dari sitemap.xml supaya simpan stok tidak menimpa entri artikel) */
+    L.sitemapUnit = function (item) {
+        return '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' + item.map(function (x) { return '  <url>\n    <loc>' + L.esc(L.urlUnit(x.kode)) + '</loc>\n  </url>\n'; }).join('') + '</urlset>\n';
+    };
     function fileKatalogDari(list) {
-        return bacaFile('situs', 'data/katalog.json').then(function (lama) {
+        return Promise.all([bacaFile('situs', 'data/katalog.json'), bacaFile('situs', 'scripts/unit-template.html')]).then(function (r) {
+            var lama = r[0], tpl = r[1];
             var item = list.filter(L.diKatalog).sort(function (a, b) { return (b.tgl_masuk || '') < (a.tgl_masuk || '') ? -1 : 1; }).map(versiKatalog);
             var teks = JSON.stringify({ toko: C.toko.nama, v: VERSI_HALAMAN_UNIT, item: item }, null, 1) + '\n';
             if (lama === teks) return [];
+            var petaFile = { path: 'sitemap-unit.xml', teks: L.sitemapUnit(item) };
             var dulu; try { dulu = lama ? JSON.parse(lama) : {}; } catch (er) { dulu = {}; }
-            var semua = dulu.v !== VERSI_HALAMAN_UNIT, per = {}, files = [{ path: 'data/katalog.json', teks: teks }];
+            var semua = dulu.v !== VERSI_HALAMAN_UNIT, per = {}, files = [{ path: 'data/katalog.json', teks: teks }, petaFile];
             (dulu.item || []).forEach(function (x) { per[x.kode] = JSON.stringify(x); });
-            item.forEach(function (x) { if (semua || per[x.kode] !== JSON.stringify(x)) files.push({ path: 'unit/' + x.kode + '.html', teks: L.halamanUnit(x) }); delete per[x.kode]; });
+            item.forEach(function (x) { if (semua || per[x.kode] !== JSON.stringify(x)) files.push({ path: 'unit/' + x.kode + '.html', teks: L.halamanUnit(x, tpl) }); delete per[x.kode]; });
             if (!semua) Object.keys(per).forEach(function (k) { files.push({ path: 'unit/' + k + '.html', hapus: true }); }); /* barang terjual/ditarik: halamannya dihapus */
             return files;
         });
@@ -1740,7 +1779,8 @@
             });
         })).then(function () {
             return ubahAtomik('situs', function (baca) {
-                return Promise.all([baca('scripts/artikel-template.html'), baca('index.html'), baca('sitemap.xml'), tampil ? baca('artikel-' + art.slug + '.html') : null]).then(function (r) {
+                var stokArt = art.stok_id ? cari(data.stok, art.stok_id) : null, adaUnit = !!(stokArt && L.diKatalog(stokArt));
+                return Promise.all([baca('scripts/artikel-template.html'), baca('index.html'), baca('sitemap.xml'), tampil ? baca('artikel-' + art.slug + '.html') : null, adaUnit ? baca('data/katalog.json') : null, adaUnit ? baca('scripts/unit-template.html') : null]).then(function (r) {
                     var tpl = r[0], beranda = r[1], peta = r[2], ada = r[3], files = fotoFile.slice();
                     if (!tpl || !beranda || !peta) throw new Error('File template/beranda/sitemap tidak ditemukan di repo situs.');
                     if (ada && ada.indexOf(B.PENANDA) < 0) throw new Error('Alamat artikel-' + art.slug + '.html sudah dipakai halaman buatan tangan. Ganti alamatnya.');
@@ -1760,6 +1800,12 @@
                         files.push({ path: 'artikel-' + x.slug + '.html', teks: B.halaman(tpl, x, L.situs(), { merek: tampil ? art : null }) });
                     });
                     if (merek) files.push({ path: 'artikel-' + merek.slug + '.html', teks: B.halaman(tpl, merek, L.situs(), { unit: daftarUnit(tampil ? [art] : []) }) });
+                    /* artikel unit: halaman unit (dan katalog) ikut diperbarui supaya tautan 'Baca panduan lengkap' muncul/hilang */
+                    if (adaUnit && r[4] && r[5]) {
+                        var kat; try { kat = JSON.parse(r[4]); } catch (er) { kat = null; }
+                        var butir = kat && (kat.item || []).filter(function (x) { return x.kode === stokArt.kode; })[0];
+                        if (butir) { if (tampil) butir.artikel = art.slug; else delete butir.artikel; files.push({ path: 'data/katalog.json', teks: JSON.stringify(kat, null, 1) + '\n' }, { path: 'unit/' + butir.kode + '.html', teks: L.halamanUnit(butir, r[5]) }); }
+                    }
                     var semua = data.artikel.filter(function (x) { return x.id !== art.id && x.status === 'terbit'; }).concat(tampil ? [art] : [])
                         .sort(function (a, b) { return a.terbit_at < b.terbit_at ? 1 : -1; });
                     files.push({ path: 'index.html', teks: B.gantiBlok(beranda, semua.slice(0, 12).map(B.kartu).join('\n'), 'index.html') });
