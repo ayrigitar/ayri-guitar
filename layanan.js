@@ -1748,12 +1748,18 @@
                     /* artikel unit menautkan ke artikel merek (bila sudah terbit); terbitnya/ditariknya artikel merek memperbarui semua halaman unit merek itu dalam commit yang sama */
                     var terbitMerek = function (x) { return x.jenis_artikel === 'merek' && x.status === 'terbit'; };
                     var merek = art.jenis_artikel !== 'merek' && art.merek_kunci ? data.artikel.filter(function (x) { return terbitMerek(x) && x.id !== art.id && x.merek_kunci === art.merek_kunci; })[0] : null;
-                    if (tampil) files.push({ path: 'artikel-' + art.slug + '.html', teks: B.halaman(tpl, art, L.situs(), { merek: merek }) });
+                    /* artikel merek menautkan ke artikel semua unit merek itu: daftar dari artikel unit yang terbit (artikel yang sedang diproses dihitung sesuai status barunya) */
+                    var daftarUnit = function (tambah) {
+                        return data.artikel.filter(function (x) { return x.id !== art.id && x.status === 'terbit' && x.jenis_artikel !== 'merek' && x.merek_kunci === art.merek_kunci; }).concat(tambah)
+                            .sort(function (a, b) { return a.terbit_at < b.terbit_at ? 1 : -1; }).map(function (x) { return { slug: x.slug, judul: x.judul }; });
+                    };
+                    if (tampil) files.push({ path: 'artikel-' + art.slug + '.html', teks: B.halaman(tpl, art, L.situs(), art.jenis_artikel === 'merek' ? { unit: daftarUnit([]) } : { merek: merek }) });
                     else if (lama) files.push({ path: 'artikel-' + lama.slug + '.html', hapus: true });
                     if (art.jenis_artikel === 'merek' && art.merek_kunci) data.artikel.forEach(function (x) {
                         if (x.id === art.id || x.status !== 'terbit' || x.jenis_artikel === 'merek' || x.merek_kunci !== art.merek_kunci) return;
                         files.push({ path: 'artikel-' + x.slug + '.html', teks: B.halaman(tpl, x, L.situs(), { merek: tampil ? art : null }) });
                     });
+                    if (merek) files.push({ path: 'artikel-' + merek.slug + '.html', teks: B.halaman(tpl, merek, L.situs(), { unit: daftarUnit(tampil ? [art] : []) }) });
                     var semua = data.artikel.filter(function (x) { return x.id !== art.id && x.status === 'terbit'; }).concat(tampil ? [art] : [])
                         .sort(function (a, b) { return a.terbit_at < b.terbit_at ? 1 : -1; });
                     files.push({ path: 'index.html', teks: B.gantiBlok(beranda, semua.slice(0, 12).map(B.kartu).join('\n'), 'index.html') });

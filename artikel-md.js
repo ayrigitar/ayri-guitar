@@ -40,8 +40,11 @@
         return String(teks || '').replace(/\[([^\]]+)\]\([^)]*\)/g, '$1').replace(/^#{2,3}\s+|^[-*•>]\s+|^\d+[.)]\s+/gm, '').replace(/\*\*|_/g, '').replace(/\s+/g, ' ').trim();
     }
     function slug(s) {
-        return String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/&/g, ' dan ')
-            .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 80).replace(/-+$/, '');
+        var t = String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/&/g, ' dan ')
+            .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+        /* dipotong di batas kata (80 huruf), jangan di tengah kata */
+        if (t.length > 80) t = (t.charAt(80) === '-' ? t.slice(0, 80) : t.slice(0, 80).replace(/-[^-]*$/, '')) || t.slice(0, 80);
+        return t.replace(/-+$/, '');
     }
     root.ArtikelMd = { keHtml: keHtml, teksPolos: teksPolos, slug: slug, esc: esc };
 })(this);

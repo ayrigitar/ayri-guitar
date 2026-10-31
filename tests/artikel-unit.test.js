@@ -105,3 +105,37 @@ test('artikel merek: tautan di artikel unit muncul saat artikel merek terbit, hi
     assert.match(p.prompt, /Merek: Yamaha/); assert.match(p.prompt, /Sejarah singkat/); assert.match(p.sistem, /fakta merek/); assert.doesNotMatch(p.prompt, /Unit ini di/);
     assert.ok(unit && lain);
 });
+
+test('artikel merek memuat tautan ke artikel semua unit merek itu, ikut berubah saat unit terbit/ditarik', async () => {
+    const { gh, A } = await mulai();
+    const baru = (slug, kode, kunci, status) => ({ judul: 'Unit ' + slug, slug, tag: 'Profil Gitar', ringkasan: 'r', isi: '## S\n\nisi', status: status || 'terbit', stok_kode: kode, merek_nama: kunci, merek_kunci: kunci, foto: [] });
+    const halMerek = () => gh.isi('ayri-guitar', 'artikel-yamaha-sejarah.html');
+    await A.simpanArtikel({ judul: 'Yamaha: Sejarah', slug: 'yamaha-sejarah', tag: 'Profil Merek', ringkasan: 'r', isi: '## Sejarah\n\nisi', status: 'terbit', jenis_artikel: 'merek', merek_nama: 'Yamaha', merek_kunci: 'yamaha', foto: [] });
+    assert.ok(!halMerek().includes('<h2>Unit Yamaha di AYRI</h2>'), 'belum ada artikel unit: tanpa daftar');
+    const u1 = await A.simpanArtikel(baru('f310', 'STK-AAA111', 'yamaha'));
+    await A.simpanArtikel(baru('cpx600', 'STK-BBB222', 'yamaha'));
+    await A.simpanArtikel(baru('aerodyne', 'STK-CCC333', 'fender'));
+    const h = halMerek();
+    assert.ok(h.includes('<h2>Unit Yamaha di AYRI</h2>') && h.includes('href="artikel-f310.html"') && h.includes('href="artikel-cpx600.html"'));
+    assert.ok(!h.includes('aerodyne'), 'unit merek lain tidak ikut');
+    await A.simpanArtikel(Object.assign({}, u1, { status: 'draf' })); /* ditarik */
+    assert.ok(!halMerek().includes('artikel-f310.html') && halMerek().includes('artikel-cpx600.html'));
+});
+
+test('alamat artikel dipotong di batas kata, bukan di tengah kata', async () => {
+    const { L } = await mulai();
+    const sb = { console }; sb.window = sb; vm.createContext(sb);
+    ['util.js', 'artikel-md.js'].forEach((f) => vm.runInContext(baca(f), sb, { filename: f }));
+    const s = sb.ArtikelMd.slug('Gitar Elektrik Samick SS51 Hitam Glossy: Spesifikasi, Perawatan, dan Tips Membeli Bekas');
+    assert.equal(s, 'gitar-elektrik-samick-ss51-hitam-glossy-spesifikasi-perawatan-dan-tips-membeli');
+    assert.ok(s.length <= 80);
+    assert.equal(sb.ArtikelMd.slug('Setup Gitar & Café'), 'setup-gitar-dan-cafe');
+    assert.equal(sb.ArtikelMd.slug(''), '');
+    assert.equal(sb.ArtikelMd.slug('a'.repeat(100)).length, 80, 'satu kata sangat panjang tetap dipotong');
+    assert.ok(L);
+});
+
+test('cek-servis tidak diindeks Google dan tidak ada di sitemap', () => {
+    assert.match(baca('cek-servis.html'), /<meta name="robots" content="noindex, follow">/);
+    assert.ok(!baca('sitemap.xml').includes('cek-servis.html'));
+});
