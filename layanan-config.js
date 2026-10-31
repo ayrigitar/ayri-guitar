@@ -27,6 +27,7 @@ var AYRI_LAYANAN = {
         alamat: 'Jln. Jabaru II, Bojong Baru, Pasirkuda, Kota Bogor',
         jam: 'Senin–Minggu 12.00–19.00 (Jumat mulai 13.00)',
         wa: '6285795738637',
+        ulasan: '',                    /* tautan "beri ulasan" Google (dari Google Business Profile > Minta ulasan); kosong = pesan terima kasih tanpa tautan ulasan */
         rekening: [
             { bank: 'BCA', nomor: '6395460912', atasNama: 'Rio Alam Nur' }
         ]
@@ -42,6 +43,13 @@ var AYRI_LAYANAN = {
     garansiHangusHari: 30,                 /* garansi hangus bila belum diambil lewat sekian hari */
     penyimpananLamaHari: 90,               /* setelah sekian hari: pemilik dihubungi tertulis, gitar tetap disimpan */
     pengingatHari: [7, 12],                /* admin diingatkan mengirim WA pengingat pada hari ke- ini */
+
+    /* tindak lanjut pelanggan (halaman Hari ini): ucapan terima kasih + minta ulasan, dan garansi servis hampir habis */
+    tindak: {
+        terimaKasihSetelahHari: 2,         /* kirim ucapan terima kasih mulai sekian hari setelah gitar diambil / barang diserahkan */
+        terimaKasihBatasHari: 14,          /* lewat sekian hari: tidak diingatkan lagi */
+        garansiSebelumHari: 7              /* garansi servis diingatkan sekian hari sebelum berakhir */
+    },
 
     /* garansi: '7h' = 7 hari, '1b' = 1 bulan, '6b' = 6 bulan */
     syaratJatuh: 'Berlaku selama gitar tidak jatuh atau terbentur kembali.',

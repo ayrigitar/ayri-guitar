@@ -238,6 +238,17 @@
         }).catch(function (e) { if (btn) sibuk(btn, false); gagal(e); });
     }
 
+    /* tindak lanjut pelanggan (terima kasih / garansi): buka WA dulu (harus langsung dari ketukan), lalu catat tanggalnya di data supaya tidak muncul lagi */
+    function catatTindak(tipe, id, jenis, btn) {
+        var servis = tipe === 'servis', x = cariId(servis ? 'servis' : 'jual', id); if (!x) return;
+        var pesan = servis ? (jenis === 'garansi' ? L.pesanTindak.servisGaransi(x) : L.pesanTindak.servisTerimaKasih(x)) : L.pesanTindak.jualTerimaKasih(x);
+        bukaWa(x.hp, pesan);
+        var rec = salin(x); rec.tindak = Object.assign({}, rec.tindak); rec.tindak[jenis] = L.hariIni();
+        if (btn) sibuk(btn, true, 'Mencatat…');
+        (servis ? A.simpanServis : A.simpanJual)(rec).then(function (row) { taruh(servis ? 'servis' : 'jual', row); toast('Tercatat: pesan ' + (jenis === 'garansi' ? 'garansi' : 'terima kasih') + ' sudah dikirim.'); halamanHari(); })
+            .catch(function (e) { if (btn) sibuk(btn, false); gagal(e); });
+    }
+
     /* ================= token & PIN ================= */
     function mulai() {
         if (!L.siapAdmin) { app.innerHTML = '<section class="ly-login"><div class="ly-card"><h2>Pengaturan belum lengkap</h2><p class="ly-muted">Isi bagian <b>github</b> di <code>layanan-config.js</code>.</p></div></section>'; return; }
@@ -829,6 +840,12 @@
         cache.servis.forEach(function (s) { if (['menunggu_dp', 'antri', 'dikerjakan'].indexOf(s.status) > -1 && s.estimasi && s.estimasi < h) t.push({ g: 'Servis lewat estimasi', u: 1, h: '#servis/' + s.id, t: L.namaGitar(s, 'Gitar') + ' · ' + s.nama, m: L.STATUS[s.status].label + ' · estimasi ' + L.tgl(s.estimasi), merah: true }); });
         /* gitar selesai belum diambil */
         cache.servis.forEach(function (s) { if (L.perluIngat(s, h)) { var tt = L.titip(s, h); t.push({ g: 'Gitar belum diambil', u: 2, h: '#servis/' + s.id, t: L.namaGitar(s, 'Gitar') + ' · ' + s.nama, m: 'Selesai ' + tt.lama + ' hari lalu' + (tt.hariBiaya ? ' · titip ' + L.rupiah(tt.biaya) : '') + ' · kirim pengingat WA' }); } });
+        /* tindak lanjut pelanggan: terima kasih + minta ulasan, garansi servis hampir habis */
+        cache.servis.forEach(function (s) { L.tindakServis(s, h).forEach(function (jn) {
+            var g = L.garansiServis(s);
+            t.push({ g: 'Hubungi pelanggan', u: 3, tl: ['servis', s.id, jn], t: (jn === 'garansi' ? 'Garansi hampir habis' : 'Terima kasih') + ' · ' + s.nama, m: L.namaGitar(s, 'Gitar') + (jn === 'garansi' ? ' · garansi sampai ' + L.tgl(g.akhir) : ' · diambil ' + L.tgl(s.tgl_diambil)) });
+        }); });
+        cache.jual.forEach(function (j) { L.tindakJual(j, h).forEach(function (jn) { t.push({ g: 'Hubungi pelanggan', u: 3, tl: ['jual', j.id, jn], t: 'Terima kasih · ' + (j.nama || 'Pembeli'), m: L.namaJual(j) + ' · selesai ' + L.tgl(j.tgl_selesai || j.tgl_lunas) }); }); });
         /* tebus jatuh tempo (owner) */
         if (owner()) cache.tebus.forEach(function (tb) { if (L.perluIngatTebus(tb, h)) { var i = L.infoTebus(tb, h); t.push({ g: 'Tebus', u: i.lewat ? 0 : 2, h: '#tebus/' + tb.id, t: L.namaGitar(tb, 'Gitar') + ' · ' + tb.nama, m: 'Batas tebus ' + L.tgl(tb.batas_tebus) + (i.lewat ? ' (lewat)' : ' (' + i.sisa + ' hari lagi)'), merah: i.lewat }); } });
         /* gitar titipan belum terjual lama (owner): tinjau harga dengan pemilik */
@@ -858,11 +875,13 @@
             '<div class="ly-card hr-tindak"><h2 class="hr-h2">Perlu ditindak <span>' + t.length + '</span></h2>' +
             (t.length ? Object.keys(grup).map(function (k) {
                 return '<div class="hr-grup"><h3>' + E(k) + '</h3>' + grup[k].map(function (x) {
-                    return x.cad ? '<button type="button" class="hr-it" id="hr-cadang"><span><b>' + E(x.t) + '</b><small>' + E(x.m) + '</small></span><i>Unduh ›</i></button>'
+                    return x.tl ? '<button type="button" class="hr-it" data-tl="' + E(x.tl.join('|')) + '"><span><b>' + E(x.t) + '</b><small>' + E(x.m) + '</small></span><i>Kirim WA ›</i></button>'
+                        : x.cad ? '<button type="button" class="hr-it" id="hr-cadang"><span><b>' + E(x.t) + '</b><small>' + E(x.m) + '</small></span><i>Unduh ›</i></button>'
                         : '<a class="hr-it' + (x.merah ? ' merah' : '') + '" href="' + E(x.h) + '"><span><b>' + E(x.t) + '</b><small>' + E(x.m) + '</small></span><i>›</i></a>';
                 }).join('') + '</div>';
-            }).join('') : '<div class="ks-kosong" style="border-style:solid"><b>Semua beres 👍</b><span>Tidak ada DP jatuh tempo, servis terlambat, atau gitar yang perlu diingatkan.</span></div>') + '</div></div></section>';
+            }).join('') : '<div class="ks-kosong" style="border-style:solid"><b>Semua beres 👍</b><span>Tidak ada DP jatuh tempo, servis terlambat, gitar yang perlu diingatkan, atau pelanggan yang perlu dihubungi.</span></div>') + '</div></div></section>';
         kartuKas($('#kas'), halamanHari);
+        $$('[data-tl]', app).forEach(function (b) { b.addEventListener('click', function () { var p = this.dataset.tl.split('|'); catatTindak(p[0], p[1], p[2], this); }); });
         if ($('#hr-cadang')) $('#hr-cadang').addEventListener('click', function () { unduhCadangan(function () { toast('Cadangan diunduh. Simpan juga ke Google Drive.'); halamanHari(); }); });
     }
 
@@ -1161,6 +1180,13 @@
         var log = arusKas(), r = hitungBulan(bulanRk, log), p = hitungBulan(bulanLalu(bulanRk), log);
         var dp = cache.jual.filter(function (j) { return j.status === 'dp'; }), dpUang = dp.reduce(function (t, j) { return t + L.hitungJual(j).dibayar; }, 0);
         var jenis = {}; r.svMasuk.forEach(function (s) { var k = s.gitar_jenis || 'Lainnya'; jenis[k] = (jenis[k] || 0) + 1; });
+        /* stok mengendap: barang tersedia yang sudah lebih dari 90 hari di toko (modal tertahan) */
+        var hariRk = L.hariIni(), endap = cache.stok.filter(function (s) { return adaStok(s) && +s.jumlah > 0 && s.tgl_masuk && L.hariAntara(s.tgl_masuk, hariRk) > 90; })
+            .sort(function (a, b) { return a.tgl_masuk < b.tgl_masuk ? -1 : 1; });
+        var modalEndap = endap.reduce(function (t, s) { return t + (+s.harga_beli || 0) * (+s.jumlah || 0); }, 0);
+        /* jasa servis terbanyak: pekerjaan (bukan part) pada servis yang masuk bulan ini */
+        var jasa = {}; r.svMasuk.forEach(function (s) { (s.items || []).forEach(function (i) { if (i.jenis === 'part') return; var k = String(i.nama || 'Jasa').replace(/\s*\+\s*Basic Setup/i, '').trim(), q = +i.qty || 1, x = jasa[k] = jasa[k] || { n: 0, uang: 0 }; x.n += q; x.uang += (+i.harga || 0) * q; }); });
+        var jasaUrut = Object.keys(jasa).sort(function (a, b) { return jasa[b].n - jasa[a].n || jasa[b].uang - jasa[a].uang; }).slice(0, 6);
         var bersih = r.masuk - r.keluar, depSewa = cache.sewa.reduce(function (t, w) { return t + (w.status === 'aktif' || w.status === 'selesai' ? L.hitungSewa(w).ditahan : 0); }, 0);
         app.innerHTML = '<section class="rk"><div class="ly-head"><h1>Rekap bulanan</h1><span class="ly-peran">Khusus owner</span><input type="month" class="ly-in rk-bln" id="rk-bln" value="' + bulanRk + '"></div>' +
             '<div class="rk-kartu">' +
@@ -1182,6 +1208,9 @@
             '<div class="ly-total"><span>Perkiraan laba (untung barang + servis − pengeluaran)</span><span>' + L.rupiah(r.untung + r.servis + r.operasional) + '</span></div></div></div></div>' +
             '<div class="rk-dua"><div class="ly-card"><h2>Komposisi pendapatan</h2>' + batang([['Barang', Math.max(0, r.barang), 'var(--accent)'], ['Servis', Math.max(0, r.servis), '#2659A8']].concat(r.sewa > 0 ? [['Sewa gitar', r.sewa, '#B5651D']] : []).concat(r.tebus > 0 ? [['Tebus kembali', r.tebus, '#0E6B40']] : [])) + '</div>' +
             '<div class="ly-card"><h2>Servis masuk per jenis gitar</h2>' + (Object.keys(jenis).length ? batang(Object.keys(jenis).sort(function (a, b) { return jenis[b] - jenis[a]; }).map(function (k) { return [k, jenis[k], '#6B3FA0', jenis[k] + ' gitar']; })) : '<p class="ly-muted">Belum ada servis bulan ini.</p>') + '</div></div>' +
+            '<div class="rk-dua"><div class="ly-card"><h2>Stok mengendap (lebih dari 90 hari)</h2>' + (endap.length ? '<p class="ly-muted" style="margin:0 0 8px">' + endap.length + ' barang · modal tertahan <b>' + L.rupiah(modalEndap) + '</b>. Pertimbangkan turun harga, bundling, atau promo Story.</p><ol class="rk-laris">' +
+            endap.slice(0, 6).map(function (s) { return '<li><span><b><a href="#stok/' + E(s.id) + '">' + E(L.namaStok(s)) + '</a></b><small>' + E(s.kode) + ' · masuk ' + L.hariAntara(s.tgl_masuk, hariRk) + ' hari lalu</small></span><span><b>' + L.rupiah(s.harga_jual || 0) + '</b><small>modal ' + L.rupiah(s.harga_beli || 0) + '</small></span></li>'; }).join('') + '</ol>' + (endap.length > 6 ? '<p class="ly-muted" style="margin:8px 0 0">+ ' + (endap.length - 6) + ' barang lainnya di menu Stok.</p>' : '') : '<p class="ly-muted">Tidak ada. Semua barang tersedia masuk kurang dari 90 hari lalu. 👍</p>') + '</div>' +
+            '<div class="ly-card"><h2>Jasa servis terbanyak bulan ini</h2>' + (jasaUrut.length ? batang(jasaUrut.map(function (k) { return [k, jasa[k].n, '#2659A8', jasa[k].n + 'x · ' + L.rupiah(jasa[k].uang)]; })) : '<p class="ly-muted">Belum ada servis bulan ini.</p>') + '</div></div>' +
             '<div class="rk-dua"><div class="ly-card"><h2>Barang terlaris</h2>' + (r.laris.length ? '<ol class="rk-laris">' + r.laris.map(function (l) { return '<li><span><b>' + E(l.nama) + '</b><small>' + E(l.kode) + '</small></span><span><b>' + l.qty + ' unit</b><small>' + L.rupiah(l.omzet) + '</small></span></li>'; }).join('') + '</ol>' : '<p class="ly-muted">Belum ada penjualan bulan ini.</p>') + '</div>' +
             '<div class="ly-card"><div class="ly-head" style="margin-bottom:8px"><h2 style="flex:1;margin:0">Log transaksi</h2><button type="button" class="ly-btn ly-btn--sm" id="rk-csv">Unduh CSV (Excel)</button></div>' +
             '<div class="rk-log">' + (r.log.length ? r.log.slice().sort(function (a, b) { return a.tgl < b.tgl ? 1 : -1; }).map(function (x) {

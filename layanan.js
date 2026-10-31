@@ -8,7 +8,8 @@
     var BAWAAN = {
         dpJasaPersen: 50, bulatkanKe: 1000, gratisTitipHari: 14, biayaTitipPerHari: 5000, garansiHangusHari: 30, penyimpananLamaHari: 90,
         pengingatHari: [7, 12], katalogSisaTampil: 3, jenisGitar: ['Akustik'], kategoriAksesoris: ['Lainnya'], katalogJasa: [], ketentuan: [], syaratJatuh: '',
-        github: {}, ai: { url: '' }, toko: { nama: 'Toko Gitar AYRI', alamat: '', jam: '', wa: '', rekening: [] },
+        github: {}, ai: { url: '' }, toko: { nama: 'Toko Gitar AYRI', alamat: '', jam: '', wa: '', ulasan: '', rekening: [] },
+        tindak: { terimaKasihSetelahHari: 2, terimaKasihBatasHari: 14, garansiSebelumHari: 7 },
         tebus: { batasHari: 30, maksHari: 90, pengingatHari: [7, 1], fotoKtpMinHarga: 1000000, hapusKtpHari: 90, ketentuan: [] },
         jual: { batasHari: 30, potonganPersen: 10, pengingatHari: [7, 1], ketentuan: [] },
         sewa: { tarifHarian: [[1, 100000]], tambahPerHari: 100000, tarifMinggu: 0, batasUnitStandar: 0, depositPersen: 10, dendaSenar: 0, senarCadangan: 6, toleransiHari: 0, maksHari: 30, ketentuan: [] },
@@ -162,6 +163,53 @@
         },
         berakhir: function (t) {
             return 'Halo Kak ' + t.nama + ', masa membeli kembali gitar ' + L.namaGitar(t, 'gitar') + ' (kode *' + t.kode + '*) telah berakhir pada ' + L.tgl(t.batas_tebus) + '. Sesuai perjanjian, gitar kini sepenuhnya milik toko. Terima kasih atas kerja samanya 🙏\n\nPerjanjian: ' + L.urlPerjanjian(t.kode);
+        }
+    };
+
+    /* ---------- tindak lanjut pelanggan: terima kasih + minta ulasan, garansi servis hampir habis ----------
+       Dicatat di rec.tindak = { terima_kasih: 'YYYY-MM-DD', garansi: 'YYYY-MM-DD' } setelah pesan WA dikirim, supaya tidak muncul lagi. */
+    function sudahTindak(rec, jenis) { return !!(rec.tindak && rec.tindak[jenis]); }
+    function hariSetelah(tgl, hari) { return tgl ? L.hariAntara(tgl, hari || L.hariIni()) : null; }
+    /* garansi servis: akhir terjauh dari semua jasa/part bergaransi, dihitung sejak gitar diambil */
+    L.garansiServis = function (s) {
+        if (s.status !== 'diambil' || !s.tgl_diambil) return null;
+        var daftar = (s.items || []).map(function (i) { var a = L.garansiAkhir(i.garansi, s.tgl_diambil); return a ? { nama: String(i.nama || '').replace(/\s*\+\s*Basic Setup/i, ''), akhir: a, lama: L.garansiLabel(i.garansi) } : null; }).filter(Boolean);
+        if (!daftar.length) return null;
+        var akhir = daftar.reduce(function (m, x) { return x.akhir > m ? x.akhir : m; }, daftar[0].akhir);
+        return { akhir: akhir, daftar: daftar };
+    };
+    L.tindakServis = function (s, hari) {
+        var hasil = [], h = hari || L.hariIni(), T = C.tindak;
+        if (!L.hp4(s.hp) || s.status !== 'diambil' || !s.tgl_diambil) return hasil;
+        var lama = hariSetelah(s.tgl_diambil, h);
+        if (!sudahTindak(s, 'terima_kasih') && lama >= T.terimaKasihSetelahHari && lama <= T.terimaKasihBatasHari) hasil.push('terima_kasih');
+        var g = L.garansiServis(s), sisa = g ? L.hariAntara(h, g.akhir) : null;
+        if (g && !sudahTindak(s, 'garansi') && sisa >= 0 && sisa <= T.garansiSebelumHari) hasil.push('garansi');
+        return hasil;
+    };
+    L.tindakJual = function (j, hari) {
+        var h = hari || L.hariIni(), T = C.tindak, tgl = j.tgl_selesai || j.tgl_lunas;
+        if (!L.hp4(j.hp) || j.status !== 'selesai' || !tgl || sudahTindak(j, 'terima_kasih')) return [];
+        var lama = hariSetelah(tgl, h);
+        return lama >= T.terimaKasihSetelahHari && lama <= T.terimaKasihBatasHari ? ['terima_kasih'] : [];
+    };
+    function ajakUlasan() { return C.toko.ulasan ? '\nKalau berkenan, boleh bantu beri ulasan di Google ya, sangat membantu toko kecil seperti kami:\n' + C.toko.ulasan + '\n' : ''; }
+    L.pesanTindak = {
+        servisTerimaKasih: function (s) {
+            var g = L.garansiServis(s), t = 'Halo Kak ' + s.nama + ', terima kasih sudah mempercayakan servis gitar ' + L.namaGitar(s, 'Kakak') + ' di ' + C.toko.nama + ' 🙏\n\n' +
+                'Semoga hasilnya nyaman dimainkan. Kalau ada yang terasa kurang pas, langsung kabari kami ya.\n';
+            if (g) t += '\nGaransi servis berlaku sampai ' + L.tgl(g.akhir) + '.\n';
+            return t + ajakUlasan() + '\nSalam, ' + C.toko.nama;
+        },
+        servisGaransi: function (s) {
+            var g = L.garansiServis(s), sisa = L.hariAntara(L.hariIni(), g.akhir);
+            return 'Halo Kak ' + s.nama + ', kami mengingatkan garansi servis gitar ' + L.namaGitar(s, 'Kakak') + ' (kode *' + s.kode + '*) berlaku sampai *' + L.tgl(g.akhir) + '*' +
+                (sisa > 0 ? ' (' + sisa + ' hari lagi)' : ' (hari ini)') + '.\nKalau ada keluhan pada pekerjaan kami, silakan bawa ke toko sebelum tanggal itu supaya bisa kami cek tanpa biaya jasa.\n' +
+                (C.syaratJatuh ? '\n' + C.syaratJatuh + '\n' : '') + jamBuka() + '\nDetail & nota: ' + L.urlCek(s.kode);
+        },
+        jualTerimaKasih: function (j) {
+            return 'Halo Kak ' + (j.nama || '') + ', terima kasih sudah membeli ' + L.namaJual(j) + ' di ' + C.toko.nama + ' 🙏\n\n' +
+                'Semoga cocok dan awet dipakai. Kalau ada kendala atau pertanyaan, langsung kabari kami ya.\n' + ajakUlasan() + '\nSalam, ' + C.toko.nama;
         }
     };
 
