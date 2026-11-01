@@ -29,7 +29,7 @@
 
     function nota(j) {
         var t = C.toko, h = L.hitungJual(j), i = L.infoJual(j);
-        var cap = j.status === 'batal' ? '<span class="nota-lunas dp">BATAL</span>' : h.lunas ? '<span class="nota-lunas">LUNAS</span>' : '<span class="nota-lunas dp">DP</span>';
+        var cap = j.status === 'batal' ? '<span class="nota-lunas dp">' + (j.batal_oleh === 'tukar' ? 'DITUKAR' : 'BATAL') + '</span>' : h.lunas ? '<span class="nota-lunas">LUNAS</span>' : '<span class="nota-lunas dp">DP</span>';
         document.title = 'Nota ' + j.kode + ' | ' + t.nama;
         isi.innerHTML = '<article class="nota">' + L.kopNota(j.status === 'dp' ? 'Bukti Pesanan' : 'Nota Pembelian', j.kode, cap) +
             '<dl class="nota-info">' +
@@ -38,7 +38,7 @@
             '<div><dt>Status</dt><dd>' + E(L.STATUS_JUAL[j.status] || j.status) + '</dd></div>' +
             (j.status === 'dp' ? '<div><dt>Ditahan sampai</dt><dd>' + L.tgl(j.batas_lunas) + (i.lewat ? ' (lewat)' : '') + '</dd></div>' : '') +
             (j.tgl_selesai ? '<div><dt>Diserahkan</dt><dd>' + L.tgl(j.tgl_selesai) + '</dd></div>' : '') +
-            (j.tgl_batal ? '<div><dt>Dibatalkan</dt><dd>' + L.tgl(j.tgl_batal) + (j.batal_oleh === 'toko' ? ' (oleh toko)' : '') + '</dd></div>' : '') + '</dl>' +
+            (j.tgl_batal ? '<div><dt>Dibatalkan</dt><dd>' + L.tgl(j.tgl_batal) + (j.batal_oleh === 'toko' ? ' (oleh toko)' : j.batal_oleh === 'tukar' ? ' (ditukar dengan unit lain)' : '') + '</dd></div>' : '') + '</dl>' +
 
             '<table><thead><tr><th>Barang</th><th class="r">Jml</th><th class="r">Harga</th><th class="r">Subtotal</th></tr></thead><tbody>' +
             (j.items || []).map(function (it) { return '<tr><td>' + E(it.nama) + '</td><td class="r">' + (it.qty || 1) + '</td><td class="r">' + L.rupiah(it.harga) + '</td><td class="r">' + L.rupiah(it.harga * (it.qty || 1)) + '</td></tr>'; }).join('') +
@@ -46,7 +46,7 @@
 
             '<div class="nota-tot"><div class="t"><span>Total</span><span>' + L.rupiah(h.total) + '</span></div>' +
             (j.bayar || []).map(function (b) { return '<div><span>' + NAMA[b.jenis] + ' ' + L.tgl(b.tgl) + ' (' + (METODE[b.metode] || b.metode) + ')</span><span>' + (b.jenis === 'refund' ? '−' : '') + L.rupiah(b.jumlah) + '</span></div>'; }).join('') +
-            (j.status === 'batal' ? '<div><span>Biaya pembatalan</span><span>' + L.rupiah(h.potongan) + '</span></div><div class="s"><span>Dikembalikan ke pembeli</span><span>' + L.rupiah(h.kembali || h.harusKembali) + '</span></div>'
+            (j.status === 'batal' && j.batal_oleh === 'tukar' ? '<div class="s"><span>Menjadi kredit tukar (tidak dikembalikan)</span><span>' + L.rupiah(h.dibayar) + '</span></div>' : j.status === 'batal' ? '<div><span>Biaya pembatalan</span><span>' + L.rupiah(h.potongan) + '</span></div><div class="s"><span>Dikembalikan ke pembeli</span><span>' + L.rupiah(h.kembali || h.harusKembali) + '</span></div>'
                 : '<div class="s"><span>Sisa pembayaran</span><span>' + L.rupiah(h.sisa) + '</span></div>') + '</div>' +
 
             (j.status === 'dp' && h.sisa ? '<h2>Pelunasan</h2><div class="nota-rek">Tunai di toko atau transfer ke:<br>' + t.rekening.map(function (r) { return '<b>' + E(r.bank) + ' ' + E(r.nomor) + '</b> a.n. ' + E(r.atasNama); }).join('<br>') + '<br><small>Kirim bukti transfer ke WhatsApp +' + E(t.wa) + '.</small></div>' : '') +

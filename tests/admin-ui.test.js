@@ -76,3 +76,17 @@ test('menu bawah Servis rapi (kartu aksi, tanpa Muat ulang data ganda) dan tombo
     assert.match(kode, /L\.diKatalog\(s\) \? tombolIkon\('tautan-sk', s\.id, 'tautan', 'Bagikan link unit'\)/, 'link unit hanya untuk stok yang tampil di katalog');
     assert.match(kode, /bagikanTautan\(L\.judulStok\(st\), L\.urlUnit\(st\.kode\)\)/, 'memakai pembagi tautan universal yang sama dengan artikel');
 });
+
+test('tab Jual: struk bisa dicetak ulang/dibagikan tanpa nomor WA; transaksi selesai bisa dibatalkan; stok terjual tidak diubah diam-diam', () => {
+    const kode = baca('admin.js');
+    const jual = kode.slice(kode.indexOf('function gambarJual2()'), kode.indexOf('function gambarBayarJual()'));
+    for (const id of ['jl-cetak', 'jl-pdf', 'jl-bagikan']) assert.match(jual, new RegExp("id: '" + id + "'"), id);
+    assert.match(jual, /\(j\.status !== 'batal' \? '<fieldset class="ly-card"><legend>Struk &amp; nota<\/legend>'/, 'kartu struk tidak bergantung pada nomor WA');
+    assert.match(jual, /aktif \|\| j\.status === 'selesai' \? '<fieldset class="ly-card"><legend>Status<\/legend>/, 'transaksi selesai juga bisa dibatalkan (barang dikembalikan)');
+    assert.match(jual, /bagikanTeks\(teksStruk\(strukDariJual\(j\)\)\)/);
+    assert.match(kode, /function strukDariJual\(j\)/); assert.match(kode, /function bagikanTeks\(teks\)/);
+    const stok = kode.slice(kode.indexOf('function simpanStok()'), kode.indexOf('function simpanStok()') + 1400);
+    assert.match(stok, /asli\.status === 'terjual' && aktifJ\.length/, 'barang terjual lewat transaksi: diarahkan ke transaksinya');
+    assert.match(stok, /s\.status === 'tersedia' && !\(\+s\.jumlah > 0\)\) return toast\(/, 'tersedia dengan jumlah 0 tidak lagi diam-diam jadi Terjual');
+    assert.match(kode, /id="sk-status-info"/);
+});

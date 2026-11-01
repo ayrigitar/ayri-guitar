@@ -459,7 +459,7 @@
         return { out: out, tengah: tengah, kiri: kiri, dua: dua, garis: garis, kop: kop, kosong: function () { out.push({ t: '', a: 'l' }); } };
     }
     L.strukThermal = function (s, lebar) {
-        var p = penyusunStruk(lebar), tengah = p.tengah, kiri = p.kiri, dua = p.dua, garis = p.garis, out = p.out, METODE = { tunai: 'Tunai', transfer: 'Transfer', qris: 'QRIS' };
+        var p = penyusunStruk(lebar), tengah = p.tengah, kiri = p.kiri, dua = p.dua, garis = p.garis, out = p.out, METODE = { tunai: 'Tunai', transfer: 'Transfer', qris: 'QRIS', tukar: 'Kredit tukar' };
         var d = s.waktu instanceof Date ? s.waktu : new Date(s.waktu), sisa = s.total - s.dibayar;
         var jam = L.tgl(L.tglStr(d)) + ' ' + ('0' + d.getHours()).slice(-2) + '.' + ('0' + d.getMinutes()).slice(-2);
         p.kop();
@@ -475,8 +475,10 @@
             dua('SISA', L.rupiah(sisa), { b: true });
             if (s.jual && s.jual.batas_lunas) dua('Lunasi s/d', L.tgl(s.jual.batas_lunas));
         } else {
-            dua('Bayar (' + METODE[s.metode] + ')', L.rupiah(s.diterima != null ? s.diterima : s.total));
-            if (s.diterima != null) dua('Kembali', L.rupiah(s.diterima - s.total));
+            var kredit = +s.kredit || 0, tunai = s.total - kredit;
+            if (kredit) dua('Kredit tukar', '-' + L.rupiah(kredit));
+            if (tunai > 0) dua('Bayar (' + METODE[s.metode] + ')', L.rupiah(s.diterima != null ? s.diterima : tunai));
+            if (tunai > 0 && s.diterima != null) dua('Kembali', L.rupiah(s.diterima - tunai));
         }
         garis();
         tengah('Terima kasih sudah berbelanja!');
@@ -1536,15 +1538,22 @@
         (j.items || []).forEach(function (i) { total += (+i.harga || 0) * (+i.qty || 1); });
         (j.bayar || []).forEach(function (b) { if (b.jenis === 'refund') kembali += +b.jumlah || 0; else dibayar += +b.jumlah || 0; });
         /* biaya pembatalan oleh pembeli: % harga barang, paling banyak sebesar uang yang sudah dibayar; batal oleh toko tanpa potongan */
-        var potongan = j.batal_oleh === 'toko' ? 0 : Math.min(dibayar, Math.round(total * C.jual.potonganPersen / 100 / bulat) * bulat);
+        var potongan = j.batal_oleh === 'toko' || j.batal_oleh === 'tukar' ? 0 : Math.min(dibayar, Math.round(total * C.jual.potonganPersen / 100 / bulat) * bulat);
         return {
             total: total, dibayar: dibayar, kembali: kembali, sisa: Math.max(0, total - dibayar), lunas: total > 0 && dibayar >= total,
-            potongan: potongan, harusKembali: Math.max(0, dibayar - potongan)
+            potongan: potongan, harusKembali: j.batal_oleh === 'tukar' ? 0 : Math.max(0, dibayar - potongan) /* ditukar: uang jadi kredit, tidak dikembalikan */
         };
     };
     L.infoJual = function (j, hariIni) {
         var sisa = j.status === 'dp' && j.batas_lunas ? L.hariAntara(hariIni || L.hariIni(), j.batas_lunas) : null;
         return { sisa: sisa, lewat: sisa != null && sisa < 0 };
+    };
+    /* kredit tukar (kebijakan tukar unit 1x24 jam, hanya untuk yang sudah bayar penuh): transaksi dibatalkan karena ditukar, uang TIDAK dikembalikan
+       melainkan jadi kredit untuk membeli unit lain (metode bayar 'tukar'). j.kredit = { jumlah, tgl, dipakai: [{ kode, jumlah, tgl }] } */
+    L.kreditTukar = function (j) {
+        if (j.status !== 'batal' || j.batal_oleh !== 'tukar' || !j.kredit) return null;
+        var dipakai = (j.kredit.dipakai || []).reduce(function (t, p) { return t + (+p.jumlah || 0); }, 0), jumlah = +j.kredit.jumlah || 0;
+        return { jumlah: jumlah, dipakai: dipakai, sisa: Math.max(0, jumlah - dipakai), tgl: j.kredit.tgl };
     };
     L.perluIngatJual = function (j, hariIni) {
         var i = L.infoJual(j, hariIni), terakhir = (j.pengingat || []).slice(-1)[0] || '';
