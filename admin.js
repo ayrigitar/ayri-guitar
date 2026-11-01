@@ -620,7 +620,7 @@
             '<div class="struk-g"></div><div class="struk-c"><span>Terima kasih sudah berbelanja!</span>' + (s.nota.length ? '<span>Nota online: ayrigitar.com (kode + 4 digit HP)</span>' : '') + '<span>ayrigitar.com</span></div></div>';
     }
     function teksStruk(s) {
-        var t = 'Halo Kak ' + (s.nama || '') + ', terima kasih sudah berbelanja di ' + C.toko.nama + ' 🙏\n\nStruk ' + s.kode.join(', ') + ' · ' + jamStruk(s.waktu) + '\n';
+        var t = 'Halo' + (s.nama ? ' Kak ' + s.nama : '') + ', terima kasih sudah berbelanja di ' + C.toko.nama + ' 🙏\n\nStruk ' + s.kode.join(', ') + ' · ' + jamStruk(s.waktu) + '\n';
         t += s.items.map(function (i) { return '• ' + i.nama + (i.qty > 1 ? ' ×' + i.qty : '') + ' – ' + L.rupiah(i.harga * i.qty); }).join('\n');
         t += '\n\nTotal: *' + L.rupiah(s.total) + '*\n' + (s.dp ? 'DP (' + METODE_STRUK[s.metode].toLowerCase() + '): ' + L.rupiah(s.dibayar) + '\nSisa: *' + L.rupiah(s.total - s.dibayar) + '*' + (s.jual ? ' (lunasi paling lambat ' + L.tgl(s.jual.batas_lunas) + ')' : '') : 'Dibayar (' + METODE_STRUK[s.metode].toLowerCase() + '): ' + L.rupiah(s.total) + ' ✅');
         if (s.nota.length) t += '\n\nNota online:\n' + s.nota.join('\n') + '\n(masukkan 4 digit terakhir no. HP Kakak)';
@@ -633,6 +633,18 @@
         var lepas = function () { document.body.classList.remove('cetak-struk'); window.removeEventListener('afterprint', lepas); };
         window.addEventListener('afterprint', lepas); window.print();
         if (!window.AyriApp) setTimeout(lepas, 1500); /* di aplikasi Android: dilepas saat cetak selesai (event afterprint) */
+    }
+    /* struk dari transaksi jual yang sudah tersimpan (cetak ulang / bagikan nota dari tab Jual, termasuk pembeli tanpa nomor WhatsApp) */
+    function strukDariJual(j) {
+        var h = L.hitungJual(j), bayar = (j.bayar || []).filter(function (b) { return b.jenis !== 'refund'; }), metode = (bayar.slice(-1)[0] || {}).metode || 'tunai';
+        return { waktu: new Date(j.created_at || j.tgl), nama: j.nama || '', hp: j.hp || '', items: (j.items || []).map(function (i) { return { nama: i.nama, kode: i.kode, qty: i.qty, harga: i.harga }; }),
+            total: h.total, metode: metode, dp: j.status === 'dp', dibayar: h.dibayar, diterima: null, kode: [j.kode], nota: L.hp4(j.hp).length === 4 ? [L.urlNotaJual(j.kode)] : [], jual: j };
+    }
+    /* menu bagikan HP yang universal untuk teks (WhatsApp, Instagram, Telegram, SMS, dll): aplikasi 1.4.1+, menu bagikan browser, atau WhatsApp tanpa nomor */
+    function bagikanTeks(teks) {
+        if (bisaBagikanTeksApp()) kirimKeAplikasi('bagikanTeks', { teks: teks });
+        else if (navigator.share) navigator.share({ text: teks }).catch(function (e) { if (!e || e.name !== 'AbortError') bukaWa('', teks); });
+        else bukaWa('', teks);
     }
     function tampilStruk(s) {
         var m = $('#ks-modal'); if (!m) return;
@@ -2013,17 +2025,20 @@
                 '<label>Metode<select id="by-metode">' + opsi([['tunai', 'Tunai'], ['transfer', 'Transfer'], ['qris', 'QRIS']], 'transfer') + '</select></label></div>' +
                 '<div class="ly-row2"><label>Tanggal<input type="date" id="by-tgl"></label><label>Batas pelunasan<input type="date" id="jl-batas"></label></div>' +
                 '<button type="button" class="ly-btn" id="by-tambah">Catat pembayaran</button></div>' : '') + '</fieldset>' +
+            (j.status !== 'batal' ? '<fieldset class="ly-card"><legend>Struk &amp; nota</legend>' + kisiAksi([aksi({ id: 'jl-cetak', ikon: 'cetak', teks: 'Cetak ulang struk 58 mm' }), aksi({ id: 'jl-pdf', ikon: 'nota', teks: 'Simpan PDF' }),
+                aksi({ id: 'jl-bagikan', ikon: 'kirim', teks: 'Bagikan nota (WhatsApp, dll)', kelas: 'ly-akt--pri ly-akt--lebar' })]) +
+                '<p class="ly-hint" style="margin:8px 0 0">Bisa dipakai kapan saja, juga untuk pembeli tanpa nomor WhatsApp. Teks nota dikirim lewat menu bagikan HP.</p></fieldset>' : '') +
             '<fieldset class="ly-card"><legend>WhatsApp ke pembeli</legend>' + (adaHp && j.status !== 'batal' ? '<label class="ly-cek" style="margin-bottom:12px"><input type="checkbox" id="jl-setuju"><span>Pembeli sudah membalas <b>SETUJU</b> atas ketentuan di WhatsApp</span></label>' : '') + (adaHp ?
                 barisWa([].concat(j.status === 'dp' ? [['dp', 'Kirim bukti DP', 'Bukti pesanan + minta SETUJU'], ['pengingat', 'Pengingat pelunasan', 'Ingatkan sisa dan batas bayar']] : [])
                     .concat(j.status === 'lunas' || j.status === 'selesai' ? [['lunas', 'Kirim nota lunas', 'Tautan nota online']] : [])
                     .concat(j.status === 'batal' ? [['batal', 'Kabari pembatalan', 'Rincian uang kembali']] : []), 'wa') +
                 kisiAksi([aksi({ href: E(L.urlNotaJual(j.kode)), luar: true, ikon: 'nota', teks: 'Buka nota' })])
-                : '<p class="ly-muted" style="margin:0">Tanpa nomor WhatsApp (jual lunas langsung), nota online tidak dibuat.</p>') +
+                : '<p class="ly-muted" style="margin:0">Tanpa nomor WhatsApp (jual lunas langsung), nota online tidak dibuat. Pakai <b>Struk &amp; nota</b> di atas untuk cetak ulang atau membagikan nota.</p>') +
             ((j.pengingat || []).length ? '<p class="ly-hint" style="margin:8px 0 0">Diingatkan: ' + j.pengingat.map(L.tgl).join(', ') + '</p>' : '') + '</fieldset>' +
-            (aktif ? '<fieldset class="ly-card"><legend>Status</legend><div class="ly-btns">' +
+            (aktif || j.status === 'selesai' ? '<fieldset class="ly-card"><legend>Status</legend><div class="ly-btns">' +
                 (j.status === 'lunas' ? '<button type="button" class="ly-btn ly-btn--pri" id="jl-selesai">Barang sudah diambil / dikirim</button>' : '') +
-                '<button type="button" class="ly-btn" id="jl-batal-p">Batal (pembeli)</button><button type="button" class="ly-btn" id="jl-batal-t">Batal (toko)</button></div>' +
-                '<p class="ly-hint" style="margin:8px 0 0">Batal oleh pembeli / lewat batas: dipotong ' + C.jual.potonganPersen + '% dari harga barang (maks. sebesar yang sudah dibayar). Batal oleh toko: dikembalikan penuh. Stok kembali tersedia.</p></fieldset>' : '') +
+                '<button type="button" class="ly-btn" id="jl-batal-p">' + (j.status === 'selesai' ? 'Barang dikembalikan (pembeli)' : 'Batal (pembeli)') + '</button><button type="button" class="ly-btn" id="jl-batal-t">' + (j.status === 'selesai' ? 'Dibatalkan toko' : 'Batal (toko)') + '</button></div>' +
+                (j.status === 'selesai' ? '<p class="ly-hint" style="margin:8px 0 0"><b>Barang sudah diserahkan.</b> Bila pembeli mengembalikan barang atau transaksi dibatalkan, pakai tombol di atas (bukan Hapus): stok kembali tersedia dan uang kembali tercatat di kas.</p>' : '') + '<p class="ly-hint" style="margin:8px 0 0">Batal oleh pembeli / lewat batas: dipotong ' + C.jual.potonganPersen + '% dari harga barang (maks. sebesar yang sudah dibayar). Batal oleh toko: dikembalikan penuh. Stok kembali tersedia.</p></fieldset>' : '') +
             (owner() ? '<fieldset class="ly-card"><legend>Lainnya</legend>' + kisiAksi([aksi({ id: 'jl-hapus', ikon: 'hapus', teks: 'Hapus transaksi', kelas: 'ly-akt--del' })]) +
             '<p class="ly-hint ly-hint--c">Hapus hanya untuk salah input; stok dikembalikan. Untuk pesanan yang batal, pakai tombol Batal supaya tercatat.</p></fieldset>' : '') +
             '<div class="ly-save"><span class="ly-dirty" id="dirty" hidden>Belum disimpan</span><button type="button" class="ly-btn ly-btn--pri" id="jl-simpan">Simpan perubahan</button></div></section>';
@@ -2038,6 +2053,8 @@
         el.addEventListener('click', function (e) {
             var b = e.target.closest('button'); if (!b) return; var d = b.dataset;
             if (d.wa) kirimWaJual(d.wa, b);
+            else if (b.id === 'jl-cetak' || b.id === 'jl-pdf') { var sj = strukDariJual(j); if (b.id === 'jl-cetak' && bisaCetakBt()) { kirimKeAplikasi('cetakStruk', { baris: L.strukThermal(sj) }); toast('Mencetak…'); } else cetakStruk(sj); }
+            else if (b.id === 'jl-bagikan') bagikanTeks(teksStruk(strukDariJual(j)));
             else if (d.delbayar != null) { var by = j.bayar[+d.delbayar]; if (confirm('Hapus pembayaran ' + L.rupiah(by.jumlah) + ' tanggal ' + L.tgl(by.tgl) + '?')) { j.bayar.splice(+d.delbayar, 1); gambarBayarJual(); setDirty(true); } }
             else if (b.id === 'by-tambah') {
                 var jml = Math.round(+$('#by-jml').value || 0); if (jml <= 0) return toast('Isi jumlah pembayaran.', true);
@@ -2796,7 +2813,7 @@
                 (L.titipanTerkunci(s) ? '<p class="ly-ingat ly-ingat--info"><span><b>Gitar titipan.</b> Penjualan lewat Kasir belum tersedia (sedang disiapkan).' + (owner() ? ' <a href="#titip/' + E(s.sumber_titip) + '">Buka data titipan</a>' : '') + '</span></p>' : '') +
                 (+s.jumlah > 0 && s.status !== 'ditarik' && !L.sewaAktifStok(s.id, cache.sewa) && !L.titipanTerkunci(s) ? '<div class="ly-btns" style="margin-top:10px"><button type="button" class="ly-btn ly-btn--pri" id="sk-jual-baru">Jual / pesan dengan DP</button></div>' +
                     '<p class="ly-hint" style="margin:8px 0 0">Bayar penuh = langsung terjual. Bayar sebagian = DP: barang ditahan ' + C.jual.batasHari + ' hari, nota & pengingat pelunasan dikirim lewat WA.</p>' : '') + '</fieldset>') +
-            '<fieldset class="ly-card ly-f"><legend>Status</legend><div class="ly-status" id="sk-status"></div><label>Catatan internal<textarea data-s="catatan_admin" rows="2"></textarea></label></fieldset>' +
+            '<fieldset class="ly-card ly-f"><legend>Status</legend><div class="ly-status" id="sk-status"></div><p class="ly-hint" id="sk-status-info" hidden></p><label>Catatan internal<textarea data-s="catatan_admin" rows="2"></textarea></label></fieldset>' +
             (sk.baru ? '' : '<fieldset class="ly-card"><legend>Lainnya</legend>' + kisiAksi([].concat(s.harga_jual && adaStok(s) ? [aksi({ id: 'sk-tawar', ikon: 'kirim', teks: 'Bagikan poster &amp; penawaran', kelas: 'ly-akt--pri ly-akt--lebar' })] : [])
                 .concat(bisaPosterSold(s) ? [aksi({ id: 'sk-sold', ikon: 'kirim', teks: 'Poster SOLD (Story)', kelas: 'ly-akt--pri ly-akt--lebar' })] : [])
                 .concat(L.diKatalog(s) ? [aksi({ href: E(L.urlUnit(s.kode)), luar: true, ikon: 'lihat', teks: 'Lihat halaman unit' })] : [])
@@ -2848,8 +2865,11 @@
             '<div><span>Perkiraan untung stok tersisa</span><span>' + L.rupiah(u.potensi) + '</span></div>' +
             (u.unitTerjual ? '<div class="ly-total"><span>Sudah terjual ' + u.unitTerjual + ' unit</span><span>untung ' + L.rupiah(u.untung) + '</span></div>' : '');
     }
+    /* transaksi jual yang masih berlaku (belum batal) untuk barang ini */
+    function jualAktifStok(s) { return cache.jual.filter(function (j) { return j.status !== 'batal' && (j.items || []).some(function (i) { return i.stok_id === s.id; }); }); }
     function gambarStatusStok() {
-        var s = sk.s;
+        var s = sk.s, info = $('#sk-status-info'), aktifJ = s.status === 'terjual' ? jualAktifStok(s) : [];
+        if (info) { info.hidden = !aktifJ.length; info.innerHTML = aktifJ.length ? 'Terjual lewat ' + aktifJ.map(function (j) { return '<a href="#jual/' + E(j.id) + '">' + E(j.kode) + '</a>'; }).join(', ') + '. <b>Pembeli batal atau barang dikembalikan?</b> Buka transaksinya lalu tekan Batal: stok kembali tersedia dan uang kembali tercatat. Mengubah status di sini saja tidak membatalkan penjualannya.' : ''; }
         $('#sk-status').innerHTML = ['tersedia', 'dipesan', 'ditarik'].map(function (k) { return '<button type="button" data-sts="' + k + '" aria-pressed="' + (s.status === k) + '">' + L.STATUS_STOK[k] + '</button>'; }).join('') +
             (s.status === 'terjual' ? '<button type="button" aria-pressed="true" disabled>Terjual</button>' : '');
     }
@@ -2867,7 +2887,13 @@
         L.isiFoto(el, sk.s, A.fotoAdmin);
     }
     function simpanStok() {
-        var s = sk.s;
+        var s = sk.s, asli = !sk.baru && cariId('stok', s.id), aktifJ = asli ? jualAktifStok(s) : [];
+        /* barang yang terjual lewat transaksi tidak dikembalikan dengan mengubah status/jumlah di sini: transaksinya yang harus dibatalkan */
+        if (asli && asli.status === 'terjual' && aktifJ.length && (s.status === 'tersedia' || s.status === 'dipesan' || +s.jumlah > +asli.jumlah)) {
+            if (confirm('Barang ini masih tercatat terjual di ' + aktifJ.map(function (j) { return j.kode; }).join(', ') + '. Mengubah status atau jumlah di sini tidak membatalkan penjualan dan uangnya.\n\nBuka transaksinya sekarang untuk membatalkannya?')) pindah('#jual/' + aktifJ[0].id);
+            return;
+        }
+        if (s.status === 'tersedia' && !(+s.jumlah > 0)) return toast('Jumlah tersedia masih 0, jadi barang tetap Terjual. Isi jumlah 1 bila barangnya memang ada lagi.', true);
         s.merek = String(s.merek || '').trim();
         if (sk.baru && !s.merek) return toast('Isi merek.', true);
         if (s.kategori === 'aksesoris' ? !String(s.nama || '').trim() : !String(s.gitar_merk || '').trim()) return toast(s.kategori === 'aksesoris' ? 'Isi nama / model produk.' : 'Isi model gitar.', true);
