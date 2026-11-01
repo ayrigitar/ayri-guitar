@@ -254,61 +254,6 @@
    "artikel": 4
   },
   {
-   "kode": "STK-FBXF37",
-   "kategori": "gitar",
-   "jenis": "Akustik",
-   "kondisi": "bekas",
-   "nama": "Cort AD810",
-   "warna": "Natural",
-   "deskripsi": "Gitar akustik Cort AD810 warna natural ini dalam kondisi bekas namun tampak bersih, semua hardware lengkap dan 6 senar sudah terpasang, siap dimainkan oleh pemula hingga menengah. 🎸  \n\nSpesifikasi:  \n- 6 senar standar  \n- Body: top spruce lapisan, back & sides mahogany  \n- Neck: nato, 20‑fret, profil standar  \n- Fingerboard: rosewood dengan inlay dot sederhana  \n- Scale length: 25,5 in (648 mm)  \n- Bridge: rosewood, tanpa pickup  \n\nSilakan coba langsung di toko kami!",
-   "harga": 1000000,
-   "status": "tersedia",
-   "sisa": null,
-   "foto": [
-    {
-     "src": "foto/stok/8ccdb503fda69163d214.webp",
-     "kecil": "foto/stok/8ccdb503fda69163d214-k.webp"
-    },
-    {
-     "src": "foto/stok/4ef8600fa970bafaba96.webp",
-     "kecil": "foto/stok/4ef8600fa970bafaba96-k.webp"
-    },
-    {
-     "src": "foto/stok/fca347e9a933620d12cb.webp",
-     "kecil": "foto/stok/fca347e9a933620d12cb-k.webp"
-    },
-    {
-     "src": "foto/stok/dcf4b604baf94664ee76.webp",
-     "kecil": "foto/stok/dcf4b604baf94664ee76-k.webp"
-    },
-    {
-     "src": "foto/stok/e53e77e6de18b729c1ef.webp",
-     "kecil": "foto/stok/e53e77e6de18b729c1ef-k.webp"
-    },
-    {
-     "src": "foto/stok/789a9f1c10b752faa589.webp",
-     "kecil": "foto/stok/789a9f1c10b752faa589-k.webp"
-    },
-    {
-     "src": "foto/stok/ee4779498b067e815927.webp",
-     "kecil": "foto/stok/ee4779498b067e815927-k.webp"
-    },
-    {
-     "src": "foto/stok/65ec44c5c2da3a470f84.webp",
-     "kecil": "foto/stok/65ec44c5c2da3a470f84-k.webp"
-    },
-    {
-     "src": "foto/stok/b60b35bef650a480da69.webp",
-     "kecil": "foto/stok/b60b35bef650a480da69-k.webp"
-    },
-    {
-     "src": "foto/stok/e485e42c7d7afb2834b5.webp",
-     "kecil": "foto/stok/e485e42c7d7afb2834b5-k.webp"
-    }
-   ],
-   "artikel": 5
-  },
-  {
    "kode": "STK-YKXTRX",
    "kategori": "aksesoris",
    "jenis": "Senar",
@@ -329,7 +274,7 @@
      "kecil": "foto/stok/8361dffe85f763652e9f-k.webp"
     }
    ],
-   "artikel": 6
+   "artikel": 5
   },
   {
    "kode": "STK-VM7JT5",
@@ -352,7 +297,7 @@
      "kecil": "foto/stok/a7733dce8f77f28732db-k.webp"
     }
    ],
-   "artikel": 7
+   "artikel": 6
   },
   {
    "kode": "STK-6PQCDA",
@@ -408,7 +353,7 @@
     }
    ],
    "tingkat": "Very Good",
-   "artikel": 8
+   "artikel": 7
   },
   {
    "kode": "STK-SCYBYR",
@@ -464,7 +409,7 @@
     }
    ],
    "tingkat": "Very Good",
-   "artikel": 9
+   "artikel": 8
   },
   {
    "kode": "STK-752B52",
@@ -519,7 +464,7 @@
      "kecil": "foto/stok/e7844f12235295e49a13-k.webp"
     }
    ],
-   "artikel": 10
+   "artikel": 9
   },
   {
    "kode": "STK-QFV3U3",
@@ -571,7 +516,7 @@
     }
    ],
    "tingkat": "Mint",
-   "artikel": 11
+   "artikel": 10
   }
  ]
 }
