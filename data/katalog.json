@@ -26,6 +26,29 @@
    "artikel": 0
   },
   {
+   "kode": "STK-A725M2",
+   "kategori": "aksesoris",
+   "jenis": "Senar",
+   "kondisi": "baru",
+   "nama": "Orphee NX36",
+   "warna": "Nylon Klasik Normal Tension",
+   "deskripsi": "Senar NX36 Nylon Klasik dengan normal tension memberikan nada hangat dan responsif, cocok untuk pemain klasik maupun folk yang mengutamakan kehalusan suara. Terbuat dari nilon berkualitas tinggi, senar terasa nyaman di jari dan tahan lama, ideal untuk latihan rutin maupun pertunjukan. Tuning yang stabil membuat kamu fokus pada teknik tanpa khawatir melodi melenceng. Yuk, coba langsung di Toko Gitar AYRI! 🎸",
+   "harga": 40000,
+   "status": "tersedia",
+   "sisa": null,
+   "foto": [
+    {
+     "src": "foto/stok/orphee-nx36-nylon-klasik-normal-tension-stk-a725m2-fa49f9.webp",
+     "kecil": "foto/stok/orphee-nx36-nylon-klasik-normal-tension-stk-a725m2-fa49f9-k.webp"
+    },
+    {
+     "src": "foto/stok/orphee-nx36-nylon-klasik-normal-tension-stk-a725m2-9a0650.webp",
+     "kecil": "foto/stok/orphee-nx36-nylon-klasik-normal-tension-stk-a725m2-9a0650-k.webp"
+    }
+   ],
+   "artikel": 1
+  },
+  {
    "kode": "STK-V9FPZW",
    "kategori": "gitar",
    "jenis": "Bass",
@@ -67,7 +90,7 @@
     }
    ],
    "tingkat": "Very Good",
-   "artikel": 1
+   "artikel": 2
   },
   {
    "kode": "STK-6J8WP3",
@@ -115,7 +138,7 @@
     }
    ],
    "tingkat": "Good",
-   "artikel": 2
+   "artikel": 3
   },
   {
    "kode": "STK-TZEN4Z",
@@ -171,7 +194,7 @@
     }
    ],
    "tingkat": "Very Good",
-   "artikel": 3
+   "artikel": 4
   },
   {
    "kode": "STK-U3X8N4",
@@ -219,7 +242,7 @@
     }
    ],
    "tingkat": "Excellent",
-   "artikel": 4
+   "artikel": 5
   },
   {
    "kode": "STK-UKV3BK",
@@ -274,7 +297,7 @@
      "kecil": "foto/stok/1a1bf9bf8a68cf0ae6df-k.webp"
     }
    ],
-   "artikel": 5
+   "artikel": 6
   },
   {
    "kode": "STK-FBXF37",
@@ -330,7 +353,7 @@
     }
    ],
    "tingkat": "Very Good",
-   "artikel": 6
+   "artikel": 7
   },
   {
    "kode": "STK-YKXTRX",
@@ -353,7 +376,7 @@
      "kecil": "foto/stok/8361dffe85f763652e9f-k.webp"
     }
    ],
-   "artikel": 7
+   "artikel": 8
   },
   {
    "kode": "STK-VM7JT5",
@@ -376,7 +399,7 @@
      "kecil": "foto/stok/a7733dce8f77f28732db-k.webp"
     }
    ],
-   "artikel": 8
+   "artikel": 9
   },
   {
    "kode": "STK-6PQCDA",
@@ -432,7 +455,7 @@
     }
    ],
    "tingkat": "Very Good",
-   "artikel": 9
+   "artikel": 10
   },
   {
    "kode": "STK-SCYBYR",
@@ -488,7 +511,7 @@
     }
    ],
    "tingkat": "Very Good",
-   "artikel": 10
+   "artikel": 11
   },
   {
    "kode": "STK-752B52",
@@ -543,7 +566,7 @@
      "kecil": "foto/stok/e7844f12235295e49a13-k.webp"
     }
    ],
-   "artikel": 11
+   "artikel": 12
   },
   {
    "kode": "STK-QFV3U3",
@@ -595,7 +618,7 @@
     }
    ],
    "tingkat": "Mint",
-   "artikel": 12
+   "artikel": 13
   }
  ]
 }
