@@ -3,6 +3,29 @@
  "v": 3,
  "item": [
   {
+   "kode": "STK-UWGUKK",
+   "kategori": "aksesoris",
+   "jenis": "Senar",
+   "kondisi": "baru",
+   "nama": "Orphee TX630",
+   "warna": "Ukuran 011",
+   "deskripsi": "Senar gitar akustik Orphee TX630 ukuran 011 ini hadir dengan kondisi baru dalam kemasan kuning khasnya. Terbuat dari bahan 75/25 Bronze, senar ini dirancang untuk memberikan resonansi yang hangat dan jernih pada gitar akustik maupun klasik. Ukuran 011 menawarkan keseimbangan yang pas antara kemudahan penekanan senar dan volume suara yang responsif. Mampir ke toko kami untuk mencoba langsung dan menemukan senar yang paling pas untuk gaya bermainmu. 🎸",
+   "harga": 40000,
+   "status": "tersedia",
+   "sisa": 2,
+   "foto": [
+    {
+     "src": "foto/stok/orphee-tx630-ukuran-011-stk-uwgukk-7c526f.webp",
+     "kecil": "foto/stok/orphee-tx630-ukuran-011-stk-uwgukk-7c526f-k.webp"
+    },
+    {
+     "src": "foto/stok/orphee-tx630-ukuran-011-stk-uwgukk-bc8ea8.webp",
+     "kecil": "foto/stok/orphee-tx630-ukuran-011-stk-uwgukk-bc8ea8-k.webp"
+    }
+   ],
+   "artikel": 0
+  },
+  {
    "kode": "STK-2Z9THR",
    "kategori": "aksesoris",
    "jenis": "Senar",
@@ -23,7 +46,7 @@
      "kecil": "foto/stok/orphee-sa37-phosphor-bronze-ukuran-010-stk-2z9thr-b0548a-k.webp"
     }
    ],
-   "artikel": 0
+   "artikel": 1
   },
   {
    "kode": "STK-BABWUM",
@@ -46,7 +69,7 @@
      "kecil": "foto/stok/orphee-qa170-ukuran-012-stk-babwum-610a68-k.webp"
     }
    ],
-   "artikel": 1
+   "artikel": 2
   },
   {
    "kode": "STK-4SX3UT",
@@ -69,7 +92,7 @@
      "kecil": "foto/stok/orphee-qa160-ukuran-011-stk-4sx3ut-ad4510-k.webp"
     }
    ],
-   "artikel": 2
+   "artikel": 3
   },
   {
    "kode": "STK-SD6VFA",
@@ -92,7 +115,7 @@
      "kecil": "foto/stok/orphee-qc5-nylon-klasik-hard-tension-stk-sd6vfa-21735b-k.webp"
     }
    ],
-   "artikel": 3
+   "artikel": 4
   },
   {
    "kode": "STK-6XYMRC",
@@ -115,7 +138,7 @@
      "kecil": "foto/stok/orphee-qc5-nylon-klasik-normal-tension-stk-6xymrc-d71bd3-k.webp"
     }
    ],
-   "artikel": 4
+   "artikel": 5
   },
   {
    "kode": "STK-APP6FK",
@@ -138,7 +161,7 @@
      "kecil": "foto/stok/orphee-nx35-nylon-klasik-hard-tension-stk-app6fk-ff640a-k.webp"
     }
    ],
-   "artikel": 5
+   "artikel": 6
   },
   {
    "kode": "STK-A725M2",
@@ -161,7 +184,7 @@
      "kecil": "foto/stok/orphee-nx36-nylon-klasik-normal-tension-stk-a725m2-9a0650-k.webp"
     }
    ],
-   "artikel": 6
+   "artikel": 7
   },
   {
    "kode": "STK-NZGV2M",
@@ -184,30 +207,30 @@
      "kecil": "foto/stok/orphee-tx620-ukuran-010-bronze-stk-nzgv2m-2acac6-k.webp"
     }
    ],
-   "artikel": 7
+   "artikel": 8
   },
   {
-   "kode": "STK-UWGUKK",
+   "kode": "STK-A6Q9EY",
    "kategori": "aksesoris",
    "jenis": "Senar",
    "kondisi": "baru",
-   "nama": "Orphee TX630",
-   "warna": "Ukuran 011",
-   "deskripsi": "Senar gitar akustik Orphee TX630 ukuran 011 ini hadir dengan kondisi baru dalam kemasan kuning khasnya. Terbuat dari bahan 75/25 Bronze, senar ini dirancang untuk memberikan resonansi yang hangat dan jernih pada gitar akustik maupun klasik. Ukuran 011 menawarkan keseimbangan yang pas antara kemudahan penekanan senar dan volume suara yang responsif. Mampir ke toko kami untuk mencoba langsung dan menemukan senar yang paling pas untuk gaya bermainmu. 🎸",
-   "harga": 40000,
+   "nama": "Orphee QE25",
+   "warna": "Gitar Elektrik Ukuran 009",
+   "deskripsi": "Senar baru Orphee QE25 khusus untuk gitar elektrik dengan gauge Super Light 009-042. Kemasannya mencantumkan spesifikasi bahan nickel alloy yang dirancang untuk menghasilkan suara *bright tone* yang jernih. Bagian belakang kemasan juga menampilkan detail konversi ukuran senar dalam inci dan milimeter. 🎸 Yuk, langsung datang ke toko untuk mencoba sensasi senar ini di gitar Anda!",
+   "harga": 60000,
    "status": "tersedia",
    "sisa": 2,
    "foto": [
     {
-     "src": "foto/stok/orphee-tx630-ukuran-011-stk-uwgukk-7c526f.webp",
-     "kecil": "foto/stok/orphee-tx630-ukuran-011-stk-uwgukk-7c526f-k.webp"
+     "src": "foto/stok/orphee-qe25-gitar-elektrik-ukuran-009-stk-a6q9ey-a80802.webp",
+     "kecil": "foto/stok/orphee-qe25-gitar-elektrik-ukuran-009-stk-a6q9ey-a80802-k.webp"
     },
     {
-     "src": "foto/stok/orphee-tx630-ukuran-011-stk-uwgukk-bc8ea8.webp",
-     "kecil": "foto/stok/orphee-tx630-ukuran-011-stk-uwgukk-bc8ea8-k.webp"
+     "src": "foto/stok/orphee-qe25-gitar-elektrik-ukuran-009-stk-a6q9ey-e0e20a.webp",
+     "kecil": "foto/stok/orphee-qe25-gitar-elektrik-ukuran-009-stk-a6q9ey-e0e20a-k.webp"
     }
    ],
-   "artikel": 8
+   "artikel": 9
   },
   {
    "kode": "STK-V9FPZW",
@@ -251,7 +274,7 @@
     }
    ],
    "tingkat": "Very Good",
-   "artikel": 9
+   "artikel": 10
   },
   {
    "kode": "STK-6J8WP3",
@@ -299,7 +322,7 @@
     }
    ],
    "tingkat": "Good",
-   "artikel": 10
+   "artikel": 11
   },
   {
    "kode": "STK-TZEN4Z",
@@ -355,7 +378,7 @@
     }
    ],
    "tingkat": "Very Good",
-   "artikel": 11
+   "artikel": 12
   },
   {
    "kode": "STK-U3X8N4",
@@ -403,7 +426,7 @@
     }
    ],
    "tingkat": "Excellent",
-   "artikel": 12
+   "artikel": 13
   },
   {
    "kode": "STK-UKV3BK",
@@ -458,7 +481,7 @@
      "kecil": "foto/stok/1a1bf9bf8a68cf0ae6df-k.webp"
     }
    ],
-   "artikel": 13
+   "artikel": 14
   },
   {
    "kode": "STK-FBXF37",
@@ -514,7 +537,7 @@
     }
    ],
    "tingkat": "Very Good",
-   "artikel": 14
+   "artikel": 15
   },
   {
    "kode": "STK-VM7JT5",
@@ -537,7 +560,7 @@
      "kecil": "foto/stok/a7733dce8f77f28732db-k.webp"
     }
    ],
-   "artikel": 15
+   "artikel": 16
   },
   {
    "kode": "STK-6PQCDA",
@@ -593,7 +616,7 @@
     }
    ],
    "tingkat": "Very Good",
-   "artikel": 16
+   "artikel": 17
   },
   {
    "kode": "STK-SCYBYR",
@@ -649,7 +672,7 @@
     }
    ],
    "tingkat": "Very Good",
-   "artikel": 17
+   "artikel": 18
   },
   {
    "kode": "STK-752B52",
@@ -704,7 +727,7 @@
      "kecil": "foto/stok/e7844f12235295e49a13-k.webp"
     }
    ],
-   "artikel": 18
+   "artikel": 19
   },
   {
    "kode": "STK-QFV3U3",
@@ -756,7 +779,7 @@
     }
    ],
    "tingkat": "Mint",
-   "artikel": 19
+   "artikel": 20
   }
  ]
 }
