@@ -72,6 +72,29 @@
    "artikel": 2
   },
   {
+   "kode": "STK-6XYMRC",
+   "kategori": "aksesoris",
+   "jenis": "Senar",
+   "kondisi": "baru",
+   "nama": "Orphee QC5",
+   "warna": "Nylon Klasik Normal Tension",
+   "deskripsi": "Senar gitar klasik Orphee QC5 ini adalah senar nylon normal tension (028-043) dengan lilitan silver pada senar bas untuk menghasilkan suara yang lebih tegas dan jernih. Kualitas senar ini dikenal cukup awet dan nyaman dimainkan karena daya tahan senarnya yang tinggi. Produk ini masih dalam kondisi segel baru, siap digunakan untuk mengganti senar lama gitar klasik Anda. Silakan datang langsung ke toko kami untuk mencoba sensasi dan suaranya sendiri. 🎸",
+   "harga": 60000,
+   "status": "tersedia",
+   "sisa": null,
+   "foto": [
+    {
+     "src": "foto/stok/orphee-qc5-nylon-klasik-normal-tension-stk-6xymrc-d946f3.webp",
+     "kecil": "foto/stok/orphee-qc5-nylon-klasik-normal-tension-stk-6xymrc-d946f3-k.webp"
+    },
+    {
+     "src": "foto/stok/orphee-qc5-nylon-klasik-normal-tension-stk-6xymrc-d71bd3.webp",
+     "kecil": "foto/stok/orphee-qc5-nylon-klasik-normal-tension-stk-6xymrc-d71bd3-k.webp"
+    }
+   ],
+   "artikel": 3
+  },
+  {
    "kode": "STK-V9FPZW",
    "kategori": "gitar",
    "jenis": "Bass",
@@ -113,7 +136,7 @@
     }
    ],
    "tingkat": "Very Good",
-   "artikel": 3
+   "artikel": 4
   },
   {
    "kode": "STK-6J8WP3",
@@ -161,7 +184,7 @@
     }
    ],
    "tingkat": "Good",
-   "artikel": 4
+   "artikel": 5
   },
   {
    "kode": "STK-TZEN4Z",
@@ -217,7 +240,7 @@
     }
    ],
    "tingkat": "Very Good",
-   "artikel": 5
+   "artikel": 6
   },
   {
    "kode": "STK-U3X8N4",
@@ -265,7 +288,7 @@
     }
    ],
    "tingkat": "Excellent",
-   "artikel": 6
+   "artikel": 7
   },
   {
    "kode": "STK-UKV3BK",
@@ -320,7 +343,7 @@
      "kecil": "foto/stok/1a1bf9bf8a68cf0ae6df-k.webp"
     }
    ],
-   "artikel": 7
+   "artikel": 8
   },
   {
    "kode": "STK-FBXF37",
@@ -376,7 +399,7 @@
     }
    ],
    "tingkat": "Very Good",
-   "artikel": 8
+   "artikel": 9
   },
   {
    "kode": "STK-VM7JT5",
@@ -399,7 +422,7 @@
      "kecil": "foto/stok/a7733dce8f77f28732db-k.webp"
     }
    ],
-   "artikel": 9
+   "artikel": 10
   },
   {
    "kode": "STK-6PQCDA",
@@ -455,7 +478,7 @@
     }
    ],
    "tingkat": "Very Good",
-   "artikel": 10
+   "artikel": 11
   },
   {
    "kode": "STK-SCYBYR",
@@ -511,7 +534,7 @@
     }
    ],
    "tingkat": "Very Good",
-   "artikel": 11
+   "artikel": 12
   },
   {
    "kode": "STK-752B52",
@@ -566,7 +589,7 @@
      "kecil": "foto/stok/e7844f12235295e49a13-k.webp"
     }
    ],
-   "artikel": 12
+   "artikel": 13
   },
   {
    "kode": "STK-QFV3U3",
@@ -618,7 +641,7 @@
     }
    ],
    "tingkat": "Mint",
-   "artikel": 13
+   "artikel": 14
   }
  ]
 }
