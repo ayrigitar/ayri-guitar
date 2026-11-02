@@ -95,6 +95,29 @@
    "artikel": 3
   },
   {
+   "kode": "STK-SD6VFA",
+   "kategori": "aksesoris",
+   "jenis": "Senar",
+   "kondisi": "baru",
+   "nama": "Orphee QC5",
+   "warna": "Nylon Klasik Hard Tension",
+   "deskripsi": "Senar Orphee QC9 ini dirancang khusus untuk gitar klasik dengan tegangan tinggi (hard tension) dan ukuran 028-045. Kemasannya mencantumkan fitur \"Silver Line\" yang diklaim menghasilkan timbre penuh (full timbre), cocok untuk kamu yang suka respons suara tegas dan detail. Produk ini masih dalam kondisi baru, siap langsung dipasang di gitar kesayanganmu. Mampir ke toko AYRI di Bogor untuk cek kualitasnya langsung. 🎸",
+   "harga": 60000,
+   "status": "tersedia",
+   "sisa": null,
+   "foto": [
+    {
+     "src": "foto/stok/orphee-qc5-nylon-klasik-hard-tension-stk-sd6vfa-6c2cd5.webp",
+     "kecil": "foto/stok/orphee-qc5-nylon-klasik-hard-tension-stk-sd6vfa-6c2cd5-k.webp"
+    },
+    {
+     "src": "foto/stok/orphee-qc5-nylon-klasik-hard-tension-stk-sd6vfa-21735b.webp",
+     "kecil": "foto/stok/orphee-qc5-nylon-klasik-hard-tension-stk-sd6vfa-21735b-k.webp"
+    }
+   ],
+   "artikel": 4
+  },
+  {
    "kode": "STK-V9FPZW",
    "kategori": "gitar",
    "jenis": "Bass",
@@ -136,7 +159,7 @@
     }
    ],
    "tingkat": "Very Good",
-   "artikel": 4
+   "artikel": 5
   },
   {
    "kode": "STK-6J8WP3",
@@ -184,7 +207,7 @@
     }
    ],
    "tingkat": "Good",
-   "artikel": 5
+   "artikel": 6
   },
   {
    "kode": "STK-TZEN4Z",
@@ -240,7 +263,7 @@
     }
    ],
    "tingkat": "Very Good",
-   "artikel": 6
+   "artikel": 7
   },
   {
    "kode": "STK-U3X8N4",
@@ -288,7 +311,7 @@
     }
    ],
    "tingkat": "Excellent",
-   "artikel": 7
+   "artikel": 8
   },
   {
    "kode": "STK-UKV3BK",
@@ -343,7 +366,7 @@
      "kecil": "foto/stok/1a1bf9bf8a68cf0ae6df-k.webp"
     }
    ],
-   "artikel": 8
+   "artikel": 9
   },
   {
    "kode": "STK-FBXF37",
@@ -399,7 +422,7 @@
     }
    ],
    "tingkat": "Very Good",
-   "artikel": 9
+   "artikel": 10
   },
   {
    "kode": "STK-VM7JT5",
@@ -422,7 +445,7 @@
      "kecil": "foto/stok/a7733dce8f77f28732db-k.webp"
     }
    ],
-   "artikel": 10
+   "artikel": 11
   },
   {
    "kode": "STK-6PQCDA",
@@ -478,7 +501,7 @@
     }
    ],
    "tingkat": "Very Good",
-   "artikel": 11
+   "artikel": 12
   },
   {
    "kode": "STK-SCYBYR",
@@ -534,7 +557,7 @@
     }
    ],
    "tingkat": "Very Good",
-   "artikel": 12
+   "artikel": 13
   },
   {
    "kode": "STK-752B52",
@@ -589,7 +612,7 @@
      "kecil": "foto/stok/e7844f12235295e49a13-k.webp"
     }
    ],
-   "artikel": 13
+   "artikel": 14
   },
   {
    "kode": "STK-QFV3U3",
@@ -641,7 +664,7 @@
     }
    ],
    "tingkat": "Mint",
-   "artikel": 14
+   "artikel": 15
   }
  ]
 }
