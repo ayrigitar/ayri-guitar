@@ -3,6 +3,29 @@
  "v": 3,
  "item": [
   {
+   "kode": "STK-NZGV2M",
+   "kategori": "aksesoris",
+   "jenis": "Senar",
+   "kondisi": "baru",
+   "nama": "Orphee TX620",
+   "warna": "Ukuran 010 Bronze",
+   "deskripsi": "Senar TX620 ukuran .010 Bronze memberikan suara yang jernih dan resonansi kuat, cocok untuk pemain yang suka tone bright pada gitar akustik. Karena terbuat dari bahan bronze, nada bass tetap terasa penuh sementara treblenya bersih tanpa berisik. Kondisinya baru, jadi kamu akan langsung merasakan respons cepat dan tuning yang stabil. Yuk, coba langsung di toko kami dan rasakan perbedaannya! 🎸",
+   "harga": 40000,
+   "status": "tersedia",
+   "sisa": null,
+   "foto": [
+    {
+     "src": "foto/stok/orphee-tx620-ukuran-010-bronze-stk-nzgv2m-deda7e.webp",
+     "kecil": "foto/stok/orphee-tx620-ukuran-010-bronze-stk-nzgv2m-deda7e-k.webp"
+    },
+    {
+     "src": "foto/stok/orphee-tx620-ukuran-010-bronze-stk-nzgv2m-2acac6.webp",
+     "kecil": "foto/stok/orphee-tx620-ukuran-010-bronze-stk-nzgv2m-2acac6-k.webp"
+    }
+   ],
+   "artikel": 0
+  },
+  {
    "kode": "STK-V9FPZW",
    "kategori": "gitar",
    "jenis": "Bass",
@@ -44,7 +67,7 @@
     }
    ],
    "tingkat": "Very Good",
-   "artikel": 0
+   "artikel": 1
   },
   {
    "kode": "STK-6J8WP3",
@@ -92,7 +115,7 @@
     }
    ],
    "tingkat": "Good",
-   "artikel": 1
+   "artikel": 2
   },
   {
    "kode": "STK-TZEN4Z",
@@ -148,7 +171,7 @@
     }
    ],
    "tingkat": "Very Good",
-   "artikel": 2
+   "artikel": 3
   },
   {
    "kode": "STK-U3X8N4",
@@ -196,7 +219,7 @@
     }
    ],
    "tingkat": "Excellent",
-   "artikel": 3
+   "artikel": 4
   },
   {
    "kode": "STK-UKV3BK",
@@ -251,7 +274,7 @@
      "kecil": "foto/stok/1a1bf9bf8a68cf0ae6df-k.webp"
     }
    ],
-   "artikel": 4
+   "artikel": 5
   },
   {
    "kode": "STK-FBXF37",
@@ -307,7 +330,7 @@
     }
    ],
    "tingkat": "Very Good",
-   "artikel": 5
+   "artikel": 6
   },
   {
    "kode": "STK-YKXTRX",
@@ -330,7 +353,7 @@
      "kecil": "foto/stok/8361dffe85f763652e9f-k.webp"
     }
    ],
-   "artikel": 6
+   "artikel": 7
   },
   {
    "kode": "STK-VM7JT5",
@@ -353,7 +376,7 @@
      "kecil": "foto/stok/a7733dce8f77f28732db-k.webp"
     }
    ],
-   "artikel": 7
+   "artikel": 8
   },
   {
    "kode": "STK-6PQCDA",
@@ -409,7 +432,7 @@
     }
    ],
    "tingkat": "Very Good",
-   "artikel": 8
+   "artikel": 9
   },
   {
    "kode": "STK-SCYBYR",
@@ -465,7 +488,7 @@
     }
    ],
    "tingkat": "Very Good",
-   "artikel": 9
+   "artikel": 10
   },
   {
    "kode": "STK-752B52",
@@ -520,7 +543,7 @@
      "kecil": "foto/stok/e7844f12235295e49a13-k.webp"
     }
    ],
-   "artikel": 10
+   "artikel": 11
   },
   {
    "kode": "STK-QFV3U3",
@@ -572,7 +595,7 @@
     }
    ],
    "tingkat": "Mint",
-   "artikel": 11
+   "artikel": 12
   }
  ]
 }
