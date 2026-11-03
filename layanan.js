@@ -7,7 +7,7 @@
     /* pengaturan dari layanan-config.js, dilengkapi nilai bawaan sekali di sini (yang tidak diisi memakai bawaan) */
     var BAWAAN = {
         dpJasaPersen: 50, bulatkanKe: 1000, gratisTitipHari: 14, biayaTitipPerHari: 5000, garansiHangusHari: 30, penyimpananLamaHari: 90,
-        pengingatHari: [7, 12], katalogSisaTampil: 3, jenisGitar: ['Akustik'], kategoriAksesoris: ['Lainnya'], alatMusik: [], ukuranSenar: [], fiturSaran: [], katalogJasa: [], ketentuan: [], syaratJatuh: '',
+        pengingatHari: [7, 12], katalogSisaTampil: 3, jenisGitar: ['Akustik'], kategoriAksesoris: ['Lainnya'], alatMusik: [], ukuranAksesoris: {}, fiturSaran: [], katalogJasa: [], ketentuan: [], syaratJatuh: '',
         github: {}, ai: { url: '' }, toko: { nama: 'Toko Gitar AYRI', alamat: '', jam: '', wa: '', ulasan: '', rekening: [] },
         tindak: { terimaKasihSetelahHari: 2, terimaKasihBatasHari: 14, garansiSebelumHari: 7 },
         tebus: { batasHari: 30, maksHari: 90, pengingatHari: [7, 1], fotoKtpMinHarga: 1000000, hapusKtpHari: 90, ketentuan: [] },

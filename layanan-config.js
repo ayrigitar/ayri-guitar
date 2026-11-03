@@ -114,7 +114,11 @@ var AYRI_LAYANAN = {
     katalogSisaTampil: 3,
     /* aksesoris (terutama senar): untuk alat musik apa, ukuran, dan saran fitur unggulan (bubble di poster) */
     alatMusik: ['Gitar Akustik', 'Gitar Klasik', 'Gitar Elektrik', 'Bass', 'Ukulele', 'Guitalele'],
-    ukuranSenar: [['008', '008'], ['009', '009'], ['010', '010'], ['011', '011'], ['012', '012'], ['013', '013'], ['Normal Tension', 'Normal Tension (nylon)'], ['Hard Tension', 'Hard Tension (nylon)']],
+    /* ukuran per kategori aksesoris (pilihan); kategori yang tidak tercantum memakai isian bebas */
+    ukuranAksesoris: {
+        Senar: [['008', '008'], ['009', '009'], ['010', '010'], ['011', '011'], ['012', '012'], ['013', '013'], ['Normal Tension', 'Normal Tension (nylon)'], ['Hard Tension', 'Hard Tension (nylon)']],
+        Kabel: [['1 Meter', '1 Meter'], ['2 Meter', '2 Meter'], ['3 Meter', '3 Meter'], ['5 Meter', '5 Meter'], ['6 Meter', '6 Meter'], ['10 Meter', '10 Meter']]
+    },
     fiturSaran: ['Phosphor Bronze', 'Bronze 80/20', 'Titanium', 'Nickel', 'Stainless Steel', 'Anti Rust', 'Coated', 'Light', 'Extra Light', 'Silver Plated', 'Solid Top', 'Cutaway', 'Pickup', 'Softcase'],
 
     /* tercetak di nota; {dp}, {gratis}, {biaya}, {hangus}, {lepas} diganti otomatis */

@@ -11,6 +11,7 @@ test('judul: urutan Kategori - Alat musik - Merek & model - Ukuran; tension tanp
     assert.equal(util.judulKatalog(Object.assign({ alat: ['Gitar Akustik'], ukuran: '011' }, dasar)), 'Senar Gitar Akustik Orphee SA38 Ukuran 011');
     assert.equal(util.judulKatalog({ kategori: 'aksesoris', jenis: 'Senar', nama: 'Orphee NX35', alat: ['Gitar Klasik', 'Guitalele'], ukuran: 'Hard Tension' }), 'Senar Gitar Klasik / Guitalele Orphee NX35 Hard Tension');
     assert.equal(util.judulKatalog(dasar), 'Orphee SA38', 'stok lama tanpa alat/ukuran: tetap nama saja');
+    assert.equal(util.judulKatalog({ kategori: 'aksesoris', jenis: 'Kabel', nama: 'Beyer ISO100LU3', alat: ['Gitar Elektrik', 'Bass'], ukuran: '3 Meter' }), 'Kabel Gitar Elektrik / Bass Beyer ISO100LU3 3 Meter', 'kabel: panjang tanpa kata Ukuran');
     assert.equal(util.judulKatalog({ kategori: 'gitar', jenis: 'Akustik', nama: 'Yamaha F310' }, ['Bass']), 'Gitar Akustik Yamaha F310');
     assert.equal(util.judulKatalog({ kategori: 'gitar', jenis: 'Bass', nama: 'Fender Aerodyne' }, ['Bass']), 'Bass Fender Aerodyne');
 });
@@ -35,9 +36,11 @@ test('stok senar: judul untuk poster/WA, katalog memuat alat, ukuran, fitur; hal
 test('antarmuka stok & poster: alat musik, ukuran, fitur, saran merek; poster aksesoris tanpa lencana + bubble', () => {
     const kode = baca('admin.js'), cfg = baca('layanan-config.js');
     assert.match(cfg, /alatMusik: \['Gitar Akustik', 'Gitar Klasik', 'Gitar Elektrik', 'Bass', 'Ukulele', 'Guitalele'\]/);
-    assert.match(cfg, /\['008', '008'\][\s\S]*\['013', '013'\][\s\S]*'Normal Tension'[\s\S]*'Hard Tension'/);
+    assert.match(cfg, /ukuranAksesoris: \{[\s\S]*Senar: \[\['008', '008'\][\s\S]*\['013', '013'\][\s\S]*'Normal Tension'[\s\S]*'Hard Tension'/);
+    assert.match(cfg, /Kabel: \[\['1 Meter', '1 Meter'\][\s\S]*\['10 Meter', '10 Meter'\]/, 'kabel: pilihan panjang');
     assert.match(kode, /list="dl-merek"/); assert.match(kode, /function merekSaran\(\) \{ return saranDariStok\(function \(s\) \{ return s\.merek; \}\); \}/, 'saran merek dari stok yang sudah ada');
     for (const id of ['sk-alat', 'sk-ukuran-box', 'sk-fitur', 'sk-fitur-in', 'sk-fitur-tambah']) assert.match(kode, new RegExp(id), id);
+    assert.match(kode, /function ukuranHtml\(s\)/); assert.match(kode, /id="sk-ukuran-box">' \+ ukuranHtml\(s\)/, 'ukuran untuk semua aksesoris, bukan hanya Senar');
     assert.match(kode, /s\.fitur\.length >= 4\) return toast\('Maksimal 4 fitur/);
     const poster = kode.slice(kode.indexOf('function buatPoster(s, opsi)'), kode.indexOf('function blobBase64'));
     assert.match(poster, /aksPoster = s\.kategori === 'aksesoris'/); assert.match(poster, /if \(!aksPoster\) \{/, 'lencana BARU/kategori tidak untuk aksesoris');

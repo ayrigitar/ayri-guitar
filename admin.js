@@ -2860,7 +2860,7 @@
             '<label>Nomor seri (tidak tampil di website)<input data-s="no_seri" autocapitalize="characters"></label></div>' +
             '<div id="sk-aks"' + (aks ? '' : ' hidden') + ' class="ly-f"><div class="ly-row2"><label>Kategori<select data-s="sub">' + opsi(subs, s.sub) + '</select></label><label>Nama / model produk<input data-s="nama" placeholder="mis. SA38"></label></div>' +
             '<div class="ly-f"><span class="ly-hint" style="margin:0"><b>Untuk alat musik</b> (boleh lebih dari satu, mis. senar nylon untuk Gitar Klasik dan Guitalele)</span><div class="ly-pilih" id="sk-alat"></div></div>' +
-            '<label id="sk-ukuran-box"' + (s.sub === 'Senar' ? '' : ' hidden') + '>Ukuran / tension senar<select data-s="ukuran">' + opsi([['', 'Belum dipilih']].concat(C.ukuranSenar), s.ukuran || '') + '</select></label></div>' +
+            '<div id="sk-ukuran-box">' + ukuranHtml(s) + '</div></div>' +
             '<label><span id="sk-lbl-warna">' + (aks ? LBL_VARIAN : 'Warna') + '</span><input data-s="warna" placeholder="' + (aks ? PH_VARIAN : 'mis. Hitam Glossy') + '"></label>' +
             '<div class="ly-f"><span class="ly-hint" style="margin:0"><b>Fitur unggulan</b> (jadi bubble oval di samping foto poster, maks. 4). Ketik huruf pertama untuk saran.</span><div class="ly-pilih" id="sk-fitur"></div>' +
             '<div class="ly-row2"><input class="ly-in" id="sk-fitur-in" list="dl-fitur" autocomplete="off" maxlength="24" placeholder="mis. Phosphor Bronze"><button type="button" class="ly-btn ly-btn--sm" id="sk-fitur-tambah">Tambah</button></div><datalist id="dl-fitur">' + opsiDatalist(fiturSaran()) + '</datalist></div>' +
@@ -2897,7 +2897,7 @@
             if (t.id === 'sk-tampil') { s.tampil = t.checked; setDirty(true); return; }
             if (!k) return;
             s[k] = /^(harga_beli|harga_jual|jumlah)$/.test(k) ? Math.max(0, Math.round(+t.value || 0)) : t.value; setDirty(true);
-            if (k === 'sub') $('#sk-ukuran-box').hidden = s.sub !== 'Senar';
+            if (k === 'sub') { s.ukuran = ''; $('#sk-ukuran-box').innerHTML = ukuranHtml(s); } /* ukuran kategori lama tidak ikut terbawa */
             if (/harga|jumlah/.test(k)) gambarSumStok();
         }
         el.addEventListener('input', ubah); el.addEventListener('change', ubah);
@@ -2938,6 +2938,13 @@
     }
     /* transaksi jual yang masih berlaku (belum batal) untuk barang ini */
     function jualAktifStok(s) { return cache.jual.filter(function (j) { return j.status !== 'batal' && (j.items || []).some(function (i) { return i.stok_id === s.id; }); }); }
+    /* ukuran: pilihan bila kategorinya punya daftar (Senar: 008-013, tension; Kabel: panjang), selain itu isian bebas */
+    function ukuranHtml(s) {
+        var pra = (C.ukuranAksesoris || {})[s.sub];
+        if (!pra) return '<label>Ukuran (opsional)<input data-s="ukuran" maxlength="30" placeholder="mis. lebar 5 cm, 1 set"></label>';
+        var l = pra.slice(); if (s.ukuran && !pra.some(function (x) { return x[0] === s.ukuran; })) l.push([s.ukuran, s.ukuran]);
+        return '<label>Ukuran' + (s.sub === 'Senar' ? ' / tension senar' : s.sub === 'Kabel' ? ' / panjang kabel' : '') + '<select data-s="ukuran">' + opsi([['', 'Belum dipilih']].concat(l), s.ukuran || '') + '</select></label>';
+    }
     function gambarAlatStok() {
         var el = $('#sk-alat'); if (!el) return; var s = sk.s, aktif = s.alat || [];
         el.innerHTML = C.alatMusik.concat(aktif.filter(function (a) { return C.alatMusik.indexOf(a) < 0; })).map(function (a) { return '<button type="button" data-alat="' + E(a) + '" aria-pressed="' + (aktif.indexOf(a) > -1) + '">' + E(a) + '</button>'; }).join('');
