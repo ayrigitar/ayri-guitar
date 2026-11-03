@@ -3,6 +3,48 @@
  "v": 3,
  "item": [
   {
+   "kode": "STK-ZXAD4K",
+   "kategori": "aksesoris",
+   "jenis": "Senar",
+   "kondisi": "baru",
+   "nama": "Orphee QA150",
+   "warna": "Gitar Akustik Ukuran 010",
+   "deskripsi": "Senar Orphee QA150 ini hadir dalam ukuran 010 khusus untuk gitar akustik, cocok untuk kamu yang butuh senar lebih ringan dan nyaman dipetik. Kemasannya menampilkan spesifikasi 85/15 Bronze yang dirancang untuk menghasilkan suara yang terang (bright) dan karakternya penuh. Kondisi senar ini masih baru, siap dipasang langsung ke gitar kesayanganmu. Yuk, datang ke Toko Gitar AYRI di Bogor untuk cek dan langsung pasang senar ini dengan bantuan kru kami. 🎸",
+   "harga": 60000,
+   "status": "tersedia",
+   "sisa": 1,
+   "foto": [
+    {
+     "src": "foto/stok/orphee-qa150-gitar-akustik-ukuran-010-stk-zxad4k-ded815.webp",
+     "kecil": "foto/stok/orphee-qa150-gitar-akustik-ukuran-010-stk-zxad4k-ded815-k.webp"
+    },
+    {
+     "src": "foto/stok/orphee-qa150-gitar-akustik-ukuran-010-stk-zxad4k-865a90.webp",
+     "kecil": "foto/stok/orphee-qa150-gitar-akustik-ukuran-010-stk-zxad4k-865a90-k.webp"
+    }
+   ],
+   "artikel": 0
+  },
+  {
+   "kode": "STK-9SSQBS",
+   "kategori": "aksesoris",
+   "jenis": "Capo",
+   "kondisi": "baru",
+   "nama": "JOYO JCP-03",
+   "warna": "",
+   "deskripsi": "Capo Joyo JCP-03 ini hadir dengan desain ringan dan warna hitam yang minimalis. Mekanisme pegasnya memudahkan kamu untuk menyetel nada dengan cepat tanpa merusak senar. Produk ini masih baru dan tersegel dalam dus aslinya. Yuk, mampir ke Toko Gitar AYRI Bogor dan langsung coba fiturnya! 🎸",
+   "harga": 100000,
+   "status": "tersedia",
+   "sisa": 2,
+   "foto": [
+    {
+     "src": "foto/stok/joyo-jcp-03-stk-9ssqbs-d65231.webp",
+     "kecil": "foto/stok/joyo-jcp-03-stk-9ssqbs-d65231-k.webp"
+    }
+   ],
+   "artikel": 1
+  },
+  {
    "kode": "STK-B9VWVH",
    "kategori": "aksesoris",
    "jenis": "Capo",
@@ -19,7 +61,7 @@
      "kecil": "foto/stok/taffstudio-7rthf8bk-universal-stk-b9vwvh-8dacee-k.webp"
     }
    ],
-   "artikel": 0
+   "artikel": 2
   },
   {
    "kode": "STK-6DZ7XA",
@@ -42,7 +84,7 @@
      "kecil": "foto/stok/joyo-jcp-01-gitar-akustik-gitar-elektrik-stk-6dz7xa-2d5eb7-k.webp"
     }
    ],
-   "artikel": 1
+   "artikel": 3
   },
   {
    "kode": "STK-QW5YP5",
@@ -65,7 +107,7 @@
      "kecil": "foto/stok/orphee-rx17-gitar-listrik-ukuran-010-stk-qw5yp5-8b0198-k.webp"
     }
    ],
-   "artikel": 2
+   "artikel": 4
   },
   {
    "kode": "STK-YR7ACG",
@@ -88,7 +130,7 @@
      "kecil": "foto/stok/orphee-rx19-gitar-listrik-ukuran-011-stk-yr7acg-54d366-k.webp"
     }
    ],
-   "artikel": 3
+   "artikel": 5
   },
   {
    "kode": "STK-AKSTPX",
@@ -111,7 +153,7 @@
      "kecil": "foto/stok/orphee-rx15-gitar-listrik-ukuran-009-stk-akstpx-383477-k.webp"
     }
    ],
-   "artikel": 4
+   "artikel": 6
   },
   {
    "kode": "STK-Y5MC8V",
@@ -134,7 +176,7 @@
      "kecil": "foto/stok/orphee-kx80-ukulele-hard-tension-stk-y5mc8v-0b43b3-k.webp"
     }
    ],
-   "artikel": 5
+   "artikel": 7
   },
   {
    "kode": "STK-RT4XNQ",
@@ -157,7 +199,7 @@
      "kecil": "foto/stok/orphee-se2x-gitar-listrik-ukuran-009-stk-rt4xnq-0208a6-k.webp"
     }
    ],
-   "artikel": 6
+   "artikel": 8
   },
   {
    "kode": "STK-KVBRW6",
@@ -180,7 +222,7 @@
      "kecil": "foto/stok/orphee-se4x-gitar-listrik-ukuran-011-stk-kvbrw6-aa5f15-k.webp"
     }
    ],
-   "artikel": 7
+   "artikel": 9
   },
   {
    "kode": "STK-HDFCMM",
@@ -203,7 +245,7 @@
      "kecil": "foto/stok/orphee-qe29-gitar-elektrik-ukuran-011-stk-hdfcmm-99c756-k.webp"
     }
    ],
-   "artikel": 8
+   "artikel": 10
   },
   {
    "kode": "STK-2552T3",
@@ -226,7 +268,7 @@
      "kecil": "foto/stok/orphee-qe27-gitar-elektrik-ukuran-010-stk-2552t3-4b6615-k.webp"
     }
    ],
-   "artikel": 9
+   "artikel": 11
   },
   {
    "kode": "STK-A6Q9EY",
@@ -249,7 +291,7 @@
      "kecil": "foto/stok/orphee-qe25-gitar-elektrik-ukuran-009-stk-a6q9ey-e0e20a-k.webp"
     }
    ],
-   "artikel": 10
+   "artikel": 12
   },
   {
    "kode": "STK-UWGUKK",
@@ -272,7 +314,7 @@
      "kecil": "foto/stok/orphee-tx630-ukuran-011-stk-uwgukk-bc8ea8-k.webp"
     }
    ],
-   "artikel": 11
+   "artikel": 13
   },
   {
    "kode": "STK-2Z9THR",
@@ -295,7 +337,7 @@
      "kecil": "foto/stok/orphee-sa37-phosphor-bronze-ukuran-010-stk-2z9thr-b0548a-k.webp"
     }
    ],
-   "artikel": 12
+   "artikel": 14
   },
   {
    "kode": "STK-BABWUM",
@@ -318,7 +360,7 @@
      "kecil": "foto/stok/orphee-qa170-ukuran-012-stk-babwum-610a68-k.webp"
     }
    ],
-   "artikel": 13
+   "artikel": 15
   },
   {
    "kode": "STK-4SX3UT",
@@ -341,7 +383,7 @@
      "kecil": "foto/stok/orphee-qa160-ukuran-011-stk-4sx3ut-ad4510-k.webp"
     }
    ],
-   "artikel": 14
+   "artikel": 16
   },
   {
    "kode": "STK-SD6VFA",
@@ -364,7 +406,7 @@
      "kecil": "foto/stok/orphee-qc5-nylon-klasik-hard-tension-stk-sd6vfa-21735b-k.webp"
     }
    ],
-   "artikel": 15
+   "artikel": 17
   },
   {
    "kode": "STK-6XYMRC",
@@ -387,7 +429,7 @@
      "kecil": "foto/stok/orphee-qc5-nylon-klasik-normal-tension-stk-6xymrc-d71bd3-k.webp"
     }
    ],
-   "artikel": 16
+   "artikel": 18
   },
   {
    "kode": "STK-APP6FK",
@@ -410,7 +452,7 @@
      "kecil": "foto/stok/orphee-nx35-nylon-klasik-hard-tension-stk-app6fk-ff640a-k.webp"
     }
    ],
-   "artikel": 17
+   "artikel": 19
   },
   {
    "kode": "STK-A725M2",
@@ -433,7 +475,7 @@
      "kecil": "foto/stok/orphee-nx36-nylon-klasik-normal-tension-stk-a725m2-9a0650-k.webp"
     }
    ],
-   "artikel": 18
+   "artikel": 20
   },
   {
    "kode": "STK-NZGV2M",
@@ -456,26 +498,7 @@
      "kecil": "foto/stok/orphee-tx620-ukuran-010-bronze-stk-nzgv2m-2acac6-k.webp"
     }
    ],
-   "artikel": 19
-  },
-  {
-   "kode": "STK-9SSQBS",
-   "kategori": "aksesoris",
-   "jenis": "Capo",
-   "kondisi": "baru",
-   "nama": "JOYO JCP-03",
-   "warna": "",
-   "deskripsi": "Capo Joyo JCP-03 ini hadir dengan desain ringan dan warna hitam yang minimalis. Mekanisme pegasnya memudahkan kamu untuk menyetel nada dengan cepat tanpa merusak senar. Produk ini masih baru dan tersegel dalam dus aslinya. Yuk, mampir ke Toko Gitar AYRI Bogor dan langsung coba fiturnya! 🎸",
-   "harga": 100000,
-   "status": "tersedia",
-   "sisa": 2,
-   "foto": [
-    {
-     "src": "foto/stok/joyo-jcp-03-stk-9ssqbs-d65231.webp",
-     "kecil": "foto/stok/joyo-jcp-03-stk-9ssqbs-d65231-k.webp"
-    }
-   ],
-   "artikel": 20
+   "artikel": 21
   },
   {
    "kode": "STK-V9FPZW",
@@ -519,7 +542,7 @@
     }
    ],
    "tingkat": "Very Good",
-   "artikel": 21
+   "artikel": 22
   },
   {
    "kode": "STK-6J8WP3",
@@ -567,7 +590,7 @@
     }
    ],
    "tingkat": "Good",
-   "artikel": 22
+   "artikel": 23
   },
   {
    "kode": "STK-TZEN4Z",
@@ -623,7 +646,7 @@
     }
    ],
    "tingkat": "Very Good",
-   "artikel": 23
+   "artikel": 24
   },
   {
    "kode": "STK-U3X8N4",
@@ -671,7 +694,7 @@
     }
    ],
    "tingkat": "Excellent",
-   "artikel": 24
+   "artikel": 25
   },
   {
    "kode": "STK-UKV3BK",
@@ -726,7 +749,7 @@
      "kecil": "foto/stok/1a1bf9bf8a68cf0ae6df-k.webp"
     }
    ],
-   "artikel": 25
+   "artikel": 26
   },
   {
    "kode": "STK-FBXF37",
@@ -782,7 +805,7 @@
     }
    ],
    "tingkat": "Very Good",
-   "artikel": 26
+   "artikel": 27
   },
   {
    "kode": "STK-VM7JT5",
@@ -805,7 +828,7 @@
      "kecil": "foto/stok/a7733dce8f77f28732db-k.webp"
     }
    ],
-   "artikel": 27
+   "artikel": 28
   },
   {
    "kode": "STK-6PQCDA",
@@ -861,7 +884,7 @@
     }
    ],
    "tingkat": "Very Good",
-   "artikel": 28
+   "artikel": 29
   },
   {
    "kode": "STK-SCYBYR",
@@ -917,7 +940,7 @@
     }
    ],
    "tingkat": "Very Good",
-   "artikel": 29
+   "artikel": 30
   },
   {
    "kode": "STK-752B52",
@@ -972,7 +995,7 @@
      "kecil": "foto/stok/e7844f12235295e49a13-k.webp"
     }
    ],
-   "artikel": 30
+   "artikel": 31
   },
   {
    "kode": "STK-QFV3U3",
@@ -1024,7 +1047,7 @@
     }
    ],
    "tingkat": "Mint",
-   "artikel": 31
+   "artikel": 32
   }
  ]
 }
