@@ -112,6 +112,10 @@ var AYRI_LAYANAN = {
     /* menu Stok & katalog website: kategori aksesoris, dan kapan "sisa N" ditampilkan */
     kategoriAksesoris: ['Senar', 'Capo', 'Tuner', 'Strap', 'Kabel', 'Case & tas', 'Efek & amplifier', 'Part & pickup', 'Perawatan', 'Lainnya'],
     katalogSisaTampil: 3,
+    /* aksesoris (terutama senar): untuk alat musik apa, ukuran, dan saran fitur unggulan (bubble di poster) */
+    alatMusik: ['Gitar Akustik', 'Gitar Klasik', 'Gitar Elektrik', 'Bass', 'Ukulele', 'Guitalele'],
+    ukuranSenar: [['008', '008'], ['009', '009'], ['010', '010'], ['011', '011'], ['012', '012'], ['013', '013'], ['Normal Tension', 'Normal Tension (nylon)'], ['Hard Tension', 'Hard Tension (nylon)']],
+    fiturSaran: ['Phosphor Bronze', 'Bronze 80/20', 'Titanium', 'Nickel', 'Stainless Steel', 'Anti Rust', 'Coated', 'Light', 'Extra Light', 'Silver Plated', 'Solid Top', 'Cutaway', 'Pickup', 'Softcase'],
 
     /* tercetak di nota; {dp}, {gratis}, {biaya}, {hangus}, {lepas} diganti otomatis */
     ketentuan: [
