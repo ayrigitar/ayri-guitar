@@ -19,7 +19,7 @@ document.addEventListener('DOMContentLoaded', function () {
         else if (navigator.clipboard) navigator.clipboard.writeText(url).then(function () { bagikan.textContent = 'Tautan disalin'; });
     });
 
-    function judul(y) { return AYRI_UTIL.judulKatalog(y, C.jenisTanpaGitar); }
+    function judul(y) { return AYRI_UTIL.judulKatalog(y, C.jenisTanpaGitar, C.aksesoris); }
     function kelompok(y) { return y.kategori === 'gitar' ? y.kondisi : 'aksesoris'; }
     function kartu(y) {
         var f = y.foto[0];

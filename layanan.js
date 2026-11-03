@@ -7,7 +7,7 @@
     /* pengaturan dari layanan-config.js, dilengkapi nilai bawaan sekali di sini (yang tidak diisi memakai bawaan) */
     var BAWAAN = {
         dpJasaPersen: 50, bulatkanKe: 1000, gratisTitipHari: 14, biayaTitipPerHari: 5000, garansiHangusHari: 30, penyimpananLamaHari: 90,
-        pengingatHari: [7, 12], katalogSisaTampil: 3, jenisGitar: ['Akustik'], kategoriAksesoris: ['Lainnya'], alatMusik: [], ukuranAksesoris: {}, fiturSaran: [], katalogJasa: [], ketentuan: [], syaratJatuh: '',
+        pengingatHari: [7, 12], katalogSisaTampil: 3, jenisGitar: ['Akustik'], kategoriAksesoris: ['Lainnya'], alatMusik: [], aksesoris: {}, fiturSaran: [], katalogJasa: [], ketentuan: [], syaratJatuh: '',
         github: {}, ai: { url: '' }, toko: { nama: 'Toko Gitar AYRI', alamat: '', jam: '', wa: '', ulasan: '', rekening: [] },
         tindak: { terimaKasihSetelahHari: 2, terimaKasihBatasHari: 14, garansiSebelumHari: 7 },
         tebus: { batasHari: 30, maksHari: 90, pengingatHari: [7, 1], fotoKtpMinHarga: 1000000, hapusKtpHari: 90, ketentuan: [] },
@@ -1049,7 +1049,7 @@
         /* adaFoto = jumlah foto yang ikut dikirim ke AI (model bisa membaca gambar) */
         deskripsi: function (s, adaFoto) {
             var aks = s.kategori === 'aksesoris', t = aks ? null : C.tingkatKondisi.filter(function (x) { return x[0] === s.tingkat; })[0];
-            var data = aks ? ['Kategori: ' + (s.sub || 'Aksesoris'), 'Nama: ' + (s.nama || '-'), (s.alat || []).length ? 'Untuk alat musik: ' + s.alat.join(', ') : '', s.ukuran ? 'Ukuran: ' + s.ukuran : '', s.warna ? 'Varian: ' + s.warna : '', (s.fitur || []).length ? 'Fitur unggulan: ' + s.fitur.join(', ') : '', 'Kondisi: baru']
+            var data = aks ? ['Kategori: ' + (s.sub || 'Aksesoris'), 'Nama: ' + (s.nama || '-'), s.tipe ? 'Tipe: ' + s.tipe : '', (s.alat || []).length ? 'Untuk alat musik: ' + s.alat.join(', ') : '', s.ukuran ? 'Ukuran: ' + s.ukuran : '', s.warna ? 'Varian: ' + s.warna : '', (s.fitur || []).length ? 'Fitur unggulan: ' + s.fitur.join(', ') : '', 'Kondisi: baru']
                 : ['Barang: ' + L.judulStok(s), s.warna ? 'Warna: ' + s.warna : '', (s.fitur || []).length ? 'Fitur unggulan: ' + s.fitur.join(', ') : '', 'Kondisi: ' + (s.kondisi === 'bekas' ? 'bekas (used)' + (t ? ', tingkat ' + t[1] + ' (' + t[2] + ')' : '') : 'baru')];
             return {
                 sistem: 'Kamu menulis deskripsi produk untuk katalog online ' + C.toko.nama + ', toko gitar di Bogor. Bahasa Indonesia yang santai, sopan, dan jujur. ' +
@@ -1365,7 +1365,7 @@
     L.tingkatStok = function (s) { return s.kategori !== 'aksesoris' && s.kondisi === 'bekas' && L.TINGKAT[s.tingkat] ? L.TINGKAT[s.tingkat] : ''; };
     /* nama lengkap yang wajar: "Gitar Akustik Yamaha F310", tetapi "Bass Fender Aerodyne" (tanpa kata Gitar) */
     L.judulStok = function (s) {
-        if (s.kategori === 'aksesoris') return AYRI_UTIL.judulKatalog({ kategori: 'aksesoris', jenis: L.jenisStok(s), nama: L.namaStok(s), alat: s.alat, ukuran: s.ukuran }, C.jenisTanpaGitar);
+        if (s.kategori === 'aksesoris') return AYRI_UTIL.judulKatalog({ kategori: 'aksesoris', jenis: L.jenisStok(s), nama: L.namaStok(s), alat: s.alat, ukuran: s.ukuran, tipe: s.tipe }, C.jenisTanpaGitar, C.aksesoris);
         var j = s.gitar_jenis || '', depan = !j || j === 'Lainnya' ? 'Gitar' : C.jenisTanpaGitar.indexOf(j) > -1 ? j : 'Gitar ' + j;
         return depan + ' ' + L.namaStok(s);
     };
@@ -1395,7 +1395,7 @@
             deskripsi: s.deskripsi || '', harga: +s.harga_jual, status: s.status, sisa: aks && +s.jumlah <= C.katalogSisaTampil ? +s.jumlah : null,
             foto: (s.foto || []).filter(function (f) { return f.repo === 'publik'; }).map(function (f) { return { src: f.path, kecil: f.thumb_path || f.path }; }),
             tingkat: L.tingkatStok(s) || undefined,   /* tanpa tingkat = kunci tidak ditulis (katalog lama tidak berubah) */
-            alat: aks && (s.alat || []).length ? s.alat.slice() : undefined, ukuran: aks && s.ukuran ? s.ukuran : undefined, fitur: (s.fitur || []).length ? s.fitur.slice() : undefined,
+            alat: aks && (s.alat || []).length ? s.alat.slice() : undefined, tipe: aks && s.tipe ? s.tipe : undefined, ukuran: aks && s.ukuran ? s.ukuran : undefined, fitur: (s.fitur || []).length ? s.fitur.slice() : undefined,
             artikel: arguments.length > 1 ? slugArtikel : slugArtikelUnit(s)   /* tanpa artikel = kunci tidak ditulis */
         };
     }
@@ -1413,7 +1413,7 @@
     /* tautan halaman satu unit (dibagikan ke calon pembeli/penyewa, dan dibaca Google): unit/<kode>.html adalah HTML biasa berisi foto, harga, spesifikasi, dan deskripsi */
     L.urlUnit = function (kode) { return L.situs() + 'unit/' + encodeURIComponent(kode) + '.html'; };
     var VERSI_HALAMAN_UNIT = 3; /* naikkan bila bentuk halaman unit berubah: semua halaman dibuat ulang pada simpan stok berikutnya */
-    function judulKatalog(x) { return AYRI_UTIL.judulKatalog(x, C.jenisTanpaGitar); }
+    function judulKatalog(x) { return AYRI_UTIL.judulKatalog(x, C.jenisTanpaGitar, C.aksesoris); }
     /* teks alt foto produk: judul + warna + kondisi bekas + nomor foto, tanpa pengulangan kata kunci */
     L.altKatalog = function (x, n) {
         return judulKatalog(x) + (x.warna ? ' ' + x.warna : '') + (x.kategori === 'gitar' && x.kondisi === 'bekas' ? ' bekas' + (x.tingkat ? ' ' + x.tingkat : '') : '') + (n ? ' – foto ' + n : '');
@@ -1423,7 +1423,7 @@
         var e = L.esc, judul = judulKatalog(x), aks = x.kategori === 'aksesoris', tingkatArti = '';
         if (x.tingkat) C.tingkatKondisi.forEach(function (k) { if (k[1] === x.tingkat) tingkatArti = k[2]; });
         var lencana = '<span class="kat-badge kat-' + (aks ? 'aks' : x.kondisi) + '">' + (aks ? e(x.jenis) : x.kondisi === 'baru' ? 'Baru' : 'Used') + '</span>' + (x.tingkat ? '<span class="kat-badge kat-tingkat">' + e(x.tingkat) + '</span>' : '');
-        var baris = aks ? [['Kategori', x.jenis]].concat((x.alat || []).length ? [['Untuk alat musik', x.alat.join(', ')]] : [], [['Nama', x.nama]], x.ukuran ? [['Ukuran', x.ukuran]] : [], x.warna ? [['Varian', x.warna]] : [])
+        var baris = aks ? [['Kategori', x.jenis]].concat(x.tipe ? [['Tipe', x.tipe]] : [], (x.alat || []).length ? [['Untuk alat musik', x.alat.join(', ')]] : [], [['Nama', x.nama]], x.ukuran ? [['Ukuran', x.ukuran]] : [], x.warna ? [['Varian', x.warna]] : [])
             : [['Jenis', x.jenis], ['Merk / model', x.nama]].concat(x.warna ? [['Warna', x.warna]] : [], [['Kondisi', x.kondisi === 'baru' ? 'Baru' : 'Used' + (x.tingkat ? ' · ' + x.tingkat : '')]]);
         if (x.sisa) baris.push(['Stok', 'Sisa ' + x.sisa]);
         baris.push(['Kode', x.kode]);
