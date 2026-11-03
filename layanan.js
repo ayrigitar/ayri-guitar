@@ -1386,6 +1386,16 @@
     L.kunciMerek = function (m) { return L.slugFoto(m, 40); };
     L.jenisStok = function (s) { return s.kategori === 'aksesoris' ? (s.sub || 'Aksesoris') : (s.gitar_jenis || 'Gitar'); };
     L.diKatalog = function (s) { return s.tampil !== false && (s.status === 'tersedia' || s.status === 'dipesan') && +s.harga_jual > 0 && +s.jumlah > 0; };
+    /* kunci grup seri (sama dengan pengelompokan katalog): Seri + kategori; kosong bila bukan aksesoris berseri */
+    L.grupSeri = function (s) { return s.kategori === 'aksesoris' && String(s.seri || '').trim() ? L.slugFoto(String(s.seri).trim() + ' ' + L.jenisStok(s), 60) : ''; };
+    /* barang satu seri yang tampil di katalog (urut varian); hanya bermakna bila >= 2 (kurang dari itu halaman seri tidak ada) */
+    L.anggotaSeri = function (s, daftar) {
+        var k = L.grupSeri(s);
+        if (!k) return [];
+        return daftar.filter(function (x) { return L.grupSeri(x) === k && L.diKatalog(x); }).sort(function (a, b) { return AYRI_UTIL.urutVarian(versiKatalog(a), versiKatalog(b)); });
+    };
+    L.judulSeriStok = function (m) { return AYRI_UTIL.judulSeri(m.map(function (x) { return versiKatalog(x); }), C.jenisTanpaGitar, C.aksesoris); };
+    L.labelVarianStok = function (s) { return AYRI_UTIL.labelVarian(versiKatalog(s)); };
     /* alamat artikel profil unit yang sudah terbit (tautan dari halaman unit ke artikelnya); undefined bila tidak ada */
     function slugArtikelUnit(s) { var a = data.artikel.filter(function (x) { return x.stok_id === s.id && x.status === 'terbit'; })[0]; return a ? a.slug : undefined; }
     function versiKatalog(s, slugArtikel) {
