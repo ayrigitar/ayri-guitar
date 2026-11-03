@@ -789,3 +789,12 @@ html[data-theme="dark"] .rk-naik { color: #5CD196 !important; }
 /* tautan dari halaman unit ke artikel panduannya */
 .unit-panduan { margin: 14px 0 0; }
 .unit-panduan a { font-weight: 700; color: var(--accent); }
+
+/* fitur unggulan barang (bubble) di halaman unit */
+.unit-fitur { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0 0; padding: 0; list-style: none; }
+.unit-fitur li { padding: 5px 13px; border: 1px solid var(--accent-line); border-radius: 999px; background: var(--accent-soft); color: var(--accent); font-size: .8125rem; font-weight: 800; }
+
+/* pilihan berbentuk pil (alat musik, fitur unggulan): ketuk untuk memilih / menghapus */
+.ly-pilih { display: flex; flex-wrap: wrap; gap: 8px; }
+.ly-pilih button { min-height: 38px; padding: 0 14px; border: 1px solid var(--line-strong); border-radius: 999px; background: var(--surface); color: var(--ink); font: 700 .875rem var(--font-sans); cursor: pointer; }
+.ly-pilih button[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); }

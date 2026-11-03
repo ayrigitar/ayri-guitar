@@ -165,7 +165,7 @@ test('skrip halaman unit statis: status terbaru, barang terjual, dan barang lain
         const m = { unit: box, 'unit-bar': bar, 'unit-serupa': serupa };
         const doc = { addEventListener: (_, f) => f(), getElementById: (i) => m[i] || null, querySelector: () => null };
         const esc = (x) => String(x), rupiah = (n) => 'Rp' + n;
-        const sb = { document: doc, window: { AYRI_LAYANAN: { jenisTanpaGitar: ['Bass'] } }, AYRI_UTIL: { esc, rupiah }, fetch: () => respons(), encodeURIComponent, console };
+        const sb = { document: doc, window: { AYRI_LAYANAN: { jenisTanpaGitar: ['Bass'] } }, AYRI_UTIL: { esc, rupiah, judulKatalog: (x) => x.nama }, fetch: () => respons(), encodeURIComponent, console };
         vm.createContext(sb); vm.runInContext(kode, sb); await new Promise((ok) => setTimeout(ok, 20));
         return { status, bar, serupa };
     }
