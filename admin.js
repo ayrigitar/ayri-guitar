@@ -2576,13 +2576,82 @@
         return Promise.race([f, new Promise(function (ok) { setTimeout(ok, 1200); })]).catch(function () {});
     }
     function muatLogoPoster() { return Promise.all([muatGambar(L.situs() + 'logo/ayri-logo-putih.svg').catch(function () { return null; }), muatGambar(L.situs() + 'logo/ayri-logo.svg').catch(function () { return null; })]); }
-    /* kanvas 1080x1920 (Story): latar kertas + enam senar tegak + garis fret melintang yang merapat ke bawah, seperti leher gitar */
-    function kanvasPoster() {
+    /* ---------- doodle musik: garis emas tipis di latar yang mengisi ruang kosong (gitar, bass, ukulele, amplifier, headphone, radio, mikrofon, piringan hitam, not); letak & jenisnya berganti per poster ---------- */
+    function bulat(c, x, y, r) { c.moveTo(x + r, y); c.arc(x, y, r, 0, 6.2832); }
+    function elips(c, x, y, rx, ry, rot) { c.moveTo(x + rx * Math.cos(rot || 0), y + rx * Math.sin(rot || 0)); c.ellipse(x, y, rx, ry, rot || 0, 0, 6.2832); }
+    function kotakBulat(c, x, y, w, h, r) { c.moveTo(x + r, y); c.arcTo(x + w, y, x + w, y + h, r); c.arcTo(x + w, y + h, x, y + h, r); c.arcTo(x, y + h, x, y, r); c.arcTo(x, y, x + w, y, r); c.closePath(); }
+    function leher(c, atas) { /* leher + kepala gitar berdiri tegak; badan di bawah titik (0, -34) */
+        c.moveTo(-8, -34); c.lineTo(-8, atas); c.moveTo(8, -34); c.lineTo(8, atas); kotakBulat(c, -14, atas - 48, 28, 50, 6);
+        bulat(c, -22, atas - 36, 3.5); bulat(c, -22, atas - 18, 3.5); bulat(c, 22, atas - 36, 3.5); bulat(c, 22, atas - 18, 3.5); c.moveTo(0, atas); c.lineTo(0, 96);
+    }
+    var DOODLE = {
+        akustik: function (c) {
+            c.moveTo(0, -36); c.bezierCurveTo(30, -36, 46, -8, 36, 14); c.bezierCurveTo(28, 30, 40, 40, 58, 66); c.bezierCurveTo(74, 96, 36, 128, 0, 128);
+            c.bezierCurveTo(-36, 128, -74, 96, -58, 66); c.bezierCurveTo(-40, 40, -28, 30, -36, 14); c.bezierCurveTo(-46, -8, -30, -36, 0, -36);
+            bulat(c, 0, 62, 17); c.moveTo(-18, 100); c.lineTo(18, 100); leher(c, -210);
+        },
+        listrik: function (c) {
+            c.moveTo(-14, -30); c.bezierCurveTo(-30, -62, -60, -72, -64, -40); c.bezierCurveTo(-68, -8, -52, 20, -62, 50); c.bezierCurveTo(-76, 92, -40, 130, 0, 130);
+            c.bezierCurveTo(40, 130, 76, 92, 62, 50); c.bezierCurveTo(52, 20, 68, -8, 64, -40); c.bezierCurveTo(60, -72, 30, -62, 14, -30);
+            kotakBulat(c, -26, 18, 52, 10, 3); kotakBulat(c, -26, 46, 52, 10, 3); kotakBulat(c, -20, 92, 40, 8, 3); leher(c, -220);
+        },
+        bass: function (c) {
+            c.save(); c.scale(.85, .85);
+            c.moveTo(-14, -30); c.bezierCurveTo(-30, -62, -60, -72, -64, -40); c.bezierCurveTo(-68, -8, -52, 20, -62, 50); c.bezierCurveTo(-76, 92, -40, 130, 0, 130);
+            c.bezierCurveTo(40, 130, 76, 92, 62, 50); c.bezierCurveTo(52, 20, 68, -8, 64, -40); c.bezierCurveTo(60, -72, 30, -62, 14, -30);
+            kotakBulat(c, -22, 30, 44, 10, 3); kotakBulat(c, -22, 62, 44, 10, 3); c.restore(); leher(c, -320);
+        },
+        ukulele: function (c) {
+            c.save(); c.scale(.72, .72);
+            c.moveTo(0, -36); c.bezierCurveTo(30, -36, 46, -8, 36, 14); c.bezierCurveTo(28, 30, 40, 40, 58, 66); c.bezierCurveTo(74, 96, 36, 128, 0, 128);
+            c.bezierCurveTo(-36, 128, -74, 96, -58, 66); c.bezierCurveTo(-40, 40, -28, 30, -36, 14); c.bezierCurveTo(-46, -8, -30, -36, 0, -36); bulat(c, 0, 62, 17); c.restore(); leher(c, -150);
+        },
+        amp: function (c) {
+            var i; kotakBulat(c, -95, -70, 190, 140, 14); kotakBulat(c, -82, -4, 164, 64, 8);
+            for (i = 0; i < 3; i++) { c.moveTo(-82, 12 + i * 16); c.lineTo(82, 12 + i * 16); }
+            for (i = 0; i < 5; i++) bulat(c, -60 + i * 30, -38, 9); bulat(c, 70, -38, 4); c.moveTo(-40, -70); c.quadraticCurveTo(0, -102, 40, -70);
+        },
+        headphone: function (c) {
+            c.moveTo(-80, 0); c.arc(0, 0, 80, Math.PI, 0); c.moveTo(-66, 0); c.arc(0, 0, 66, Math.PI, 0); kotakBulat(c, -104, 0, 34, 70, 14); kotakBulat(c, 70, 0, 34, 70, 14);
+        },
+        radio: function (c) {
+            kotakBulat(c, -100, -55, 200, 115, 16); bulat(c, -48, 5, 36); bulat(c, -48, 5, 22); bulat(c, -48, 5, 8); kotakBulat(c, 10, -35, 76, 26, 6); c.moveTo(40, -35); c.lineTo(40, -9);
+            bulat(c, 40, 30, 11); bulat(c, 74, 30, 11); c.moveTo(70, -55); c.lineTo(120, -130); bulat(c, 120, -133, 4);
+        },
+        mikrofon: function (c) {
+            kotakBulat(c, -26, -90, 52, 80, 26); c.moveTo(-26, -62); c.lineTo(26, -62); c.moveTo(-26, -42); c.lineTo(26, -42); c.moveTo(-42, -60); c.bezierCurveTo(-42, 14, 42, 14, 42, -60);
+            c.moveTo(0, -4); c.lineTo(0, 56); c.moveTo(-32, 56); c.lineTo(32, 56);
+        },
+        vinyl: function (c) { bulat(c, 0, 0, 90); bulat(c, 0, 0, 78); bulat(c, 0, 0, 66); bulat(c, 0, 0, 54); bulat(c, 0, 0, 28); bulat(c, 0, 0, 4); },
+        not1: function (c) { elips(c, 0, 0, 17, 12, -0.4); c.moveTo(16, -3); c.lineTo(16, -92); c.moveTo(16, -92); c.bezierCurveTo(30, -72, 54, -62, 46, -30); },
+        not2: function (c) {
+            elips(c, 0, 0, 17, 12, -0.4); elips(c, 50, -12, 17, 12, -0.4); c.moveTo(16, -3); c.lineTo(16, -90); c.moveTo(66, -15); c.lineTo(66, -102);
+            c.moveTo(16, -90); c.lineTo(66, -102); c.lineTo(66, -84); c.lineTo(16, -72); c.closePath();
+        }
+    };
+    function gambarDoodle(c, jenis, x, y, skala, rot) {
+        c.save(); c.translate(x, y); c.rotate(rot); c.scale(skala, skala); c.strokeStyle = 'rgba(176,122,42,.34)'; c.lineWidth = 3.4 / skala; c.lineJoin = 'round'; c.lineCap = 'round';
+        c.beginPath(); DOODLE[jenis](c); c.stroke(); c.restore();
+    }
+    function hashTeks(t) { var h = 5381, i; t = String(t || ''); for (i = 0; i < t.length; i++) h = ((h << 5) + h + t.charCodeAt(i)) >>> 0; return h; }
+    /* benih = teks judul: poster yang sama selalu bergambar sama, poster lain berbeda */
+    function latarDoodle(c, benih) {
+        var s = hashTeks(benih) || 1;
+        function acak() { s = (Math.imul(s, 1664525) + 1013904223) >>> 0; return s / 4294967296; }
+        function kocok(a) { a = a.slice(); for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(acak() * (i + 1)), t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+        var besar = kocok(['akustik', 'listrik', 'bass', 'ukulele', 'amp', 'radio']), kecil = kocok(['headphone', 'mikrofon', 'vinyl', 'not1', 'not2']);
+        [[120, 250, -.35, 1.15], [965, 235, .3, 1.05], [-15, 790, .25, 1.7], [1090, 740, -.3, 1.6]].forEach(function (p, n) { gambarDoodle(c, besar[n], p[0], p[1], p[3], p[2]); });
+        [[955, 1265, .2, 1], [105, 1390, -.2, 1], [560, 105, .1, 1]].forEach(function (p, n) { gambarDoodle(c, kecil[n], p[0], p[1], p[3], p[2]); });
+        gambarDoodle(c, 'not2', 330, 150, .9, -.2); gambarDoodle(c, 'not1', 1030, 1000, .9, .2);
+    }
+    /* kanvas 1080x1920 (Story): latar kertas + enam senar tegak + garis fret melintang yang merapat ke bawah, seperti leher gitar + doodle musik (benih = judul) */
+    function kanvasPoster(benih) {
         var cv = document.createElement('canvas'), c, g, i, y = 0, d = 150; cv.width = 1080; cv.height = 1920; c = cv.getContext('2d'); c.textBaseline = 'alphabetic';
         g = c.createLinearGradient(0, 0, 0, 1920); g.addColorStop(0, TEMA.kertas1); g.addColorStop(1, TEMA.kertas2); c.fillStyle = g; c.fillRect(0, 0, 1080, 1920);
         c.strokeStyle = TEMA.garis; c.lineWidth = 2;
         for (i = 0; i < 6; i++) { c.beginPath(); c.moveTo(150 + i * 156, 0); c.lineTo(150 + i * 156, 1920); c.stroke(); }
         while (y < 1920) { c.beginPath(); c.moveTo(150, y); c.lineTo(930, y); c.stroke(); y += d; d *= 0.93; }
+        latarDoodle(c, benih);
         return { cv: cv, c: c };
     }
     function jpegPoster(cv) { return new Promise(function (ok, gagal) { cv.toBlob(function (b) { b ? ok(b) : gagal(new Error('Gagal membuat gambar.')); }, 'image/jpeg', .85); }); }
@@ -2610,13 +2679,16 @@
     }
     /* tempat foto kosong: logo gelap samar */
     function fotoKosong(c, logoGelap, sel) { if (!logoGelap) return; var lw = 240, lh = lw * logoGelap.height / logoGelap.width; c.globalAlpha = .14; c.drawImage(logoGelap, sel.x + (sel.w - lw) / 2, sel.y + (sel.h - lh) / 2, lw, lh); c.globalAlpha = 1; }
-    /* bubble fitur unggulan: stiker oval emas di sisi kanan foto (maks. 4), karena deskripsi di poster jarang dibaca */
+    /* bubble fitur unggulan: stiker oval di tepi kanan foto (maks. 4), separuh di dalam foto dan separuh di luar; warna bergantian emas, perak, tembaga, hijau pucat.
+       Foto selebar poster: bubble digeser ke dalam supaya tidak terpotong tepi */
+    var WARNA_BUBBLE = [['#F0C070', '#D99A3E'], ['#EEF3F8', '#A8B9CB'], ['#F3CDB8', '#CC8A6A'], ['#D6E8CF', '#98BA93']];
     function bubbleFitur(c, daftar, kotak) {
-        var kanan = Math.min(1044, kotak.x + kotak.w + 20), y0 = kotak.y + Math.max(40, kotak.h * 0.10);
+        var tepi = kotak.x + kotak.w, y0 = kotak.y + Math.max(40, kotak.h * 0.10);
         daftar.forEach(function (ft, n) {
-            c.font = '800 30px ' + SANS; var tw = Math.min(c.measureText(ft).width, 330), bw = tw + 56, bh = 66, bx = kanan - bw, yy = y0 + n * 88;
-            c.save(); c.translate(bx + bw / 2, yy + bh / 2); c.rotate(n % 2 ? 0.05 : -0.04);
-            c.shadowColor = 'rgba(70,45,15,.35)'; c.shadowBlur = 18; c.shadowOffsetY = 6; rect(c, -bw / 2, -bh / 2, bw, bh, 33); c.fillStyle = TEMA.emasMuda; c.fill(); c.shadowBlur = 0; c.shadowOffsetY = 0;
+            c.font = '800 30px ' + SANS; var tw = Math.min(c.measureText(ft).width, 330), bw = tw + 56, bh = 66, pusat = Math.min(tepi, 1066 - bw / 2), yy = y0 + n * 88, wr = WARNA_BUBBLE[n % WARNA_BUBBLE.length], g;
+            c.save(); c.translate(pusat, yy + bh / 2); c.rotate(n % 2 ? 0.05 : -0.04);
+            g = c.createLinearGradient(0, -bh / 2, 0, bh / 2); g.addColorStop(0, wr[0]); g.addColorStop(1, wr[1]);
+            c.shadowColor = 'rgba(70,45,15,.35)'; c.shadowBlur = 18; c.shadowOffsetY = 6; rect(c, -bw / 2, -bh / 2, bw, bh, 33); c.fillStyle = g; c.fill(); c.shadowBlur = 0; c.shadowOffsetY = 0;
             c.lineWidth = 3; c.strokeStyle = '#fff'; c.stroke();
             c.fillStyle = TEMA.tinta; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText(ft, 0, 3, 330); c.restore();
         });
@@ -2666,7 +2738,7 @@
         var daftar = pilihan.length ? pilihan : sampul ? [{ f: sampul, label: '' }] : [];
         function muat(d) { return muatGambar(L.situs() + d.f.path, 'no-cache').catch(function () { return null; }); }
         return Promise.all([Promise.all(daftar.map(muat)), muatLogoPoster(), siapFontPoster()]).then(function (r) {
-            var im = r[0], logo = r[1][0], kv = kanvasPoster(), c = kv.c;
+            var im = r[0], logo = r[1][0], kv = kanvasPoster(a.judul), c = kv.c;
             var jl = barisJudul(c, a.judul, 3), rs = ringkasArtikel(a); c.font = '500 32px ' + SANS;
             var rl = rs ? barisTeks(c, rs, 980, 4) : [], fh = tinggiFoto(70 + jl.length * 76 + 48 + (rl.length ? rl.length * 44 + 8 : 0));
             var sel = selFotoPoster(Math.max(1, daftar.length), fh), ada = 0;
@@ -2716,7 +2788,7 @@
         var fp = (s.foto || []).filter(function (f) { return f.repo === 'publik'; })[0];
         var judul = L.judulStok(s), foto = fp ? muatFotoPoster(s, fp) : Promise.resolve(null);
         return Promise.all([foto, muatLogoPoster(), siapFontPoster()]).then(function (r) {
-            var im = r[0], logo = r[1][0], kv = kanvasPoster(), c = kv.c, warna = String(s.warna || '').trim();
+            var im = r[0], logo = r[1][0], kv = kanvasPoster(judul + (opsi && opsi.terjual ? ' sold' : '')), c = kv.c, warna = String(s.warna || '').trim();
             var jenis = aksPoster ? '' : (L.tingkatStok(s) || (sewa ? 'USED' : ''));
             var jl = barisJudul(c, judul, aksPoster ? 3 : 2); c.font = '500 32px ' + SANS;
             var dl = !sewa && !sold && String(s.deskripsi || '').trim() ? barisTeks(c, s.deskripsi, 980, 2) : [];
@@ -2778,7 +2850,7 @@
         var m = sr.anggota, pemilik = m.filter(function (x) { return (x.foto || []).some(function (f) { return f.repo === 'publik'; }); })[0];
         var fp = pemilik && pemilik.foto.filter(function (f) { return f.repo === 'publik'; })[0];
         return Promise.all([fp ? muatFotoPoster(pemilik, fp) : Promise.resolve(null), muatLogoPoster(), siapFontPoster()]).then(function (r) {
-            var im = r[0], logo = r[1][0], kv = kanvasPoster(), c = kv.c, jl = barisJudul(c, sr.judul, 2);
+            var im = r[0], logo = r[1][0], kv = kanvasPoster(sr.judul), c = kv.c, jl = barisJudul(c, sr.judul, 2);
             var baris = m.length > 6 ? m.slice(0, 5) : m, sisa = m.length - baris.length;
             var fh = tinggiFoto(70 + jl.length * 76 + 48 + baris.length * 64 + (sisa ? 44 : 0)), sel = { x: 50, y: 215, w: 980, h: fh }, kotak = sel;
             if (im) kotak = bingkaiFoto(c, im, sel); else fotoKosong(c, r[1][1], sel);
