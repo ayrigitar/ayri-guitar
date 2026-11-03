@@ -70,3 +70,13 @@ test('daftar stok POS: barang satu seri dilipat jadi satu kelompok', () => {
     for (const s of ['function kartu(s)', 'class="ly-grup"', 'L.judulSeriStok(m)', 'bukaSeri']) assert.ok(js.includes(s), s);
     assert.match(css, /\.ly-grup > summary/);
 });
+
+test('tema poster terang hangat: satu tema dan satu pita kontak untuk semua jenis poster', () => {
+    const js = require('fs').readFileSync(require('path').join(__dirname, '..', 'admin.js'), 'utf8');
+    assert.match(js, /var TEMA = \{ kertas1: '#FBF5EA'/);
+    for (const f of ['buatPoster(s, opsi)', 'buatPosterArtikel(a)', 'buatPosterSeri(sr)']) {
+        const i = js.indexOf('function ' + f), badan = js.slice(i, js.indexOf('\n    }\n', i));
+        for (const h of ['kanvasPoster()', 'pitaBawah(c, logo', 'jpegPoster(kv.cv)']) assert.ok(badan.includes(h), f + ' memakai ' + h);
+        assert.ok(!/#0d0a07|#1d1812/.test(badan), f + ' tanpa warna tema gelap lama');
+    }
+});

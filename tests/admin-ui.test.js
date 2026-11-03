@@ -53,7 +53,7 @@ test('poster SOLD: hanya gitar terjual berfoto publik, cap SOLD tanpa harga/moda
     assert.match(kode, /bagikanPoster\(s, teksTerjual\(s\), \{ terjual: true \}, tombol\)/);
     const poster = kode.slice(kode.indexOf('function buatPoster(s, opsi)'), kode.indexOf('function blobBase64'));
     assert.match(poster, /fillText\('SOLD'/, 'cap SOLD digambar');
-    assert.match(poster, /if \(sold\) \{\s*c\.fillStyle = EMAS; c\.font = '700 66px ' \+ SERIF; c\.fillText\('Sudah punya pemilik baru'/, 'poster sold mengganti harga dengan ucapan terima kasih');
+    assert.match(poster, /if \(sold\) \{\s*c\.fillStyle = TEMA\.emas; c\.font = '700 62px ' \+ SERIF; c\.fillText\('Sudah punya pemilik baru'/, 'poster sold mengganti harga dengan ucapan terima kasih');
     const teks = kode.slice(kode.indexOf('function teksTerjual'), kode.indexOf('function bagikanTerjual'));
     assert.ok(!/harga|modal|nama|hp|nik/i.test(teks.replace(/Tanya \/ pesan/g, '')), 'teks story tanpa harga, modal, atau data pembeli');
 });
