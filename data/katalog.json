@@ -3,6 +3,29 @@
  "v": 3,
  "item": [
   {
+   "kode": "STK-GKPE3H",
+   "kategori": "aksesoris",
+   "jenis": "Senar",
+   "kondisi": "baru",
+   "nama": "Orphee SC55",
+   "warna": "Nylon Klasik Normal Tension",
+   "deskripsi": "Set senar Orphee SC55 ini baru dalam kemasan aslinya yang didominasi warna hitam dan ungu. Sebagai senar nylon klasik tegangan normal, set 6 senar ini dirancang untuk memberikan respons yang seimbang saat dimainkan. Lapisan silver pada senar bassnya membuat resonansi suara lebih jelas dan stabil, cocok untuk pemula maupun pemain yang mencari nuansa natural. Yuk, mampir ke toko kami di Bogor untuk langsung coba sensasi mainnya! 🎸",
+   "harga": 120000,
+   "status": "tersedia",
+   "sisa": 1,
+   "foto": [
+    {
+     "src": "foto/stok/orphee-sc55-nylon-klasik-normal-tension-stk-gkpe3h-35d5a4.webp",
+     "kecil": "foto/stok/orphee-sc55-nylon-klasik-normal-tension-stk-gkpe3h-35d5a4-k.webp"
+    },
+    {
+     "src": "foto/stok/orphee-sc55-nylon-klasik-normal-tension-stk-gkpe3h-af1163.webp",
+     "kecil": "foto/stok/orphee-sc55-nylon-klasik-normal-tension-stk-gkpe3h-af1163-k.webp"
+    }
+   ],
+   "artikel": 0
+  },
+  {
    "kode": "STK-HUEURY",
    "kategori": "aksesoris",
    "jenis": "Senar",
@@ -23,7 +46,7 @@
      "kecil": "foto/stok/orphee-qa140-gitar-akustik-ukuran-009-stk-hueury-408952-k.webp"
     }
    ],
-   "artikel": 0
+   "artikel": 1
   },
   {
    "kode": "STK-ZXAD4K",
@@ -46,30 +69,30 @@
      "kecil": "foto/stok/orphee-qa150-gitar-akustik-ukuran-010-stk-zxad4k-865a90-k.webp"
     }
    ],
-   "artikel": 1
+   "artikel": 2
   },
   {
-   "kode": "STK-GKPE3H",
+   "kode": "STK-J7NEGR",
    "kategori": "aksesoris",
    "jenis": "Senar",
    "kondisi": "baru",
-   "nama": "Orphee SC55",
-   "warna": "Nylon Klasik Normal Tension",
-   "deskripsi": "Set senar Orphee SC55 ini baru dalam kemasan aslinya yang didominasi warna hitam dan ungu. Sebagai senar nylon klasik tegangan normal, set 6 senar ini dirancang untuk memberikan respons yang seimbang saat dimainkan. Lapisan silver pada senar bassnya membuat resonansi suara lebih jelas dan stabil, cocok untuk pemula maupun pemain yang mencari nuansa natural. Yuk, mampir ke toko kami di Bogor untuk langsung coba sensasi mainnya! 🎸",
+   "nama": "Orphee SC57",
+   "warna": "Nylon Klasik Hard Tension",
+   "deskripsi": "Senar Orphee SC57 ini adalah senar nylon klasik dengan tegangan keras (hard tension), cocok untuk pemain yang menginginkan suara lebih keras dan respons kuat saat bermain. Sebagai senar baru, kawat bassnya yang berbahan copper phosphor dengan coating (lapisan pelindung) akan terasa halus di jari dan lebih tahan lama. kemasan hitam dengan aksen ungu ini menampilkan spesifikasi jelas di bagian belakang, memastikan Anda mendapatkan tepat varian yang dibutuhkan. Mampir ke Toko Gitar AYRI di Bogor untuk mencoba langsung dan konsultasikan kebutuhan senar Anda. 🎸",
    "harga": 120000,
    "status": "tersedia",
    "sisa": 1,
    "foto": [
     {
-     "src": "foto/stok/orphee-sc55-nylon-klasik-normal-tension-stk-gkpe3h-35d5a4.webp",
-     "kecil": "foto/stok/orphee-sc55-nylon-klasik-normal-tension-stk-gkpe3h-35d5a4-k.webp"
+     "src": "foto/stok/orphee-sc57-nylon-klasik-hard-tension-stk-j7negr-f5133d.webp",
+     "kecil": "foto/stok/orphee-sc57-nylon-klasik-hard-tension-stk-j7negr-f5133d-k.webp"
     },
     {
-     "src": "foto/stok/orphee-sc55-nylon-klasik-normal-tension-stk-gkpe3h-af1163.webp",
-     "kecil": "foto/stok/orphee-sc55-nylon-klasik-normal-tension-stk-gkpe3h-af1163-k.webp"
+     "src": "foto/stok/orphee-sc57-nylon-klasik-hard-tension-stk-j7negr-17840f.webp",
+     "kecil": "foto/stok/orphee-sc57-nylon-klasik-hard-tension-stk-j7negr-17840f-k.webp"
     }
    ],
-   "artikel": 2
+   "artikel": 3
   },
   {
    "kode": "STK-9SSQBS",
@@ -88,7 +111,7 @@
      "kecil": "foto/stok/joyo-jcp-03-stk-9ssqbs-d65231-k.webp"
     }
    ],
-   "artikel": 3
+   "artikel": 4
   },
   {
    "kode": "STK-B9VWVH",
@@ -107,7 +130,7 @@
      "kecil": "foto/stok/taffstudio-7rthf8bk-universal-stk-b9vwvh-8dacee-k.webp"
     }
    ],
-   "artikel": 4
+   "artikel": 5
   },
   {
    "kode": "STK-6DZ7XA",
@@ -130,7 +153,7 @@
      "kecil": "foto/stok/joyo-jcp-01-gitar-akustik-gitar-elektrik-stk-6dz7xa-2d5eb7-k.webp"
     }
    ],
-   "artikel": 5
+   "artikel": 6
   },
   {
    "kode": "STK-QW5YP5",
@@ -153,7 +176,7 @@
      "kecil": "foto/stok/orphee-rx17-gitar-listrik-ukuran-010-stk-qw5yp5-8b0198-k.webp"
     }
    ],
-   "artikel": 6
+   "artikel": 7
   },
   {
    "kode": "STK-YR7ACG",
@@ -176,7 +199,7 @@
      "kecil": "foto/stok/orphee-rx19-gitar-listrik-ukuran-011-stk-yr7acg-54d366-k.webp"
     }
    ],
-   "artikel": 7
+   "artikel": 8
   },
   {
    "kode": "STK-AKSTPX",
@@ -199,7 +222,7 @@
      "kecil": "foto/stok/orphee-rx15-gitar-listrik-ukuran-009-stk-akstpx-383477-k.webp"
     }
    ],
-   "artikel": 8
+   "artikel": 9
   },
   {
    "kode": "STK-Y5MC8V",
@@ -222,7 +245,7 @@
      "kecil": "foto/stok/orphee-kx80-ukulele-hard-tension-stk-y5mc8v-0b43b3-k.webp"
     }
    ],
-   "artikel": 9
+   "artikel": 10
   },
   {
    "kode": "STK-RT4XNQ",
@@ -245,7 +268,7 @@
      "kecil": "foto/stok/orphee-se2x-gitar-listrik-ukuran-009-stk-rt4xnq-0208a6-k.webp"
     }
    ],
-   "artikel": 10
+   "artikel": 11
   },
   {
    "kode": "STK-KVBRW6",
@@ -268,7 +291,7 @@
      "kecil": "foto/stok/orphee-se4x-gitar-listrik-ukuran-011-stk-kvbrw6-aa5f15-k.webp"
     }
    ],
-   "artikel": 11
+   "artikel": 12
   },
   {
    "kode": "STK-HDFCMM",
@@ -291,7 +314,7 @@
      "kecil": "foto/stok/orphee-qe29-gitar-elektrik-ukuran-011-stk-hdfcmm-99c756-k.webp"
     }
    ],
-   "artikel": 12
+   "artikel": 13
   },
   {
    "kode": "STK-2552T3",
@@ -314,7 +337,7 @@
      "kecil": "foto/stok/orphee-qe27-gitar-elektrik-ukuran-010-stk-2552t3-4b6615-k.webp"
     }
    ],
-   "artikel": 13
+   "artikel": 14
   },
   {
    "kode": "STK-A6Q9EY",
@@ -337,7 +360,7 @@
      "kecil": "foto/stok/orphee-qe25-gitar-elektrik-ukuran-009-stk-a6q9ey-e0e20a-k.webp"
     }
    ],
-   "artikel": 14
+   "artikel": 15
   },
   {
    "kode": "STK-UWGUKK",
@@ -360,7 +383,7 @@
      "kecil": "foto/stok/orphee-tx630-ukuran-011-stk-uwgukk-bc8ea8-k.webp"
     }
    ],
-   "artikel": 15
+   "artikel": 16
   },
   {
    "kode": "STK-2Z9THR",
@@ -383,7 +406,7 @@
      "kecil": "foto/stok/orphee-sa37-phosphor-bronze-ukuran-010-stk-2z9thr-b0548a-k.webp"
     }
    ],
-   "artikel": 16
+   "artikel": 17
   },
   {
    "kode": "STK-BABWUM",
@@ -406,7 +429,7 @@
      "kecil": "foto/stok/orphee-qa170-ukuran-012-stk-babwum-610a68-k.webp"
     }
    ],
-   "artikel": 17
+   "artikel": 18
   },
   {
    "kode": "STK-4SX3UT",
@@ -429,7 +452,7 @@
      "kecil": "foto/stok/orphee-qa160-ukuran-011-stk-4sx3ut-ad4510-k.webp"
     }
    ],
-   "artikel": 18
+   "artikel": 19
   },
   {
    "kode": "STK-SD6VFA",
@@ -452,7 +475,7 @@
      "kecil": "foto/stok/orphee-qc5-nylon-klasik-hard-tension-stk-sd6vfa-21735b-k.webp"
     }
    ],
-   "artikel": 19
+   "artikel": 20
   },
   {
    "kode": "STK-6XYMRC",
@@ -475,7 +498,7 @@
      "kecil": "foto/stok/orphee-qc5-nylon-klasik-normal-tension-stk-6xymrc-d71bd3-k.webp"
     }
    ],
-   "artikel": 20
+   "artikel": 21
   },
   {
    "kode": "STK-APP6FK",
@@ -498,7 +521,7 @@
      "kecil": "foto/stok/orphee-nx35-nylon-klasik-hard-tension-stk-app6fk-ff640a-k.webp"
     }
    ],
-   "artikel": 21
+   "artikel": 22
   },
   {
    "kode": "STK-A725M2",
@@ -521,7 +544,7 @@
      "kecil": "foto/stok/orphee-nx36-nylon-klasik-normal-tension-stk-a725m2-9a0650-k.webp"
     }
    ],
-   "artikel": 22
+   "artikel": 23
   },
   {
    "kode": "STK-NZGV2M",
@@ -544,7 +567,7 @@
      "kecil": "foto/stok/orphee-tx620-ukuran-010-bronze-stk-nzgv2m-2acac6-k.webp"
     }
    ],
-   "artikel": 23
+   "artikel": 24
   },
   {
    "kode": "STK-V9FPZW",
@@ -588,7 +611,7 @@
     }
    ],
    "tingkat": "Very Good",
-   "artikel": 24
+   "artikel": 25
   },
   {
    "kode": "STK-6J8WP3",
@@ -636,7 +659,7 @@
     }
    ],
    "tingkat": "Good",
-   "artikel": 25
+   "artikel": 26
   },
   {
    "kode": "STK-TZEN4Z",
@@ -692,7 +715,7 @@
     }
    ],
    "tingkat": "Very Good",
-   "artikel": 26
+   "artikel": 27
   },
   {
    "kode": "STK-U3X8N4",
@@ -740,7 +763,7 @@
     }
    ],
    "tingkat": "Excellent",
-   "artikel": 27
+   "artikel": 28
   },
   {
    "kode": "STK-UKV3BK",
@@ -795,7 +818,7 @@
      "kecil": "foto/stok/1a1bf9bf8a68cf0ae6df-k.webp"
     }
    ],
-   "artikel": 28
+   "artikel": 29
   },
   {
    "kode": "STK-FBXF37",
@@ -851,7 +874,7 @@
     }
    ],
    "tingkat": "Very Good",
-   "artikel": 29
+   "artikel": 30
   },
   {
    "kode": "STK-VM7JT5",
@@ -874,7 +897,7 @@
      "kecil": "foto/stok/a7733dce8f77f28732db-k.webp"
     }
    ],
-   "artikel": 30
+   "artikel": 31
   },
   {
    "kode": "STK-6PQCDA",
@@ -930,7 +953,7 @@
     }
    ],
    "tingkat": "Very Good",
-   "artikel": 31
+   "artikel": 32
   },
   {
    "kode": "STK-SCYBYR",
@@ -986,7 +1009,7 @@
     }
    ],
    "tingkat": "Very Good",
-   "artikel": 32
+   "artikel": 33
   },
   {
    "kode": "STK-752B52",
@@ -1041,7 +1064,7 @@
      "kecil": "foto/stok/e7844f12235295e49a13-k.webp"
     }
    ],
-   "artikel": 33
+   "artikel": 34
   },
   {
    "kode": "STK-QFV3U3",
@@ -1093,7 +1116,7 @@
     }
    ],
    "tingkat": "Mint",
-   "artikel": 34
+   "artikel": 35
   }
  ]
 }
