@@ -17,6 +17,20 @@
             if (!alat && !ukuran && !x.tipe) return x.nama;
             return [sk.tanpaKategori && x.tipe ? '' : x.jenis, x.tipe, alat, x.nama, ukuran].filter(Boolean).join(' ');
         },
+        /* varian dalam satu seri (barang dengan isian Seri yang sama): label pembeda = Ukuran / Tipe / nama; diurutkan menurut angka di depan ("3 Meter" < "5 Meter" < "10 Meter", "010" < "011") */
+        labelVarian: function (x) { return x.ukuran || x.tipe || x.nama || ''; },
+        urutVarian: function (a, b) {
+            var la = (a.ukuran || a.tipe || a.nama || ''), lb = (b.ukuran || b.tipe || b.nama || ''), na = parseFloat(la), nb = parseFloat(lb);
+            if (!isNaN(na) && !isNaN(nb) && na !== nb) return na - nb;
+            return la < lb ? -1 : la > lb ? 1 : a.harga - b.harga;
+        },
+        /* judul halaman seri, mis. "Senar Gitar Akustik Orphee QA Series": judul biasa tanpa ukuran, dengan nama = seri (merek ditambahkan bila belum ada di nama seri) */
+        judulSeri: function (daftar, tanpaGitar, skema) {
+            var p = daftar[0], alat = [], merek = String(p.merek || '').trim(), seri = String(p.seri || '').trim();
+            daftar.forEach(function (x) { (x.alat || []).forEach(function (a) { if (alat.indexOf(a) < 0) alat.push(a); }); });
+            var nama = merek && seri.toLowerCase().indexOf(merek.toLowerCase()) < 0 ? merek + ' ' + seri : seri;
+            return AYRI_UTIL.judulKatalog({ kategori: 'aksesoris', jenis: p.jenis, nama: nama, alat: alat, tipe: daftar.every(function (x) { return x.tipe === p.tipe; }) ? p.tipe : '' }, tanpaGitar, skema);
+        },
         /* salinan dalam untuk data JSON */
         salin: function (o) { return JSON.parse(JSON.stringify(o)); }
     };

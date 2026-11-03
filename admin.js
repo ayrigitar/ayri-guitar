@@ -466,7 +466,7 @@
                 '<span class="ks-p__harga"><small>Sisa bayar</small>' + L.rupiah(h.sisa) + '</span>' + (ada ? '<span class="ks-p__n">✓</span>' : '') + '</button>';
         }).join('');
         if (filterKs !== 'servis') html += stok.filter(function (s) {
-            return (filterKs === 'semua' || kelStok(s) === filterKs) && cocok([s.kode, s.merek, s.nama, s.sub, s.gitar_jenis, s.gitar_merk, s.tipe, (s.alat || []).join(' '), s.ukuran, (s.fitur || []).join(' '), s.warna, s.no_seri].join(' '));
+            return (filterKs === 'semua' || kelStok(s) === filterKs) && cocok([s.kode, s.merek, s.nama, s.seri, s.sub, s.gitar_jenis, s.gitar_merk, s.tipe, (s.alat || []).join(' '), s.ukuran, (s.fitur || []).join(' '), s.warna, s.no_seri].join(' '));
         }).map(function (s) {
             var kel = kelStok(s), f = (s.foto || []).filter(function (x) { return x.repo === 'publik'; })[0], di = kr.items.filter(function (i) { return i.jenis === 'stok' && i.id === s.id; })[0];
             var habis = di && di.qty >= +s.jumlah, tanpaHarga = !(+s.harga_jual > 0);
@@ -2515,7 +2515,7 @@
         }).join('');
         var hasil = rows.filter(function (s) {
             var ok = filterSk === 'semua' ? true : filterSk === 'terjual' ? (s.penjualan || []).length > 0 : filterSk === 'tersedia' ? adaStok(s) : adaStok(s) && kelStok(s) === filterSk;
-            return ok && (!c || [s.kode, s.merek, s.nama, s.sub, s.gitar_jenis, s.gitar_merk, s.tipe, (s.alat || []).join(' '), s.ukuran, (s.fitur || []).join(' '), s.warna, s.no_seri, s.deskripsi].join(' ').toLowerCase().indexOf(c) > -1);
+            return ok && (!c || [s.kode, s.merek, s.nama, s.seri, s.sub, s.gitar_jenis, s.gitar_merk, s.tipe, (s.alat || []).join(' '), s.ukuran, (s.fitur || []).join(' '), s.warna, s.no_seri, s.deskripsi].join(' ').toLowerCase().indexOf(c) > -1);
         });
         $('#list').innerHTML = hasil.length ? hasil.map(function (s) {
             var u = L.untungStok(s), lama = L.hariAntara(s.tgl_masuk, hari);
@@ -2838,7 +2838,7 @@
     function fiturSaran() { return saranDariStok(function (s) { return s.fitur; }, C.fiturSaran); }
     function opsiDatalist(l) { return l.map(function (v) { return '<option value="' + E(v) + '">'; }).join(''); }
     function stokKosong() {
-        return { kategori: 'gitar', kondisi: 'bekas', tingkat: '', gitar_jenis: C.jenisGitar[0], merek: '', gitar_merk: '', sub: C.kategoriAksesoris[0], nama: '', alat: [], tipe: '', ukuran: '', fitur: [], warna: '', no_seri: '', deskripsi: '', jumlah: 1, harga_beli: 0, harga_jual: 0, tgl_masuk: L.hariIni(), asal: '', status: 'tersedia', tampil: true, penjualan: [], foto: [], catatan_admin: '' };
+        return { kategori: 'gitar', kondisi: 'bekas', tingkat: '', gitar_jenis: C.jenisGitar[0], merek: '', gitar_merk: '', sub: C.kategoriAksesoris[0], nama: '', seri: '', alat: [], tipe: '', ukuran: '', fitur: [], warna: '', no_seri: '', deskripsi: '', jumlah: 1, harga_beli: 0, harga_jual: 0, tgl_masuk: L.hariIni(), asal: '', status: 'tersedia', tampil: true, penjualan: [], foto: [], catatan_admin: '' };
     }
     function bukaStok(id) { ambilCatatan('stok', id, stokKosong, function (s) { s.foto = s.foto || []; s.penjualan = s.penjualan || []; sk = { baru: !id, s: s, antri: [] }; gambarStok(); }); }
     function gambarStok() {
@@ -2858,7 +2858,9 @@
             '<label>Merek<input data-s="merek" autocapitalize="words" autocomplete="off" list="dl-merek" placeholder="mis. Yamaha"></label><datalist id="dl-merek">' + opsiDatalist(merekSaran()) + '</datalist><span class="ly-hint" style="margin-top:-6px">Merek dipisah dari model, supaya satu artikel merek bisa dipakai semua unit merek itu.</span>' +
             '<div id="sk-gitar"' + (aks ? ' hidden' : '') + ' class="ly-f"><div class="ly-row2"><label>Jenis gitar<select data-s="gitar_jenis">' + opsi(jenis, s.gitar_jenis) + '</select></label><label>Model<input data-s="gitar_merk" placeholder="mis. F310"></label></div>' +
             '<label>Nomor seri (tidak tampil di website)<input data-s="no_seri" autocapitalize="characters"></label></div>' +
-            '<div id="sk-aks"' + (aks ? '' : ' hidden') + ' class="ly-f"><div class="ly-row2"><label>Kategori<select data-s="sub">' + opsi(subs, s.sub) + '</select></label><label>Nama / model produk<input data-s="nama" placeholder="mis. SA38"></label></div>' +
+            '<div id="sk-aks"' + (aks ? '' : ' hidden') + ' class="ly-f"><div class="ly-row2"><label>Kategori<select data-s="sub">' + opsi(subs, s.sub) + '</select></label><label>Nama / model produk<input data-s="nama" placeholder="mis. QA140"></label></div>' +
+            '<label>Seri (opsional)<input data-s="seri" autocomplete="off" list="dl-seri" placeholder="mis. QA Series"></label><datalist id="dl-seri">' + opsiDatalist(saranDariStok(function (x) { return x.seri; })) + '</datalist>' +
+            '<span class="ly-hint" style="margin-top:-6px">Isi <b>sama persis</b> untuk barang yang satu seri (mis. QA140, QA150, QA160 = "QA Series"). Di katalog digabung jadi satu halaman dengan pilihan ukuran/panjang. Isi juga Ukuran atau Tipe masing-masing.</span>' +
             '<div id="sk-skema" class="ly-f">' + skemaHtml(s) + '</div></div>' +
             '<label><span id="sk-lbl-warna">' + (aks ? LBL_VARIAN : 'Warna') + '</span><input data-s="warna" placeholder="' + (aks ? PH_VARIAN : 'mis. Hitam Glossy') + '"></label>' +
             '<div class="ly-f"><span class="ly-hint" style="margin:0"><b>Fitur unggulan</b> (jadi bubble oval di samping foto poster, maks. 4). Ketik huruf pertama untuk saran.</span><div class="ly-pilih" id="sk-fitur"></div>' +

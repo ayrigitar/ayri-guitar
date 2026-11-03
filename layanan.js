@@ -1395,7 +1395,7 @@
             deskripsi: s.deskripsi || '', harga: +s.harga_jual, status: s.status, sisa: aks && +s.jumlah <= C.katalogSisaTampil ? +s.jumlah : null,
             foto: (s.foto || []).filter(function (f) { return f.repo === 'publik'; }).map(function (f) { return { src: f.path, kecil: f.thumb_path || f.path }; }),
             tingkat: L.tingkatStok(s) || undefined,   /* tanpa tingkat = kunci tidak ditulis (katalog lama tidak berubah) */
-            alat: aks && (s.alat || []).length ? s.alat.slice() : undefined, tipe: aks && s.tipe ? s.tipe : undefined, ukuran: aks && s.ukuran ? s.ukuran : undefined, fitur: (s.fitur || []).length ? s.fitur.slice() : undefined,
+            alat: aks && (s.alat || []).length ? s.alat.slice() : undefined, tipe: aks && s.tipe ? s.tipe : undefined, ukuran: aks && s.ukuran ? s.ukuran : undefined, merek: aks && s.merek ? String(s.merek).trim() : undefined, seri: aks && s.seri ? String(s.seri).trim() : undefined, fitur: (s.fitur || []).length ? s.fitur.slice() : undefined,
             artikel: arguments.length > 1 ? slugArtikel : slugArtikelUnit(s)   /* tanpa artikel = kunci tidak ditulis */
         };
     }
@@ -1411,8 +1411,10 @@
         });
     }
     /* tautan halaman satu unit (dibagikan ke calon pembeli/penyewa, dan dibaca Google): unit/<kode>.html adalah HTML biasa berisi foto, harga, spesifikasi, dan deskripsi */
+    /* halaman seri: gabungan beberapa barang satu seri (mis. Orphee QA 010-013) dalam satu halaman, dipakai sebagai alamat utama (canonical) varian-variannya */
+    L.urlSeri = function (grup) { return L.situs() + 'unit/seri-' + grup + '.html'; };
     L.urlUnit = function (kode) { return L.situs() + 'unit/' + encodeURIComponent(kode) + '.html'; };
-    var VERSI_HALAMAN_UNIT = 3; /* naikkan bila bentuk halaman unit berubah: semua halaman dibuat ulang pada simpan stok berikutnya */
+    var VERSI_HALAMAN_UNIT = 4; /* naikkan bila bentuk halaman unit berubah: semua halaman dibuat ulang pada simpan stok berikutnya */
     function judulKatalog(x) { return AYRI_UTIL.judulKatalog(x, C.jenisTanpaGitar, C.aksesoris); }
     /* teks alt foto produk: judul + warna + kondisi bekas + nomor foto, tanpa pengulangan kata kunci */
     L.altKatalog = function (x, n) {
@@ -1436,13 +1438,14 @@
             ((x.fitur || []).length ? '<ul class="unit-fitur">' + x.fitur.map(function (f) { return '<li>' + e(f) + '</li>'; }).join('') + '</ul>' : '') +
             (x.status === 'dipesan' ? '<p class="unit-status unit-status--pesan">Sedang dipesan pembeli lain. Tanyakan bila batal.</p>' : '<p class="unit-status">Tersedia di toko</p>') + spek +
             (x.deskripsi ? '<div class="unit-desk"><h2>Deskripsi</h2><p>' + e(x.deskripsi) + '</p></div>' : '') +
+            (x.grup && /^[a-z0-9-]+$/.test(x.grup) ? '<p class="unit-panduan"><a href="seri-' + x.grup + '.html">Lihat semua pilihan ' + e(x.seri) + ' &rsaquo;</a></p>' : '') +
             (x.artikel && /^[a-z0-9-]+$/.test(x.artikel) ? '<p class="unit-panduan"><a href="../artikel-' + x.artikel + '.html">Baca panduan lengkap: spesifikasi, perawatan, dan tips membeli &rsaquo;</a></p>' : '') +
             '<div class="unit-aksi"><a class="ly-btn ly-btn--wa unit-wa" target="_blank" rel="noopener" href="' + e(wa) + '">Tanya / pesan via WhatsApp</a><button type="button" class="ly-btn" id="unit-bagikan">Bagikan</button></div>' +
             '<div class="unit-toko"><b>' + e(C.toko.nama) + '</b><span>' + e(C.toko.alamat || '') + '</span>' + (C.toko.jam ? '<span>Jam buka: ' + e(C.toko.jam) + '</span>' : '') + '<span class="ly-muted">Lihat langsung, coba, dan bayar di toko.</span></div></section></div>';
     }
     /* tpl = isi scripts/unit-template.html. Tanpa templat (repo situs lama): halaman pratinjau kecil yang meneruskan ke unit.html */
     L.halamanUnit = function (x, tpl) {
-        var e = L.esc, judul = judulKatalog(x), url = L.urlUnit(x.kode), tujuan = 'unit.html?k=' + encodeURIComponent(x.kode);
+        var e = L.esc, judul = judulKatalog(x), url = x.grup ? L.urlSeri(x.grup) : L.urlUnit(x.kode), tujuan = 'unit.html?k=' + encodeURIComponent(x.kode); /* varian satu seri: alamat utama = halaman seri */
         var kondisi = x.kategori === 'gitar' ? (x.kondisi === 'baru' ? 'Baru' : 'Used' + (x.tingkat ? ' ' + x.tingkat : '')) : x.jenis;
         var deskripsi = [kondisi, x.warna].filter(Boolean).join(' · ') + ' – ' + L.rupiah(x.harga) + '. Tersedia di ' + C.toko.nama + ' Bogor.';
         var gambar = L.situs() + (x.foto[0] ? x.foto[0].src : 'og/katalog.jpg?v=2');
@@ -1466,20 +1469,74 @@
             '<script type="application/ld+json">' + ldTeks + '</script>\n' +
             '</head>\n<body>\n<p><a href="../' + e(tujuan) + '">' + e(judul) + ' – ' + e(L.rupiah(x.harga)) + '</a></p>\n<script>location.replace("../' + tujuan.split('"').join('') + '");</script>\n</body>\n</html>\n';
     };
+    /* isi halaman seri: foto gabungan, harga mulai, fitur, daftar varian (ukuran, harga, status, tautan, WhatsApp) */
+    function isiSeri(m, judul) {
+        var e = L.esc, foto = [], lihat = {}, fitur = [], desk = '';
+        m.forEach(function (v) { if (v.foto[0] && !lihat[v.foto[0].src]) { foto.push(v.foto[0]); lihat[v.foto[0].src] = 1; } });
+        m.forEach(function (v) { v.foto.slice(1).forEach(function (f) { if (!lihat[f.src]) { foto.push(f); lihat[f.src] = 1; } }); (v.fitur || []).forEach(function (f) { if (fitur.indexOf(f) < 0) fitur.push(f); }); if (String(v.deskripsi || '').length > desk.length) desk = v.deskripsi; });
+        foto = foto.slice(0, 8);
+        var termurah = Math.min.apply(null, m.map(function (v) { return v.harga; }));
+        var alt = function (n) { return judul + (n ? ' – foto ' + n : ''); };
+        var galeri = !foto.length ? '<div class="unit-galeri"><div class="unit-utama"><span class="kat-nofoto">Foto menyusul</span></div></div>'
+            : '<div class="unit-galeri"><div class="unit-utama" id="unit-utama">' + foto.map(function (f, i) { return '<img src="../' + e(f.src) + '" alt="' + e(alt(i + 1)) + '"' + (i ? ' loading="lazy"' : '') + ' decoding="async">'; }).join('') + '</div>' +
+                (foto.length > 1 ? '<span class="unit-hitung" id="unit-hitung">1 / ' + foto.length + '</span><div class="unit-thumbs" id="unit-thumbs">' + foto.map(function (f, i) { return '<button type="button" data-i="' + i + '" aria-label="Foto ' + (i + 1) + '" aria-current="' + (i === 0) + '"><img src="../' + e(f.kecil) + '" alt=""></button>'; }).join('') + '</div>' : '') + '</div>';
+        var baris = m.map(function (v) {
+            var wa = 'https://wa.me/' + C.toko.wa + '?text=' + encodeURIComponent('Halo AYRI, saya tertarik dengan ' + judulKatalog(v) + ' kode ' + v.kode + ' harga ' + L.rupiah(v.harga) + '. Apakah masih tersedia?');
+            return '<div class="unit-varian__r"><span class="unit-varian__n">' + e(AYRI_UTIL.labelVarian(v)) + '</span><span class="unit-varian__h">' + e(L.rupiah(v.harga)) + '</span>' +
+                '<span class="unit-varian__s">' + (v.status === 'dipesan' ? 'Dipesan' : v.sisa ? 'Sisa ' + v.sisa : 'Tersedia') + '</span>' +
+                '<a class="ly-btn ly-btn--sm" href="' + e(encodeURIComponent(v.kode)) + '.html">Lihat</a><a class="ly-btn ly-btn--wa ly-btn--sm" target="_blank" rel="noopener" href="' + e(wa) + '">Pesan</a></div>';
+        }).join('');
+        return '<div class="unit-grid">' + galeri + '<section class="unit-info"><div class="kat-badges"><span class="kat-badge kat-aks">' + e(m[0].jenis) + '</span></div><h1>' + e(judul) + '</h1>' +
+            '<p class="kat-harga kat-harga--besar"><small>mulai</small> ' + e(L.rupiah(termurah)) + '</p>' +
+            (fitur.length ? '<ul class="unit-fitur">' + fitur.map(function (f) { return '<li>' + e(f) + '</li>'; }).join('') + '</ul>' : '') +
+            '<p class="unit-status">' + m.length + ' pilihan tersedia di toko</p>' +
+            '<div class="unit-varian" role="table" aria-label="Pilihan ' + e(judul) + '">' + baris + '</div>' +
+            (desk ? '<div class="unit-desk"><h2>Deskripsi</h2><p>' + e(desk) + '</p></div>' : '') +
+            '<div class="unit-aksi"><button type="button" class="ly-btn" id="unit-bagikan">Bagikan</button></div>' +
+            '<div class="unit-toko"><b>' + e(C.toko.nama) + '</b><span>' + e(C.toko.alamat || '') + '</span>' + (C.toko.jam ? '<span>Jam buka: ' + e(C.toko.jam) + '</span>' : '') + '<span class="ly-muted">Lihat langsung, coba, dan bayar di toko.</span></div></section></div>';
+    }
+    /* halaman seri (>= 2 varian tersedia) dari templat halaman unit. m = daftar butir katalog dengan grup yang sama */
+    L.halamanSeri = function (m, tpl) {
+        m = m.slice().sort(AYRI_UTIL.urutVarian);
+        var e = L.esc, grup = m[0].grup, judul = AYRI_UTIL.judulSeri(m, C.jenisTanpaGitar, C.aksesoris), url = L.urlSeri(grup), harga = m.map(function (v) { return v.harga; });
+        var termurah = Math.min.apply(null, harga), labels = m.map(function (v) { return AYRI_UTIL.labelVarian(v); }).filter(Boolean);
+        var deskripsi = (labels.length ? 'Pilihan: ' + labels.join(', ') + '. ' : '') + 'Mulai ' + L.rupiah(termurah) + '. Tersedia di ' + C.toko.nama + ' Bogor.';
+        var foto0 = m.filter(function (v) { return v.foto[0]; })[0], gambar = L.situs() + (foto0 ? foto0.foto[0].src : 'og/katalog.jpg?v=2');
+        var ld = { '@context': 'https://schema.org', '@type': 'ProductGroup', name: judul, productGroupID: grup, variesBy: 'https://schema.org/size', description: m.map(function (v) { return v.deskripsi; }).sort(function (a, b) { return String(b || '').length - String(a || '').length; })[0] || deskripsi,
+            hasVariant: m.map(function (v) {
+                return { '@type': 'Product', name: judulKatalog(v), sku: v.kode, image: v.foto.map(function (f) { return L.situs() + f.src; }), offers: { '@type': 'Offer', url: L.urlUnit(v.kode), price: v.harga, priceCurrency: 'IDR',
+                    availability: 'https://schema.org/' + (v.status === 'dipesan' ? 'LimitedAvailability' : 'InStock'), itemCondition: 'https://schema.org/NewCondition', seller: { '@type': 'Organization', name: C.toko.nama } } };
+            }) };
+        var wa = 'https://wa.me/' + C.toko.wa + '?text=' + encodeURIComponent('Halo AYRI, saya tertarik dengan ' + judul + '. Apakah masih tersedia?');
+        var nilai = {
+            JUDUL: e(judul), HARGA: e('mulai ' + L.rupiah(termurah)), DESKRIPSI: e(deskripsi), URL: e(url), GAMBAR: e(gambar), LDJSON: JSON.stringify(ld).split('<').join('\\u003c'), KODE: e('seri-' + grup), ISI: isiSeri(m, judul),
+            BAR: '<div class="unit-bar__harga"><small>Mulai</small><b>' + e(L.rupiah(termurah)) + '</b></div><a class="ly-btn ly-btn--wa" target="_blank" rel="noopener" href="' + e(wa) + '">WhatsApp</a>'
+        };
+        return tpl.replace(/\{\{([A-Z_]+)\}\}/g, function (mm, k) { return k in nilai ? nilai[k] : mm; });
+    };
     /* peta situs khusus halaman unit (file terpisah dari sitemap.xml supaya simpan stok tidak menimpa entri artikel) */
     L.sitemapUnit = function (item) {
-        return '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' + item.map(function (x) { return '  <url>\n    <loc>' + L.esc(L.urlUnit(x.kode)) + '</loc>\n  </url>\n'; }).join('') + '</urlset>\n';
+        var url = [], lihat = {};
+        item.forEach(function (x) { if (!x.grup) url.push(L.urlUnit(x.kode)); else if (!lihat[x.grup]) { lihat[x.grup] = 1; url.push(L.urlSeri(x.grup)); } }); /* varian satu seri tidak didaftar sendiri: halaman serinya yang utama */
+        return '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' + url.map(function (u) { return '  <url>\n    <loc>' + L.esc(u) + '</loc>\n  </url>\n'; }).join('') + '</urlset>\n';
     };
     function fileKatalogDari(list) {
         return Promise.all([bacaFile('situs', 'data/katalog.json'), bacaFile('situs', 'scripts/unit-template.html')]).then(function (r) {
             var lama = r[0], tpl = r[1];
             var item = list.filter(L.diKatalog).sort(function (a, b) { return (b.tgl_masuk || '') < (a.tgl_masuk || '') ? -1 : 1; }).map(versiKatalog);
+            /* barang aksesoris dengan Seri yang sama dan >= 2 yang tersedia: digabung (grup) menjadi satu halaman seri */
+            var grupMap = {};
+            item.forEach(function (x) { if (x.seri) { var k = L.slugFoto(x.seri + ' ' + x.jenis, 60); if (k) (grupMap[k] = grupMap[k] || []).push(x); } });
+            Object.keys(grupMap).forEach(function (k) { if (grupMap[k].length > 1) grupMap[k].forEach(function (x) { x.grup = k; }); else delete grupMap[k]; });
             var teks = JSON.stringify({ toko: C.toko.nama, v: VERSI_HALAMAN_UNIT, item: item }, null, 1) + '\n';
             if (lama === teks) return [];
             var petaFile = { path: 'sitemap-unit.xml', teks: L.sitemapUnit(item) };
             var dulu; try { dulu = lama ? JSON.parse(lama) : {}; } catch (er) { dulu = {}; }
             var semua = dulu.v !== VERSI_HALAMAN_UNIT, per = {}, files = [{ path: 'data/katalog.json', teks: teks }, petaFile];
             (dulu.item || []).forEach(function (x) { per[x.kode] = JSON.stringify(x); });
+            /* halaman seri: ditulis bila anggotanya berubah / baru terbentuk, dihapus bila serinya bubar (tinggal satu) atau habis */
+            Object.keys(grupMap).forEach(function (k) { if (tpl && (semua || grupMap[k].some(function (x) { return per[x.kode] !== JSON.stringify(x); }))) files.push({ path: 'unit/seri-' + k + '.html', teks: L.halamanSeri(grupMap[k], tpl) }); });
+            if (!semua) { var dulunya = {}; (dulu.item || []).forEach(function (x) { if (x.grup) dulunya[x.grup] = 1; }); Object.keys(dulunya).forEach(function (k) { if (!grupMap[k]) files.push({ path: 'unit/seri-' + k + '.html', hapus: true }); }); }
             item.forEach(function (x) { if (semua || per[x.kode] !== JSON.stringify(x)) files.push({ path: 'unit/' + x.kode + '.html', teks: L.halamanUnit(x, tpl) }); delete per[x.kode]; });
             if (!semua) Object.keys(per).forEach(function (k) { files.push({ path: 'unit/' + k + '.html', hapus: true }); }); /* barang terjual/ditarik: halamannya dihapus */
             return files;

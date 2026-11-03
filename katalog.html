@@ -163,6 +163,16 @@ document.addEventListener('DOMContentLoaded', function () {
             '<small>' + esc([x.warna, x.kategori === 'gitar' ? '' : ''].filter(Boolean).join(' · ')) + (x.sisa ? ' Sisa ' + x.sisa : '') + '</small>' +
             '<small class="kat-lok"><svg class="ic" aria-hidden="true"><use href="#i-pin"/></svg>Bogor</small></span></a>';
     }
+    /* barang satu seri (grup) tampil sebagai satu kartu: harga mulai, jumlah pilihan, menuju halaman seri */
+    function kartuSeri(g) {
+        var m = g.anggota.slice().sort(AYRI_UTIL.urutVarian), p = m.filter(function (y) { return y.foto[0]; })[0] || m[0], f = p.foto[0], judulS = AYRI_UTIL.judulSeri(m, C.jenisTanpaGitar, C.aksesoris);
+        var label = m.map(AYRI_UTIL.labelVarian).filter(Boolean);
+        return '<a class="kat-item" href="unit/seri-' + encodeURIComponent(g.grup) + '.html">' +
+            '<span class="kat-foto">' + (f ? '<img src="' + esc(f.kecil) + '" alt="' + esc(judulS) + '" loading="lazy" decoding="async">' : '<span class="kat-nofoto">Foto menyusul</span>') +
+            '<span class="kat-badges kat-badges--foto">' + lencana(p) + '</span><span class="kat-jml">' + m.length + ' pilihan</span></span>' +
+            '<span class="kat-isi"><span class="kat-harga"><small>mulai</small> ' + rupiah(g.harga) + '</span><b class="kat-nama">' + esc(judulS) + '</b>' +
+            '<small>' + esc(label.slice(0, 6).join(', ')) + '</small><small class="kat-lok"><svg class="ic" aria-hidden="true"><use href="#i-pin"/></svg>Bogor</small></span></a>';
+    }
     function tombol(daftar, aktif, attr) {
         return daftar.map(function (f) { return '<button type="button" ' + attr + '="' + esc(f[0]) + '" aria-pressed="' + (aktif === f[0]) + '">' + esc(f[1]) + '<b>' + f[2] + '</b></button>'; }).join('');
     }
@@ -182,9 +192,18 @@ document.addEventListener('DOMContentLoaded', function () {
         var hasil = item.filter(function (x) {
             return (filter === 'semua' || kelompok(x) === filter) && (!jenis || x.jenis === jenis) && (!c || [x.nama, x.jenis, x.warna, x.deskripsi, x.kode, x.tingkat].join(' ').toLowerCase().indexOf(c) > -1);
         });
-        if (urut === 'murah') hasil.sort(function (a, b) { return a.harga - b.harga; }); else if (urut === 'mahal') hasil.sort(function (a, b) { return b.harga - a.harga; });
+        /* satukan barang satu seri menjadi satu kartu (tempatnya di posisi anggota pertama) */
+        var kartuDaftar = [], sudah = {};
+        hasil.forEach(function (x) {
+            if (!x.grup) { kartuDaftar.push({ harga: x.harga, html: kartu(x) }); return; }
+            if (sudah[x.grup]) return; sudah[x.grup] = 1;
+            var g = { grup: x.grup, anggota: hasil.filter(function (y) { return y.grup === x.grup; }) };
+            g.harga = Math.min.apply(null, g.anggota.map(function (y) { return y.harga; }));
+            kartuDaftar.push({ harga: g.harga, html: g.anggota.length > 1 ? kartuSeri(g) : kartu(x) });
+        });
+        if (urut === 'murah') kartuDaftar.sort(function (a, b) { return a.harga - b.harga; }); else if (urut === 'mahal') kartuDaftar.sort(function (a, b) { return b.harga - a.harga; });
         document.getElementById('kat-hitung').textContent = item.length ? hasil.length + ' produk' + (hasil.length !== item.length ? ' dari ' + item.length : '') + ' · Toko Gitar AYRI, Bogor' : '';
-        grid.innerHTML = hasil.length ? hasil.map(kartu).join('') :
+        grid.innerHTML = hasil.length ? kartuDaftar.map(function (k) { return k.html; }).join('') :
             '<div class="ly-kosong kat-kosong">' + (item.length ? 'Tidak ada yang cocok dengan pencarian ini.' : 'Belum ada barang di katalog.') +
             '<a class="ly-btn ly-btn--wa" target="_blank" rel="noopener" href="https://wa.me/' + esc(toko.wa || '') + '?text=' + encodeURIComponent('Halo AYRI, saya mau tanya stok gitar dan aksesoris') + '">Tanya stok lewat WhatsApp</a></div>';
     }
