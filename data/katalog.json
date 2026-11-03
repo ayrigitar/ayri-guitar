@@ -172,7 +172,7 @@
    "jenis": "Kabel",
    "kondisi": "baru",
    "nama": "Beyer ISO100LU5",
-   "warna": "Kabel Jack 6.5mm Mono 5 Meter",
+   "warna": "",
    "deskripsi": "Kabel Beyer ini hadir dalam kondisi baru dengan body hitam yang terlihat kokoh. Dibalut packaging asli dengan aksen merah dan putih, konektor logamnya juga tampak rapi. Panjang 5 meter dengan jack 6.5mm mono ini pas untuk menghubungkan gitar elektrik ke ampli tanpa rasa terbelenggu saat tampil. Kualitasnya prima untuk menjaga sinyal tetap jernih. Silakan langsung datang ke Toko Gitar AYRI untuk cek fisik dan uji coba kabel ini. 🎸",
    "harga": 150000,
    "status": "tersedia",
@@ -183,6 +183,8 @@
      "kecil": "foto/stok/beyer-iso100lu5-kabel-jack-6-5mm-mono-5-meter-stk-dn7vy2-f5b0ca-k.webp"
     }
    ],
+   "tipe": "Jack 6.5mm Mono",
+   "ukuran": "5 Meter",
    "artikel": 7
   },
   {
