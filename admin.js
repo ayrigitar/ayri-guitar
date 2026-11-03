@@ -2470,7 +2470,8 @@
         var b = (L.bisaDisewa(s, cache.sewa) ? '<button type="button" class="ly-btn ly-btn--sm" data-sewa="' + E(s.id) + '">Sewa</button>' : '') +
             (L.diKatalog(s) ? tombolIkon('tautan-sk', s.id, 'tautan', 'Bagikan link unit') : '') +
             (adaStok(s) && s.harga_jual ? tombolIkon('tawar', s.id, 'kirim', 'Bagikan poster & penawaran') : '') +
-            (bisaPosterSold(s) ? tombolIkon('sold', s.id, 'kirim', 'Bagikan poster SOLD') : '');
+            (bisaPosterSold(s) ? tombolIkon('sold', s.id, 'kirim', 'Bagikan poster SOLD') : '') +
+            (anggotaSeriStok(s).length > 1 ? tombolIkon('seri', s.id, 'kirim', 'Bagikan poster seri') : '');
         return b ? '<span class="ly-item__b">' + b + '</span>' : '';
     }
     function daftarStok() {
@@ -2482,7 +2483,7 @@
         $('#cari').value = cariSk;
         $('#cari').addEventListener('input', function () { cariSk = this.value; gambarDaftarStok(); });
         $('#filter').addEventListener('click', function (e) { var b = e.target.closest('[data-f]'); if (b) { filterSk = b.dataset.f; gambarDaftarStok(); } });
-        $('#list').addEventListener('click', function (e) { var sb = e.target.closest('[data-sewa]'); if (sb) { e.preventDefault(); pindah('#sewa/baru/' + sb.dataset.sewa); return; } var b = e.target.closest('[data-tawar]'); if (b) { e.preventDefault(); bagikanStok(cariId('stok', b.dataset.tawar), b); return; } var so = e.target.closest('[data-sold]'); if (so) { e.preventDefault(); bagikanTerjual(cariId('stok', so.dataset.sold), so); return; } var tl = e.target.closest('[data-tautan-sk]'); if (tl) { e.preventDefault(); var st = cariId('stok', tl.dataset.tautanSk); bagikanTautan(L.judulStok(st), L.urlUnit(st.kode)); } });
+        $('#list').addEventListener('click', function (e) { var sb = e.target.closest('[data-sewa]'); if (sb) { e.preventDefault(); pindah('#sewa/baru/' + sb.dataset.sewa); return; } var b = e.target.closest('[data-tawar]'); if (b) { e.preventDefault(); bagikanStok(cariId('stok', b.dataset.tawar), b); return; } var se = e.target.closest('[data-seri]'); if (se) { e.preventDefault(); bagikanSeri(cariId('stok', se.dataset.seri), se); return; } var so = e.target.closest('[data-sold]'); if (so) { e.preventDefault(); bagikanTerjual(cariId('stok', so.dataset.sold), so); return; } var tl = e.target.closest('[data-tautan-sk]'); if (tl) { e.preventDefault(); var st = cariId('stok', tl.dataset.tautanSk); bagikanTautan(L.judulStok(st), L.urlUnit(st.kode)); } });
         gambarDaftarStok();
     }
     function adaStok(s) { return s.status === 'tersedia' || s.status === 'dipesan'; }
@@ -2661,6 +2662,7 @@
     /* opsi.sewa = { harian: tarif 1 hari (0 = sesuai lama sewa), deposit } membuat poster penawaran SEWA dengan foto unit */
     function buatPoster(s, opsi) {
         if (opsi && opsi.artikel) return buatPosterArtikel(opsi.artikel);
+        if (opsi && opsi.seri) return buatPosterSeri(opsi.seri);
         var sewa = opsi && opsi.sewa, sold = opsi && opsi.terjual, aksPoster = s.kategori === 'aksesoris'; /* aksesoris: tanpa lencana BARU/kategori (sudah ada di judul) */ /* sold = poster gitar yang sudah terjual: cap SOLD, tanpa harga dan tanpa data pembeli */
         var fp = (s.foto || []).filter(function (f) { return f.repo === 'publik'; })[0];
         var judul = L.judulStok(s);
@@ -2747,6 +2749,81 @@
             return new Promise(function (ok, gagal) { cv.toBlob(function (b) { b ? ok(b) : gagal(new Error('Gagal membuat gambar.')); }, 'image/jpeg', .85); });
         });
     }
+    /* ---------- poster seri (beberapa varian satu seri, mis. Orphee QA 010-012): foto, bubble fitur gabungan, daftar varian + harga ---------- */
+    function anggotaSeriStok(s) {
+        if (!L.grupSeri(s)) return [];
+        var m = L.anggotaSeri(s, cache.stok.filter(function (x) { return x.id !== s.id; }).concat(s));
+        return m.length > 1 && m.indexOf(s) > -1 ? m : [];
+    }
+    function teksSeri(sr) {
+        var harga = sr.anggota.map(function (x) { return +x.harga_jual; });
+        return sr.judul + ' – mulai ' + L.rupiah(Math.min.apply(null, harga)) + '\n' +
+            sr.anggota.map(function (x) { return '• ' + (L.labelVarianStok(x) || L.namaStok(x)) + ': ' + L.rupiah(x.harga_jual); }).join('\n') +
+            '\n\nTersedia di ' + C.toko.nama + ', ' + C.toko.alamat + '\nLihat semua pilihan: ' + L.urlSeri(sr.grup) + '\nTanya / pesan: https://wa.me/' + C.toko.wa;
+    }
+    function bagikanSeri(s, tombol) {
+        var m = anggotaSeriStok(s);
+        if (m.length < 2) return toast('Poster seri butuh minimal dua barang tersedia dengan Seri yang sama.', true);
+        var sr = { anggota: m, judul: L.judulSeriStok(m), grup: L.grupSeri(s) };
+        bagikanPoster(s, teksSeri(sr), { seri: sr }, tombol);
+    }
+    function buatPosterSeri(sr) {
+        var m = sr.anggota, pemilik = m.filter(function (x) { return (x.foto || []).some(function (f) { return f.repo === 'publik'; }); })[0];
+        var fp = pemilik && pemilik.foto.filter(function (f) { return f.repo === 'publik'; })[0];
+        var fonts = Promise.all(['700 70px Fraunces', '700 40px "Plus Jakarta Sans"'].map(function (f) { return document.fonts && document.fonts.load ? document.fonts.load(f) : null; }));
+        fonts = Promise.race([fonts, new Promise(function (ok) { setTimeout(ok, 1200); })]).catch(function () {});
+        return Promise.all([fp ? muatFotoPoster(pemilik, fp) : Promise.resolve(null), muatGambar(L.situs() + 'logo/ayri-logo-putih.svg').catch(function () { return null; }), fonts]).then(function (r) {
+            var cv = document.createElement('canvas'), W = 1080, H = 1920, EMAS = '#E0A95C', SERIF = 'Fraunces, Georgia, serif', SANS = '"Plus Jakarta Sans", system-ui, sans-serif';
+            cv.width = W; cv.height = H;
+            var c = cv.getContext('2d'), g = c.createLinearGradient(0, 0, 0, H), wa = '0' + String(C.toko.wa).slice(2);
+            wa = wa.replace(/^(\d{4})(\d{4})(\d+)$/, '$1-$2-$3'); c.textBaseline = 'alphabetic';
+            g.addColorStop(0, '#1d1812'); g.addColorStop(1, '#0d0a07'); c.fillStyle = g; c.fillRect(0, 0, W, H);
+            var gl = c.createRadialGradient(W / 2, 620, 60, W / 2, 620, 760); gl.addColorStop(0, 'rgba(224,169,92,.20)'); gl.addColorStop(1, 'rgba(224,169,92,0)'); c.fillStyle = gl; c.fillRect(0, 0, W, 1300);
+            /* foto utuh (area lebih pendek dari poster satu barang supaya daftar varian muat) */
+            var fx = 60, fy = 230, fw = 960, fh = 640, kotak = { x: fx, y: fy, w: fw, h: fh };
+            if (r[0]) {
+                var im = r[0], k = Math.min(fw / im.width, fh / im.height), w = im.width * k, h = im.height * k, x0 = fx + (fw - w) / 2, y0 = fy + (fh - h) / 2;
+                c.save(); c.shadowColor = 'rgba(0,0,0,.55)'; c.shadowBlur = 50; c.shadowOffsetY = 18; rect(c, x0, y0, w, h, 40); c.fillStyle = '#000'; c.fill(); c.restore();
+                c.save(); rect(c, x0, y0, w, h, 40); c.clip(); c.drawImage(im, x0, y0, w, h); c.restore();
+                rect(c, x0, y0, w, h, 40); c.strokeStyle = 'rgba(224,169,92,.55)'; c.lineWidth = 3; c.stroke(); kotak = { x: x0, y: y0, w: w, h: h };
+            } else if (r[1]) { var lw = 240, lh = lw * r[1].height / r[1].width; c.globalAlpha = .25; c.drawImage(r[1], fx + (fw - lw) / 2, fy + (fh - lh) / 2, lw, lh); c.globalAlpha = 1; }
+            /* bubble fitur: gabungan fitur semua varian (maks. 4), seperti poster satu barang */
+            var fitur = []; m.forEach(function (x) { (x.fitur || []).filter(Boolean).forEach(function (ft) { if (fitur.indexOf(ft) < 0) fitur.push(ft); }); });
+            var by0 = kotak.y + Math.max(40, kotak.h * 0.14), kanan = Math.min(W - 36, kotak.x + kotak.w + 36);
+            fitur.slice(0, 4).forEach(function (ft, n) {
+                c.font = '800 30px ' + SANS; var tw = Math.min(c.measureText(ft).width, 330), bw2 = tw + 56, bh2 = 66, bx = kanan - bw2, yy = by0 + n * 90;
+                c.save(); c.translate(bx + bw2 / 2, yy + bh2 / 2); c.rotate(n % 2 ? 0.06 : -0.05);
+                c.shadowColor = 'rgba(0,0,0,.45)'; c.shadowBlur = 22; c.shadowOffsetY = 8; rect(c, -bw2 / 2, -bh2 / 2, bw2, bh2, 33); c.fillStyle = EMAS; c.fill(); c.shadowBlur = 0; c.shadowOffsetY = 0;
+                c.lineWidth = 3; c.strokeStyle = 'rgba(255,255,255,.6)'; c.stroke();
+                c.fillStyle = '#1a1510'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText(ft, 0, 3, 330); c.restore();
+            });
+            /* lencana jumlah pilihan + judul seri */
+            var cy = 905, tag = m.length + ' PILIHAN'; c.font = '800 28px ' + SANS;
+            var bw = c.measureText(tag).width + 52; rect(c, 60, cy, bw, 56, 28); c.fillStyle = EMAS; c.fill(); c.fillStyle = '#1a1510'; c.fillText(tag, 86, cy + 38);
+            c.fillStyle = '#fff'; c.font = '700 62px ' + SERIF;
+            var y = 1030; barisTeks(c, sr.judul, 960, 2).forEach(function (b) { c.fillText(b, 60, y); y += 70; });
+            /* daftar varian: label di kiri, harga rata kanan; lebih dari 6 varian: sisanya diringkas */
+            var baris = m.length > 6 ? m.slice(0, 5) : m, sisa = m.length - baris.length, ry = y - 20;
+            baris.forEach(function (x, n) {
+                var yy = ry + n * 66;
+                rect(c, 60, yy, 960, 56, 28); c.fillStyle = n % 2 ? 'rgba(255,255,255,.04)' : 'rgba(224,169,92,.10)'; c.fill();
+                c.textAlign = 'left'; c.fillStyle = '#fff'; c.font = '700 32px ' + SANS; c.fillText(barisTeks(c, L.labelVarianStok(x) || L.namaStok(x), 480, 1)[0], 90, yy + 38);
+                c.textAlign = 'right'; c.fillStyle = EMAS; c.font = '700 34px ' + SERIF; c.fillText(L.rupiah(x.harga_jual), 990, yy + 38);
+            });
+            c.textAlign = 'left';
+            if (sisa) { c.fillStyle = '#c9bfb2'; c.font = '600 28px ' + SANS; c.fillText('+ ' + sisa + ' pilihan lainnya di website', 90, ry + baris.length * 66 + 34); }
+            /* penutup sama dengan poster penawaran */
+            c.fillStyle = 'rgba(224,169,92,.35)'; c.fillRect(60, 1528, 960, 2);
+            var tx = 60; if (r[1]) { var lh1 = 120, lw1 = lh1 * r[1].width / r[1].height; c.drawImage(r[1], 60, 1546, lw1, lh1); tx = 60 + lw1 + 32; }
+            c.fillStyle = '#25D366'; c.beginPath(); c.arc(tx + 24, 1584, 24, 0, 7); c.fill();
+            c.save(); c.translate(tx + 24 - 14, 1584 - 14); c.scale(28 / 24, 28 / 24); c.fillStyle = '#fff'; c.fill(new Path2D(WA_IKON.match(/ d="([^"]+)"/)[1])); c.restore();
+            c.fillStyle = '#fff'; c.font = '800 42px ' + SANS; c.fillText(wa, tx + 64, 1598);
+            var web = L.situs().replace(/^https?:\/\//, '').replace(/\/$/, '');
+            c.fillStyle = EMAS; c.font = '700 30px ' + SANS; c.fillText('Lihat koleksi lengkap di ' + web, tx, 1642);
+            c.fillStyle = '#b9ad9d'; c.font = '500 24px ' + SANS; c.fillText(barisTeks(c, C.toko.alamat, 1020 - tx, 1)[0], tx, 1672);
+            return new Promise(function (ok, gagal) { cv.toBlob(function (b) { b ? ok(b) : gagal(new Error('Gagal membuat gambar.')); }, 'image/jpeg', .85); });
+        });
+    }
     function blobBase64(b) { return new Promise(function (ok) { var f = new FileReader(); f.onload = function () { ok(String(f.result).split(',')[1] || ''); }; f.readAsDataURL(b); }); }
     /* Bagikan: poster + teks lewat menu bagikan HP (WA, Status WA, Instagram, Threads, X, dll). Di PC tanpa menu bagikan berkas: hanya teks, lewat menu bagikan atau WhatsApp. */
     function bagikanStok(s, tombol) { bagikanPoster(s, teksTawar(s), null, tombol); }
@@ -2755,7 +2832,7 @@
     function teksTerjual(s) { return L.judulStok(s) + (s.warna ? ' (' + s.warna + ')' : '') + ' – SOLD\nTerima kasih atas kepercayaannya!\nCari gitar serupa? Lihat koleksi: ' + L.situs() + 'katalog.html\nTanya / pesan: https://wa.me/' + C.toko.wa; }
     function bagikanTerjual(s, tombol) { bagikanPoster(s, teksTerjual(s), { terjual: true }, tombol); }
     function bagikanPoster(s, teks, opsi, tombol) {
-        var nama = 'ayri-' + (opsi && opsi.artikel ? 'artikel-' + String(opsi.artikel.slug || 'artikel').slice(0, 60) : (opsi && opsi.sewa ? 'sewa-' : opsi && opsi.terjual ? 'sold-' : '') + String(s.kode || 'barang').toLowerCase()) + '.jpg';
+        var nama = 'ayri-' + (opsi && opsi.artikel ? 'artikel-' + String(opsi.artikel.slug || 'artikel').slice(0, 60) : opsi && opsi.seri ? 'seri-' + opsi.seri.grup : (opsi && opsi.sewa ? 'sewa-' : opsi && opsi.terjual ? 'sold-' : '') + String(s.kode || 'barang').toLowerCase()) + '.jpg';
         if (tombol) sibuk(tombol, true, 'Menyiapkan…');
         function lepas() { if (tombol) sibuk(tombol, false); }
         /* PC / browser tanpa menu bagikan berkas: tanpa unduhan gambar, kirim teks penawaran lewat WhatsApp */
@@ -2882,6 +2959,7 @@
                     '<p class="ly-hint" style="margin:8px 0 0">Bayar penuh = langsung terjual. Bayar sebagian = DP: barang ditahan ' + C.jual.batasHari + ' hari, nota & pengingat pelunasan dikirim lewat WA.</p>' : '') + '</fieldset>') +
             '<fieldset class="ly-card ly-f"><legend>Status</legend><div class="ly-status" id="sk-status"></div><p class="ly-hint" id="sk-status-info" hidden></p><label>Catatan internal<textarea data-s="catatan_admin" rows="2"></textarea></label></fieldset>' +
             (sk.baru ? '' : '<fieldset class="ly-card"><legend>Lainnya</legend>' + kisiAksi([].concat(s.harga_jual && adaStok(s) ? [aksi({ id: 'sk-tawar', ikon: 'kirim', teks: 'Bagikan poster &amp; penawaran', kelas: 'ly-akt--pri ly-akt--lebar' })] : [])
+                .concat(anggotaSeriStok(s).length > 1 ? [aksi({ id: 'sk-seri', ikon: 'kirim', teks: 'Poster seri (Story)', kelas: 'ly-akt--pri ly-akt--lebar' })] : [])
                 .concat(bisaPosterSold(s) ? [aksi({ id: 'sk-sold', ikon: 'kirim', teks: 'Poster SOLD (Story)', kelas: 'ly-akt--pri ly-akt--lebar' })] : [])
                 .concat(L.diKatalog(s) ? [aksi({ href: E(L.urlUnit(s.kode)), luar: true, ikon: 'lihat', teks: 'Lihat halaman unit' })] : [])
                 .concat(owner() ? [aksi({ id: 'sk-artikel', ikon: 'artikel', teks: artikelStok(s) ? 'Buka artikel unit' : 'Buat artikel unit' })] : [])
@@ -2923,6 +3001,7 @@
             else if (b.id === 'sk-sewa-baru') { if (dirty) return toast('Simpan perubahan stok dulu.', true); pindah('#sewa/baru/' + s.id); }
             else if (b.id === 'sk-jual-baru') { if (dirty) return toast('Simpan perubahan stok dulu.', true); pindah('#jual/baru/' + s.id); }
             else if (b.id === 'sk-tawar') { if (dirty) return toast('Simpan perubahan dulu.', true); bagikanStok(s, b); }
+            else if (b.id === 'sk-seri') { if (dirty) return toast('Simpan perubahan dulu.', true); bagikanSeri(s, b); }
             else if (b.id === 'sk-sold') { if (dirty) return toast('Simpan perubahan dulu.', true); bagikanTerjual(s, b); }
             else if (b.id === 'sk-artikel') { if (dirty) return toast('Simpan perubahan dulu.', true); buatArtikelStok(s, b); }
             else if (b.id === 'sk-artikel-merek') { if (dirty) return toast('Simpan perubahan dulu.', true); buatArtikelMerek(s, b); }

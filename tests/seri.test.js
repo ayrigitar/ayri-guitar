@@ -51,3 +51,16 @@ test('antarmuka: isian Seri dengan saran, katalog menggabung kartu, skrip halama
     assert.match(katalog, /function kartuSeri\(g\)/); assert.match(katalog, /unit\/seri-/); assert.match(katalog, /<small>mulai<\/small>/);
     assert.match(statis, /\^seri-/, 'skrip mengenali halaman seri');
 });
+
+test('poster seri: anggota seri dari stok, tombol di daftar & form, bagikan', async () => {
+    const { L } = await mulai();
+    const mk = (id, ukuran, harga, ekstra) => Object.assign({ id, kode: 'STK-' + id, kategori: 'aksesoris', sub: 'Senar', nama: 'Orphee QA', merek: 'Orphee', seri: 'QA Series', ukuran, alat: ['Gitar Akustik'], harga_jual: harga, status: 'tersedia', jumlah: 3, foto: [] }, ekstra || {});
+    const a = mk('a', '011', 95000), b = mk('b', '010', 90000), laku = mk('c', '012', 100000, { status: 'terjual', jumlah: 0 }), lain = mk('d', '010', 50000, { seri: 'Seri Lain' });
+    const m = L.anggotaSeri(a, [a, b, laku, lain]);
+    assert.deepEqual(Array.from(m).map((x) => x.id), ['b', 'a'], 'urut varian; yang terjual dan seri lain tidak ikut');
+    assert.equal(L.judulSeriStok(m), 'Senar Gitar Akustik Orphee QA Series');
+    assert.equal(L.labelVarianStok(b), '010');
+    assert.equal(L.grupSeri({ kategori: 'gitar', seri: 'x' }), '', 'gitar tidak berseri');
+    const js = require('fs').readFileSync(require('path').join(__dirname, '..', 'admin.js'), 'utf8');
+    for (const s of ["id: 'sk-seri'", "tombolIkon('seri'", 'function buatPosterSeri', 'function bagikanSeri', 'opsi.seri']) assert.ok(js.includes(s), s);
+});
