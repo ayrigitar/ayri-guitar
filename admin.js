@@ -3,7 +3,7 @@
 (function () {
     var L = Layanan, C = L.C, A = L.api, E = L.esc, app = document.getElementById('app');
     var WA_IKON = '<svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.6.8-.8 1-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.2-.4.2-.4.7-1.3.1-.1 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.8 11.9 11.9 0 0 0 4.6 4c1.7.7 2.4.8 3.3.7a2.8 2.8 0 0 0 1.8-1.3 2.2 2.2 0 0 0 .2-1.3c-.1-.1-.3-.2-.5-.3z"/></svg>';
-    var cache = { servis: [], artikel: [], tebus: [], stok: [], jual: [], absen: [], opname: [], kas: [], sewa: [], titip: [] }, dimuat = false, ed = null, ae = null, te = null, sk = null, filterTb = 'aktif', filterSk = 'tersedia', cariSk = '', dirty = false, filter = 'aktif', cari = '', menyimpan = false;
+    var cache = { servis: [], artikel: [], tebus: [], stok: [], jual: [], absen: [], opname: [], kas: [], sewa: [], titip: [] }, dimuat = false, ed = null, ae = null, te = null, sk = null, filterTb = 'aktif', filterSk = 'tersedia', cariSk = '', bukaSeri = {}, dirty = false, filter = 'aktif', cari = '', menyimpan = false;
     var AKTIF = ['menunggu_dp', 'antri', 'dikerjakan', 'selesai'];
 
     function $(s, r) { return (r || document).querySelector(s); }
@@ -2482,6 +2482,7 @@
             '<div class="ly-filter" id="filter"></div><div class="ly-list" id="list"></div></section>';
         $('#cari').value = cariSk;
         $('#cari').addEventListener('input', function () { cariSk = this.value; gambarDaftarStok(); });
+        $('#list').addEventListener('toggle', function (e) { var d = e.target.closest && e.target.closest('details[data-grup]'); if (d && !cariSk.trim()) bukaSeri[d.dataset.grup] = d.open; }, true); /* lipatan seri diingat selama tidak sedang mencari */
         $('#filter').addEventListener('click', function (e) { var b = e.target.closest('[data-f]'); if (b) { filterSk = b.dataset.f; gambarDaftarStok(); } });
         $('#list').addEventListener('click', function (e) { var sb = e.target.closest('[data-sewa]'); if (sb) { e.preventDefault(); pindah('#sewa/baru/' + sb.dataset.sewa); return; } var b = e.target.closest('[data-tawar]'); if (b) { e.preventDefault(); bagikanStok(cariId('stok', b.dataset.tawar), b); return; } var se = e.target.closest('[data-seri]'); if (se) { e.preventDefault(); bagikanSeri(cariId('stok', se.dataset.seri), se); return; } var so = e.target.closest('[data-sold]'); if (so) { e.preventDefault(); bagikanTerjual(cariId('stok', so.dataset.sold), so); return; } var tl = e.target.closest('[data-tautan-sk]'); if (tl) { e.preventDefault(); var st = cariId('stok', tl.dataset.tautanSk); bagikanTautan(L.judulStok(st), L.urlUnit(st.kode)); } });
         gambarDaftarStok();
@@ -2518,7 +2519,7 @@
             var ok = filterSk === 'semua' ? true : filterSk === 'terjual' ? (s.penjualan || []).length > 0 : filterSk === 'tersedia' ? adaStok(s) : adaStok(s) && kelStok(s) === filterSk;
             return ok && (!c || [s.kode, s.merek, s.nama, s.seri, s.sub, s.gitar_jenis, s.gitar_merk, s.tipe, (s.alat || []).join(' '), s.ukuran, (s.fitur || []).join(' '), s.warna, s.no_seri, s.deskripsi].join(' ').toLowerCase().indexOf(c) > -1);
         });
-        $('#list').innerHTML = hasil.length ? hasil.map(function (s) {
+        function kartu(s) {
             var u = L.untungStok(s), lama = L.hariAntara(s.tgl_masuk, hari);
             return '<div class="ly-item"><a class="ly-item__a" href="#stok/' + E(s.id) + '"><span class="ly-item__k">' + E(s.kode) + (L.diKatalog(s) ? ' 🌐' : '') + '</span></a>' + chipStok(s) +
                 '<span class="ly-item__t">' + E(L.jenisStok(s)) + ' · ' + E(L.namaStok(s)) + (s.warna ? ' · ' + E(s.warna) : '') + '</span>' +
@@ -2526,7 +2527,20 @@
                 (adaStok(s) ? '<span>Stok ' + s.jumlah + '</span><span' + (lama > 90 ? ' class="ly-telat"' : '') + '>Masuk ' + (lama > 0 ? lama + ' hari lalu' : 'hari ini') + '</span>' : '') +
                 (u.unitTerjual ? '<span>Terjual ' + u.unitTerjual + (owner() ? ' · untung ' + L.rupiah(u.untung) : '') + '</span>' : '') + '</span>' +
                 tombolKartuStok(s) + '</div>';
-        }).join('') : '<p class="ly-kosong">' + (rows.length ? 'Tidak ada di kategori ini.' : 'Belum ada stok. Tekan “+ Tambah stok”.') + '</p>';
+        }
+        /* barang satu seri (Seri + kategori sama, minimal dua yang lolos filter) dilipat jadi satu kelompok; data dan kartunya tetap terpisah */
+        var anggota = {}, sudah = {}, html = [];
+        hasil.forEach(function (s) { var k = L.grupSeri(s); if (k) (anggota[k] = anggota[k] || []).push(s); });
+        hasil.forEach(function (s) {
+            var k = L.grupSeri(s), m = k && anggota[k];
+            if (!m || m.length < 2) { html.push(kartu(s)); return; }
+            if (sudah[k]) return; sudah[k] = 1;
+            var hrg = m.map(function (x) { return +x.harga_jual; }).filter(function (x) { return x > 0; }), lo = Math.min.apply(null, hrg), hi = Math.max.apply(null, hrg);
+            var jml = m.reduce(function (a, x) { return a + (adaStok(x) ? +x.jumlah || 0 : 0); }, 0);
+            html.push('<details class="ly-grup" data-grup="' + E(k) + '"' + (bukaSeri[k] || c ? ' open' : '') + '><summary><span class="ly-grup__t">' + E(L.judulSeriStok(m)) + '</span><span class="ly-grup__m">' + m.length + ' barang · stok ' + jml +
+                (hrg.length ? ' · ' + L.rupiah(lo) + (hi > lo ? ' – ' + L.rupiah(hi) : '') : '') + '</span></summary><div class="ly-grup__b">' + m.map(function (x) { return kartu(x); }).join('') + '</div></details>');
+        });
+        $('#list').innerHTML = html.length ? html.join('') : '<p class="ly-kosong">' + (rows.length ? 'Tidak ada di kategori ini.' : 'Belum ada stok. Tekan “+ Tambah stok”.') + '</p>';
     }
     function teksTawar(s) {
         var judul = L.judulStok(s);
