@@ -28,7 +28,15 @@ document.addEventListener('DOMContentLoaded', function () {
     }
     fetch('../data/katalog.json', { cache: 'no-store' }).then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; }).then(function (d) {
         if (!d || !d.item) return; /* gagal memuat: biarkan isi statis apa adanya */
-        var x = d.item.filter(function (y) { return y.kode === kode; })[0], status = box.querySelector('.unit-status');
+        var seri = /^seri-/.test(kode) ? kode.slice(5) : '', status = box.querySelector('.unit-status');
+        if (seri) { /* halaman seri: masih ada selama >= 2 varian tersedia */
+            var anggota = d.item.filter(function (y) { return y.grup === seri; });
+            if (anggota.length < 2 && status) { status.className = 'unit-status unit-status--pesan'; status.textContent = anggota.length ? 'Tinggal satu pilihan tersisa. Lihat di katalog atau tanyakan lewat WhatsApp.' : 'Seri ini sudah tidak tersedia. Tanyakan lewat WhatsApp, atau lihat katalog kami.'; }
+            var sj = document.getElementById('unit-serupa'), lain = d.item.filter(function (y) { return y.grup !== seri; }).slice(0, 4);
+            if (sj && lain.length) { sj.hidden = false; sj.innerHTML = '<h2>Barang lainnya</h2><div class="kat-grid">' + lain.map(kartu).join('') + '</div>'; }
+            return;
+        }
+        var x = d.item.filter(function (y) { return y.kode === kode; })[0];
         if (!x) { /* sudah terjual / ditarik */
             if (status) { status.className = 'unit-status unit-status--pesan'; status.textContent = 'Barang ini sudah terjual atau tidak tersedia lagi. Tanyakan unit serupa lewat WhatsApp.'; }
             var bar = document.getElementById('unit-bar'); if (bar) bar.hidden = true;

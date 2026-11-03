@@ -798,3 +798,13 @@ html[data-theme="dark"] .rk-naik { color: #5CD196 !important; }
 .ly-pilih { display: flex; flex-wrap: wrap; gap: 8px; }
 .ly-pilih button { min-height: 38px; padding: 0 14px; border: 1px solid var(--line-strong); border-radius: 999px; background: var(--surface); color: var(--ink); font: 700 .875rem var(--font-sans); cursor: pointer; }
 .ly-pilih button[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); }
+
+/* halaman seri: daftar varian (ukuran/panjang, harga, status, tautan) */
+.unit-varian { display: grid; gap: 8px; margin: 14px 0 0; }
+.unit-varian__r { display: grid; grid-template-columns: 1fr auto; gap: 4px 10px; align-items: center; padding: 12px 14px; border: 1px solid var(--line); border-radius: 14px; background: var(--surface); }
+.unit-varian__n { font-weight: 800; color: var(--ink); }
+.unit-varian__h { font-weight: 800; color: var(--accent); text-align: right; }
+.unit-varian__s { font-size: .8125rem; color: var(--ink-3); }
+.unit-varian__r > a { justify-self: end; }
+.unit-varian__r > a:nth-of-type(1) { grid-column: 1; justify-self: start; }
+.unit-varian__r > a:nth-of-type(2) { grid-column: 2; }
