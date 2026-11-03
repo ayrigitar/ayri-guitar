@@ -45,7 +45,7 @@ test('antarmuka stok & poster: alat musik, ukuran, fitur, saran merek; poster ak
     assert.match(kode, /s\.fitur\.length >= 4\) return toast\('Maksimal 4 fitur/);
     const poster = kode.slice(kode.indexOf('function buatPoster(s, opsi)'), kode.indexOf('function blobBase64'));
     assert.match(poster, /aksPoster = s\.kategori === 'aksesoris'/); assert.match(poster, /if \(!aksPoster\) \{/, 'lencana BARU/kategori tidak untuk aksesoris');
-    assert.match(poster, /bubble fitur unggulan/); assert.match(poster, /slice\(0, 4\)/);
+    assert.match(poster, /bubbleFitur\(c, \(s\.fitur \|\| \[\]\)\.filter\(Boolean\)\.slice\(0, 4\), kotak\)/);
 });
 
 test('judul per kategori: Case & tas tanpa kata kategori ganda, Kabel & Tuner memakai tipe', () => {
