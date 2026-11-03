@@ -147,7 +147,7 @@ document.addEventListener('DOMContentLoaded', function () {
     var h = decodeURIComponent(location.hash.slice(1));
     if (/^STK-/.test(h)) { location.replace('unit.html?k=' + encodeURIComponent(h)); return; }
 
-    function judul(x) { return AYRI_UTIL.judulKatalog(x, C.jenisTanpaGitar); }
+    function judul(x) { return AYRI_UTIL.judulKatalog(x, C.jenisTanpaGitar, C.aksesoris); }
     function kelompok(x) { return x.kategori === 'gitar' ? x.kondisi : 'aksesoris'; }
     function lencana(x) {
         return '<span class="kat-badge kat-' + (x.kategori === 'gitar' ? x.kondisi : 'aks') + '">' + (x.kategori === 'gitar' ? (x.kondisi === 'baru' ? 'Baru' : 'Used') : esc(x.jenis)) + '</span>' + (x.tingkat ? '<span class="kat-badge kat-tingkat">' + esc(x.tingkat) + '</span>' : '');

@@ -114,7 +114,21 @@ var AYRI_LAYANAN = {
     katalogSisaTampil: 3,
     /* aksesoris (terutama senar): untuk alat musik apa, ukuran, dan saran fitur unggulan (bubble di poster) */
     alatMusik: ['Gitar Akustik', 'Gitar Klasik', 'Gitar Elektrik', 'Bass', 'Ukulele', 'Guitalele'],
-    ukuranSenar: [['008', '008'], ['009', '009'], ['010', '010'], ['011', '011'], ['012', '012'], ['013', '013'], ['Normal Tension', 'Normal Tension (nylon)'], ['Hard Tension', 'Hard Tension (nylon)']],
+    /* bentuk data tiap kategori aksesoris: alat = pilih alat musik; tipe/ukuran = { label, pilihan: [...] } atau { label, bebas: 'contoh isian' } (isian bebas).
+       Judul dirangkai: Kategori + Tipe + Alat musik + Merek & model + Ukuran. tanpaKategori: kata kategori dihilangkan bila Tipe sudah ada
+       (mis. "Hardcase Gitar Akustik ...", bukan "Case & tas Hardcase ..."). Kategori yang tidak tercantum: tanpa isian tambahan. */
+    aksesoris: {
+        'Senar': { alat: true, ukuran: { label: 'Ukuran / tension senar', pilihan: ['008', '009', '010', '011', '012', '013', 'Normal Tension', 'Hard Tension'] } },
+        'Kabel': { tipe: { label: 'Tipe kabel (kepala)', pilihan: ['Jack 6.5mm Mono', 'Jack 6.5mm Stereo', 'XLR', 'Jack - XLR', 'Jack 3.5mm', 'Speakon'] }, ukuran: { label: 'Panjang kabel', pilihan: ['1 Meter', '2 Meter', '3 Meter', '5 Meter', '6 Meter', '10 Meter'] } },
+        'Capo': { alat: true },
+        'Tuner': { tipe: { label: 'Tipe tuner', pilihan: ['Clip-on', 'Pedal', 'Rack'] } },
+        'Strap': { alat: true, ukuran: { label: 'Lebar strap', bebas: 'mis. 5 cm' } },
+        'Case & tas': { alat: true, tanpaKategori: true, tipe: { label: 'Tipe', pilihan: ['Hardcase', 'Softcase', 'Gigbag'] }, ukuran: { label: 'Ukuran / bentuk', bebas: 'mis. Jumbo, Dreadnought' } },
+        'Efek & amplifier': { tanpaKategori: true, tipe: { label: 'Tipe', pilihan: ['Pedal efek', 'Multi efek', 'Amplifier', 'Looper'] } },
+        'Part & pickup': { alat: true, tanpaKategori: true, tipe: { label: 'Tipe', pilihan: ['Pickup', 'Tuning machine', 'Bridge', 'Nut / Saddle', 'Knob'] } },
+        'Perawatan': { tanpaKategori: true, tipe: { label: 'Tipe', pilihan: ['Lemon oil', 'Polish', 'Cleaner', 'Kain'] }, ukuran: { label: 'Isi / volume', bebas: 'mis. 60 ml' } },
+        'Lainnya': { tipe: { label: 'Tipe', bebas: 'opsional' }, ukuran: { label: 'Ukuran', bebas: 'opsional' } }
+    },
     fiturSaran: ['Phosphor Bronze', 'Bronze 80/20', 'Titanium', 'Nickel', 'Stainless Steel', 'Anti Rust', 'Coated', 'Light', 'Extra Light', 'Silver Plated', 'Solid Top', 'Cutaway', 'Pickup', 'Softcase'],
 
     /* tercetak di nota; {dp}, {gratis}, {biaya}, {hangus}, {lepas} diganti otomatis */

@@ -118,7 +118,7 @@ document.addEventListener('DOMContentLoaded', function () {
     var kode = new URLSearchParams(location.search).get('k') || decodeURIComponent(location.hash.slice(1));
     var situs = (C.situsUrl || location.origin + '/');
 
-    function judul(y) { return AYRI_UTIL.judulKatalog(y, C.jenisTanpaGitar); }
+    function judul(y) { return AYRI_UTIL.judulKatalog(y, C.jenisTanpaGitar, C.aksesoris); }
     /* teks alt foto: judul + warna + kondisi bekas + nomor foto */
     function altFoto(y, n) { return judul(y) + (y.warna ? ' ' + y.warna : '') + (y.kategori === 'gitar' && y.kondisi === 'bekas' ? ' bekas' + (y.tingkat ? ' ' + y.tingkat : '') : '') + (n ? ' – foto ' + n : ''); }
     function kelompok(y) { return y.kategori === 'gitar' ? y.kondisi : 'aksesoris'; }
