@@ -64,3 +64,9 @@ test('poster seri: anggota seri dari stok, tombol di daftar & form, bagikan', as
     const js = require('fs').readFileSync(require('path').join(__dirname, '..', 'admin.js'), 'utf8');
     for (const s of ["id: 'sk-seri'", "tombolIkon('seri'", 'function buatPosterSeri', 'function bagikanSeri', 'opsi.seri']) assert.ok(js.includes(s), s);
 });
+
+test('daftar stok POS: barang satu seri dilipat jadi satu kelompok', () => {
+    const js = require('fs').readFileSync(require('path').join(__dirname, '..', 'admin.js'), 'utf8'), css = require('fs').readFileSync(require('path').join(__dirname, '..', 'layanan.css'), 'utf8');
+    for (const s of ['function kartu(s)', 'class="ly-grup"', 'L.judulSeriStok(m)', 'bukaSeri']) assert.ok(js.includes(s), s);
+    assert.match(css, /\.ly-grup > summary/);
+});

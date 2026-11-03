@@ -146,6 +146,15 @@ body.ly { min-height: 100dvh; background: var(--bg); color: var(--ink); font-fam
   border: 1px solid var(--line); border-radius: var(--r-md); background: var(--surface); color: inherit;
 }
 .ly-item:active { transform: scale(.99); }
+/* kelompok seri di daftar stok: satu baris ringkas yang bisa dibuka */
+.ly-grup { border: 1px solid var(--line); border-radius: var(--r-md); background: var(--surface); }
+.ly-grup > summary { display: grid; gap: 2px; padding: 12px 14px; cursor: pointer; list-style: none; }
+.ly-grup > summary::-webkit-details-marker { display: none; }
+.ly-grup__t { font-weight: 700; }
+.ly-grup__t::before { content: '▸ '; color: var(--accent); }
+.ly-grup[open] .ly-grup__t::before { content: '▾ '; }
+.ly-grup__m { font-size: .8125rem; color: var(--ink-3); }
+.ly-grup__b { display: grid; gap: 8px; padding: 0 8px 8px; }
 .ly-item__k { font: 800 .8125rem ui-monospace, Menlo, Consolas, monospace; letter-spacing: .04em; color: var(--accent); }
 .ly-item__t { grid-column: 1 / -1; font-weight: 700; }
 .ly-item__m { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: .8125rem; color: var(--ink-3); }
