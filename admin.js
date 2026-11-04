@@ -2927,11 +2927,11 @@
         return Promise.all(daftar.map(function (d) { return muatFotoPoster(d[0], d[1]).catch(function () { return null; }); })).then(function (im) {
             im = im.filter(Boolean); if (im.length < 2) return null;
             var W = 1000, H = 750, cv = document.createElement('canvas'), c = cv.getContext('2d'), n = im.length;
-            cv.width = W; cv.height = H; c.fillStyle = '#fff'; c.fillRect(0, 0, W, H);
-            var sel = n === 2 ? [[0, 0, 498, H], [502, 0, 498, H]] : n === 3 ? [[0, 0, 498, H], [502, 0, 498, 373], [502, 377, 498, 373]] : [[0, 0, 498, 373], [502, 0, 498, 373], [0, 377, 498, 373], [502, 377, 498, 373]];
+            cv.width = W; cv.height = H; c.fillStyle = '#e5ded2'; c.fillRect(0, 0, W, H);
+            var sel = n === 2 ? [[0, 0, 498, H], [502, 0, 498, H]] : n === 3 ? [[0, 0, W, 373], [0, 377, 498, 373], [502, 377, 498, 373]] : [[0, 0, 498, 373], [502, 0, 498, 373], [0, 377, 498, 373], [502, 377, 498, 373]];
             im.forEach(function (g, i) {
-                var r = sel[i], k = Math.max(r[2] / g.width, r[3] / g.height), w = g.width * k, h = g.height * k;
-                c.save(); c.beginPath(); c.rect(r[0], r[1], r[2], r[3]); c.clip(); c.drawImage(g, r[0] + (r[2] - w) / 2, r[1] + (r[3] - h) / 2, w, h); c.restore();
+                var r = sel[i], k = Math.min(r[2] / g.width, r[3] / g.height), w = g.width * k, h = g.height * k;
+                c.fillStyle = '#fff'; c.fillRect(r[0], r[1], r[2], r[3]); c.drawImage(g, r[0] + (r[2] - w) / 2, r[1] + (r[3] - h) / 2, w, h); /* utuh, tidak dipotong */
             });
             return cv;
         });
