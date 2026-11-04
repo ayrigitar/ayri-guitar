@@ -66,9 +66,40 @@ test('sampul seri: kunci seri harus valid', async () => {
 test('kode: kartu katalog seri memakai sampul, form stok punya unggah/hapus, poster seri memakai sampul', () => {
     const kat = baca('katalog.html'), adm = baca('admin.js');
     assert.match(kat, /sampul = d\.sampul \|\| \{\}/);
-    assert.match(kat, /f = sampul\[g\.grup\] \|\| p\.foto\[0\]/, 'kartu seri: sampul lebih dulu, foto varian pertama sebagai cadangan');
+    assert.match(kat, /f = cv\.src \? cv : p\.foto\[0\]/, 'kartu seri: sampul lebih dulu, foto varian pertama sebagai cadangan');
+    assert.match(kat, /cv\.kolase \? kolase\(m\)/, 'kartu seri: kolase bila dinyalakan dan tanpa foto khusus');
+    assert.match(adm, /A\.aturKolaseSeri\(grup, nyala\)/);
     assert.match(adm, /id="sk-sampul-file"/);
     assert.match(adm, /A\.simpanSampulSeri\(grup, h\)/);
     assert.match(adm, /A\.simpanSampulSeri\(grup, null\)/);
-    assert.match(adm, /A\.muatSampulSeri\(\)\.then\(function \(p\) \{ return p\[sr\.grup\]/, 'poster seri memakai sampul');
+    assert.match(adm, /A\.muatSampulSeri\(\)\.then\(function \(p\) \{\s+var cv = p\[sr\.grup\]/, 'poster seri memakai sampul');
+});
+
+test('kolase seri: tersimpan per seri, tidak menggeser foto khusus, dan tetap ada saat foto khusus dihapus', async () => {
+    const { gh, A, L } = await mulai();
+    const a = await A.simpanStok(senar({ nama: 'QA140', ukuran: '010' }), []);
+    await A.simpanStok(senar({ nama: 'QA150', ukuran: '011' }), []);
+    const grup = L.grupSeri(a);
+    assert.equal(await A.aturKolaseSeri(grup, true), true);
+    assert.deepEqual(JSON.parse(JSON.stringify(gh.json('ayri-guitar', SAMPUL)[grup])), { kolase: true });
+    assert.deepEqual(JSON.parse(JSON.stringify(gh.json('ayri-guitar', KAT).sampul[grup])), { kolase: true }, 'katalog: kolase tanpa foto khusus');
+    const hal = gh.isi('ayri-guitar', 'unit/seri-' + grup + '.html');
+    assert.ok(!hal.includes('undefined'), 'halaman seri aman tanpa foto khusus');
+
+    /* foto khusus ditambahkan: kolase tetap tercatat, foto khusus yang dipakai */
+    const cv = await A.simpanSampulSeri(grup, foto());
+    const ent = JSON.parse(JSON.stringify(gh.json('ayri-guitar', KAT).sampul[grup]));
+    assert.deepEqual(ent, { src: cv.src, kecil: cv.kecil, kolase: true });
+    assert.ok(gh.isi('ayri-guitar', 'unit/seri-' + grup + '.html').includes('og:image" content="' + L.situs() + cv.src));
+
+    /* foto khusus dihapus: kolase tetap ada */
+    await A.simpanSampulSeri(grup, null);
+    assert.deepEqual(JSON.parse(JSON.stringify(gh.json('ayri-guitar', SAMPUL)[grup])), { kolase: true });
+    assert.ok(!gh.daftarFile('ayri-guitar').includes(cv.src));
+
+    /* kolase dimatikan: entri hilang */
+    assert.equal(await A.aturKolaseSeri(grup, false), false);
+    assert.ok(!(grup in gh.json('ayri-guitar', SAMPUL)));
+    assert.ok(!('sampul' in gh.json('ayri-guitar', KAT)));
+    await assert.rejects(() => A.aturKolaseSeri('../x', true), /Seri/);
 });

@@ -2919,11 +2919,32 @@
         var sr = { anggota: m, judul: L.judulSeriStok(m), grup: L.grupSeri(s) };
         bagikanPoster(s, teksSeri(sr), { seri: sr }, tombol);
     }
+    /* kolase poster seri: foto pertama tiap varian (berbeda), 2-4 foto dalam satu kanvas; kurang dari 2 = null (poster memakai foto biasa) */
+    function kolasePoster(m) {
+        var ada = {}, daftar = [];
+        m.forEach(function (x) { var f = (x.foto || []).filter(function (y) { return y.repo === 'publik'; })[0]; if (f && !ada[f.path] && daftar.length < 4) { ada[f.path] = 1; daftar.push([x, f]); } });
+        if (daftar.length < 2) return Promise.resolve(null);
+        return Promise.all(daftar.map(function (d) { return muatFotoPoster(d[0], d[1]).catch(function () { return null; }); })).then(function (im) {
+            im = im.filter(Boolean); if (im.length < 2) return null;
+            var W = 1000, H = 750, cv = document.createElement('canvas'), c = cv.getContext('2d'), n = im.length;
+            cv.width = W; cv.height = H; c.fillStyle = '#fff'; c.fillRect(0, 0, W, H);
+            var sel = n === 2 ? [[0, 0, 498, H], [502, 0, 498, H]] : n === 3 ? [[0, 0, 498, H], [502, 0, 498, 373], [502, 377, 498, 373]] : [[0, 0, 498, 373], [502, 0, 498, 373], [0, 377, 498, 373], [502, 377, 498, 373]];
+            im.forEach(function (g, i) {
+                var r = sel[i], k = Math.max(r[2] / g.width, r[3] / g.height), w = g.width * k, h = g.height * k;
+                c.save(); c.beginPath(); c.rect(r[0], r[1], r[2], r[3]); c.clip(); c.drawImage(g, r[0] + (r[2] - w) / 2, r[1] + (r[3] - h) / 2, w, h); c.restore();
+            });
+            return cv;
+        });
+    }
     function buatPosterSeri(sr) {
         var m = sr.anggota, pemilik = m.filter(function (x) { return (x.foto || []).some(function (f) { return f.repo === 'publik'; }); })[0];
         var fp = pemilik && pemilik.foto.filter(function (f) { return f.repo === 'publik'; })[0];
         /* foto sampul seri (bila ada) jadi foto poster; bila gagal dimuat atau belum ada, pakai foto barang */
-        var fotoUtama = A.muatSampulSeri().then(function (p) { return p[sr.grup] ? muatGambar(L.situs() + p[sr.grup].src, 'no-cache') : null; }).catch(function () { return null; })
+        var fotoUtama = A.muatSampulSeri().then(function (p) {
+            var cv = p[sr.grup] || {};
+            if (cv.src) return muatGambar(L.situs() + cv.src, 'no-cache');
+            return cv.kolase ? kolasePoster(m) : null;
+        }).catch(function () { return null; })
             .then(function (im) { return im || (fp ? muatFotoPoster(pemilik, fp) : null); });
         return Promise.all([fotoUtama, muatLogoPoster(), siapFontPoster()]).then(function (r) {
             var im = r[0], logo = r[1][0], kv = kanvasPoster(sr.judul), c = kv.c, jl = barisJudul(c, sr.judul, 2);
@@ -3112,6 +3133,7 @@
             var b = e.target.closest('button'); if (!b) return; var d = b.dataset;
             if (d.kategori) setTimeout(gambarSampulSk);
             if (b.id === 'sk-sampul-hapus') { hapusSampulSk(); return; }
+            if (b.id === 'sk-kolase') { kolaseSk(b); return; }
             if (d.kondisi) { s.kondisi = d.kondisi; $$('#sk-kondisi button').forEach(function (x) { x.setAttribute('aria-pressed', x.dataset.kondisi === s.kondisi); }); tampilTingkat(); setDirty(true); }
             else if (d.kategori) {
                 s.kategori = d.kategori; var aks = s.kategori === 'aksesoris';
@@ -3196,10 +3218,12 @@
     function gambarSampulSk() {
         var el = $('#sk-sampul'), set = $('#sk-sampul-set'); if (!el || !set) return;
         var s = sk.s, grup = L.grupSeri(s); set.hidden = !grup; if (!grup) return;
-        var cv = sampulSeri && sampulSeri[grup];
-        el.innerHTML = '<p class="ly-hint" style="margin:0 0 10px">Satu foto untuk seri <b>' + E(s.seri) + '</b>: dipakai di kartu katalog, halaman seri, pratinjau tautan, dan poster seri. Tersimpan sendiri, tidak hilang walau semua barang seri ini terjual, jadi tidak perlu diunggah ulang saat varian baru masuk. Tanpa foto ini, katalog memakai foto barang pertama dari seri.</p>' +
+        var ent = sampulSeri && sampulSeri[grup] || {}, cv = ent.src ? ent : null, kol = !!ent.kolase;
+        el.innerHTML = '<p class="ly-hint" style="margin:0 0 10px">Satu foto untuk seri <b>' + E(s.seri) + '</b>: dipakai di kartu katalog, halaman seri, pratinjau tautan, dan poster seri. Tersimpan sendiri, tidak hilang walau semua barang seri ini terjual, jadi tidak perlu diunggah ulang saat varian baru masuk. Tanpa foto ini, katalog memakai foto barang pertama dari seri, atau kolase foto varian bila dinyalakan di bawah.</p>' +
             (cv ? '<figure class="ly-sampul"><img src="' + E(sampulLokal[grup] || L.situs() + cv.kecil) + '" alt="Foto sampul seri"></figure>' : '<p class="ly-muted" style="margin:0 0 10px">Belum ada foto sampul.</p>') +
-            '<div class="ly-btns"><label class="ly-btn ly-btn--sm ly-file">' + (cv ? 'Ganti foto' : '+ Foto sampul seri') + '<input type="file" accept="image/*" id="sk-sampul-file"></label>' + (cv ? '<button type="button" class="ly-btn ly-btn--sm" id="sk-sampul-hapus">Hapus</button>' : '') + '</div>';
+            '<div class="ly-btns"><label class="ly-btn ly-btn--sm ly-file">' + (cv ? 'Ganti foto' : '+ Foto sampul seri') + '<input type="file" accept="image/*" id="sk-sampul-file"></label>' + (cv ? '<button type="button" class="ly-btn ly-btn--sm" id="sk-sampul-hapus">Hapus</button>' : '') + '</div>' +
+            '<div class="ly-btns" style="margin-top:12px"><button type="button" class="ly-btn ly-btn--sm" id="sk-kolase" aria-pressed="' + kol + '">' + (kol ? '✓ Kolase foto varian: nyala' : 'Kolase foto varian: mati') + '</button></div>' +
+            '<p class="ly-hint" style="margin:6px 0 0">' + (kol ? (cv ? 'Foto khusus di atas yang dipakai; kolase menunggu bila foto khusus dihapus.' : 'Katalog dan poster menyusun 2–4 foto varian yang berbeda. Cocok bila tiap varian punya foto sendiri; kalau fotonya sama semua, pakai foto khusus.') : 'Nyalakan bila tiap varian punya foto yang berbeda.') + '</p>';
     }
     function unggahSampulSk(inp) {
         var f = inp.files && inp.files[0], grup = L.grupSeri(sk.s); inp.value = '';
@@ -3207,14 +3231,25 @@
         toast('Mengunggah foto sampul seri…');
         L.kompres(f).then(function (h) {
             return A.simpanSampulSeri(grup, h).then(function (cv) {
-                sampulSeri = sampulSeri || {}; sampulSeri[grup] = cv; sampulLokal[grup] = URL.createObjectURL(h.kecil);
+                sampulSeri = sampulSeri || {}; sampulSeri[grup] = (sampulSeri[grup] || {}).kolase ? { src: cv.src, kecil: cv.kecil, kolase: true } : cv; sampulLokal[grup] = URL.createObjectURL(h.kecil);
                 gambarSampulSk(); toast('Foto sampul seri tersimpan. Tampil di katalog ±1 menit lagi.');
             });
         }).catch(gagal);
     }
+    function kolaseSk(b) {
+        var grup = L.grupSeri(sk.s); if (!grup) return;
+        var nyala = b.getAttribute('aria-pressed') !== 'true';
+        sibuk(b, true, 'Menyimpan…');
+        A.aturKolaseSeri(grup, nyala).then(function () {
+            sampulSeri = sampulSeri || {}; var ent = sampulSeri[grup] || {};
+            if (nyala) ent.kolase = true; else delete ent.kolase;
+            if (ent.src || ent.kolase) sampulSeri[grup] = ent; else delete sampulSeri[grup];
+            gambarSampulSk(); toast(nyala ? 'Kolase dinyalakan. Tampil di katalog ±1 menit lagi.' : 'Kolase dimatikan.');
+        }).catch(function (e) { sibuk(b, false); gagal(e); });
+    }
     function hapusSampulSk() {
         var grup = L.grupSeri(sk.s); if (!grup || !confirm('Hapus foto sampul seri? Katalog kembali memakai foto barang pertama dari seri.')) return;
-        A.simpanSampulSeri(grup, null).then(function () { if (sampulSeri) delete sampulSeri[grup]; delete sampulLokal[grup]; gambarSampulSk(); toast('Foto sampul seri dihapus.'); }).catch(gagal);
+        A.simpanSampulSeri(grup, null).then(function () { if (sampulSeri) { if ((sampulSeri[grup] || {}).kolase) sampulSeri[grup] = { kolase: true }; else delete sampulSeri[grup]; } delete sampulLokal[grup]; gambarSampulSk(); toast('Foto sampul seri dihapus.'); }).catch(gagal);
     }
     function gambarFotoStok() {
         var el = $('#sk-foto'); if (!el) return;

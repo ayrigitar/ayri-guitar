@@ -189,12 +189,19 @@ document.addEventListener('DOMContentLoaded', function () {
             '<small>' + esc([x.warna, x.kategori === 'gitar' ? '' : ''].filter(Boolean).join(' · ')) + (x.sisa ? ' Sisa ' + x.sisa : '') + '</small>' + cocok(x.alat, x.jenis) +
             '<small class="kat-lok"><svg class="ic" aria-hidden="true"><use href="#i-pin"/></svg>Bogor</small></span></a>';
     }
+    /* kolase foto sampul seri: 2-4 foto varian yang berbeda (foto pertama tiap varian); kurang dari 2 foto berbeda = foto biasa */
+    function kolase(m) {
+        var ada = {}, f = [];
+        m.forEach(function (y) { var a = y.foto[0]; if (a && !ada[a.src] && f.length < 4) { ada[a.src] = 1; f.push(a); } });
+        if (f.length < 2) return '';
+        return '<span class="kat-kolase kat-kolase--' + f.length + '">' + f.map(function (a) { return '<img src="' + esc(a.kecil) + '" alt="" loading="lazy" decoding="async">'; }).join('') + '</span>';
+    }
     /* barang satu seri (grup) tampil sebagai satu kartu: harga mulai, jumlah pilihan, menuju halaman seri */
     function kartuSeri(g) {
-        var m = g.anggota.slice().sort(AYRI_UTIL.urutVarian), p = m.filter(function (y) { return y.foto[0]; })[0] || m[0], f = sampul[g.grup] || p.foto[0], judulS = AYRI_UTIL.judulSeri(m, C.jenisTanpaGitar, C.aksesoris);
+        var m = g.anggota.slice().sort(AYRI_UTIL.urutVarian), p = m.filter(function (y) { return y.foto[0]; })[0] || m[0], cv = sampul[g.grup] || {}, f = cv.src ? cv : p.foto[0], kol = !cv.src && cv.kolase ? kolase(m) : '', judulS = AYRI_UTIL.judulSeri(m, C.jenisTanpaGitar, C.aksesoris);
         var label = m.map(AYRI_UTIL.labelVarian).filter(Boolean);
         return '<a class="kat-item" href="unit/seri-' + encodeURIComponent(g.grup) + '.html">' +
-            '<span class="kat-foto">' + (f ? '<img src="' + esc(f.kecil) + '" alt="' + esc(judulS) + '" loading="lazy" decoding="async">' : '<span class="kat-nofoto">Foto menyusul</span>') +
+            '<span class="kat-foto">' + (kol || (f ? '<img src="' + esc(f.kecil) + '" alt="' + esc(judulS) + '" loading="lazy" decoding="async">' : '<span class="kat-nofoto">Foto menyusul</span>')) +
             '<span class="kat-badges kat-badges--foto">' + lencana(p) + '</span><span class="kat-jml">' + m.length + ' pilihan</span></span>' +
             '<span class="kat-isi"><span class="kat-harga"><small>mulai</small> ' + rupiah(g.harga) + '</span><b class="kat-nama">' + esc(judulS) + '</b>' +
             '<small>' + esc(label.slice(0, 6).join(', ')) + '</small>' + cocok(gabungAlat(m), p.jenis) + '<small class="kat-lok"><svg class="ic" aria-hidden="true"><use href="#i-pin"/></svg>Bogor</small></span></a>';

@@ -1512,9 +1512,9 @@
         var e = L.esc, grup = m[0].grup, judul = AYRI_UTIL.judulSeri(m, C.jenisTanpaGitar, C.aksesoris), url = L.urlSeri(grup), harga = m.map(function (v) { return v.harga; });
         var termurah = Math.min.apply(null, harga), labels = m.map(function (v) { return AYRI_UTIL.labelVarian(v); }).filter(Boolean);
         var deskripsi = (labels.length ? 'Pilihan: ' + labels.join(', ') + '. ' : '') + 'Mulai ' + L.rupiah(termurah) + '. Tersedia di ' + C.toko.nama + ' Bogor.';
-        var foto0 = m.filter(function (v) { return v.foto[0]; })[0], gambar = L.situs() + (sampul ? sampul.src : foto0 ? foto0.foto[0].src : 'og/katalog.jpg?v=2'); /* foto sampul seri (bila ada) menggantikan foto varian pertama */
+        var foto0 = m.filter(function (v) { return v.foto[0]; })[0], gambar = L.situs() + (sampul && sampul.src ? sampul.src : foto0 ? foto0.foto[0].src : 'og/katalog.jpg?v=2'); /* foto sampul seri (bila ada) menggantikan foto varian pertama */
         var ld = { '@context': 'https://schema.org', '@type': 'ProductGroup', name: judul, productGroupID: grup, variesBy: 'https://schema.org/size', description: m.map(function (v) { return v.deskripsi; }).sort(function (a, b) { return String(b || '').length - String(a || '').length; })[0] || deskripsi,
-            image: sampul ? L.situs() + sampul.src : undefined, hasVariant: m.map(function (v) {
+            image: sampul && sampul.src ? L.situs() + sampul.src : undefined, hasVariant: m.map(function (v) {
                 return { '@type': 'Product', name: judulKatalog(v), sku: v.kode, image: v.foto.map(function (f) { return L.situs() + f.src; }), offers: { '@type': 'Offer', url: L.urlUnit(v.kode), price: v.harga, priceCurrency: 'IDR',
                     availability: 'https://schema.org/' + (v.status === 'dipesan' ? 'LimitedAvailability' : 'InStock'), itemCondition: 'https://schema.org/NewCondition', seller: { '@type': 'Organization', name: C.toko.nama } } };
             }) };
@@ -1542,7 +1542,7 @@
             var grupMap = {};
             item.forEach(function (x) { if (x.seri) { var k = L.slugFoto(x.seri + ' ' + x.jenis, 60); if (k) (grupMap[k] = grupMap[k] || []).push(x); } });
             Object.keys(grupMap).forEach(function (k) { if (grupMap[k].length > 1) grupMap[k].forEach(function (x) { x.grup = k; }); else delete grupMap[k]; });
-            var sampul = {}; Object.keys(grupMap).forEach(function (k) { if (petaCv[k] && petaCv[k].src) sampul[k] = { src: petaCv[k].src, kecil: petaCv[k].kecil || petaCv[k].src }; });
+            var sampul = {}; Object.keys(grupMap).forEach(function (k) { var c = petaCv[k]; if (c && (c.src || c.kolase)) { sampul[k] = c.src ? { src: c.src, kecil: c.kecil || c.src } : {}; if (c.kolase) sampul[k].kolase = true; } }); /* kolase = true: kartu katalog & poster menyusun foto varian */
             var isi = { toko: C.toko.nama, v: VERSI_HALAMAN_UNIT, item: item }; if (Object.keys(sampul).length) isi.sampul = sampul; /* kunci ditulis hanya bila ada: katalog lama tidak berubah */
             var teks = JSON.stringify(isi, null, 1) + '\n';
             if (lama === teks) return [];
@@ -1583,13 +1583,27 @@
                 return Promise.all([baca(BERKAS_SAMPUL), bacaJson('stok.json')]).then(function (r) {
                     var peta = petaSampul(r[0]), lama = peta[grup], files = berkas.slice();
                     if (lama) [lama.src, lama.kecil].forEach(function (p, i, a) { if (p && a.indexOf(p) === i && (!baru || (p !== baru.src && p !== baru.kecil))) files.push({ path: p, hapus: true }); });
-                    if (baru) peta[grup] = baru; else delete peta[grup];
+                    var kol = lama && lama.kolase;
+                    if (baru) peta[grup] = kol ? { src: baru.src, kecil: baru.kecil, kolase: true } : baru; else if (kol) peta[grup] = { kolase: true }; else delete peta[grup];
                     var urut = {}; Object.keys(peta).sort().forEach(function (k) { urut[k] = peta[k]; });
                     files.push({ path: BERKAS_SAMPUL, teks: JSON.stringify(urut, null, 1) + '\n' });
                     return fileKatalogDari(r[1], urut).then(function (kat) { return files.concat(kat); });
                 });
             }, hasil ? 'Foto sampul seri' : 'Hapus foto sampul seri').then(function () { return baru; });
         });
+    };
+    /* pilihan kolase per seri: kartu katalog & poster menyusun foto varian (foto khusus, bila ada, tetap menang). Tersimpan di berkas yang sama. */
+    L.api.aturKolaseSeri = function (grup, aktif) {
+        if (!/^[a-z0-9-]+$/.test(grup || '')) return Promise.reject(new Error('Isi dulu kolom Seri.'));
+        return ubahAtomik('situs', function (baca) {
+            return Promise.all([baca(BERKAS_SAMPUL), bacaJson('stok.json')]).then(function (r) {
+                var peta = petaSampul(r[0]), ent = peta[grup] || {};
+                if (aktif) ent.kolase = true; else delete ent.kolase;
+                if (ent.src || ent.kolase) peta[grup] = ent; else delete peta[grup];
+                var urut = {}; Object.keys(peta).sort().forEach(function (k) { urut[k] = peta[k]; });
+                return fileKatalogDari(r[1], urut).then(function (kat) { return [{ path: BERKAS_SAMPUL, teks: JSON.stringify(urut, null, 1) + '\n' }].concat(kat); });
+            });
+        }, aktif ? 'Kolase sampul seri' : 'Matikan kolase sampul seri').then(function () { return !!aktif; });
     };
     L.api.simpanStok = function (rec, fotoBaru) {
         rec = salin(rec);
