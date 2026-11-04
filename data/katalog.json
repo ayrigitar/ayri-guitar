@@ -240,6 +240,37 @@
    "grup": "iso100lu-kabel"
   },
   {
+   "kode": "STK-6XYMRC",
+   "kategori": "aksesoris",
+   "jenis": "Senar",
+   "kondisi": "baru",
+   "nama": "Orphee QC5",
+   "warna": "",
+   "deskripsi": "Senar gitar klasik Orphee QC5 ini adalah senar nylon normal tension (028-043) dengan lilitan silver pada senar bas untuk menghasilkan suara yang lebih tegas dan jernih. Kualitas senar ini dikenal cukup awet dan nyaman dimainkan karena daya tahan senarnya yang tinggi. Produk ini masih dalam kondisi segel baru, siap digunakan untuk mengganti senar lama gitar klasik Anda. Silakan datang langsung ke toko kami untuk mencoba sensasi dan suaranya sendiri. 🎸",
+   "harga": 60000,
+   "status": "tersedia",
+   "sisa": null,
+   "foto": [
+    {
+     "src": "foto/stok/orphee-qc5-nylon-klasik-normal-tension-stk-6xymrc-d946f3.webp",
+     "kecil": "foto/stok/orphee-qc5-nylon-klasik-normal-tension-stk-6xymrc-d946f3-k.webp"
+    },
+    {
+     "src": "foto/stok/orphee-qc5-nylon-klasik-normal-tension-stk-6xymrc-d71bd3.webp",
+     "kecil": "foto/stok/orphee-qc5-nylon-klasik-normal-tension-stk-6xymrc-d71bd3-k.webp"
+    }
+   ],
+   "alat": [
+    "Gitar Klasik",
+    "Guitalele"
+   ],
+   "ukuran": "Normal Tension",
+   "merek": "Orphee",
+   "seri": "QC",
+   "artikel": 8,
+   "grup": "qc-senar"
+  },
+  {
    "kode": "STK-NZGV2M",
    "kategori": "aksesoris",
    "jenis": "Senar",
@@ -266,7 +297,7 @@
    "ukuran": "010",
    "merek": "Orphee",
    "seri": "TX",
-   "artikel": 8,
+   "artikel": 9,
    "grup": "tx-senar"
   },
   {
@@ -297,7 +328,7 @@
    "ukuran": "Normal Tension",
    "merek": "Orphee",
    "seri": "NX",
-   "artikel": 9,
+   "artikel": 10,
    "grup": "nx-senar"
   },
   {
@@ -328,38 +359,8 @@
    "ukuran": "Hard Tension",
    "merek": "Orphee",
    "seri": "NX",
-   "artikel": 10,
-   "grup": "nx-senar"
-  },
-  {
-   "kode": "STK-6XYMRC",
-   "kategori": "aksesoris",
-   "jenis": "Senar",
-   "kondisi": "baru",
-   "nama": "Orphee QC5",
-   "warna": "",
-   "deskripsi": "Senar gitar klasik Orphee QC5 ini adalah senar nylon normal tension (028-043) dengan lilitan silver pada senar bas untuk menghasilkan suara yang lebih tegas dan jernih. Kualitas senar ini dikenal cukup awet dan nyaman dimainkan karena daya tahan senarnya yang tinggi. Produk ini masih dalam kondisi segel baru, siap digunakan untuk mengganti senar lama gitar klasik Anda. Silakan datang langsung ke toko kami untuk mencoba sensasi dan suaranya sendiri. 🎸",
-   "harga": 60000,
-   "status": "tersedia",
-   "sisa": null,
-   "foto": [
-    {
-     "src": "foto/stok/orphee-qc5-nylon-klasik-normal-tension-stk-6xymrc-d946f3.webp",
-     "kecil": "foto/stok/orphee-qc5-nylon-klasik-normal-tension-stk-6xymrc-d946f3-k.webp"
-    },
-    {
-     "src": "foto/stok/orphee-qc5-nylon-klasik-normal-tension-stk-6xymrc-d71bd3.webp",
-     "kecil": "foto/stok/orphee-qc5-nylon-klasik-normal-tension-stk-6xymrc-d71bd3-k.webp"
-    }
-   ],
-   "alat": [
-    "Gitar Klasik"
-   ],
-   "ukuran": "Normal Tension",
-   "merek": "Orphee",
-   "seri": "QC",
    "artikel": 11,
-   "grup": "qc-senar"
+   "grup": "nx-senar"
   },
   {
    "kode": "STK-SD6VFA",
