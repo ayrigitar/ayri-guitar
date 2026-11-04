@@ -316,7 +316,7 @@ html[data-theme="dark"] .ly-ingat:not(.ly-ingat--info) { border-color: rgba(245,
 @media (hover: hover) { .kat-item:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); } }
 .kat-foto { position: relative; display: grid; place-items: center; aspect-ratio: 4 / 5; overflow: hidden; background: #fff; }
 .kat-foto img { width: 100%; height: 100%; object-fit: contain; }
-.kat-kolase { display: grid; width: 100%; height: 100%; gap: 3px; background: var(--line, #e5ded2); grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; }
+.kat-kolase { display: grid; position: absolute; inset: 0; gap: 3px; background: var(--line, #e5ded2); grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; }
 .kat-kolase img { object-fit: contain; min-height: 0; min-width: 0; background: #fff; } /* foto utuh, tidak dipotong */
 .kat-kolase--2 { grid-template-columns: 1fr; }
 .kat-kolase--3 img:first-child { grid-column: span 2; }
