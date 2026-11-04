@@ -1175,34 +1175,6 @@
    "artikel": 34
   },
   {
-   "kode": "STK-VM7JT5",
-   "kategori": "aksesoris",
-   "jenis": "Case & tas",
-   "kondisi": "baru",
-   "nama": "HC",
-   "warna": "",
-   "deskripsi": "",
-   "harga": 700000,
-   "status": "tersedia",
-   "sisa": 1,
-   "foto": [
-    {
-     "src": "foto/stok/0c99061b03c1e1114f0f.webp",
-     "kecil": "foto/stok/0c99061b03c1e1114f0f-k.webp"
-    },
-    {
-     "src": "foto/stok/a7733dce8f77f28732db.webp",
-     "kecil": "foto/stok/a7733dce8f77f28732db-k.webp"
-    }
-   ],
-   "alat": [
-    "Gitar Akustik"
-   ],
-   "tipe": "Hardcase",
-   "ukuran": "Standard Jumbo",
-   "artikel": 35
-  },
-  {
    "kode": "STK-SCYBYR",
    "kategori": "gitar",
    "jenis": "Akustik Elektrik",
@@ -1256,7 +1228,7 @@
     }
    ],
    "tingkat": "Very Good",
-   "artikel": 36
+   "artikel": 35
   },
   {
    "kode": "STK-6PQCDA",
@@ -1312,6 +1284,34 @@
     }
    ],
    "tingkat": "Very Good",
+   "artikel": 36
+  },
+  {
+   "kode": "STK-VM7JT5",
+   "kategori": "aksesoris",
+   "jenis": "Case & tas",
+   "kondisi": "baru",
+   "nama": "HC",
+   "warna": "",
+   "deskripsi": "",
+   "harga": 700000,
+   "status": "tersedia",
+   "sisa": 1,
+   "foto": [
+    {
+     "src": "foto/stok/0c99061b03c1e1114f0f.webp",
+     "kecil": "foto/stok/0c99061b03c1e1114f0f-k.webp"
+    },
+    {
+     "src": "foto/stok/a7733dce8f77f28732db.webp",
+     "kecil": "foto/stok/a7733dce8f77f28732db-k.webp"
+    }
+   ],
+   "alat": [
+    "Gitar Akustik"
+   ],
+   "tipe": "Hardcase",
+   "ukuran": "Standard Jumbo",
    "artikel": 37
   },
   {
@@ -1421,5 +1421,10 @@
    "tingkat": "Mint",
    "artikel": 39
   }
- ]
+ ],
+ "sampul": {
+  "sa-senar": {
+   "kolase": true
+  }
+ }
 }
