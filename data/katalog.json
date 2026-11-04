@@ -240,34 +240,34 @@
    "grup": "iso100lu-kabel"
   },
   {
-   "kode": "STK-2Z9THR",
+   "kode": "STK-BABWUM",
    "kategori": "aksesoris",
    "jenis": "Senar",
    "kondisi": "baru",
-   "nama": "Orphee SA37",
+   "nama": "Orphee QA170",
    "warna": "",
-   "deskripsi": "Senar Orphee SA37 Phosphor Bronze ukuran .010 ini hadir dalam kemasan hitam beraksen biru yang menampilkan brand dan spesifikasi secara jelas. Sebagai senar khusus gitar akustik, material phosphor bronze-nya dirancang untuk menghasilkan nada yang hangat dan resonan. Kondisi barang masih baru, siap untuk dipasang langsung pada gitar Anda. Yuk, coba rasakan sendiri kualitas senarnya di toko kami! 🎸",
-   "harga": 100000,
+   "deskripsi": "Senar Orphee QA170 baru ini hadir dengan gauge medium .012-.053 dan material 85/15 Bronze yang menghasilkan karakter suara *full bright tone*. Ukuran ini sangat pas untuk pemain yang suka riff blues dan rock, di mana responsnya cepat dan nadanya terasa jelas serta punchy. Karena kondisinya masih baru, kamu bisa merasakan konsistensi ketegangan dan daya tahan yang optimal, sekaligus membuat teknik bending saat solo jadi lebih mudah. Yuk, langsung coba dan rasakan bedanya di toko kami! 🎸",
+   "harga": 60000,
    "status": "tersedia",
-   "sisa": 3,
+   "sisa": null,
    "foto": [
     {
-     "src": "foto/stok/orphee-sa37-phosphor-bronze-ukuran-010-stk-2z9thr-43bfa0.webp",
-     "kecil": "foto/stok/orphee-sa37-phosphor-bronze-ukuran-010-stk-2z9thr-43bfa0-k.webp"
+     "src": "foto/stok/orphee-qa170-ukuran-012-stk-babwum-e97e09.webp",
+     "kecil": "foto/stok/orphee-qa170-ukuran-012-stk-babwum-e97e09-k.webp"
     },
     {
-     "src": "foto/stok/orphee-sa37-phosphor-bronze-ukuran-010-stk-2z9thr-b0548a.webp",
-     "kecil": "foto/stok/orphee-sa37-phosphor-bronze-ukuran-010-stk-2z9thr-b0548a-k.webp"
+     "src": "foto/stok/orphee-qa170-ukuran-012-stk-babwum-610a68.webp",
+     "kecil": "foto/stok/orphee-qa170-ukuran-012-stk-babwum-610a68-k.webp"
     }
    ],
    "alat": [
     "Gitar Akustik"
    ],
-   "ukuran": "010",
+   "ukuran": "012",
    "merek": "Orphee",
-   "seri": "SA",
+   "seri": "QA",
    "artikel": 8,
-   "grup": "sa-senar"
+   "grup": "qa-senar"
   },
   {
    "kode": "STK-NZGV2M",
@@ -414,28 +414,34 @@
    "artikel": 14
   },
   {
-   "kode": "STK-BABWUM",
+   "kode": "STK-2Z9THR",
    "kategori": "aksesoris",
    "jenis": "Senar",
    "kondisi": "baru",
-   "nama": "Orphee QA170",
-   "warna": "Ukuran 012",
-   "deskripsi": "Senar Orphee QA170 baru ini hadir dengan gauge medium .012-.053 dan material 85/15 Bronze yang menghasilkan karakter suara *full bright tone*. Ukuran ini sangat pas untuk pemain yang suka riff blues dan rock, di mana responsnya cepat dan nadanya terasa jelas serta punchy. Karena kondisinya masih baru, kamu bisa merasakan konsistensi ketegangan dan daya tahan yang optimal, sekaligus membuat teknik bending saat solo jadi lebih mudah. Yuk, langsung coba dan rasakan bedanya di toko kami! 🎸",
-   "harga": 60000,
+   "nama": "Orphee SA37",
+   "warna": "",
+   "deskripsi": "Senar Orphee SA37 Phosphor Bronze ukuran .010 ini hadir dalam kemasan hitam beraksen biru yang menampilkan brand dan spesifikasi secara jelas. Sebagai senar khusus gitar akustik, material phosphor bronze-nya dirancang untuk menghasilkan nada yang hangat dan resonan. Kondisi barang masih baru, siap untuk dipasang langsung pada gitar Anda. Yuk, coba rasakan sendiri kualitas senarnya di toko kami! 🎸",
+   "harga": 100000,
    "status": "tersedia",
-   "sisa": null,
+   "sisa": 3,
    "foto": [
     {
-     "src": "foto/stok/orphee-qa170-ukuran-012-stk-babwum-e97e09.webp",
-     "kecil": "foto/stok/orphee-qa170-ukuran-012-stk-babwum-e97e09-k.webp"
+     "src": "foto/stok/orphee-sa37-phosphor-bronze-ukuran-010-stk-2z9thr-43bfa0.webp",
+     "kecil": "foto/stok/orphee-sa37-phosphor-bronze-ukuran-010-stk-2z9thr-43bfa0-k.webp"
     },
     {
-     "src": "foto/stok/orphee-qa170-ukuran-012-stk-babwum-610a68.webp",
-     "kecil": "foto/stok/orphee-qa170-ukuran-012-stk-babwum-610a68-k.webp"
+     "src": "foto/stok/orphee-sa37-phosphor-bronze-ukuran-010-stk-2z9thr-b0548a.webp",
+     "kecil": "foto/stok/orphee-sa37-phosphor-bronze-ukuran-010-stk-2z9thr-b0548a-k.webp"
     }
    ],
+   "alat": [
+    "Gitar Akustik"
+   ],
+   "ukuran": "010",
    "merek": "Orphee",
-   "artikel": 15
+   "seri": "SA",
+   "artikel": 15,
+   "grup": "sa-senar"
   },
   {
    "kode": "STK-UWGUKK",
