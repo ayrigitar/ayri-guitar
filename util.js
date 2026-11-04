@@ -2,7 +2,7 @@
    Harus dimuat SEBELUM layanan.js, artikel-md.js, partitur.js, efek.js dan skrip katalog (tests/halaman.test.js memeriksanya). */
 (function (root) {
     var HTML = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
-    root.AYRI_UTIL = {
+    var U = root.AYRI_UTIL = {
         /* aman untuk isi elemen maupun nilai atribut (kutip ganda dan tunggal ikut diganti) */
         esc: function (s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return HTML[c]; }); },
         /* 1500000 -> Rp1.500.000 (angka negatif diberi tanda minus) */
@@ -30,6 +30,54 @@
             daftar.forEach(function (x) { (x.alat || []).forEach(function (a) { if (alat.indexOf(a) < 0) alat.push(a); }); });
             var nama = merek && seri.toLowerCase().indexOf(merek.toLowerCase()) < 0 ? merek + ' ' + seri : seri;
             return AYRI_UTIL.judulKatalog({ kategori: 'aksesoris', jenis: p.jenis, nama: nama, alat: alat, tipe: daftar.every(function (x) { return x.tipe === p.tipe; }) ? p.tipe : '' }, tanpaGitar, skema);
+        },
+        /* ---------- filter bertingkat untuk daftar stok POS dan katalog: kategori → jenis → tipe, ditambah merek ----------
+           x = barang berbentuk katalog { kategori, jenis, nama, warna, merek, tipe, alat }. Tipe senar = untuk alat musik apa
+           (dari isian Alat musik; bila kosong dibaca dari tulisan di Warna/Keterangan). Tipe kategori lain = isian Tipe (mis. kepala kabel). */
+        faset: function (x) {
+            var aks = x.kategori === 'aksesoris', tipe = [], m = String(x.merek || '').trim();
+            if (aks && x.jenis === 'Senar') {
+                (x.alat || []).forEach(function (a) { a = String(a).trim(); if (a && tipe.indexOf(a) < 0) tipe.push(a); });
+                if (!tipe.length) {
+                    var w = String(x.warna || '');
+                    [[/akustik/i, 'Gitar Akustik'], [/klasik|nylon/i, 'Gitar Klasik'], [/elektrik|electric/i, 'Gitar Elektrik'], [/bass/i, 'Bass'], [/ukulele/i, 'Ukulele'], [/guitalele/i, 'Guitalele']].forEach(function (r) { if (r[0].test(w)) tipe.push(r[1]); });
+                }
+            } else if (aks && x.tipe) tipe.push(String(x.tipe).trim());
+            if (!m && !aks) m = String(x.nama || '').trim().split(/\s+/)[0] || '';   /* gitar: kata pertama nama = merek (Yamaha, Fender, ...) */
+            return { jenis: String(x.jenis || ''), tipe: tipe, merek: m };
+        },
+        cocokFaset: function (x, p) {
+            var f = U.faset(x);
+            return (!p.jenis || f.jenis === p.jenis) && (!p.tipe || f.tipe.indexOf(p.tipe) > -1) && (!p.merek || f.merek.toLowerCase() === p.merek.toLowerCase());
+        },
+        /* pilihan yang tersedia untuk daftar (sudah disaring kategori) dan pilihan sekarang p = { jenis, tipe, merek }.
+           Hasil: { jenis, tipe, merek } masing-masing [[nama, jumlah], ...]; kosong bila kurang dari 2 pilihan (tidak perlu ditampilkan).
+           urut = { jenis: [...], tipe: [...] } urutan yang diinginkan; sisanya menurut jumlah terbanyak. */
+        opsiFaset: function (daftar, p, urut) {
+            urut = urut || {};
+            function hitung(items, ambil, susunan) {
+                var peta = {}, k = [];
+                items.forEach(function (x) { ambil(U.faset(x)).forEach(function (n) { var key = n.toLowerCase(); if (!n) return; if (!peta[key]) { peta[key] = [n, 0]; k.push(key); } peta[key][1]++; }); });
+                var r = k.map(function (key) { return peta[key]; }), idx = function (n) { var i = (susunan || []).indexOf(n); return i < 0 ? 999 : i; };
+                r.sort(function (a, b) { return idx(a[0]) - idx(b[0]) || b[1] - a[1] || a[0].localeCompare(b[0]); });
+                return r.length < 2 ? [] : r;
+            }
+            var perJenis = p.jenis ? daftar.filter(function (x) { return U.faset(x).jenis === p.jenis; }) : [];
+            var perTipe = p.jenis ? perJenis.filter(function (x) { return !p.tipe || U.faset(x).tipe.indexOf(p.tipe) > -1; }) : daftar;
+            return {
+                jenis: hitung(daftar, function (f) { return [f.jenis]; }, urut.jenis),
+                tipe: p.jenis ? hitung(perJenis, function (f) { return f.tipe; }, urut.tipe) : [],
+                merek: hitung(perTipe, function (f) { return [f.merek]; }),
+                jumlahJenis: perJenis.length
+            };
+        },
+        /* buang pilihan yang tidak ada lagi di daftar (mis. setelah pindah kategori) dan samakan huruf besar/kecilnya; mengubah dan mengembalikan p */
+        rapikanFaset: function (daftar, p, urut) {
+            function cari(arr, v) { v = String(v || '').toLowerCase(); for (var i = 0; i < arr.length; i++) if (arr[i][0].toLowerCase() === v) return arr[i][0]; return ''; }
+            p.jenis = cari(U.opsiFaset(daftar, { jenis: '', tipe: '', merek: '' }, urut).jenis, p.jenis);
+            p.tipe = cari(U.opsiFaset(daftar, { jenis: p.jenis, tipe: '', merek: '' }, urut).tipe, p.tipe);
+            p.merek = cari(U.opsiFaset(daftar, { jenis: p.jenis, tipe: p.tipe, merek: '' }, urut).merek, p.merek);
+            return p;
         },
         /* salinan dalam untuk data JSON */
         salin: function (o) { return JSON.parse(JSON.stringify(o)); }
