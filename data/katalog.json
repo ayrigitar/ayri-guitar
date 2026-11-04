@@ -1423,6 +1423,9 @@
   }
  ],
  "sampul": {
+  "sc-senar": {
+   "kolase": true
+  },
   "sa-senar": {
    "kolase": true
   }
