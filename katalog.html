@@ -175,6 +175,9 @@ document.addEventListener('DOMContentLoaded', function () {
     function lencana(x) {
         return '<span class="kat-badge kat-' + (x.kategori === 'gitar' ? x.kondisi : 'aks') + '">' + (x.kategori === 'gitar' ? (x.kondisi === 'baru' ? 'Baru' : 'Used') : esc(x.jenis)) + '</span>' + (x.tingkat ? '<span class="kat-badge kat-tingkat">' + esc(x.tingkat) + '</span>' : '');
     }
+    /* baris kecil "Cocok untuk: ..." bila judul tidak memuat semua alatnya */
+    function cocok(alat, jenis) { var t = AYRI_UTIL.cocokUntuk(alat, (C.aksesoris || {})[jenis], 3); return t ? '<small class="kat-cocok">' + esc(t) + '</small>' : ''; }
+    function gabungAlat(m) { var a = []; m.forEach(function (y) { (y.alat || []).forEach(function (v) { if (a.indexOf(v) < 0) a.push(v); }); }); return a; }
     function kartu(x) {
         var f = x.foto[0];
         return '<a class="kat-item" href="unit/' + encodeURIComponent(x.kode) + '.html">' +
@@ -183,7 +186,7 @@ document.addEventListener('DOMContentLoaded', function () {
             (x.status === 'dipesan' ? '<span class="kat-pita">Dipesan</span>' : '') +
             (x.foto.length > 1 ? '<span class="kat-jml">' + x.foto.length + ' foto</span>' : '') + '</span>' +
             '<span class="kat-isi"><span class="kat-harga">' + rupiah(x.harga) + '</span><b class="kat-nama">' + esc(judul(x)) + '</b>' +
-            '<small>' + esc([x.warna, x.kategori === 'gitar' ? '' : ''].filter(Boolean).join(' · ')) + (x.sisa ? ' Sisa ' + x.sisa : '') + '</small>' +
+            '<small>' + esc([x.warna, x.kategori === 'gitar' ? '' : ''].filter(Boolean).join(' · ')) + (x.sisa ? ' Sisa ' + x.sisa : '') + '</small>' + cocok(x.alat, x.jenis) +
             '<small class="kat-lok"><svg class="ic" aria-hidden="true"><use href="#i-pin"/></svg>Bogor</small></span></a>';
     }
     /* barang satu seri (grup) tampil sebagai satu kartu: harga mulai, jumlah pilihan, menuju halaman seri */
@@ -194,7 +197,7 @@ document.addEventListener('DOMContentLoaded', function () {
             '<span class="kat-foto">' + (f ? '<img src="' + esc(f.kecil) + '" alt="' + esc(judulS) + '" loading="lazy" decoding="async">' : '<span class="kat-nofoto">Foto menyusul</span>') +
             '<span class="kat-badges kat-badges--foto">' + lencana(p) + '</span><span class="kat-jml">' + m.length + ' pilihan</span></span>' +
             '<span class="kat-isi"><span class="kat-harga"><small>mulai</small> ' + rupiah(g.harga) + '</span><b class="kat-nama">' + esc(judulS) + '</b>' +
-            '<small>' + esc(label.slice(0, 6).join(', ')) + '</small><small class="kat-lok"><svg class="ic" aria-hidden="true"><use href="#i-pin"/></svg>Bogor</small></span></a>';
+            '<small>' + esc(label.slice(0, 6).join(', ')) + '</small>' + cocok(gabungAlat(m), p.jenis) + '<small class="kat-lok"><svg class="ic" aria-hidden="true"><use href="#i-pin"/></svg>Bogor</small></span></a>';
     }
     function tombol(daftar, aktif, attr) {
         return daftar.map(function (f) { return '<button type="button" ' + attr + '="' + esc(f[0]) + '" aria-pressed="' + (aktif === f[0]) + '">' + esc(f[1]) + '<b>' + f[2] + '</b></button>'; }).join('');

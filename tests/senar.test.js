@@ -4,12 +4,13 @@ const test = require('node:test'), assert = require('node:assert/strict'), vm = 
 const { bikinGitHub, siapkanRepo, bikinPerangkat, stokContoh, baca } = require('./helper');
 
 async function mulai() { const gh = siapkanRepo(bikinGitHub()), d = bikinPerangkat(gh); await d.masuk(); return { gh, A: d.A, L: d.L }; }
+const AYRI_LAYANAN_UJI = () => { const sb = { console }; sb.window = sb; vm.createContext(sb); vm.runInContext(baca('layanan-config.js'), sb); return sb.AYRI_LAYANAN; };
 const util = (() => { const sb = { console }; sb.window = sb; vm.createContext(sb); vm.runInContext(baca('util.js'), sb); return sb.AYRI_UTIL; })();
 
 test('judul: urutan Kategori - Alat musik - Merek & model - Ukuran; tension tanpa kata Ukuran; data lama tidak berubah', () => {
     const dasar = { kategori: 'aksesoris', jenis: 'Senar', nama: 'Orphee SA38' };
     assert.equal(util.judulKatalog(Object.assign({ alat: ['Gitar Akustik'], ukuran: '011' }, dasar)), 'Senar Gitar Akustik Orphee SA38 Ukuran 011');
-    assert.equal(util.judulKatalog({ kategori: 'aksesoris', jenis: 'Senar', nama: 'Orphee NX35', alat: ['Gitar Klasik', 'Guitalele'], ukuran: 'Hard Tension' }), 'Senar Gitar Klasik / Guitalele Orphee NX35 Hard Tension');
+    assert.equal(util.judulKatalog({ kategori: 'aksesoris', jenis: 'Senar', nama: 'Orphee NX35', alat: ['Gitar Klasik', 'Guitalele'], ukuran: 'Hard Tension' }), 'Senar Gitar Klasik Orphee NX35 Hard Tension', 'hanya alat pertama masuk judul; Guitalele jadi "Cocok untuk"');
     assert.equal(util.judulKatalog(dasar), 'Orphee SA38', 'stok lama tanpa alat/ukuran: tetap nama saja');
     assert.equal(util.judulKatalog({ kategori: 'aksesoris', jenis: 'Kabel', nama: 'Beyer ISO100LU3', tipe: 'Jack 6.5mm Mono', ukuran: '3 Meter' }), 'Kabel Jack 6.5mm Mono Beyer ISO100LU3 3 Meter', 'kabel: tipe + panjang tanpa kata Ukuran');
     assert.equal(util.judulKatalog({ kategori: 'gitar', jenis: 'Akustik', nama: 'Yamaha F310' }, ['Bass']), 'Gitar Akustik Yamaha F310');
@@ -57,4 +58,20 @@ test('judul per kategori: Case & tas tanpa kata kategori ganda, Kabel & Tuner me
     assert.equal(j({ jenis: 'Tuner', tipe: 'Clip-on', nama: 'Snark SN-5X' }), 'Tuner Clip-on Snark SN-5X');
     assert.equal(j({ jenis: 'Senar', alat: ['Gitar Akustik'], nama: 'Orphee SA38', ukuran: '011' }), 'Senar Gitar Akustik Orphee SA38 Ukuran 011');
     assert.equal(j({ jenis: 'Capo', nama: 'Kyser' }), 'Kyser', 'tanpa data baru: nama saja, seperti sebelumnya');
+});
+
+test('judul alat utama: hanya alat pertama; Capo cukup "Gitar"; alat lain jadi "Cocok untuk"; judul seri memakai alat utama bersama', () => {
+    const C = AYRI_LAYANAN_UJI(), j = (o) => util.judulKatalog(Object.assign({ kategori: 'aksesoris' }, o), C.jenisTanpaGitar, C.aksesoris);
+    const capo = { jenis: 'Capo', nama: 'JOYO JCP-03', alat: ['Gitar Akustik', 'Gitar Elektrik', 'Ukulele', 'Guitalele'] };
+    assert.equal(j(capo), 'Capo Gitar JOYO JCP-03');
+    assert.equal(j({ jenis: 'Capo', nama: 'JOYO JCP-03', alat: ['Gitar Klasik'] }), 'Capo Gitar JOYO JCP-03', 'satu alat pun cukup "Gitar"');
+    assert.equal(j({ jenis: 'Capo', nama: 'JOYO JCP-03', alat: ['Ukulele', 'Gitar Akustik'] }), 'Capo Ukulele JOYO JCP-03', 'alat pertama bukan gitar: tetap ditulis apa adanya');
+    assert.equal(util.cocokUntuk(capo.alat, C.aksesoris.Capo, 3), 'Cocok untuk: Gitar Akustik, Gitar Elektrik, Ukulele +1 lainnya');
+    assert.equal(util.cocokUntuk(capo.alat, C.aksesoris.Capo), 'Cocok untuk: Gitar Akustik, Gitar Elektrik, Ukulele, Guitalele');
+    assert.equal(util.cocokUntuk(['Gitar Klasik'], C.aksesoris.Senar, 3), '', 'senar satu alat: sudah ada di judul');
+    assert.equal(util.cocokUntuk(['Gitar Klasik', 'Guitalele'], C.aksesoris.Senar, 3), 'Cocok untuk: Gitar Klasik, Guitalele');
+    assert.equal(util.cocokUntuk([], C.aksesoris.Capo, 3), '');
+    const sr = (alat) => ({ jenis: 'Senar', merek: 'Orphee', seri: 'SC', alat });
+    assert.equal(util.judulSeri([sr(['Gitar Klasik', 'Guitalele']), sr(['Gitar Klasik'])], C.jenisTanpaGitar, C.aksesoris), 'Senar Gitar Klasik Orphee SC');
+    assert.equal(util.judulSeri([sr(['Gitar Klasik']), sr(['Gitar Akustik'])], C.jenisTanpaGitar, C.aksesoris), 'Senar Orphee SC', 'anggota beda alat utama: tanpa alat, kata Senar tetap ada');
 });

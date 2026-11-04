@@ -115,12 +115,13 @@ var AYRI_LAYANAN = {
     /* aksesoris (terutama senar): untuk alat musik apa, ukuran, dan saran fitur unggulan (bubble di poster) */
     alatMusik: ['Gitar Akustik', 'Gitar Klasik', 'Gitar Elektrik', 'Bass', 'Ukulele', 'Guitalele'],
     /* bentuk data tiap kategori aksesoris: alat = pilih alat musik; tipe/ukuran = { label, pilihan: [...] } atau { label, bebas: 'contoh isian' } (isian bebas).
-       Judul dirangkai: Kategori + Tipe + Alat musik + Merek & model + Ukuran. tanpaKategori: kata kategori dihilangkan bila Tipe sudah ada
+       Judul dirangkai: Kategori + Tipe + Alat musik + Merek & model + Ukuran. alatUmum: judul hanya menulis "Gitar" (tanpa Akustik/Elektrik). Hanya alat pertama yang dicentang masuk judul; sisanya jadi "Cocok untuk".
+       tanpaKategori: kata kategori dihilangkan bila Tipe sudah ada
        (mis. "Hardcase Gitar Akustik ...", bukan "Case & tas Hardcase ..."). Kategori yang tidak tercantum: tanpa isian tambahan. */
     aksesoris: {
         'Senar': { alat: true, ukuran: { label: 'Ukuran / tension senar', pilihan: ['008', '009', '010', '011', '012', '013', 'Normal Tension', 'Hard Tension'] } },
         'Kabel': { tipe: { label: 'Tipe kabel (kepala)', pilihan: ['Jack 6.5mm Mono', 'Jack 6.5mm Stereo', 'XLR', 'Jack - XLR', 'Jack 3.5mm', 'Speakon'] }, ukuran: { label: 'Panjang kabel', pilihan: ['1 Meter', '2 Meter', '3 Meter', '5 Meter', '6 Meter', '10 Meter'] } },
-        'Capo': { alat: true },
+        'Capo': { alat: true, alatUmum: true },   /* judul cukup "Capo Gitar ..."; alat lain jadi "Cocok untuk" */
         'Tuner': { tipe: { label: 'Tipe tuner', pilihan: ['Clip-on', 'Pedal', 'Rack'] } },
         'Strap': { alat: true, ukuran: { label: 'Lebar strap', bebas: 'mis. 5 cm' } },
         'Case & tas': { alat: true, tanpaKategori: true, tipe: { label: 'Tipe', pilihan: ['Hardcase', 'Softcase', 'Gigbag'] }, ukuran: { label: 'Ukuran / bentuk', bebas: 'mis. Jumbo, Dreadnought' } },
