@@ -240,34 +240,34 @@
    "grup": "iso100lu-kabel"
   },
   {
-   "kode": "STK-SD6VFA",
+   "kode": "STK-6XYMRC",
    "kategori": "aksesoris",
    "jenis": "Senar",
    "kondisi": "baru",
-   "nama": "Orphee QC9",
+   "nama": "Orphee QC5",
    "warna": "",
-   "deskripsi": "Senar Orphee QC9 ini dirancang khusus untuk gitar klasik dengan tegangan tinggi (hard tension) dan ukuran 028-045. Kemasannya mencantumkan fitur \"Silver Line\" yang diklaim menghasilkan timbre penuh (full timbre), cocok untuk kamu yang suka respons suara tegas dan detail. Produk ini masih dalam kondisi baru, siap langsung dipasang di gitar kesayanganmu. Mampir ke toko AYRI di Bogor untuk cek kualitasnya langsung. 🎸",
+   "deskripsi": "Senar gitar klasik Orphee QC5 ini adalah senar nylon normal tension (028-043) dengan lilitan silver pada senar bas untuk menghasilkan suara yang lebih tegas dan jernih. Kualitas senar ini dikenal cukup awet dan nyaman dimainkan karena daya tahan senarnya yang tinggi. Produk ini masih dalam kondisi segel baru, siap digunakan untuk mengganti senar lama gitar klasik Anda. Silakan datang langsung ke toko kami untuk mencoba sensasi dan suaranya sendiri. 🎸",
    "harga": 60000,
    "status": "tersedia",
    "sisa": null,
    "foto": [
     {
-     "src": "foto/stok/orphee-qc5-nylon-klasik-hard-tension-stk-sd6vfa-6c2cd5.webp",
-     "kecil": "foto/stok/orphee-qc5-nylon-klasik-hard-tension-stk-sd6vfa-6c2cd5-k.webp"
+     "src": "foto/stok/orphee-qc5-nylon-klasik-normal-tension-stk-6xymrc-d946f3.webp",
+     "kecil": "foto/stok/orphee-qc5-nylon-klasik-normal-tension-stk-6xymrc-d946f3-k.webp"
     },
     {
-     "src": "foto/stok/orphee-qc5-nylon-klasik-hard-tension-stk-sd6vfa-21735b.webp",
-     "kecil": "foto/stok/orphee-qc5-nylon-klasik-hard-tension-stk-sd6vfa-21735b-k.webp"
+     "src": "foto/stok/orphee-qc5-nylon-klasik-normal-tension-stk-6xymrc-d71bd3.webp",
+     "kecil": "foto/stok/orphee-qc5-nylon-klasik-normal-tension-stk-6xymrc-d71bd3-k.webp"
     }
    ],
    "alat": [
-    "Gitar Klasik",
-    "Guitalele"
+    "Gitar Klasik"
    ],
-   "ukuran": "Hard Tension",
+   "ukuran": "Normal Tension",
    "merek": "Orphee",
    "seri": "QC",
-   "artikel": 8
+   "artikel": 8,
+   "grup": "qc-senar"
   },
   {
    "kode": "STK-NZGV2M",
@@ -342,28 +342,35 @@
    "artikel": 11
   },
   {
-   "kode": "STK-6XYMRC",
+   "kode": "STK-SD6VFA",
    "kategori": "aksesoris",
    "jenis": "Senar",
    "kondisi": "baru",
-   "nama": "Orphee QC5",
-   "warna": "Nylon Klasik Normal Tension",
-   "deskripsi": "Senar gitar klasik Orphee QC5 ini adalah senar nylon normal tension (028-043) dengan lilitan silver pada senar bas untuk menghasilkan suara yang lebih tegas dan jernih. Kualitas senar ini dikenal cukup awet dan nyaman dimainkan karena daya tahan senarnya yang tinggi. Produk ini masih dalam kondisi segel baru, siap digunakan untuk mengganti senar lama gitar klasik Anda. Silakan datang langsung ke toko kami untuk mencoba sensasi dan suaranya sendiri. 🎸",
+   "nama": "Orphee QC9",
+   "warna": "",
+   "deskripsi": "Senar Orphee QC9 ini dirancang khusus untuk gitar klasik dengan tegangan tinggi (hard tension) dan ukuran 028-045. Kemasannya mencantumkan fitur \"Silver Line\" yang diklaim menghasilkan timbre penuh (full timbre), cocok untuk kamu yang suka respons suara tegas dan detail. Produk ini masih dalam kondisi baru, siap langsung dipasang di gitar kesayanganmu. Mampir ke toko AYRI di Bogor untuk cek kualitasnya langsung. 🎸",
    "harga": 60000,
    "status": "tersedia",
    "sisa": null,
    "foto": [
     {
-     "src": "foto/stok/orphee-qc5-nylon-klasik-normal-tension-stk-6xymrc-d946f3.webp",
-     "kecil": "foto/stok/orphee-qc5-nylon-klasik-normal-tension-stk-6xymrc-d946f3-k.webp"
+     "src": "foto/stok/orphee-qc5-nylon-klasik-hard-tension-stk-sd6vfa-6c2cd5.webp",
+     "kecil": "foto/stok/orphee-qc5-nylon-klasik-hard-tension-stk-sd6vfa-6c2cd5-k.webp"
     },
     {
-     "src": "foto/stok/orphee-qc5-nylon-klasik-normal-tension-stk-6xymrc-d71bd3.webp",
-     "kecil": "foto/stok/orphee-qc5-nylon-klasik-normal-tension-stk-6xymrc-d71bd3-k.webp"
+     "src": "foto/stok/orphee-qc5-nylon-klasik-hard-tension-stk-sd6vfa-21735b.webp",
+     "kecil": "foto/stok/orphee-qc5-nylon-klasik-hard-tension-stk-sd6vfa-21735b-k.webp"
     }
    ],
+   "alat": [
+    "Gitar Klasik",
+    "Guitalele"
+   ],
+   "ukuran": "Hard Tension",
    "merek": "Orphee",
-   "artikel": 12
+   "seri": "QC",
+   "artikel": 12,
+   "grup": "qc-senar"
   },
   {
    "kode": "STK-4SX3UT",
