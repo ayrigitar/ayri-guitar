@@ -3,38 +3,35 @@
  "v": 4,
  "item": [
   {
-   "kode": "STK-7MA5Y4",
+   "kode": "STK-J7NEGR",
    "kategori": "aksesoris",
    "jenis": "Senar",
    "kondisi": "baru",
-   "nama": "Orphee SA38",
+   "nama": "Orphee SC57",
    "warna": "",
-   "deskripsi": "Senar Orphee SA38 ini berjenis phosphor bronze yang dirancang khusus untuk gitar akustik dengan ukuran 1152. Bahan phosphor bronze ini menghasilkan nada yang kaya, hangat, dan memiliki sustain yang panjang. Kondisi senar ini masih baru, jadi kamu akan mendapatkan kualitas suara optimal langsung dari awal pemakaian. Silakan datang ke toko kami untuk mencoba langsung dan merasakan sendiri perbedaannya. 🎸",
-   "harga": 100000,
+   "deskripsi": "Senar Orphee SC57 ini adalah senar nylon klasik dengan tegangan keras (hard tension), cocok untuk pemain yang menginginkan suara lebih keras dan respons kuat saat bermain. Sebagai senar baru, kawat bassnya yang berbahan copper phosphor dengan coating (lapisan pelindung) akan terasa halus di jari dan lebih tahan lama. kemasan hitam dengan aksen ungu ini menampilkan spesifikasi jelas di bagian belakang, memastikan Anda mendapatkan tepat varian yang dibutuhkan. Mampir ke Toko Gitar AYRI di Bogor untuk mencoba langsung dan konsultasikan kebutuhan senar Anda. 🎸",
+   "harga": 120000,
    "status": "tersedia",
    "sisa": 1,
    "foto": [
     {
-     "src": "foto/stok/orphee-sa38-gitar-akustik-ukuran-011-stk-7ma5y4-df8345.webp",
-     "kecil": "foto/stok/orphee-sa38-gitar-akustik-ukuran-011-stk-7ma5y4-df8345-k.webp"
+     "src": "foto/stok/orphee-sc57-nylon-klasik-hard-tension-stk-j7negr-f5133d.webp",
+     "kecil": "foto/stok/orphee-sc57-nylon-klasik-hard-tension-stk-j7negr-f5133d-k.webp"
     },
     {
-     "src": "foto/stok/orphee-sa38-gitar-akustik-ukuran-011-stk-7ma5y4-f27d69.webp",
-     "kecil": "foto/stok/orphee-sa38-gitar-akustik-ukuran-011-stk-7ma5y4-f27d69-k.webp"
+     "src": "foto/stok/orphee-sc57-nylon-klasik-hard-tension-stk-j7negr-17840f.webp",
+     "kecil": "foto/stok/orphee-sc57-nylon-klasik-hard-tension-stk-j7negr-17840f-k.webp"
     }
    ],
    "alat": [
-    "Gitar Akustik"
+    "Gitar Klasik",
+    "Guitalele"
    ],
-   "ukuran": "011",
+   "ukuran": "Hard Tension",
    "merek": "Orphee",
-   "seri": "SA",
-   "fitur": [
-    "Phosphor Bronze",
-    "Warm"
-   ],
+   "seri": "SC",
    "artikel": 0,
-   "grup": "sa-senar"
+   "grup": "sc-senar"
   },
   {
    "kode": "STK-ZXAD4K",
@@ -128,37 +125,6 @@
    "grup": "sc-senar"
   },
   {
-   "kode": "STK-J7NEGR",
-   "kategori": "aksesoris",
-   "jenis": "Senar",
-   "kondisi": "baru",
-   "nama": "Orphee SC57",
-   "warna": "",
-   "deskripsi": "Senar Orphee SC57 ini adalah senar nylon klasik dengan tegangan keras (hard tension), cocok untuk pemain yang menginginkan suara lebih keras dan respons kuat saat bermain. Sebagai senar baru, kawat bassnya yang berbahan copper phosphor dengan coating (lapisan pelindung) akan terasa halus di jari dan lebih tahan lama. kemasan hitam dengan aksen ungu ini menampilkan spesifikasi jelas di bagian belakang, memastikan Anda mendapatkan tepat varian yang dibutuhkan. Mampir ke Toko Gitar AYRI di Bogor untuk mencoba langsung dan konsultasikan kebutuhan senar Anda. 🎸",
-   "harga": 120000,
-   "status": "tersedia",
-   "sisa": 1,
-   "foto": [
-    {
-     "src": "foto/stok/orphee-sc57-nylon-klasik-hard-tension-stk-j7negr-f5133d.webp",
-     "kecil": "foto/stok/orphee-sc57-nylon-klasik-hard-tension-stk-j7negr-f5133d-k.webp"
-    },
-    {
-     "src": "foto/stok/orphee-sc57-nylon-klasik-hard-tension-stk-j7negr-17840f.webp",
-     "kecil": "foto/stok/orphee-sc57-nylon-klasik-hard-tension-stk-j7negr-17840f-k.webp"
-    }
-   ],
-   "alat": [
-    "Gitar Klasik",
-    "Guitalele"
-   ],
-   "ukuran": "Hard Tension",
-   "merek": "Orphee",
-   "seri": "SC",
-   "artikel": 4,
-   "grup": "sc-senar"
-  },
-  {
    "kode": "STK-SUFER3",
    "kategori": "aksesoris",
    "jenis": "Senar",
@@ -187,6 +153,40 @@
    "seri": "SA",
    "fitur": [
     "Phosphor Bronze"
+   ],
+   "artikel": 4,
+   "grup": "sa-senar"
+  },
+  {
+   "kode": "STK-7MA5Y4",
+   "kategori": "aksesoris",
+   "jenis": "Senar",
+   "kondisi": "baru",
+   "nama": "Orphee SA38",
+   "warna": "",
+   "deskripsi": "Senar Orphee SA38 ini berjenis phosphor bronze yang dirancang khusus untuk gitar akustik dengan ukuran 1152. Bahan phosphor bronze ini menghasilkan nada yang kaya, hangat, dan memiliki sustain yang panjang. Kondisi senar ini masih baru, jadi kamu akan mendapatkan kualitas suara optimal langsung dari awal pemakaian. Silakan datang ke toko kami untuk mencoba langsung dan merasakan sendiri perbedaannya. 🎸",
+   "harga": 100000,
+   "status": "tersedia",
+   "sisa": 1,
+   "foto": [
+    {
+     "src": "foto/stok/orphee-sa38-gitar-akustik-ukuran-011-stk-7ma5y4-df8345.webp",
+     "kecil": "foto/stok/orphee-sa38-gitar-akustik-ukuran-011-stk-7ma5y4-df8345-k.webp"
+    },
+    {
+     "src": "foto/stok/orphee-sa38-gitar-akustik-ukuran-011-stk-7ma5y4-f27d69.webp",
+     "kecil": "foto/stok/orphee-sa38-gitar-akustik-ukuran-011-stk-7ma5y4-f27d69-k.webp"
+    }
+   ],
+   "alat": [
+    "Gitar Akustik"
+   ],
+   "ukuran": "011",
+   "merek": "Orphee",
+   "seri": "SA",
+   "fitur": [
+    "Phosphor Bronze",
+    "Warm"
    ],
    "artikel": 5,
    "grup": "sa-senar"
@@ -1423,13 +1423,13 @@
   }
  ],
  "sampul": {
-  "sa-senar": {
+  "sc-senar": {
    "kolase": true
   },
   "qa-senar": {
    "kolase": true
   },
-  "sc-senar": {
+  "sa-senar": {
    "kolase": true
   },
   "rx-senar": {
