@@ -52,6 +52,14 @@
         if (o.href) return '<a class="' + kls + '"' + (o.luar ? ' target="_blank"' : '') + ' href="' + o.href + '">' + isi + '</a>';
         return '<button type="button" class="' + kls + '" id="' + o.id + '">' + isi + '</button>';
     }
+    /* Penjelasan isian: ikon ⓘ di samping label, teksnya baru tampil saat diketuk (lebih ringkas daripada paragraf yang selalu terlihat) */
+    function bantu(id) { return ' <button type="button" class="ly-i" data-tip="' + id + '" aria-label="Penjelasan" aria-expanded="false">i</button>'; }
+    function tip(id, teks) { return '<p class="ly-hint ly-tip" id="' + id + '" hidden>' + teks + '</p>'; }
+    app.addEventListener('click', function (e) {
+        var b = e.target.closest && e.target.closest('.ly-i'); if (!b) return;
+        e.preventDefault(); var t = document.getElementById(b.dataset.tip); if (!t) return;
+        t.hidden = !t.hidden; b.setAttribute('aria-expanded', String(!t.hidden));
+    });
     /* Form edit: di PC (layar lebar) dibagi 2 kolom - kartu isian di kiri, kartu status/pembayaran/aksi + tombol Simpan (menempel saat scroll) di kanan.
        kananJudul = awal judul kartu (legend) yang pindah ke kanan. Urutan semula dijaga lewat CSS order, jadi di HP tetap satu kolom seperti biasa. */
     function susunDua(kananJudul) {
@@ -1364,11 +1372,11 @@
             '<div class="ly-head"><h1>' + (ed.baru ? 'Gitar masuk' : E(L.namaGitar(s, 'Gitar'))) + '</h1>' + (ed.baru ? '' : '<span class="st-chip st-' + s.status + '" id="sv-chip">' + E(L.STATUS[s.status].label) + '</span>') + '</div>' +
             (ed.baru ? '<p class="ly-muted">Kode servis dibuat otomatis saat disimpan.</p>' : kodeBaris(s)) +
 
-            '<fieldset class="ly-card ly-f"><legend>Pelanggan</legend>' + tombolKontak('[data-f="nama"]', '[data-f="hp"]') +
+            '<fieldset class="ly-card ly-f ly-grid"><legend>Pelanggan</legend>' + tombolKontak('[data-f="nama"]', '[data-f="hp"]') +
             '<label>Nama<input data-f="nama" autocomplete="off" required></label>' +
             '<label>No. HP / WhatsApp<input data-f="hp" type="tel" inputmode="tel" autocomplete="off" placeholder="08xxxxxxxxxx" required>' + (ed.baru ? '' : '<span class="ly-hint">Mengubah nomor HP mengubah 4 digit untuk cek status; kirim ulang tautan ke pelanggan.</span>') + '</label></fieldset>' +
 
-            '<fieldset class="ly-card ly-f"><legend>Gitar</legend>' +
+            '<fieldset class="ly-card ly-f ly-grid"><legend>Gitar</legend>' +
             '<div class="ly-row2"><label>Jenis<select data-f="gitar_jenis">' + opsi(jenis, s.gitar_jenis) + '</select></label>' +
             '<label>Merk / model<input data-f="gitar_merk" placeholder="mis. Yamaha F310"></label></div>' +
             '<label>Keluhan / kerusakan<textarea data-f="keluhan" rows="3" placeholder="mis. senar fret buzz di fret 3–5, bridge mulai terangkat"></textarea></label>' +
@@ -1675,15 +1683,15 @@
         app.innerHTML = '<section id="tb" class="ly-f"><div class="ly-head"><a class="ly-back" href="#tebus">‹ Daftar tebus</a></div>' +
             '<div class="ly-head"><h1>' + (te.baru ? 'Beli gitar (hak tebus)' : E(L.namaGitar(t, 'Gitar'))) + '</h1>' + (te.baru ? '' : chipTebus(t)) + '</div>' +
             (te.baru ? '<p class="ly-muted">Kode dibuat otomatis saat disimpan.</p>' : kodeBaris(t)) +
-            '<fieldset class="ly-card ly-f"><legend>Penjual</legend>' + tombolKontak('[data-t="nama"]', '[data-t="hp"]') +
+            '<fieldset class="ly-card ly-f ly-grid"><legend>Penjual</legend>' + tombolKontak('[data-t="nama"]', '[data-t="hp"]') +
             '<label>Nama (sesuai KTP)<input data-t="nama" autocomplete="off" required></label>' +
             '<div class="ly-row2"><label>No. HP / WhatsApp<input data-t="hp" type="tel" inputmode="tel" autocomplete="off" required></label><label>NIK (No. KTP, opsional)<input data-t="nik" inputmode="numeric" maxlength="16" autocomplete="off"></label></div>' +
             '<p class="ly-hint">Di surat perjanjian, NIK dan HP hanya tampil 4 digit terakhir.</p></fieldset>' +
-            '<fieldset class="ly-card ly-f"><legend>Gitar</legend>' +
+            '<fieldset class="ly-card ly-f ly-grid"><legend>Gitar</legend>' +
             '<div class="ly-row2"><label>Jenis<select data-t="gitar_jenis">' + opsi(jenis, t.gitar_jenis) + '</select></label><label>Merk / model<input data-t="gitar_merk" placeholder="mis. Yamaha APX600"></label></div>' +
             '<div class="ly-row2"><label>Warna<input data-t="warna"></label><label>Nomor seri<input data-t="no_seri" autocapitalize="characters"></label></div>' +
             '<label>Kondisi &amp; kelengkapan<textarea data-t="kelengkapan" rows="2" placeholder="mis. lecet kecil di body, softcase, kabel jack"></textarea></label></fieldset>' +
-            '<fieldset class="ly-card ly-f"><legend>Harga &amp; batas tebus</legend>' +
+            '<fieldset class="ly-card ly-f ly-grid"><legend>Harga &amp; batas tebus</legend>' +
             '<div class="ly-row2"><label>Tanggal beli<input type="date" data-t="tgl_beli"></label><label>Dibayar<select data-t="metode">' + opsi([['tunai', 'Tunai'], ['transfer', 'Transfer']], t.metode) + '</select></label></div>' +
             '<label>Harga beli = harga tebus (Rp)<input type="number" inputmode="numeric" min="0" step="10000" data-t="harga_beli"></label>' +
             '<label>Batas tebus<input type="date" data-t="batas_tebus"></label>' +
@@ -1829,15 +1837,15 @@
         app.innerHTML = '<section id="tp" class="ly-f"><div class="ly-head"><a class="ly-back" href="#titip">‹ Titip jual</a></div>' +
             '<div class="ly-head"><h1>' + (tp.baru ? 'Terima titipan' : E(L.namaGitar(t, 'Gitar'))) + '</h1>' + (tp.baru ? '' : chipTitip(t)) + '</div>' +
             (tp.baru ? '<p class="ly-muted">Kode dibuat otomatis saat disimpan.</p>' : kodeBaris(t, '')) +
-            '<fieldset class="ly-card ly-f"><legend>Pemilik</legend>' + tombolKontak('[data-t="nama"]', '[data-t="hp"]') +
+            '<fieldset class="ly-card ly-f ly-grid"><legend>Pemilik</legend>' + tombolKontak('[data-t="nama"]', '[data-t="hp"]') +
             '<label>Nama<input data-t="nama" autocomplete="off" required></label>' +
             '<div class="ly-row2"><label>No. HP / WhatsApp<input data-t="hp" type="tel" inputmode="tel" autocomplete="off" required></label><label>NIK / No. KTP (opsional)<input data-t="nik" inputmode="numeric" maxlength="16" autocomplete="off"></label></div>' +
             '<p class="ly-hint">NIK dan foto KTP tidak wajib. Bila diisi, hanya tersimpan di repo owner dan tidak pernah tampil di situs.</p></fieldset>' +
-            '<fieldset class="ly-card ly-f"><legend>Gitar</legend>' +
+            '<fieldset class="ly-card ly-f ly-grid"><legend>Gitar</legend>' +
             '<div class="ly-row2"><label>Jenis<select data-t="gitar_jenis">' + opsi(jenis, t.gitar_jenis) + '</select></label><label>Merk / model<input data-t="gitar_merk" placeholder="mis. Yamaha APX600"></label></div>' +
             '<div class="ly-row2"><label>Warna<input data-t="warna"></label><label>Nomor seri<input data-t="no_seri" autocapitalize="characters"></label></div>' +
             '<label>Kondisi &amp; kelengkapan (jadi deskripsi di katalog)<textarea data-t="kelengkapan" rows="2" placeholder="mis. lecet kecil di body, softcase, kabel jack"></textarea></label></fieldset>' +
-            '<fieldset class="ly-card ly-f"><legend>Harga &amp; komisi</legend>' +
+            '<fieldset class="ly-card ly-f ly-grid"><legend>Harga &amp; komisi</legend>' +
             '<label>Tanggal titip<input type="date" data-t="tgl_masuk"></label>' +
             '<div class="ly-row2"><label>Harga jual (Rp)<input type="number" inputmode="numeric" min="0" step="10000" data-t="harga_jual"></label><label>Harga minimum (Rp)<input type="number" inputmode="numeric" min="0" step="10000" data-t="harga_min"></label></div>' +
             '<p class="ly-hint">Harga minimum hanya terlihat owner. Toko tidak menjual di bawahnya, dan dipakai sebagai ganti rugi bila gitar rusak atau hilang karena kelalaian toko.</p>' +
@@ -2009,10 +2017,10 @@
             '<fieldset class="ly-card ly-f"><legend>Barang</legend><p style="margin:0"><b>' + E(nama) + '</b><br><small class="ly-muted">' + E(s.kode) + ' · stok ' + s.jumlah + ' · harga jual ' + L.rupiah(s.harga_jual) + '</small></p>' +
             '<div class="ly-row2"><label>Jumlah<input type="number" inputmode="numeric" min="1" max="' + s.jumlah + '" id="jb-qty" value="1"' + (+s.jumlah > 1 ? '' : ' disabled') + '></label>' +
             '<label>Harga deal per unit (Rp)<input type="number" inputmode="numeric" min="0" step="10000" id="jb-harga"></label></div></fieldset>' +
-            '<fieldset class="ly-card ly-f"><legend>Pembeli</legend>' + tombolKontak('#jb-nama', '#jb-hp') + '<div class="ly-row2"><label>Nama<input id="jb-nama" autocomplete="off"></label>' +
+            '<fieldset class="ly-card ly-f ly-grid"><legend>Pembeli</legend>' + tombolKontak('#jb-nama', '#jb-hp') + '<div class="ly-row2"><label>Nama<input id="jb-nama" autocomplete="off"></label>' +
             '<label>No. WhatsApp<input id="jb-hp" type="tel" inputmode="tel" autocomplete="off" placeholder="08…"></label></div>' +
             '<p class="ly-hint" style="margin:0">Wajib untuk DP (nota & pengingat dikirim lewat WA). Untuk jual lunas langsung boleh dikosongkan.</p></fieldset>' +
-            '<fieldset class="ly-card ly-f"><legend>Pembayaran sekarang</legend><div class="ly-row2"><label>Jumlah dibayar (Rp)<input type="number" inputmode="numeric" min="0" step="10000" id="jb-bayar"></label>' +
+            '<fieldset class="ly-card ly-f ly-grid"><legend>Pembayaran sekarang</legend><div class="ly-row2"><label>Jumlah dibayar (Rp)<input type="number" inputmode="numeric" min="0" step="10000" id="jb-bayar"></label>' +
             '<label>Metode<select id="jb-metode">' + opsi([['tunai', 'Tunai'], ['transfer', 'Transfer'], ['qris', 'QRIS']], 'tunai') + '</select></label></div>' +
             '<div class="ly-row2"><label>Tanggal<input type="date" id="jb-tgl"></label><label id="jb-batas-l">Batas pelunasan<input type="date" id="jb-batas"></label></div>' +
             '<label>Catatan (opsional)<input id="jb-ket" placeholder="mis. bonus softcase, dikirim via ekspedisi"></label>' +
@@ -2279,18 +2287,18 @@
         var h = L.hariIni(), nama = L.judulStok(s) + (s.warna ? ' (' + s.warna + ')' : '') + ' – Used' + (L.tingkatStok(s) ? ' ' + L.tingkatStok(s) : '');
         sw = { baru: true, antri: [], w: { nama: '', hp: '', stok_id: s.id, stok_kode: s.kode, nama_barang: nama, tgl_mulai: h, hari: 3, biaya_custom: L.tarifStandarUnit(s) ? L.tarifSewa(3) : 0, deposit_rencana: L.depositAwal(s.harga_jual), kondisi_keluar: '', status: 'aktif', bayar: [], foto: [] }, metode: 'tunai', bayarSewa: null, bayarDep: null };
         app.innerHTML = '<section id="sw" class="ly-f"><div class="ly-head"><a class="ly-back" href="#sewa">‹ Sewa gitar</a></div><div class="ly-head"><h1>Sewa baru</h1></div>' +
-            '<fieldset class="ly-card ly-f"><legend>Gitar</legend><p style="margin:0"><b>' + E(nama) + '</b><br><small class="ly-muted">' + E(s.kode) + ' · harga jual ' + (s.harga_jual ? L.rupiah(s.harga_jual) : 'belum diisi') + '</small></p></fieldset>' +
+            '<fieldset class="ly-card ly-f ly-grid"><legend>Gitar</legend><p style="margin:0"><b>' + E(nama) + '</b><br><small class="ly-muted">' + E(s.kode) + ' · harga jual ' + (s.harga_jual ? L.rupiah(s.harga_jual) : 'belum diisi') + '</small></p></fieldset>' +
             barisWa([['unit', 'Kirim unit &amp; estimasi biaya', 'Poster foto unit + estimasi sewa, deposit, link foto'], ['ketentuan', 'Kirim ketentuan sewa', 'Kirim sekali saja, tidak diulang per unit'], ['formulir', 'Kirim formulir pendaftaran', 'Isian nama, WA, tanggal & lama sewa'], ['bayar', 'Kirim info pembayaran', 'Total bayar di muka + rekening']], 'wa') +
-            '<fieldset class="ly-card ly-f"><legend>Penyewa</legend>' + tombolKontak('[data-w="nama"]', '[data-w="hp"]') + '<div class="ly-row2"><label>Nama<input data-w="nama" autocomplete="off"></label><label>No. WhatsApp<input data-w="hp" type="tel" inputmode="tel" autocomplete="off" placeholder="08…"></label></div>' +
+            '<fieldset class="ly-card ly-f ly-grid"><legend>Penyewa</legend>' + tombolKontak('[data-w="nama"]', '[data-w="hp"]') + '<div class="ly-row2"><label>Nama<input data-w="nama" autocomplete="off"></label><label>No. WhatsApp<input data-w="hp" type="tel" inputmode="tel" autocomplete="off" placeholder="08…"></label></div>' +
             '<p class="ly-hint" style="margin:0">Wajib: bukti sewa dan pengingat dikirim lewat WA.</p></fieldset>' +
-            '<fieldset class="ly-card ly-f"><legend>Sewa</legend><div class="ly-row2"><label>Mulai<input type="date" data-w="tgl_mulai"></label><label>Lama (hari)<input type="number" inputmode="numeric" min="1" max="' + SWC.maksHari + '" data-w="hari"></label></div>' +
+            '<fieldset class="ly-card ly-f ly-grid"><legend>Sewa</legend><div class="ly-row2"><label>Mulai<input type="date" data-w="tgl_mulai"></label><label>Lama (hari)<input type="number" inputmode="numeric" min="1" max="' + SWC.maksHari + '" data-w="hari"></label></div>' +
             '<div class="ly-btns" id="sw-cepat">' + [1, 2, 3, 7, 14].map(function (d) { return '<button type="button" class="ly-btn ly-btn--sm" data-hari="' + d + '">' + d + ' hari</button>'; }).join('') + '</div>' +
             '<div class="ly-row2"><label>Biaya sewa (Rp)<input type="number" inputmode="numeric" min="0" step="5000" data-w="biaya_custom"></label><label>Deposit (Rp)<input type="number" inputmode="numeric" min="0" step="5000" data-w="deposit_rencana"></label></div>' +
             '<label>Metode bayar<select id="sw-metode">' + opsi([['tunai', 'Tunai'], ['transfer', 'Transfer'], ['qris', 'QRIS']], 'tunai') + '</select></label>' +
             '<p class="ly-hint" style="margin:0">' + (L.tarifStandarUnit(s) ? 'Tarif standar: ' + L.ringkasTarifSewa() + '.' : '<b class="ly-warn">Unit ' + L.rupiah(SWC.batasUnitStandar) + ' ke atas: isi biaya sewa sendiri.</b>') + ' Deposit awal ' + SWC.depositPersen + '% harga gitar. Keduanya bisa diubah. Biaya sewa dan deposit dibayar di muka.</p>' +
             '<div class="ly-row2"><label>Sewa dibayar sekarang (Rp)<input type="number" inputmode="numeric" min="0" step="5000" id="sw-bs"></label><label>Deposit diterima (Rp)<input type="number" inputmode="numeric" min="0" step="50000" id="sw-bd"></label></div>' +
             '<div class="ly-sum" id="sw-sum"></div></fieldset>' +
-            '<fieldset class="ly-card ly-f"><legend>Kondisi saat keluar</legend><label>Catatan kondisi (lecet, bonus tas/kabel, dll.)<textarea data-w="kondisi_keluar" rows="2"></textarea></label><div id="sw-foto"></div>' +
+            '<fieldset class="ly-card ly-f ly-grid"><legend>Kondisi saat keluar</legend><label>Catatan kondisi (lecet, bonus tas/kabel, dll.)<textarea data-w="kondisi_keluar" rows="2"></textarea></label><div id="sw-foto"></div>' +
             '<p class="ly-hint" style="margin:0">Foto gitar dari beberapa sisi sebelum diserahkan, supaya jelas bila ada sengketa.' + (owner() ? ' Foto KTP (opsional) hanya disimpan di repo owner dan tidak pernah tampil di situs.' : '') + '</p></fieldset>' +
             '<div class="ly-save"><button type="button" class="ly-btn ly-btn--pri" id="sw-simpan">Simpan sewa</button></div></section>';
         susunDua(['Kondisi saat keluar']);
@@ -3093,24 +3101,24 @@
         app.innerHTML = '<section id="sk" class="ly-f"><div class="ly-head"><a class="ly-back" href="#stok">‹ Daftar stok</a></div>' +
             '<div class="ly-head"><h1>' + (sk.baru ? 'Tambah stok' : E(L.namaStok(s))) + '</h1>' + (sk.baru ? '' : chipStok(s)) + '</div>' +
             (sk.baru ? '' : kodeBaris(s, L.diKatalog(s) ? ' <a target="_blank" href="' + E(L.urlUnit(s.kode)) + '">🌐 lihat di katalog</a>' : '')) +
-            '<fieldset class="ly-card ly-f"><legend>Barang</legend>' +
+            '<fieldset class="ly-card ly-f ly-grid"><legend>Barang</legend>' +
             '<div class="ly-status" id="sk-kategori">' + [['gitar', 'Gitar'], ['aksesoris', 'Aksesoris']].map(function (k) { return '<button type="button" data-kategori="' + k[0] + '" aria-pressed="' + (s.kategori === k[0]) + '">' + k[1] + '</button>'; }).join('') + '</div>' +
             '<div class="ly-status" id="sk-kondisi"' + (aks ? ' hidden' : '') + '>' + ['baru', 'bekas'].map(function (k) { return '<button type="button" data-kondisi="' + k + '" aria-pressed="' + (s.kondisi === k) + '">' + L.KONDISI[k] + '</button>'; }).join('') + '</div>' +
-            '<div id="sk-tingkat" class="ly-f"' + (!aks && s.kondisi === 'bekas' ? '' : ' hidden') + '><label>Tingkat kondisi (tampil di poster &amp; katalog)<select data-s="tingkat">' + opsi([['', 'Belum dinilai']].concat(C.tingkatKondisi.map(function (t) { return [t[0], t[1]]; })), s.tingkat || '') + '</select></label>' +
-            '<p class="ly-hint" style="margin:0">' + C.tingkatKondisi.map(function (t) { return '<b>' + E(t[1]) + '</b>: ' + E(t[2]); }).join('. ') + '. Cacat yang ada tetap ditulis di deskripsi.</p></div>' +
-            '<label>Merek<input data-s="merek" autocapitalize="words" autocomplete="off" list="dl-merek" placeholder="mis. Yamaha"></label><datalist id="dl-merek">' + opsiDatalist(merekSaran()) + '</datalist><span class="ly-hint" style="margin-top:-6px">Merek dipisah dari model, supaya satu artikel merek bisa dipakai semua unit merek itu.</span>' +
+            '<div id="sk-tingkat" class="ly-f"' + (!aks && s.kondisi === 'bekas' ? '' : ' hidden') + '><label><span class="ly-lt">Tingkat kondisi (poster &amp; katalog)' + bantu('tip-tingkat') + '</span><select data-s="tingkat">' + opsi([['', 'Belum dinilai']].concat(C.tingkatKondisi.map(function (t) { return [t[0], t[1]]; })), s.tingkat || '') + '</select></label>' +
+            tip('tip-tingkat', C.tingkatKondisi.map(function (t) { return '<b>' + E(t[1]) + '</b>: ' + E(t[2]); }).join('. ') + '. Cacat yang ada tetap ditulis di deskripsi.') + '</div>' +
+            '<label><span class="ly-lt">Merek' + bantu('tip-merek') + '</span><input data-s="merek" autocapitalize="words" autocomplete="off" list="dl-merek" placeholder="mis. Yamaha"></label><datalist id="dl-merek">' + opsiDatalist(merekSaran()) + '</datalist>' + tip('tip-merek', 'Merek dipisah dari model, supaya satu artikel merek bisa dipakai semua unit merek itu.') +
             '<div id="sk-gitar"' + (aks ? ' hidden' : '') + ' class="ly-f"><div class="ly-row2"><label>Jenis gitar<select data-s="gitar_jenis">' + opsi(jenis, s.gitar_jenis) + '</select></label><label>Model<input data-s="gitar_merk" placeholder="mis. F310"></label></div>' +
             '<label>Nomor seri (tidak tampil di website)<input data-s="no_seri" autocapitalize="characters"></label></div>' +
             '<div id="sk-aks"' + (aks ? '' : ' hidden') + ' class="ly-f"><div class="ly-row2"><label>Kategori<select data-s="sub">' + opsi(subs, s.sub) + '</select></label><label>Nama / model produk<input data-s="nama" placeholder="mis. QA140"></label></div>' +
-            '<label>Seri (opsional)<input data-s="seri" autocomplete="off" list="dl-seri" placeholder="mis. QA Series"></label><datalist id="dl-seri">' + opsiDatalist(saranDariStok(function (x) { return x.seri; })) + '</datalist>' +
-            '<span class="ly-hint" style="margin-top:-6px">Isi <b>sama persis</b> untuk barang yang satu seri (mis. QA140, QA150, QA160 = "QA Series"). Di katalog digabung jadi satu halaman dengan pilihan ukuran/panjang. Isi juga Ukuran atau Tipe masing-masing.</span>' +
+            '<label><span class="ly-lt">Seri (opsional)' + bantu('tip-seri') + '</span><input data-s="seri" autocomplete="off" list="dl-seri" placeholder="mis. QA Series"></label><datalist id="dl-seri">' + opsiDatalist(saranDariStok(function (x) { return x.seri; })) + '</datalist>' +
+            tip('tip-seri', 'Isi <b>sama persis</b> untuk barang yang satu seri (mis. QA140, QA150, QA160 = "QA Series"). Di katalog digabung jadi satu halaman dengan pilihan ukuran/panjang. Isi juga Ukuran atau Tipe masing-masing.') +
             '<div id="sk-skema" class="ly-f">' + skemaHtml(s) + '</div></div>' +
             '<label><span id="sk-lbl-warna">' + (aks ? LBL_VARIAN : 'Warna') + '</span><input data-s="warna" placeholder="' + (aks ? PH_VARIAN : 'mis. Hitam Glossy') + '"></label>' +
             '<div class="ly-f"><span class="ly-hint" style="margin:0"><b>Fitur unggulan</b> (jadi bubble oval di samping foto poster, maks. 4). Ketik huruf pertama untuk saran.</span><div class="ly-pilih" id="sk-fitur"></div>' +
             '<div class="ly-row2"><input class="ly-in" id="sk-fitur-in" list="dl-fitur" autocomplete="off" maxlength="24" placeholder="mis. Phosphor Bronze"><button type="button" class="ly-btn ly-btn--sm" id="sk-fitur-tambah">Tambah</button></div><datalist id="dl-fitur">' + opsiDatalist(fiturSaran()) + '</datalist></div>' +
             '<label>Deskripsi (kondisi, spesifikasi, kelengkapan)<textarea data-s="deskripsi" rows="3" placeholder="mis. mulus, action rendah, bonus softcase"></textarea></label>' +
             (L.ai.aktif ? '<div class="ly-btns"><button type="button" class="ly-btn ly-btn--sm" id="sk-ai">✨ Tulis deskripsi dengan AI</button></div><p class="ly-hint" style="margin:0">Tulis catatan singkat dulu (mis. lecet kecil di body, bonus softcase); AI ikut melihat foto yang sudah diunggah (maks. 3) dan menambah spesifikasi model (jumlah senar, bahan, konstruksi). Spesifikasi itu dari pengetahuan AI, jadi cek lagi dengan barangnya sebelum menyimpan.</p>' : '') + '</fieldset>' +
-            '<fieldset class="ly-card ly-f"><legend>Harga &amp; jumlah</legend>' +
+            '<fieldset class="ly-card ly-f ly-grid"><legend>Harga &amp; jumlah</legend>' +
             '<div class="ly-row2">' + (owner() ? '<label>Modal / harga beli per unit (Rp)<input type="number" inputmode="numeric" min="0" step="10000" data-s="harga_beli"></label>' : '') + '<label>Harga jual (Rp)<input type="number" inputmode="numeric" min="0" step="10000" data-s="harga_jual"></label></div>' +
             '<div class="ly-row2"><label>Jumlah tersedia<input type="number" inputmode="numeric" min="0" data-s="jumlah"></label><label>Tanggal masuk (tidak tampil di website)<input type="date" data-s="tgl_masuk"></label></div>' +
             (owner() ? '<label>Asal barang (opsional, tidak tampil di website)<input data-s="asal" placeholder="mis. beli dari pelanggan / distributor / tukar tambah"></label>' : '') +
@@ -3365,7 +3373,7 @@
         var a = ae.a, url = L.situs() + 'artikel-' + a.slug + '.html', terbit = !ae.baru && cache.artikel.some(function (x) { return x.id === a.id && x.status === 'terbit'; });
         app.innerHTML = '<section id="ar" class="ly-f"><div class="ly-head"><a class="ly-back" href="#artikel">‹ Daftar artikel</a></div>' +
             '<div class="ly-head"><h1>' + (ae.baru ? 'Artikel baru' : 'Edit artikel') + '</h1></div>' +
-            '<fieldset class="ly-card ly-f"><legend>Judul &amp; alamat</legend>' +
+            '<fieldset class="ly-card ly-f ly-grid"><legend>Judul &amp; alamat</legend>' +
             '<label>Judul<input data-a="judul" maxlength="140" placeholder="mis. Repair Bridge Lepas Yamaha APX500"></label>' +
             '<label>Alamat halaman<input data-a="slug" pattern="[a-z0-9-]+" autocapitalize="off"><span class="ly-hint" id="ar-url"></span></label>' +
             '<div class="ly-row2"><label>Label<input data-a="tag" maxlength="40"></label><label>Status<select data-a="status">' + opsi([['draf', 'Draf'], ['terbit', 'Terbit']], a.status) + '</select></label></div>' +

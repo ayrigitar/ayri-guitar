@@ -840,3 +840,21 @@ html[data-theme="dark"] .rk-naik { color: #5CD196 !important; }
   .ly-dua__kanan > .ly-save .ly-dirty { position: static; transform: none; flex: 1 1 100%; text-align: center; }
   .ly-dua__kanan > .ly-save .ly-dirty[hidden] { display: none; }
 }
+
+/* isian ringkas: ikon penjelasan (ⓘ) menggantikan paragraf bantuan yang selalu terlihat */
+.ly-lt { display: inline-flex; align-items: center; gap: 6px; }
+.ly-i { display: inline-grid; place-items: center; flex: none; width: 18px; height: 18px; padding: 0; border: 1px solid var(--line); border-radius: 50%; background: var(--surface-2); color: var(--ink-3); font: italic 700 .6875rem/1 var(--font-display, serif); cursor: pointer; }
+.ly-i[aria-expanded="true"] { background: var(--ink); border-color: var(--ink); color: var(--bg); }
+.ly-tip { margin: 0; padding: 8px 10px; border-radius: var(--r-md); background: var(--surface-2); }
+.ly-tip[hidden] { display: none; }
+
+/* PC: isian pendek berdampingan (3 per baris) - kolom sempit tidak perlu selebar kartu. HP tidak berubah. */
+@media (min-width: 1000px) {
+  .ly-grid { grid-template-columns: repeat(6, minmax(0, 1fr)); grid-auto-flow: row dense; column-gap: 12px; }
+  .ly-grid > *, .ly-grid :is(#sk-gitar, #sk-aks, #sk-skema, #sk-tingkat, .ly-row2:has(> label)) > * { grid-column: 1 / -1; }
+  .ly-grid #sk-gitar:not([hidden]), .ly-grid #sk-aks:not([hidden]), .ly-grid #sk-skema, .ly-grid #sk-tingkat:not([hidden]), .ly-grid .ly-row2:has(> label) { display: contents; }
+  .ly-grid > label:not(.ly-cek):not(:has(textarea)), .ly-grid :is(#sk-gitar, #sk-aks, #sk-skema, #sk-tingkat, .ly-row2:has(> label)) > label:not(.ly-cek):not(:has(textarea)) { grid-column: span 2; }
+  /* urutan: isian pendek dulu, lalu pilihan alat musik, lalu fitur / deskripsi */
+  .ly-grid .ly-f:has(#sk-alat) { order: 1; }
+  .ly-grid > .ly-f:has(#sk-fitur), .ly-grid > label:has(textarea), .ly-grid > .ly-btns, .ly-grid > p.ly-hint:not(.ly-tip) { order: 2; }
+}
