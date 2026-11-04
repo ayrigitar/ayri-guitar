@@ -240,35 +240,33 @@
    "grup": "iso100lu-kabel"
   },
   {
-   "kode": "STK-6DZ7XA",
+   "kode": "STK-QW5YP5",
    "kategori": "aksesoris",
-   "jenis": "Capo",
+   "jenis": "Senar",
    "kondisi": "baru",
-   "nama": "JOYO JCP-01",
-   "warna": "Gitar Akustik & Gitar Elektrik",
-   "deskripsi": "Capo Joyo JCP-01 ini hadir dalam desain ringan berwarna hitam yang cocok untuk gitar akustik maupun elektrik. Paketnya sudah termasuk pick oranye, sehingga kamu tidak perlu beli terpisah. Desainnya ringkas dan praktis untuk dibawa saat latihan atau tampil. Yuk, langsung cek dan cobain sendiri di Toko Gitar AYRI! 🎸",
-   "harga": 60000,
+   "nama": "Orphee RX17",
+   "warna": "",
+   "deskripsi": "Senar gitar listrik Orphee RX17 ukuran 010 ini hadir dalam kemasan segel baru dengan desain kemas teal yang khas. Terlihat jelas pada kemasannya bahwa senar ini terbuat dari 58 nickel alloy yang tangguh, dengan susunan gauge 10-46. Pilihan ukuran 010 ini menawarkan keseimbangan yang pas, ringan saat dipetik, namun tetap menghasilkan sustain yang solid untuk gaya mainmu. Yuk, langsung datang ke Toko Gitar AYRI untuk mencoba dan merasakan sensasi senar baru ini di gitarmu. 🎸",
+   "harga": 40000,
    "status": "tersedia",
-   "sisa": 3,
+   "sisa": null,
    "foto": [
     {
-     "src": "foto/stok/joyo-jcp-01-gitar-akustik-gitar-elektrik-stk-6dz7xa-69b289.webp",
-     "kecil": "foto/stok/joyo-jcp-01-gitar-akustik-gitar-elektrik-stk-6dz7xa-69b289-k.webp"
+     "src": "foto/stok/orphee-rx17-gitar-listrik-ukuran-010-stk-qw5yp5-070ada.webp",
+     "kecil": "foto/stok/orphee-rx17-gitar-listrik-ukuran-010-stk-qw5yp5-070ada-k.webp"
     },
     {
-     "src": "foto/stok/joyo-jcp-01-gitar-akustik-gitar-elektrik-stk-6dz7xa-2d5eb7.webp",
-     "kecil": "foto/stok/joyo-jcp-01-gitar-akustik-gitar-elektrik-stk-6dz7xa-2d5eb7-k.webp"
+     "src": "foto/stok/orphee-rx17-gitar-listrik-ukuran-010-stk-qw5yp5-8b0198.webp",
+     "kecil": "foto/stok/orphee-rx17-gitar-listrik-ukuran-010-stk-qw5yp5-8b0198-k.webp"
     }
    ],
    "alat": [
-    "Gitar Akustik",
-    "Gitar Elektrik",
-    "Ukulele"
+    "Gitar Elektrik"
    ],
-   "merek": "JOYO",
-   "seri": "JCP",
-   "artikel": 8,
-   "grup": "jcp-capo"
+   "ukuran": "010",
+   "merek": "Orphee",
+   "seri": "RX",
+   "artikel": 8
   },
   {
    "kode": "STK-NZGV2M",
@@ -679,28 +677,35 @@
    "artikel": 25
   },
   {
-   "kode": "STK-QW5YP5",
+   "kode": "STK-6DZ7XA",
    "kategori": "aksesoris",
-   "jenis": "Senar",
+   "jenis": "Capo",
    "kondisi": "baru",
-   "nama": "Orphee RX17",
-   "warna": "Gitar Listrik Ukuran 010",
-   "deskripsi": "Senar gitar listrik Orphee RX17 ukuran 010 ini hadir dalam kemasan segel baru dengan desain kemas teal yang khas. Terlihat jelas pada kemasannya bahwa senar ini terbuat dari 58 nickel alloy yang tangguh, dengan susunan gauge 10-46. Pilihan ukuran 010 ini menawarkan keseimbangan yang pas, ringan saat dipetik, namun tetap menghasilkan sustain yang solid untuk gaya mainmu. Yuk, langsung datang ke Toko Gitar AYRI untuk mencoba dan merasakan sensasi senar baru ini di gitarmu. 🎸",
-   "harga": 40000,
+   "nama": "JOYO JCP-01",
+   "warna": "Gitar Akustik & Gitar Elektrik",
+   "deskripsi": "Capo Joyo JCP-01 ini hadir dalam desain ringan berwarna hitam yang cocok untuk gitar akustik maupun elektrik. Paketnya sudah termasuk pick oranye, sehingga kamu tidak perlu beli terpisah. Desainnya ringkas dan praktis untuk dibawa saat latihan atau tampil. Yuk, langsung cek dan cobain sendiri di Toko Gitar AYRI! 🎸",
+   "harga": 60000,
    "status": "tersedia",
-   "sisa": null,
+   "sisa": 3,
    "foto": [
     {
-     "src": "foto/stok/orphee-rx17-gitar-listrik-ukuran-010-stk-qw5yp5-070ada.webp",
-     "kecil": "foto/stok/orphee-rx17-gitar-listrik-ukuran-010-stk-qw5yp5-070ada-k.webp"
+     "src": "foto/stok/joyo-jcp-01-gitar-akustik-gitar-elektrik-stk-6dz7xa-69b289.webp",
+     "kecil": "foto/stok/joyo-jcp-01-gitar-akustik-gitar-elektrik-stk-6dz7xa-69b289-k.webp"
     },
     {
-     "src": "foto/stok/orphee-rx17-gitar-listrik-ukuran-010-stk-qw5yp5-8b0198.webp",
-     "kecil": "foto/stok/orphee-rx17-gitar-listrik-ukuran-010-stk-qw5yp5-8b0198-k.webp"
+     "src": "foto/stok/joyo-jcp-01-gitar-akustik-gitar-elektrik-stk-6dz7xa-2d5eb7.webp",
+     "kecil": "foto/stok/joyo-jcp-01-gitar-akustik-gitar-elektrik-stk-6dz7xa-2d5eb7-k.webp"
     }
    ],
-   "merek": "Orphee",
-   "artikel": 26
+   "alat": [
+    "Gitar Akustik",
+    "Gitar Elektrik",
+    "Ukulele"
+   ],
+   "merek": "JOYO",
+   "seri": "JCP",
+   "artikel": 26,
+   "grup": "jcp-capo"
   },
   {
    "kode": "STK-B9VWVH",
