@@ -39,6 +39,7 @@ test('pilihan jenis, tipe, merek mengikuti saringan di atasnya, dengan jumlah', 
     eq(o.tipe, [['Gitar Akustik', 3], ['Gitar Klasik', 3]], 'urutan tipe mengikuti daftar alat; senar dua alat dihitung di keduanya');
     assert.equal(o.jumlahJenis, 5);
     eq(o.merek, [['Orphee', 4], ['Elixir', 1]]);
+    assert.equal(o.jumlahMerek, 5, 'angka "Semua merek" = jumlah barang pada jenis (dan tipe) terpilih');
     o = U.opsiFaset(DAFTAR, { jenis: 'Senar', tipe: 'Gitar Klasik', merek: '' }, urut);
     eq(o.merek, [['Orphee', 2], ['Elixir', 1]]);
     o = U.opsiFaset(DAFTAR, { jenis: 'Capo', tipe: '', merek: '' }, urut);

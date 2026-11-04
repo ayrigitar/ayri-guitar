@@ -133,9 +133,9 @@
                 </label>
             </div>
             <div class="ly-filter" id="kat-filter" role="group" aria-label="Kategori"></div>
-            <div class="ly-filter ly-filter--kecil" id="kat-jenis" role="group" aria-label="Jenis" hidden></div>
-            <div class="ly-filter ly-filter--kecil" id="kat-tipe" role="group" aria-label="Tipe" hidden></div>
             <div class="kat-bar2" id="kat-bar2" hidden>
+                <label class="kat-urut" id="kat-jenis-l" hidden><span class="sr-only">Jenis</span><select id="kat-jenis" class="ly-in" aria-label="Jenis"></select></label>
+                <label class="kat-urut" id="kat-tipe-l" hidden><span class="sr-only">Tipe</span><select id="kat-tipe" class="ly-in" aria-label="Tipe"></select></label>
                 <label class="kat-urut" id="kat-merek-l" hidden><span class="sr-only">Merek</span><select id="kat-merek" class="ly-in" aria-label="Merek"></select></label>
                 <button type="button" class="ly-btn ly-btn--sm" id="kat-reset" hidden>Hapus filter</button>
             </div>
@@ -217,19 +217,18 @@ document.addEventListener('DOMContentLoaded', function () {
             .map(function (f) { return [f[0], f[1], n[f[0]]]; }), filter, 'data-f');
         var d = dasar(), p = AYRI_UTIL.rapikanFaset(d, pilih(), URUTAN), o = AYRI_UTIL.opsiFaset(d, p, URUTAN);
         jenis = p.jenis; tipe = p.tipe; merek = p.merek;
-        function baris(id, ops, semua, jumlah, aktif, attr) {
+        /* Jenis, Tipe, Merek: dropdown sejajar; angka di opsi ikut menyesuaikan pilihan lain */
+        function pilihan(id, ops, semua, jumlah, aktif) {
             var el = document.getElementById(id);
-            el.hidden = !ops.length;
-            el.innerHTML = ops.length ? tombol([['', semua, jumlah]].concat(ops.map(function (k) { return [k[0], k[0], k[1]]; })), aktif, attr) : '';
+            document.getElementById(id + '-l').hidden = !ops.length;
+            el.innerHTML = ops.length ? '<option value="">' + esc(semua) + ' (' + jumlah + ')</option>' + ops.map(function (k) { return '<option value="' + esc(k[0]) + '"' + (k[0] === aktif ? ' selected' : '') + '>' + esc(k[0]) + ' (' + k[1] + ')</option>'; }).join('') : '';
         }
-        baris('kat-jenis', o.jenis, 'Semua jenis', d.length, jenis, 'data-j');
-        baris('kat-tipe', o.tipe, 'Semua tipe', o.jumlahJenis, tipe, 'data-t');
-        var sm = document.getElementById('kat-merek');
-        sm.innerHTML = '<option value="">Semua merek</option>' + o.merek.map(function (k) { return '<option value="' + esc(k[0]) + '"' + (k[0] === merek ? ' selected' : '') + '>' + esc(k[0]) + ' (' + k[1] + ')</option>'; }).join('');
-        document.getElementById('kat-merek-l').hidden = !o.merek.length;
+        pilihan('kat-jenis', o.jenis, 'Semua jenis', d.length, jenis);
+        pilihan('kat-tipe', o.tipe, 'Semua tipe', o.jumlahJenis, tipe);
+        pilihan('kat-merek', o.merek, 'Semua merek', o.jumlahMerek == null ? d.length : o.jumlahMerek, merek);
         var aktif = filter !== 'semua' || jenis || tipe || merek || cari.trim() || urut !== 'baru';
         document.getElementById('kat-reset').hidden = !aktif;
-        document.getElementById('kat-bar2').hidden = !o.merek.length && !aktif;
+        document.getElementById('kat-bar2').hidden = !o.jenis.length && !o.tipe.length && !o.merek.length && !aktif;
     }
     function gambar() {
         var c = cari.trim().toLowerCase();
@@ -253,8 +252,8 @@ document.addEventListener('DOMContentLoaded', function () {
         simpanUrl();
     }
     document.getElementById('kat-filter').addEventListener('click', function (e) { var b = e.target.closest('[data-f]'); if (b) { filter = b.dataset.f; jenis = tipe = merek = ''; gambarFilter(); gambar(); } });
-    document.getElementById('kat-jenis').addEventListener('click', function (e) { var b = e.target.closest('[data-j]'); if (b) { jenis = b.dataset.j; tipe = ''; gambarFilter(); gambar(); } });
-    document.getElementById('kat-tipe').addEventListener('click', function (e) { var b = e.target.closest('[data-t]'); if (b) { tipe = b.dataset.t; gambarFilter(); gambar(); } });
+    document.getElementById('kat-jenis').addEventListener('change', function () { jenis = this.value; tipe = ''; gambarFilter(); gambar(); });
+    document.getElementById('kat-tipe').addEventListener('change', function () { tipe = this.value; gambarFilter(); gambar(); });
     document.getElementById('kat-merek').addEventListener('change', function () { merek = this.value; gambarFilter(); gambar(); });
     document.getElementById('kat-cari').addEventListener('input', function () { cari = this.value; gambarFilter(); gambar(); });
     document.getElementById('kat-urut').addEventListener('change', function () { urut = this.value; gambarFilter(); gambar(); });
