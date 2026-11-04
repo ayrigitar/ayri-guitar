@@ -240,30 +240,30 @@
    "grup": "iso100lu-kabel"
   },
   {
-   "kode": "STK-9SSQBS",
+   "kode": "STK-B9VWVH",
    "kategori": "aksesoris",
    "jenis": "Capo",
    "kondisi": "baru",
-   "nama": "JOYO JCP-03",
+   "nama": "TaffStudio 7RTHF8BK",
    "warna": "",
-   "deskripsi": "Capo Joyo JCP-03 ini hadir dengan desain ringan dan warna hitam yang minimalis. Mekanisme pegasnya memudahkan kamu untuk menyetel nada dengan cepat tanpa merusak senar. Produk ini masih baru dan tersegel dalam dus aslinya. Yuk, mampir ke Toko Gitar AYRI Bogor dan langsung coba fiturnya! 🎸",
-   "harga": 100000,
+   "deskripsi": "Capo ini baru dan siap pakai untuk semua gitar. Bagian pelat senarnya dilapisi karet bertekstur agar senar tidak bergeser dan nada tetap jernih. Desainnya universal, jadi pas di berbagai ukuran leher gitar. Silakan datang ke toko di Bogor untuk tes fit langsung di gitar Anda 🎸",
+   "harga": 40000,
    "status": "tersedia",
-   "sisa": 2,
+   "sisa": null,
    "foto": [
     {
-     "src": "foto/stok/joyo-jcp-03-stk-9ssqbs-d65231.webp",
-     "kecil": "foto/stok/joyo-jcp-03-stk-9ssqbs-d65231-k.webp"
+     "src": "foto/stok/taffstudio-7rthf8bk-universal-stk-b9vwvh-8dacee.webp",
+     "kecil": "foto/stok/taffstudio-7rthf8bk-universal-stk-b9vwvh-8dacee-k.webp"
     }
    ],
    "alat": [
     "Gitar Akustik",
+    "Gitar Klasik",
     "Gitar Elektrik",
     "Ukulele",
     "Guitalele"
    ],
-   "merek": "JOYO",
-   "seri": "JCP",
+   "merek": "TaffStudio",
    "artikel": 8
   },
   {
@@ -723,23 +723,30 @@
    "artikel": 27
   },
   {
-   "kode": "STK-B9VWVH",
+   "kode": "STK-9SSQBS",
    "kategori": "aksesoris",
    "jenis": "Capo",
    "kondisi": "baru",
-   "nama": "TaffStudio 7RTHF8BK",
-   "warna": "Universal",
-   "deskripsi": "Capo ini baru dan siap pakai untuk semua gitar. Bagian pelat senarnya dilapisi karet bertekstur agar senar tidak bergeser dan nada tetap jernih. Desainnya universal, jadi pas di berbagai ukuran leher gitar. Silakan datang ke toko di Bogor untuk tes fit langsung di gitar Anda 🎸",
-   "harga": 40000,
+   "nama": "JOYO JCP-03",
+   "warna": "",
+   "deskripsi": "Capo Joyo JCP-03 ini hadir dengan desain ringan dan warna hitam yang minimalis. Mekanisme pegasnya memudahkan kamu untuk menyetel nada dengan cepat tanpa merusak senar. Produk ini masih baru dan tersegel dalam dus aslinya. Yuk, mampir ke Toko Gitar AYRI Bogor dan langsung coba fiturnya! 🎸",
+   "harga": 100000,
    "status": "tersedia",
-   "sisa": null,
+   "sisa": 2,
    "foto": [
     {
-     "src": "foto/stok/taffstudio-7rthf8bk-universal-stk-b9vwvh-8dacee.webp",
-     "kecil": "foto/stok/taffstudio-7rthf8bk-universal-stk-b9vwvh-8dacee-k.webp"
+     "src": "foto/stok/joyo-jcp-03-stk-9ssqbs-d65231.webp",
+     "kecil": "foto/stok/joyo-jcp-03-stk-9ssqbs-d65231-k.webp"
     }
    ],
-   "merek": "TaffStudio",
+   "alat": [
+    "Gitar Akustik",
+    "Gitar Elektrik",
+    "Ukulele",
+    "Guitalele"
+   ],
+   "merek": "JOYO",
+   "seri": "JCP",
    "artikel": 28
   },
   {
