@@ -624,6 +624,41 @@
    "grup": "tx-senar"
   },
   {
+   "kode": "STK-2Z9THR",
+   "kategori": "aksesoris",
+   "jenis": "Senar",
+   "kondisi": "baru",
+   "nama": "Orphee SA37",
+   "warna": "",
+   "deskripsi": "Senar Orphee SA37 Phosphor Bronze ukuran .010 ini hadir dalam kemasan hitam beraksen biru yang menampilkan brand dan spesifikasi secara jelas. Sebagai senar khusus gitar akustik, material phosphor bronze-nya dirancang untuk menghasilkan nada yang hangat dan resonan. Kondisi barang masih baru, siap untuk dipasang langsung pada gitar Anda. Yuk, coba rasakan sendiri kualitas senarnya di toko kami! 🎸",
+   "harga": 100000,
+   "status": "tersedia",
+   "sisa": 2,
+   "foto": [
+    {
+     "src": "foto/stok/orphee-sa37-phosphor-bronze-ukuran-010-stk-2z9thr-43bfa0.webp",
+     "kecil": "foto/stok/orphee-sa37-phosphor-bronze-ukuran-010-stk-2z9thr-43bfa0-k.webp"
+    },
+    {
+     "src": "foto/stok/orphee-sa37-phosphor-bronze-ukuran-010-stk-2z9thr-b0548a.webp",
+     "kecil": "foto/stok/orphee-sa37-phosphor-bronze-ukuran-010-stk-2z9thr-b0548a-k.webp"
+    }
+   ],
+   "alat": [
+    "Gitar Akustik"
+   ],
+   "ukuran": "010",
+   "merek": "Orphee",
+   "seri": "SA",
+   "fitur": [
+    "Phosphor Bronze",
+    "Warm",
+    "Extra Light"
+   ],
+   "artikel": 21,
+   "grup": "sa-senar"
+  },
+  {
    "kode": "STK-BABWUM",
    "kategori": "aksesoris",
    "jenis": "Senar",
@@ -650,7 +685,7 @@
    "ukuran": "012",
    "merek": "Orphee",
    "seri": "QA",
-   "artikel": 21,
+   "artikel": 22,
    "grup": "qa-senar"
   },
   {
@@ -680,7 +715,7 @@
    "ukuran": "011",
    "merek": "Orphee",
    "seri": "QA",
-   "artikel": 22,
+   "artikel": 23,
    "grup": "qa-senar"
   },
   {
@@ -711,7 +746,7 @@
    "ukuran": "Hard Tension",
    "merek": "Orphee",
    "seri": "QC",
-   "artikel": 23,
+   "artikel": 24,
    "grup": "qc-senar"
   },
   {
@@ -742,7 +777,7 @@
    "ukuran": "Normal Tension",
    "merek": "Orphee",
    "seri": "QC",
-   "artikel": 24,
+   "artikel": 25,
    "grup": "qc-senar"
   },
   {
@@ -773,7 +808,7 @@
    "ukuran": "Hard Tension",
    "merek": "Orphee",
    "seri": "NX",
-   "artikel": 25,
+   "artikel": 26,
    "grup": "nx-senar"
   },
   {
@@ -804,7 +839,7 @@
    "ukuran": "Normal Tension",
    "merek": "Orphee",
    "seri": "NX",
-   "artikel": 26,
+   "artikel": 27,
    "grup": "nx-senar"
   },
   {
@@ -834,43 +869,8 @@
    "ukuran": "010",
    "merek": "Orphee",
    "seri": "TX",
-   "artikel": 27,
-   "grup": "tx-senar"
-  },
-  {
-   "kode": "STK-2Z9THR",
-   "kategori": "aksesoris",
-   "jenis": "Senar",
-   "kondisi": "baru",
-   "nama": "Orphee SA37",
-   "warna": "",
-   "deskripsi": "Senar Orphee SA37 Phosphor Bronze ukuran .010 ini hadir dalam kemasan hitam beraksen biru yang menampilkan brand dan spesifikasi secara jelas. Sebagai senar khusus gitar akustik, material phosphor bronze-nya dirancang untuk menghasilkan nada yang hangat dan resonan. Kondisi barang masih baru, siap untuk dipasang langsung pada gitar Anda. Yuk, coba rasakan sendiri kualitas senarnya di toko kami! 🎸",
-   "harga": 100000,
-   "status": "tersedia",
-   "sisa": 3,
-   "foto": [
-    {
-     "src": "foto/stok/orphee-sa37-phosphor-bronze-ukuran-010-stk-2z9thr-43bfa0.webp",
-     "kecil": "foto/stok/orphee-sa37-phosphor-bronze-ukuran-010-stk-2z9thr-43bfa0-k.webp"
-    },
-    {
-     "src": "foto/stok/orphee-sa37-phosphor-bronze-ukuran-010-stk-2z9thr-b0548a.webp",
-     "kecil": "foto/stok/orphee-sa37-phosphor-bronze-ukuran-010-stk-2z9thr-b0548a-k.webp"
-    }
-   ],
-   "alat": [
-    "Gitar Akustik"
-   ],
-   "ukuran": "010",
-   "merek": "Orphee",
-   "seri": "SA",
-   "fitur": [
-    "Phosphor Bronze",
-    "Warm",
-    "Extra Light"
-   ],
    "artikel": 28,
-   "grup": "sa-senar"
+   "grup": "tx-senar"
   },
   {
    "kode": "STK-V9FPZW",
