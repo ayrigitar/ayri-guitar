@@ -1,6 +1,6 @@
 /* Service worker Toko Gitar AYRI.
    Naikkan angka VERSION setiap kali Anda mengubah daftar file di bawah. */
-var VERSION = 'ayri-v45';
+var VERSION = 'ayri-v46';
 var CORE = ['./', 'index.html', 'tuner.html', 'chords.html', 'metronom.html', 'transkrip.html', 'partitur.html', 'partitur.js', 'partitur-edit.js', 'efek.html', 'efek.js', 'efek-worklet.js', 'chord-engine.js', 'artikel-custom-nut.html', 'style-index.css', 'style-artikel.css',
     'theme-dark.css', 'tools.css', 'app.css', 'app.js', 'theme.js', 'pwa.js', 'site.js', 'util.js', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png', 'apple-touch-icon.png', 'favicon-48.png', 'favicon.svg', 'logo/ayri-ikon.svg',
     'admin.html', 'admin.js', 'admin.webmanifest', 'layanan.js', 'layanan.css', 'layanan-config.js', 'artikel-md.js', 'artikel-builder.js'];
@@ -30,8 +30,9 @@ function rapikan(c) {
         return Promise.all(lain.slice(0, Math.max(0, lain.length - MAKS_TAMBAHAN)).map(function (r) { return c.delete(r); }));
     });
 }
+var SEGAR = /(^|\/)(admin\.html|admin\.js|layanan[^\/]*\.(js|css)|util\.js)$/; /* berkas admin & POS: selalu cek versi terbaru ke server, bukan dari cache HTTP browser */
 function networkFirst(req) {
-    return fetch(req).then(function (res) {
+    return fetch(SEGAR.test(u(req)) ? new Request(req, { cache: 'no-cache' }) : req).then(function (res) {
         if (res && res.status === 200 && res.type === 'basic') {
             var copy = res.clone();
             caches.open(VERSION).then(function (c) { return c.put(key(req), copy).then(function () { return rapikan(c); }); }).catch(function () {});

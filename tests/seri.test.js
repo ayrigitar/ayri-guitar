@@ -76,7 +76,17 @@ test('tema poster terang hangat: satu tema dan satu pita kontak untuk semua jeni
     assert.match(js, /var TEMA = \{ kertas1: '#FBF5EA'/);
     for (const f of ['buatPoster(s, opsi)', 'buatPosterArtikel(a)', 'buatPosterSeri(sr)']) {
         const i = js.indexOf('function ' + f), badan = js.slice(i, js.indexOf('\n    }\n', i));
-        for (const h of ['kanvasPoster()', 'pitaBawah(c, logo', 'jpegPoster(kv.cv)']) assert.ok(badan.includes(h), f + ' memakai ' + h);
+        for (const h of ['kanvasPoster(', 'pitaBawah(c, logo', 'jpegPoster(kv.cv)']) assert.ok(badan.includes(h), f + ' memakai ' + h);
         assert.ok(!/#0d0a07|#1d1812/.test(badan), f + ' tanpa warna tema gelap lama');
     }
+});
+
+test('poster: doodle musik di latar, bubble fitur separuh di luar foto dengan warna berbeda; admin selalu dicek ke server', () => {
+    const js = require('fs').readFileSync(require('path').join(__dirname, '..', 'admin.js'), 'utf8'), sw = require('fs').readFileSync(require('path').join(__dirname, '..', 'sw.js'), 'utf8');
+    for (const j of ['akustik', 'listrik', 'bass', 'ukulele', 'amp', 'headphone', 'radio', 'mikrofon', 'vinyl', 'not1', 'not2']) assert.ok(js.includes('        ' + j + ': function (c)') || js.includes('        ' + j + ': function (c) {'), 'doodle ' + j);
+    assert.ok(js.includes('latarDoodle(c, benih)'), 'doodle digambar di latar semua poster');
+    assert.equal((js.match(/kanvasPoster\((?!benih)[^)]+\)/g) || []).length, 3, 'tiga poster memberi benih judul');
+    assert.match(js, /pusat = Math\.min\(tepi, 1066 - bw \/ 2\)/, 'bubble berpusat di tepi foto');
+    assert.match(js, /var WARNA_BUBBLE = \[\[.*\], \[.*\], \[.*\], \[.*\]\]/, 'empat warna bubble');
+    assert.match(sw, /new Request\(req, \{ cache: 'no-cache' \}\)/);
 });
