@@ -240,6 +240,36 @@
    "grup": "iso100lu-kabel"
   },
   {
+   "kode": "STK-NZGV2M",
+   "kategori": "aksesoris",
+   "jenis": "Senar",
+   "kondisi": "baru",
+   "nama": "Orphee TX620",
+   "warna": "",
+   "deskripsi": "Senar TX620 ukuran .010 Bronze memberikan suara yang jernih dan resonansi kuat, cocok untuk pemain yang suka tone bright pada gitar akustik. Karena terbuat dari bahan bronze, nada bass tetap terasa penuh sementara treblenya bersih tanpa berisik. Kondisinya baru, jadi kamu akan langsung merasakan respons cepat dan tuning yang stabil. Yuk, coba langsung di toko kami dan rasakan perbedaannya! 🎸",
+   "harga": 40000,
+   "status": "tersedia",
+   "sisa": null,
+   "foto": [
+    {
+     "src": "foto/stok/orphee-tx620-ukuran-010-bronze-stk-nzgv2m-deda7e.webp",
+     "kecil": "foto/stok/orphee-tx620-ukuran-010-bronze-stk-nzgv2m-deda7e-k.webp"
+    },
+    {
+     "src": "foto/stok/orphee-tx620-ukuran-010-bronze-stk-nzgv2m-2acac6.webp",
+     "kecil": "foto/stok/orphee-tx620-ukuran-010-bronze-stk-nzgv2m-2acac6-k.webp"
+    }
+   ],
+   "alat": [
+    "Gitar Akustik"
+   ],
+   "ukuran": "010",
+   "merek": "Orphee",
+   "seri": "TX",
+   "artikel": 8,
+   "grup": "tx-senar"
+  },
+  {
    "kode": "STK-A725M2",
    "kategori": "aksesoris",
    "jenis": "Senar",
@@ -267,32 +297,8 @@
    "ukuran": "Normal Tension",
    "merek": "Orphee",
    "seri": "NX",
-   "artikel": 8,
+   "artikel": 9,
    "grup": "nx-senar"
-  },
-  {
-   "kode": "STK-NZGV2M",
-   "kategori": "aksesoris",
-   "jenis": "Senar",
-   "kondisi": "baru",
-   "nama": "Orphee TX620",
-   "warna": "Ukuran 010",
-   "deskripsi": "Senar TX620 ukuran .010 Bronze memberikan suara yang jernih dan resonansi kuat, cocok untuk pemain yang suka tone bright pada gitar akustik. Karena terbuat dari bahan bronze, nada bass tetap terasa penuh sementara treblenya bersih tanpa berisik. Kondisinya baru, jadi kamu akan langsung merasakan respons cepat dan tuning yang stabil. Yuk, coba langsung di toko kami dan rasakan perbedaannya! 🎸",
-   "harga": 40000,
-   "status": "tersedia",
-   "sisa": null,
-   "foto": [
-    {
-     "src": "foto/stok/orphee-tx620-ukuran-010-bronze-stk-nzgv2m-deda7e.webp",
-     "kecil": "foto/stok/orphee-tx620-ukuran-010-bronze-stk-nzgv2m-deda7e-k.webp"
-    },
-    {
-     "src": "foto/stok/orphee-tx620-ukuran-010-bronze-stk-nzgv2m-2acac6.webp",
-     "kecil": "foto/stok/orphee-tx620-ukuran-010-bronze-stk-nzgv2m-2acac6-k.webp"
-    }
-   ],
-   "merek": "Orphee",
-   "artikel": 9
   },
   {
    "kode": "STK-APP6FK",
@@ -503,7 +509,8 @@
    "ukuran": "011",
    "merek": "Orphee",
    "seri": "TX",
-   "artikel": 16
+   "artikel": 16,
+   "grup": "tx-senar"
   },
   {
    "kode": "STK-A6Q9EY",
