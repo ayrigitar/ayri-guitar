@@ -2479,16 +2479,14 @@
             '<p class="ly-muted">Barang tersedia yang berharga jual dan berlabel 🌐 tampil di <a href="' + E(L.situs()) + 'katalog.html" target="_blank">katalog website</a> (±1 menit setelah disimpan).</p>' +
             '<div class="ly-sum ly-card" id="sk-rekap" style="margin:0"></div>' +
             '<div class="ly-cari"><input class="ly-in" id="cari" type="search" placeholder="Cari kode, nama, merk, warna, no. seri…" autocomplete="off"></div>' +
-            '<div class="ly-filter" id="filter"></div><div class="ly-filter ly-filter--kecil" id="filter2" hidden></div><div class="ly-filter ly-filter--kecil" id="filter3" hidden></div>' +
+            '<div class="ly-filter" id="filter"></div>' +
             '<div class="kat-bar2" id="sk-bar"></div><div class="ly-filter ly-filter--kecil" id="filter4" hidden></div><div class="ly-list" id="list"></div></section>';
         if (!saringSkDimuat) { saringSkDimuat = true; muatSaringSk(); }
         $('#cari').value = cariSk;
         $('#cari').addEventListener('input', function () { cariSk = this.value; gambarDaftarStok(); });
-        $('#filter2').addEventListener('click', function (e) { var b = e.target.closest('[data-j]'); if (b) { pilihSk.jenis = b.dataset.j; pilihSk.tipe = ''; simpanSaringSk(); gambarDaftarStok(); } });
-        $('#filter3').addEventListener('click', function (e) { var b = e.target.closest('[data-t]'); if (b) { pilihSk.tipe = b.dataset.t; simpanSaringSk(); gambarDaftarStok(); } });
         $('#filter4').addEventListener('click', function (e) { var b = e.target.closest('[data-c]'); if (b) { cepatSk[b.dataset.c] = !cepatSk[b.dataset.c]; simpanSaringSk(); gambarDaftarStok(); } });
         $('#sk-bar').addEventListener('change', function (e) {
-            if (e.target.id === 'sk-merek') pilihSk.merek = e.target.value; else if (e.target.id === 'sk-urut') urutSk = e.target.value; else return;
+            if (e.target.id === 'sk-merek') pilihSk.merek = e.target.value; else if (e.target.id === 'sk-jenis') { pilihSk.jenis = e.target.value; pilihSk.tipe = ''; } else if (e.target.id === 'sk-tipe') pilihSk.tipe = e.target.value; else if (e.target.id === 'sk-urut') urutSk = e.target.value; else return;
             simpanSaringSk(); gambarDaftarStok();
         });
         $('#sk-bar').addEventListener('click', function (e) {
@@ -2572,20 +2570,19 @@
         var urutan = { jenis: (C.kategoriAksesoris || []).concat(C.jenisGitar || []), tipe: C.alatMusik || [] }, ciri = dasar.map(ciriSk);
         AYRI_UTIL.rapikanFaset(ciri, pilihSk, urutan);
         var opsi = AYRI_UTIL.opsiFaset(ciri, pilihSk, urutan);
-        function barisChip(id, ops, semua, jumlah, aktif, attr) {
-            $(id).hidden = !ops.length;
-            $(id).innerHTML = ops.length ? [['', semua, jumlah]].concat(ops).map(function (x) { return '<button type="button" ' + attr + '="' + E(x[0]) + '" aria-pressed="' + (aktif === x[0]) + '">' + E(x[0] === '' ? x[1] : x[0]) + '<b>' + (x[0] === '' ? x[2] : x[1]) + '</b></button>'; }).join('') : '';
+        /* Jenis, Tipe, Merek: dropdown sejajar; angka di opsi mengikuti pilihan lain */
+        function pilihanSk(id, label, ops, semua, jumlah, aktif) {
+            return ops.length ? '<label class="kat-urut"><span class="sr-only">' + label + '</span><select class="ly-in" id="' + id + '" aria-label="' + label + '"><option value="">' + semua + ' (' + jumlah + ')</option>' +
+                ops.map(function (x) { return '<option value="' + E(x[0]) + '"' + (x[0] === aktif ? ' selected' : '') + '>' + E(x[0]) + ' (' + x[1] + ')</option>'; }).join('') + '</select></label>' : '';
         }
-        barisChip('#filter2', opsi.jenis, 'Semua jenis', dasar.length, pilihSk.jenis, 'data-j');
-        barisChip('#filter3', opsi.tipe, 'Semua tipe', opsi.jumlahJenis, pilihSk.tipe, 'data-t');
         var tersaring = dasar.filter(function (s, i) { return AYRI_UTIL.cocokFaset(ciri[i], pilihSk); });
         $('#filter4').hidden = !owner();
         $('#filter4').innerHTML = owner() ? CEPAT_SK.map(function (x) {
             return '<button type="button" data-c="' + x[0] + '" aria-pressed="' + !!cepatSk[x[0]] + '">' + x[1] + '<b>' + tersaring.filter(CEPAT_COCOK_SK[x[0]]).length + '</b></button>';
         }).join('') : '';
         var adaPilihan = pilihSk.jenis || pilihSk.tipe || pilihSk.merek || urutSk !== 'baru' || (owner() && CEPAT_SK.some(function (x) { return cepatSk[x[0]]; }));
-        $('#sk-bar').innerHTML = (opsi.merek.length ? '<label class="kat-urut"><span class="sr-only">Merek</span><select class="ly-in" id="sk-merek" aria-label="Merek"><option value="">Semua merek</option>' +
-                opsi.merek.map(function (x) { return '<option value="' + E(x[0]) + '"' + (x[0] === pilihSk.merek ? ' selected' : '') + '>' + E(x[0]) + ' (' + x[1] + ')</option>'; }).join('') + '</select></label>' : '') +
+        $('#sk-bar').innerHTML = pilihanSk('sk-jenis', 'Jenis', opsi.jenis, 'Semua jenis', dasar.length, pilihSk.jenis) + pilihanSk('sk-tipe', 'Tipe', opsi.tipe, 'Semua tipe', opsi.jumlahJenis, pilihSk.tipe) +
+            pilihanSk('sk-merek', 'Merek', opsi.merek, 'Semua merek', opsi.jumlahMerek, pilihSk.merek) +
             '<label class="kat-urut"><span class="sr-only">Urutkan</span><select class="ly-in" id="sk-urut" aria-label="Urutkan">' +
                 URUT_SK.map(function (x) { return '<option value="' + x[0] + '"' + (x[0] === urutSk ? ' selected' : '') + '>' + x[1] + '</option>'; }).join('') + '</select></label>' +
             (adaPilihan ? '<button type="button" class="ly-btn ly-btn--sm" data-reset>Hapus filter</button>' : '');
@@ -2927,11 +2924,11 @@
         return Promise.all(daftar.map(function (d) { return muatFotoPoster(d[0], d[1]).catch(function () { return null; }); })).then(function (im) {
             im = im.filter(Boolean); if (im.length < 2) return null;
             var W = 1000, H = 750, cv = document.createElement('canvas'), c = cv.getContext('2d'), n = im.length;
-            cv.width = W; cv.height = H; c.fillStyle = '#e5ded2'; c.fillRect(0, 0, W, H);
+            cv.width = W; cv.height = H; c.fillStyle = '#2a2622'; c.fillRect(0, 0, W, H);
             var sel = n === 2 ? [[0, 0, 498, H], [502, 0, 498, H]] : n === 3 ? [[0, 0, W, 373], [0, 377, 498, 373], [502, 377, 498, 373]] : [[0, 0, 498, 373], [502, 0, 498, 373], [0, 377, 498, 373], [502, 377, 498, 373]];
             im.forEach(function (g, i) {
                 var r = sel[i], k = Math.min(r[2] / g.width, r[3] / g.height), w = g.width * k, h = g.height * k;
-                c.fillStyle = '#fff'; c.fillRect(r[0], r[1], r[2], r[3]); c.drawImage(g, r[0] + (r[2] - w) / 2, r[1] + (r[3] - h) / 2, w, h); /* utuh, tidak dipotong */
+                c.drawImage(g, r[0] + (r[2] - w) / 2, r[1] + (r[3] - h) / 2, w, h); /* utuh, tidak dipotong */
             });
             return cv;
         });

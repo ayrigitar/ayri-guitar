@@ -83,7 +83,8 @@
                 jenis: hitung(daftar, function (f) { return [f.jenis]; }, urut.jenis),
                 tipe: p.jenis ? hitung(perJenis, function (f) { return f.tipe; }, urut.tipe) : [],
                 merek: hitung(perTipe, function (f) { return [f.merek]; }),
-                jumlahJenis: perJenis.length
+                jumlahJenis: perJenis.length,
+                jumlahMerek: perTipe.length
             };
         },
         /* buang pilihan yang tidak ada lagi di daftar (mis. setelah pindah kategori) dan samakan huruf besar/kecilnya; mengubah dan mengembalikan p */
