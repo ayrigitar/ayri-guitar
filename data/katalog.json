@@ -240,24 +240,24 @@
    "grup": "iso100lu-kabel"
   },
   {
-   "kode": "STK-KVBRW6",
+   "kode": "STK-HDFCMM",
    "kategori": "aksesoris",
    "jenis": "Senar",
    "kondisi": "baru",
-   "nama": "Orphee SE4X",
+   "nama": "Orphee QE29",
    "warna": "",
-   "deskripsi": "Senar Orphee SE4X ukuran 011 ini cocok untuk gitar listrik yang membutuhkan resonansi solid dan stabil. Terbuat dari bahan Nickel Alloy, set ini dirancang untuk menghasilkan suara dengan sustain kuat, cocok untuk latihan maupun rekam. Kondisi unit masih baru dalam kemasan tertutup. Yuk, datang ke Toko Gitar AYRI untuk mencoba langsung suaranya!",
-   "harga": 100000,
+   "deskripsi": "Senar Orphee QE29 ini hadir dengan ukuran 011-050 dan material nikel yang menghasilkan suara *bright tone* khas gitar elektrik. Kondisi barang masih baru dalam kemasan, siap langsung dipasang untuk latihan maupun rekaman. Ukuran *medium* ini memberikan keseimbangan yang pas antara kemudahan bermain dan kekuatan nada. Yuk, mampir ke toko kami di Bogor untuk mencoba langsung senar ini pada gitar Anda 🎸✨",
+   "harga": 60000,
    "status": "tersedia",
    "sisa": 1,
    "foto": [
     {
-     "src": "foto/stok/orphee-se4x-gitar-listrik-ukuran-011-stk-kvbrw6-95a86b.webp",
-     "kecil": "foto/stok/orphee-se4x-gitar-listrik-ukuran-011-stk-kvbrw6-95a86b-k.webp"
+     "src": "foto/stok/orphee-qe29-gitar-elektrik-ukuran-011-stk-hdfcmm-aa3792.webp",
+     "kecil": "foto/stok/orphee-qe29-gitar-elektrik-ukuran-011-stk-hdfcmm-aa3792-k.webp"
     },
     {
-     "src": "foto/stok/orphee-se4x-gitar-listrik-ukuran-011-stk-kvbrw6-aa5f15.webp",
-     "kecil": "foto/stok/orphee-se4x-gitar-listrik-ukuran-011-stk-kvbrw6-aa5f15-k.webp"
+     "src": "foto/stok/orphee-qe29-gitar-elektrik-ukuran-011-stk-hdfcmm-99c756.webp",
+     "kecil": "foto/stok/orphee-qe29-gitar-elektrik-ukuran-011-stk-hdfcmm-99c756-k.webp"
     }
    ],
    "alat": [
@@ -265,9 +265,8 @@
    ],
    "ukuran": "011",
    "merek": "Orphee",
-   "seri": "SE",
-   "artikel": 8,
-   "grup": "se-senar"
+   "seri": "QE",
+   "artikel": 8
   },
   {
    "kode": "STK-NZGV2M",
@@ -534,28 +533,34 @@
    "artikel": 19
   },
   {
-   "kode": "STK-HDFCMM",
+   "kode": "STK-KVBRW6",
    "kategori": "aksesoris",
    "jenis": "Senar",
    "kondisi": "baru",
-   "nama": "Orphee QE29",
-   "warna": "Gitar Elektrik Ukuran 011",
-   "deskripsi": "Senar Orphee QE29 ini hadir dengan ukuran 011-050 dan material nikel yang menghasilkan suara *bright tone* khas gitar elektrik. Kondisi barang masih baru dalam kemasan, siap langsung dipasang untuk latihan maupun rekaman. Ukuran *medium* ini memberikan keseimbangan yang pas antara kemudahan bermain dan kekuatan nada. Yuk, mampir ke toko kami di Bogor untuk mencoba langsung senar ini pada gitar Anda 🎸✨",
-   "harga": 60000,
+   "nama": "Orphee SE4X",
+   "warna": "",
+   "deskripsi": "Senar Orphee SE4X ukuran 011 ini cocok untuk gitar listrik yang membutuhkan resonansi solid dan stabil. Terbuat dari bahan Nickel Alloy, set ini dirancang untuk menghasilkan suara dengan sustain kuat, cocok untuk latihan maupun rekam. Kondisi unit masih baru dalam kemasan tertutup. Yuk, datang ke Toko Gitar AYRI untuk mencoba langsung suaranya!",
+   "harga": 100000,
    "status": "tersedia",
    "sisa": 1,
    "foto": [
     {
-     "src": "foto/stok/orphee-qe29-gitar-elektrik-ukuran-011-stk-hdfcmm-aa3792.webp",
-     "kecil": "foto/stok/orphee-qe29-gitar-elektrik-ukuran-011-stk-hdfcmm-aa3792-k.webp"
+     "src": "foto/stok/orphee-se4x-gitar-listrik-ukuran-011-stk-kvbrw6-95a86b.webp",
+     "kecil": "foto/stok/orphee-se4x-gitar-listrik-ukuran-011-stk-kvbrw6-95a86b-k.webp"
     },
     {
-     "src": "foto/stok/orphee-qe29-gitar-elektrik-ukuran-011-stk-hdfcmm-99c756.webp",
-     "kecil": "foto/stok/orphee-qe29-gitar-elektrik-ukuran-011-stk-hdfcmm-99c756-k.webp"
+     "src": "foto/stok/orphee-se4x-gitar-listrik-ukuran-011-stk-kvbrw6-aa5f15.webp",
+     "kecil": "foto/stok/orphee-se4x-gitar-listrik-ukuran-011-stk-kvbrw6-aa5f15-k.webp"
     }
    ],
+   "alat": [
+    "Gitar Elektrik"
+   ],
+   "ukuran": "011",
    "merek": "Orphee",
-   "artikel": 20
+   "seri": "SE",
+   "artikel": 20,
+   "grup": "se-senar"
   },
   {
    "kode": "STK-RT4XNQ",
