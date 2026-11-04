@@ -240,30 +240,30 @@
    "grup": "iso100lu-kabel"
   },
   {
-   "kode": "STK-2552T3",
+   "kode": "STK-A6Q9EY",
    "kategori": "aksesoris",
    "jenis": "Senar",
    "kondisi": "baru",
-   "nama": "Orphee QE27",
+   "nama": "Orphee QE25",
    "warna": "",
-   "deskripsi": "Senar Orphee model QE27 ini dirancang khusus untuk gitar elektrik dengan ukuran .010-.046 (Normal Light). Bahan senar menggunakan paduan nikel (nickel alloy) dengan inti baja segi enam yang memberikan karakter suara *bright tone* serta durabilitas yang kuat. Kondisi senar masih baru, siap dipasang langsung untuk latihan maupun panggung. Silakan datang ke toko kami di Bogor untuk mencicipi langsung karakter senar ini pada gitar Anda. 🎸",
+   "deskripsi": "Senar baru Orphee QE25 khusus untuk gitar elektrik dengan gauge Super Light 009-042. Kemasannya mencantumkan spesifikasi bahan nickel alloy yang dirancang untuk menghasilkan suara *bright tone* yang jernih. Bagian belakang kemasan juga menampilkan detail konversi ukuran senar dalam inci dan milimeter. 🎸 Yuk, langsung datang ke toko untuk mencoba sensasi senar ini di gitar Anda!",
    "harga": 60000,
    "status": "tersedia",
-   "sisa": null,
+   "sisa": 2,
    "foto": [
     {
-     "src": "foto/stok/orphee-qe27-gitar-elektrik-ukuran-010-stk-2552t3-3bf95a.webp",
-     "kecil": "foto/stok/orphee-qe27-gitar-elektrik-ukuran-010-stk-2552t3-3bf95a-k.webp"
+     "src": "foto/stok/orphee-qe25-gitar-elektrik-ukuran-009-stk-a6q9ey-a80802.webp",
+     "kecil": "foto/stok/orphee-qe25-gitar-elektrik-ukuran-009-stk-a6q9ey-a80802-k.webp"
     },
     {
-     "src": "foto/stok/orphee-qe27-gitar-elektrik-ukuran-010-stk-2552t3-4b6615.webp",
-     "kecil": "foto/stok/orphee-qe27-gitar-elektrik-ukuran-010-stk-2552t3-4b6615-k.webp"
+     "src": "foto/stok/orphee-qe25-gitar-elektrik-ukuran-009-stk-a6q9ey-e0e20a.webp",
+     "kecil": "foto/stok/orphee-qe25-gitar-elektrik-ukuran-009-stk-a6q9ey-e0e20a-k.webp"
     }
    ],
    "alat": [
     "Gitar Elektrik"
    ],
-   "ukuran": "010",
+   "ukuran": "009",
    "merek": "Orphee",
    "seri": "QE",
    "artikel": 8,
@@ -486,28 +486,34 @@
    "artikel": 17
   },
   {
-   "kode": "STK-A6Q9EY",
+   "kode": "STK-2552T3",
    "kategori": "aksesoris",
    "jenis": "Senar",
    "kondisi": "baru",
-   "nama": "Orphee QE25",
-   "warna": "Gitar Elektrik Ukuran 009",
-   "deskripsi": "Senar baru Orphee QE25 khusus untuk gitar elektrik dengan gauge Super Light 009-042. Kemasannya mencantumkan spesifikasi bahan nickel alloy yang dirancang untuk menghasilkan suara *bright tone* yang jernih. Bagian belakang kemasan juga menampilkan detail konversi ukuran senar dalam inci dan milimeter. 🎸 Yuk, langsung datang ke toko untuk mencoba sensasi senar ini di gitar Anda!",
+   "nama": "Orphee QE27",
+   "warna": "",
+   "deskripsi": "Senar Orphee model QE27 ini dirancang khusus untuk gitar elektrik dengan ukuran .010-.046 (Normal Light). Bahan senar menggunakan paduan nikel (nickel alloy) dengan inti baja segi enam yang memberikan karakter suara *bright tone* serta durabilitas yang kuat. Kondisi senar masih baru, siap dipasang langsung untuk latihan maupun panggung. Silakan datang ke toko kami di Bogor untuk mencicipi langsung karakter senar ini pada gitar Anda. 🎸",
    "harga": 60000,
    "status": "tersedia",
-   "sisa": 2,
+   "sisa": null,
    "foto": [
     {
-     "src": "foto/stok/orphee-qe25-gitar-elektrik-ukuran-009-stk-a6q9ey-a80802.webp",
-     "kecil": "foto/stok/orphee-qe25-gitar-elektrik-ukuran-009-stk-a6q9ey-a80802-k.webp"
+     "src": "foto/stok/orphee-qe27-gitar-elektrik-ukuran-010-stk-2552t3-3bf95a.webp",
+     "kecil": "foto/stok/orphee-qe27-gitar-elektrik-ukuran-010-stk-2552t3-3bf95a-k.webp"
     },
     {
-     "src": "foto/stok/orphee-qe25-gitar-elektrik-ukuran-009-stk-a6q9ey-e0e20a.webp",
-     "kecil": "foto/stok/orphee-qe25-gitar-elektrik-ukuran-009-stk-a6q9ey-e0e20a-k.webp"
+     "src": "foto/stok/orphee-qe27-gitar-elektrik-ukuran-010-stk-2552t3-4b6615.webp",
+     "kecil": "foto/stok/orphee-qe27-gitar-elektrik-ukuran-010-stk-2552t3-4b6615-k.webp"
     }
    ],
+   "alat": [
+    "Gitar Elektrik"
+   ],
+   "ukuran": "010",
    "merek": "Orphee",
-   "artikel": 18
+   "seri": "QE",
+   "artikel": 18,
+   "grup": "qe-senar"
   },
   {
    "kode": "STK-HDFCMM",
