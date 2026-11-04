@@ -240,34 +240,32 @@
    "grup": "iso100lu-kabel"
   },
   {
-   "kode": "STK-AKSTPX",
+   "kode": "STK-Y5MC8V",
    "kategori": "aksesoris",
    "jenis": "Senar",
    "kondisi": "baru",
-   "nama": "Orphee RX15",
+   "nama": "Orphee KX80",
    "warna": "",
-   "deskripsi": "Senar Orphee Guitar RX15 ini adalah senar gitar listrik ukuran .009 hingga .042 yang baru. Produk ini diproduksi di Indonesia dengan material 58 nickel alloy, menawarkan keseimbangan respons yang pas untuk gaya bermain yang ringan dan responsif. Keunggulan senar ini terletak pada kualitas material yang tahan lama, menjaga nada tetap stabil dan jernih dalam waktu lama. Yuk, langsung datang ke toko kami di Bogor untuk mencoba sensasi bunyinya dan dapatkan harga terbaik! 🎸",
+   "deskripsi": "Senar Orphee Guitar KX80 ini baru dan dikemas dalam plastik berwarna pink. Bahan senar ini terbuat dari serat karbon dengan ketegangan tinggi, yang menghasilkan suara jernih dan responsif. Ukurannya pas untuk ukulele standar dengan nada A, E, C, dan G. Silakan datang ke toko untuk mencoba langsung senar ini di instrumen Anda. 🎶",
    "harga": 40000,
    "status": "tersedia",
-   "sisa": 2,
+   "sisa": 3,
    "foto": [
     {
-     "src": "foto/stok/orphee-rx15-gitar-listrik-ukuran-009-stk-akstpx-104665.webp",
-     "kecil": "foto/stok/orphee-rx15-gitar-listrik-ukuran-009-stk-akstpx-104665-k.webp"
+     "src": "foto/stok/orphee-kx80-ukulele-hard-tension-stk-y5mc8v-04f244.webp",
+     "kecil": "foto/stok/orphee-kx80-ukulele-hard-tension-stk-y5mc8v-04f244-k.webp"
     },
     {
-     "src": "foto/stok/orphee-rx15-gitar-listrik-ukuran-009-stk-akstpx-383477.webp",
-     "kecil": "foto/stok/orphee-rx15-gitar-listrik-ukuran-009-stk-akstpx-383477-k.webp"
+     "src": "foto/stok/orphee-kx80-ukulele-hard-tension-stk-y5mc8v-0b43b3.webp",
+     "kecil": "foto/stok/orphee-kx80-ukulele-hard-tension-stk-y5mc8v-0b43b3-k.webp"
     }
    ],
    "alat": [
-    "Gitar Elektrik"
+    "Ukulele"
    ],
-   "ukuran": "009",
+   "ukuran": "Hard Tension",
    "merek": "Orphee",
-   "seri": "RX",
-   "artikel": 8,
-   "grup": "rx-senar"
+   "artikel": 8
   },
   {
    "kode": "STK-NZGV2M",
@@ -606,28 +604,34 @@
    "artikel": 22
   },
   {
-   "kode": "STK-Y5MC8V",
+   "kode": "STK-AKSTPX",
    "kategori": "aksesoris",
    "jenis": "Senar",
    "kondisi": "baru",
-   "nama": "Orphee KX80",
-   "warna": "Ukulele Hard Tension",
-   "deskripsi": "Senar Orphee Guitar KX80 ini baru dan dikemas dalam plastik berwarna pink. Bahan senar ini terbuat dari serat karbon dengan ketegangan tinggi, yang menghasilkan suara jernih dan responsif. Ukurannya pas untuk ukulele standar dengan nada A, E, C, dan G. Silakan datang ke toko untuk mencoba langsung senar ini di instrumen Anda. 🎶",
+   "nama": "Orphee RX15",
+   "warna": "",
+   "deskripsi": "Senar Orphee Guitar RX15 ini adalah senar gitar listrik ukuran .009 hingga .042 yang baru. Produk ini diproduksi di Indonesia dengan material 58 nickel alloy, menawarkan keseimbangan respons yang pas untuk gaya bermain yang ringan dan responsif. Keunggulan senar ini terletak pada kualitas material yang tahan lama, menjaga nada tetap stabil dan jernih dalam waktu lama. Yuk, langsung datang ke toko kami di Bogor untuk mencoba sensasi bunyinya dan dapatkan harga terbaik! 🎸",
    "harga": 40000,
    "status": "tersedia",
-   "sisa": 3,
+   "sisa": 2,
    "foto": [
     {
-     "src": "foto/stok/orphee-kx80-ukulele-hard-tension-stk-y5mc8v-04f244.webp",
-     "kecil": "foto/stok/orphee-kx80-ukulele-hard-tension-stk-y5mc8v-04f244-k.webp"
+     "src": "foto/stok/orphee-rx15-gitar-listrik-ukuran-009-stk-akstpx-104665.webp",
+     "kecil": "foto/stok/orphee-rx15-gitar-listrik-ukuran-009-stk-akstpx-104665-k.webp"
     },
     {
-     "src": "foto/stok/orphee-kx80-ukulele-hard-tension-stk-y5mc8v-0b43b3.webp",
-     "kecil": "foto/stok/orphee-kx80-ukulele-hard-tension-stk-y5mc8v-0b43b3-k.webp"
+     "src": "foto/stok/orphee-rx15-gitar-listrik-ukuran-009-stk-akstpx-383477.webp",
+     "kecil": "foto/stok/orphee-rx15-gitar-listrik-ukuran-009-stk-akstpx-383477-k.webp"
     }
    ],
+   "alat": [
+    "Gitar Elektrik"
+   ],
+   "ukuran": "009",
    "merek": "Orphee",
-   "artikel": 23
+   "seri": "RX",
+   "artikel": 23,
+   "grup": "rx-senar"
   },
   {
    "kode": "STK-YR7ACG",
