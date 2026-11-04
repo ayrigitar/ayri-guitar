@@ -128,11 +128,17 @@
                         <option value="baru">Terbaru</option>
                         <option value="murah">Harga terendah</option>
                         <option value="mahal">Harga tertinggi</option>
+                        <option value="nama">Nama A&ndash;Z</option>
                     </select>
                 </label>
             </div>
             <div class="ly-filter" id="kat-filter" role="group" aria-label="Kategori"></div>
             <div class="ly-filter ly-filter--kecil" id="kat-jenis" role="group" aria-label="Jenis" hidden></div>
+            <div class="ly-filter ly-filter--kecil" id="kat-tipe" role="group" aria-label="Tipe" hidden></div>
+            <div class="kat-bar2" id="kat-bar2" hidden>
+                <label class="kat-urut" id="kat-merek-l" hidden><span class="sr-only">Merek</span><select id="kat-merek" class="ly-in" aria-label="Merek"></select></label>
+                <button type="button" class="ly-btn ly-btn--sm" id="kat-reset" hidden>Hapus filter</button>
+            </div>
             <div class="kat-grid" id="kat-grid" aria-live="polite"></div>
         </div>
     </main>
@@ -140,7 +146,24 @@
     <script>
 document.addEventListener('DOMContentLoaded', function () {
     var C = window.AYRI_LAYANAN || {}, toko = C.toko || {}, grid = document.getElementById('kat-grid');
-    var item = [], filter = 'semua', jenis = '', cari = '', urut = 'baru';
+    var item = [], filter = 'semua', jenis = '', tipe = '', merek = '', cari = '', urut = 'baru';
+    /* pilihan filter ikut di alamat (katalog.html?kategori=aksesoris&jenis=Senar&tipe=Gitar%20Klasik&merek=Orphee), jadi bisa dibagikan dan tidak hilang saat tombol Kembali */
+    (function () {
+        var q = new URLSearchParams(location.search);
+        filter = q.get('kategori') || filter; jenis = q.get('jenis') || ''; tipe = q.get('tipe') || ''; merek = q.get('merek') || ''; cari = q.get('cari') || ''; urut = q.get('urut') || urut;
+        if (['baru', 'murah', 'mahal', 'nama'].indexOf(urut) < 0) urut = 'baru';
+        document.getElementById('kat-cari').value = cari; document.getElementById('kat-urut').value = urut;
+    })();
+    var URUTAN = { jenis: (C.kategoriAksesoris || []).concat(C.jenisGitar || []), tipe: C.alatMusik || [] };
+    function pilih() { return { jenis: jenis, tipe: tipe, merek: merek }; }
+    function dasar() { return item.filter(function (x) { return filter === 'semua' || kelompok(x) === filter; }); }
+    function simpanUrl() {
+        var q = new URLSearchParams();
+        if (filter !== 'semua') q.set('kategori', filter);
+        if (jenis) q.set('jenis', jenis); if (tipe) q.set('tipe', tipe); if (merek) q.set('merek', merek);
+        if (urut !== 'baru') q.set('urut', urut); if (cari.trim()) q.set('cari', cari.trim());
+        try { history.replaceState(null, '', location.pathname + (q.toString() ? '?' + q.toString() : '') + location.hash); } catch (e) {}
+    }
     var esc = AYRI_UTIL.esc, rupiah = AYRI_UTIL.rupiah;
 
     /* tautan lama katalog.html#KODE tetap jalan: diteruskan ke halaman unit */
@@ -179,38 +202,53 @@ document.addEventListener('DOMContentLoaded', function () {
     function gambarFilter() {
         var n = { semua: item.length, baru: 0, bekas: 0, aksesoris: 0 };
         item.forEach(function (x) { n[kelompok(x)]++; });
+        if (filter !== 'semua' && !n[filter]) filter = 'semua';
         document.getElementById('kat-filter').innerHTML = tombol([['semua', 'Semua'], ['baru', 'Gitar baru'], ['bekas', 'Gitar used'], ['aksesoris', 'Aksesoris']].filter(function (f) { return f[0] === 'semua' || n[f[0]]; })
             .map(function (f) { return [f[0], f[1], n[f[0]]]; }), filter, 'data-f');
-        var j = {}, el = document.getElementById('kat-jenis');
-        item.filter(function (x) { return filter === 'semua' || kelompok(x) === filter; }).forEach(function (x) { j[x.jenis] = (j[x.jenis] || 0) + 1; });
-        var daftar = Object.keys(j).sort(function (a, b) { return j[b] - j[a]; });
-        el.hidden = daftar.length < 2;
-        el.innerHTML = daftar.length < 2 ? '' : tombol([['', 'Semua jenis', Object.keys(j).reduce(function (t, k) { return t + j[k]; }, 0)]].concat(daftar.map(function (k) { return [k, k, j[k]]; })), jenis, 'data-j');
+        var d = dasar(), p = AYRI_UTIL.rapikanFaset(d, pilih(), URUTAN), o = AYRI_UTIL.opsiFaset(d, p, URUTAN);
+        jenis = p.jenis; tipe = p.tipe; merek = p.merek;
+        function baris(id, ops, semua, jumlah, aktif, attr) {
+            var el = document.getElementById(id);
+            el.hidden = !ops.length;
+            el.innerHTML = ops.length ? tombol([['', semua, jumlah]].concat(ops.map(function (k) { return [k[0], k[0], k[1]]; })), aktif, attr) : '';
+        }
+        baris('kat-jenis', o.jenis, 'Semua jenis', d.length, jenis, 'data-j');
+        baris('kat-tipe', o.tipe, 'Semua tipe', o.jumlahJenis, tipe, 'data-t');
+        var sm = document.getElementById('kat-merek');
+        sm.innerHTML = '<option value="">Semua merek</option>' + o.merek.map(function (k) { return '<option value="' + esc(k[0]) + '"' + (k[0] === merek ? ' selected' : '') + '>' + esc(k[0]) + ' (' + k[1] + ')</option>'; }).join('');
+        document.getElementById('kat-merek-l').hidden = !o.merek.length;
+        var aktif = filter !== 'semua' || jenis || tipe || merek || cari.trim() || urut !== 'baru';
+        document.getElementById('kat-reset').hidden = !aktif;
+        document.getElementById('kat-bar2').hidden = !o.merek.length && !aktif;
     }
     function gambar() {
         var c = cari.trim().toLowerCase();
         var hasil = item.filter(function (x) {
-            return (filter === 'semua' || kelompok(x) === filter) && (!jenis || x.jenis === jenis) && (!c || [x.nama, x.jenis, x.warna, x.deskripsi, x.kode, x.tingkat].join(' ').toLowerCase().indexOf(c) > -1);
+            return (filter === 'semua' || kelompok(x) === filter) && AYRI_UTIL.cocokFaset(x, pilih()) && (!c || [x.nama, x.jenis, x.warna, x.deskripsi, x.kode, x.tingkat, x.merek, x.tipe, x.ukuran, (x.alat || []).join(' ')].join(' ').toLowerCase().indexOf(c) > -1);
         });
         /* satukan barang satu seri menjadi satu kartu (tempatnya di posisi anggota pertama) */
         var kartuDaftar = [], sudah = {};
         hasil.forEach(function (x) {
-            if (!x.grup) { kartuDaftar.push({ harga: x.harga, html: kartu(x) }); return; }
+            if (!x.grup) { kartuDaftar.push({ harga: x.harga, nama: judul(x), html: kartu(x) }); return; }
             if (sudah[x.grup]) return; sudah[x.grup] = 1;
             var g = { grup: x.grup, anggota: hasil.filter(function (y) { return y.grup === x.grup; }) };
             g.harga = Math.min.apply(null, g.anggota.map(function (y) { return y.harga; }));
-            kartuDaftar.push({ harga: g.harga, html: g.anggota.length > 1 ? kartuSeri(g) : kartu(x) });
+            kartuDaftar.push({ harga: g.harga, nama: g.anggota.length > 1 ? AYRI_UTIL.judulSeri(g.anggota, C.jenisTanpaGitar, C.aksesoris) : judul(x), html: g.anggota.length > 1 ? kartuSeri(g) : kartu(x) });
         });
-        if (urut === 'murah') kartuDaftar.sort(function (a, b) { return a.harga - b.harga; }); else if (urut === 'mahal') kartuDaftar.sort(function (a, b) { return b.harga - a.harga; });
+        if (urut === 'murah') kartuDaftar.sort(function (a, b) { return a.harga - b.harga; }); else if (urut === 'mahal') kartuDaftar.sort(function (a, b) { return b.harga - a.harga; }); else if (urut === 'nama') kartuDaftar.sort(function (a, b) { return a.nama.localeCompare(b.nama, 'id', { numeric: true }); });
         document.getElementById('kat-hitung').textContent = item.length ? hasil.length + ' produk' + (hasil.length !== item.length ? ' dari ' + item.length : '') + ' · Toko Gitar AYRI, Bogor' : '';
         grid.innerHTML = hasil.length ? kartuDaftar.map(function (k) { return k.html; }).join('') :
-            '<div class="ly-kosong kat-kosong">' + (item.length ? 'Tidak ada yang cocok dengan pencarian ini.' : 'Belum ada barang di katalog.') +
+            '<div class="ly-kosong kat-kosong">' + (item.length ? 'Tidak ada yang cocok dengan pilihan ini. Coba hapus sebagian filter.' : 'Belum ada barang di katalog.') +
             '<a class="ly-btn ly-btn--wa" target="_blank" rel="noopener" href="https://wa.me/' + esc(toko.wa || '') + '?text=' + encodeURIComponent('Halo AYRI, saya mau tanya stok gitar dan aksesoris') + '">Tanya stok lewat WhatsApp</a></div>';
+        simpanUrl();
     }
-    document.getElementById('kat-filter').addEventListener('click', function (e) { var b = e.target.closest('[data-f]'); if (b) { filter = b.dataset.f; jenis = ''; gambarFilter(); gambar(); } });
-    document.getElementById('kat-jenis').addEventListener('click', function (e) { var b = e.target.closest('[data-j]'); if (b) { jenis = b.dataset.j; gambarFilter(); gambar(); } });
-    document.getElementById('kat-cari').addEventListener('input', function () { cari = this.value; gambar(); });
-    document.getElementById('kat-urut').addEventListener('change', function () { urut = this.value; gambar(); });
+    document.getElementById('kat-filter').addEventListener('click', function (e) { var b = e.target.closest('[data-f]'); if (b) { filter = b.dataset.f; jenis = tipe = merek = ''; gambarFilter(); gambar(); } });
+    document.getElementById('kat-jenis').addEventListener('click', function (e) { var b = e.target.closest('[data-j]'); if (b) { jenis = b.dataset.j; tipe = ''; gambarFilter(); gambar(); } });
+    document.getElementById('kat-tipe').addEventListener('click', function (e) { var b = e.target.closest('[data-t]'); if (b) { tipe = b.dataset.t; gambarFilter(); gambar(); } });
+    document.getElementById('kat-merek').addEventListener('change', function () { merek = this.value; gambarFilter(); gambar(); });
+    document.getElementById('kat-cari').addEventListener('input', function () { cari = this.value; gambarFilter(); gambar(); });
+    document.getElementById('kat-urut').addEventListener('change', function () { urut = this.value; gambarFilter(); gambar(); });
+    document.getElementById('kat-reset').addEventListener('click', function () { filter = 'semua'; jenis = tipe = merek = cari = ''; urut = 'baru'; document.getElementById('kat-cari').value = ''; document.getElementById('kat-urut').value = 'baru'; gambarFilter(); gambar(); });
 
     /* data produk untuk mesin pencari (schema.org) */
     function strukturData() {

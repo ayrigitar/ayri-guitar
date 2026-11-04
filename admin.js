@@ -3,7 +3,7 @@
 (function () {
     var L = Layanan, C = L.C, A = L.api, E = L.esc, app = document.getElementById('app');
     var WA_IKON = '<svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.6.8-.8 1-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.2-.4.2-.4.7-1.3.1-.1 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.8 11.9 11.9 0 0 0 4.6 4c1.7.7 2.4.8 3.3.7a2.8 2.8 0 0 0 1.8-1.3 2.2 2.2 0 0 0 .2-1.3c-.1-.1-.3-.2-.5-.3z"/></svg>';
-    var cache = { servis: [], artikel: [], tebus: [], stok: [], jual: [], absen: [], opname: [], kas: [], sewa: [], titip: [] }, dimuat = false, ed = null, ae = null, te = null, sk = null, filterTb = 'aktif', filterSk = 'tersedia', cariSk = '', bukaSeri = {}, dirty = false, filter = 'aktif', cari = '', menyimpan = false;
+    var cache = { servis: [], artikel: [], tebus: [], stok: [], jual: [], absen: [], opname: [], kas: [], sewa: [], titip: [] }, dimuat = false, ed = null, ae = null, te = null, sk = null, filterTb = 'aktif', filterSk = 'tersedia', cariSk = '', pilihSk = { jenis: '', tipe: '', merek: '' }, urutSk = 'baru', cepatSk = {}, saringSkDimuat = false, bukaSeri = {}, dirty = false, filter = 'aktif', cari = '', menyimpan = false;
     var AKTIF = ['menunggu_dp', 'antri', 'dikerjakan', 'selesai'];
 
     function $(s, r) { return (r || document).querySelector(s); }
@@ -2479,13 +2479,65 @@
             '<p class="ly-muted">Barang tersedia yang berharga jual dan berlabel 🌐 tampil di <a href="' + E(L.situs()) + 'katalog.html" target="_blank">katalog website</a> (±1 menit setelah disimpan).</p>' +
             '<div class="ly-sum ly-card" id="sk-rekap" style="margin:0"></div>' +
             '<div class="ly-cari"><input class="ly-in" id="cari" type="search" placeholder="Cari kode, nama, merk, warna, no. seri…" autocomplete="off"></div>' +
-            '<div class="ly-filter" id="filter"></div><div class="ly-list" id="list"></div></section>';
+            '<div class="ly-filter" id="filter"></div><div class="ly-filter ly-filter--kecil" id="filter2" hidden></div><div class="ly-filter ly-filter--kecil" id="filter3" hidden></div>' +
+            '<div class="kat-bar2" id="sk-bar"></div><div class="ly-filter ly-filter--kecil" id="filter4" hidden></div><div class="ly-list" id="list"></div></section>';
+        if (!saringSkDimuat) { saringSkDimuat = true; muatSaringSk(); }
         $('#cari').value = cariSk;
         $('#cari').addEventListener('input', function () { cariSk = this.value; gambarDaftarStok(); });
+        $('#filter2').addEventListener('click', function (e) { var b = e.target.closest('[data-j]'); if (b) { pilihSk.jenis = b.dataset.j; pilihSk.tipe = ''; simpanSaringSk(); gambarDaftarStok(); } });
+        $('#filter3').addEventListener('click', function (e) { var b = e.target.closest('[data-t]'); if (b) { pilihSk.tipe = b.dataset.t; simpanSaringSk(); gambarDaftarStok(); } });
+        $('#filter4').addEventListener('click', function (e) { var b = e.target.closest('[data-c]'); if (b) { cepatSk[b.dataset.c] = !cepatSk[b.dataset.c]; simpanSaringSk(); gambarDaftarStok(); } });
+        $('#sk-bar').addEventListener('change', function (e) {
+            if (e.target.id === 'sk-merek') pilihSk.merek = e.target.value; else if (e.target.id === 'sk-urut') urutSk = e.target.value; else return;
+            simpanSaringSk(); gambarDaftarStok();
+        });
+        $('#sk-bar').addEventListener('click', function (e) {
+            if (!e.target.closest('[data-reset]')) return;
+            pilihSk = { jenis: '', tipe: '', merek: '' }; urutSk = 'baru'; cepatSk = {}; simpanSaringSk(); gambarDaftarStok();
+        });
         $('#list').addEventListener('toggle', function (e) { var d = e.target.closest && e.target.closest('details[data-grup]'); if (d && !cariSk.trim()) bukaSeri[d.dataset.grup] = d.open; }, true); /* lipatan seri diingat selama tidak sedang mencari */
-        $('#filter').addEventListener('click', function (e) { var b = e.target.closest('[data-f]'); if (b) { filterSk = b.dataset.f; gambarDaftarStok(); } });
+        $('#filter').addEventListener('click', function (e) { var b = e.target.closest('[data-f]'); if (b) { filterSk = b.dataset.f; pilihSk = { jenis: '', tipe: '', merek: '' }; simpanSaringSk(); gambarDaftarStok(); } });
         $('#list').addEventListener('click', function (e) { var sb = e.target.closest('[data-sewa]'); if (sb) { e.preventDefault(); pindah('#sewa/baru/' + sb.dataset.sewa); return; } var b = e.target.closest('[data-tawar]'); if (b) { e.preventDefault(); bagikanStok(cariId('stok', b.dataset.tawar), b); return; } var se = e.target.closest('[data-seri]'); if (se) { e.preventDefault(); bagikanSeri(cariId('stok', se.dataset.seri), se); return; } var so = e.target.closest('[data-sold]'); if (so) { e.preventDefault(); bagikanTerjual(cariId('stok', so.dataset.sold), so); return; } var tl = e.target.closest('[data-tautan-sk]'); if (tl) { e.preventDefault(); var st = cariId('stok', tl.dataset.tautanSk); bagikanTautan(L.judulStok(st), L.urlUnit(st.kode)); } });
         gambarDaftarStok();
+    }
+    /* ---------- penyaring & urutan daftar stok: kategori → jenis → tipe, merek, tombol cepat, urutan (diingat di perangkat ini) ---------- */
+    var KUNCI_SK = 'ayri_stok_saring',
+        URUT_SK = [['baru', 'Terbaru masuk'], ['lama', 'Paling lama di toko'], ['nama', 'Nama A–Z'], ['murah', 'Harga termurah'], ['mahal', 'Harga termahal'], ['sedikit', 'Stok paling sedikit']],
+        CEPAT_SK = [['menipis', 'Stok menipis'], ['tanpaFoto', 'Belum ada foto'], ['belumLengkap', 'Info belum lengkap']];
+    function muatSaringSk() {
+        try {
+            var d = JSON.parse(localStorage.getItem(KUNCI_SK) || '{}') || {};
+            if (['tersedia', 'baru', 'bekas', 'aksesoris', 'terjual', 'semua'].indexOf(d.f) > -1) filterSk = d.f;
+            pilihSk = { jenis: String(d.j || ''), tipe: String(d.t || ''), merek: String(d.m || '') };
+            if (URUT_SK.some(function (x) { return x[0] === d.u; })) urutSk = d.u;
+            cepatSk = d.c && typeof d.c === 'object' ? d.c : {};
+        } catch (e) { /* penyimpanan tidak tersedia: pakai bawaan */ }
+    }
+    function simpanSaringSk() { try { localStorage.setItem(KUNCI_SK, JSON.stringify({ f: filterSk, j: pilihSk.jenis, t: pilihSk.tipe, m: pilihSk.merek, u: urutSk, c: cepatSk })); } catch (e) { /* abaikan */ } }
+    function ciriSk(s) { return { kategori: s.kategori === 'aksesoris' ? 'aksesoris' : 'gitar', jenis: L.jenisStok(s), nama: L.namaStok(s), warna: s.warna, merek: s.merek, tipe: s.tipe, alat: s.alat }; }
+    function belumLengkapSk(s) {
+        if (!adaStok(s)) return false;
+        if (!(+s.harga_jual > 0)) return true;
+        var cfg = s.kategori === 'aksesoris' ? C.aksesoris[s.sub] : null;
+        return !!cfg && !!((cfg.alat && !(s.alat || []).length) || (cfg.tipe && !s.tipe) || (cfg.ukuran && !s.ukuran));
+    }
+    var CEPAT_COCOK_SK = {
+        menipis: function (s) { return adaStok(s) && s.kategori === 'aksesoris' && +s.jumlah > 0 && +s.jumlah <= 2; },
+        tanpaFoto: function (s) { return adaStok(s) && !(s.foto || []).length; },
+        belumLengkap: belumLengkapSk
+    };
+    function urutkanSk(daftar) {
+        var tgl = function (s) { return String(s.tgl_masuk || ''); }, hrg = function (s) { return +s.harga_jual > 0 ? +s.harga_jual : null; };
+        var bandingHarga = function (a, b, arah) { var x = hrg(a), y = hrg(b); return x === null ? (y === null ? 0 : 1) : y === null ? -1 : arah * (x - y); };
+        var cmp = {
+            baru: function (a, b) { return tgl(b).localeCompare(tgl(a)); },
+            lama: function (a, b) { return tgl(a).localeCompare(tgl(b)); },
+            nama: function (a, b) { return L.namaStok(a).localeCompare(L.namaStok(b), 'id', { numeric: true, sensitivity: 'base' }); },
+            murah: function (a, b) { return bandingHarga(a, b, 1); },
+            mahal: function (a, b) { return bandingHarga(a, b, -1); },
+            sedikit: function (a, b) { return (adaStok(b) ? 1 : 0) - (adaStok(a) ? 1 : 0) || (+a.jumlah || 0) - (+b.jumlah || 0); }
+        }[urutSk] || function () { return 0; };
+        return daftar.slice().sort(cmp);
     }
     function adaStok(s) { return s.status === 'tersedia' || s.status === 'dipesan'; }
     function kelStok(s) { return s.kategori === 'aksesoris' ? 'aksesoris' : s.kondisi; }
@@ -2515,9 +2567,30 @@
         $('#filter').innerHTML = [['tersedia', 'Tersedia'], ['baru', 'Gitar baru'], ['bekas', 'Gitar used'], ['aksesoris', 'Aksesoris'], ['terjual', 'Terjual'], ['semua', 'Semua']].map(function (x) {
             return '<button type="button" data-f="' + x[0] + '" aria-pressed="' + (filterSk === x[0]) + '">' + x[1] + '<b>' + (x[0] === 'semua' ? rows.length : n[x[0]] || 0) + '</b></button>';
         }).join('');
-        var hasil = rows.filter(function (s) {
-            var ok = filterSk === 'semua' ? true : filterSk === 'terjual' ? (s.penjualan || []).length > 0 : filterSk === 'tersedia' ? adaStok(s) : adaStok(s) && kelStok(s) === filterSk;
-            return ok && (!c || [s.kode, s.merek, s.nama, s.seri, s.sub, s.gitar_jenis, s.gitar_merk, s.tipe, (s.alat || []).join(' '), s.ukuran, (s.fitur || []).join(' '), s.warna, s.no_seri, s.deskripsi].join(' ').toLowerCase().indexOf(c) > -1);
+        /* tingkat 2-3 + merek: pilihan dihitung dari barang dalam kategori terpilih (belum disaring pencarian) */
+        var dasar = rows.filter(function (s) { return filterSk === 'semua' ? true : filterSk === 'terjual' ? (s.penjualan || []).length > 0 : filterSk === 'tersedia' ? adaStok(s) : adaStok(s) && kelStok(s) === filterSk; });
+        var urutan = { jenis: (C.kategoriAksesoris || []).concat(C.jenisGitar || []), tipe: C.alatMusik || [] }, ciri = dasar.map(ciriSk);
+        AYRI_UTIL.rapikanFaset(ciri, pilihSk, urutan);
+        var opsi = AYRI_UTIL.opsiFaset(ciri, pilihSk, urutan);
+        function barisChip(id, ops, semua, jumlah, aktif, attr) {
+            $(id).hidden = !ops.length;
+            $(id).innerHTML = ops.length ? [['', semua, jumlah]].concat(ops).map(function (x) { return '<button type="button" ' + attr + '="' + E(x[0]) + '" aria-pressed="' + (aktif === x[0]) + '">' + E(x[0] === '' ? x[1] : x[0]) + '<b>' + (x[0] === '' ? x[2] : x[1]) + '</b></button>'; }).join('') : '';
+        }
+        barisChip('#filter2', opsi.jenis, 'Semua jenis', dasar.length, pilihSk.jenis, 'data-j');
+        barisChip('#filter3', opsi.tipe, 'Semua tipe', opsi.jumlahJenis, pilihSk.tipe, 'data-t');
+        var tersaring = dasar.filter(function (s, i) { return AYRI_UTIL.cocokFaset(ciri[i], pilihSk); });
+        $('#filter4').hidden = !owner();
+        $('#filter4').innerHTML = owner() ? CEPAT_SK.map(function (x) {
+            return '<button type="button" data-c="' + x[0] + '" aria-pressed="' + !!cepatSk[x[0]] + '">' + x[1] + '<b>' + tersaring.filter(CEPAT_COCOK_SK[x[0]]).length + '</b></button>';
+        }).join('') : '';
+        var adaPilihan = pilihSk.jenis || pilihSk.tipe || pilihSk.merek || urutSk !== 'baru' || (owner() && CEPAT_SK.some(function (x) { return cepatSk[x[0]]; }));
+        $('#sk-bar').innerHTML = (opsi.merek.length ? '<label class="kat-urut"><span class="sr-only">Merek</span><select class="ly-in" id="sk-merek" aria-label="Merek"><option value="">Semua merek</option>' +
+                opsi.merek.map(function (x) { return '<option value="' + E(x[0]) + '"' + (x[0] === pilihSk.merek ? ' selected' : '') + '>' + E(x[0]) + ' (' + x[1] + ')</option>'; }).join('') + '</select></label>' : '') +
+            '<label class="kat-urut"><span class="sr-only">Urutkan</span><select class="ly-in" id="sk-urut" aria-label="Urutkan">' +
+                URUT_SK.map(function (x) { return '<option value="' + x[0] + '"' + (x[0] === urutSk ? ' selected' : '') + '>' + x[1] + '</option>'; }).join('') + '</select></label>' +
+            (adaPilihan ? '<button type="button" class="ly-btn ly-btn--sm" data-reset>Hapus filter</button>' : '');
+        var hasil = urutkanSk(tersaring.filter(function (s) { return !owner() || CEPAT_SK.every(function (x) { return !cepatSk[x[0]] || CEPAT_COCOK_SK[x[0]](s); }); })).filter(function (s) {
+            return (!c || [s.kode, s.merek, s.nama, s.seri, s.sub, s.gitar_jenis, s.gitar_merk, s.tipe, (s.alat || []).join(' '), s.ukuran, (s.fitur || []).join(' '), s.warna, s.no_seri, s.deskripsi].join(' ').toLowerCase().indexOf(c) > -1);
         });
         function kartu(s) {
             var u = L.untungStok(s), lama = L.hariAntara(s.tgl_masuk, hari);
@@ -2540,7 +2613,7 @@
             html.push('<details class="ly-grup" data-grup="' + E(k) + '"' + (bukaSeri[k] || c ? ' open' : '') + '><summary><span class="ly-grup__t">' + E(L.judulSeriStok(m)) + '</span><span class="ly-grup__m">' + m.length + ' barang · stok ' + jml +
                 (hrg.length ? ' · ' + L.rupiah(lo) + (hi > lo ? ' – ' + L.rupiah(hi) : '') : '') + '</span></summary><div class="ly-grup__b">' + m.map(function (x) { return kartu(x); }).join('') + '</div></details>');
         });
-        $('#list').innerHTML = html.length ? html.join('') : '<p class="ly-kosong">' + (rows.length ? 'Tidak ada di kategori ini.' : 'Belum ada stok. Tekan “+ Tambah stok”.') + '</p>';
+        $('#list').innerHTML = html.length ? html.join('') : '<p class="ly-kosong">' + (rows.length ? 'Tidak ada barang yang cocok dengan filter ini.' : 'Belum ada stok. Tekan “+ Tambah stok”.') + '</p>';
     }
     function teksTawar(s) {
         var judul = L.judulStok(s);
