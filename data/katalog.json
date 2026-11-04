@@ -3,37 +3,37 @@
  "v": 4,
  "item": [
   {
-   "kode": "STK-7MA5Y4",
+   "kode": "STK-SUFER3",
    "kategori": "aksesoris",
    "jenis": "Senar",
    "kondisi": "baru",
-   "nama": "Orphee SA38",
+   "nama": "Orphee SA39",
    "warna": "",
-   "deskripsi": "Senar Orphee SA38 ini berjenis phosphor bronze yang dirancang khusus untuk gitar akustik dengan ukuran 1152. Bahan phosphor bronze ini menghasilkan nada yang kaya, hangat, dan memiliki sustain yang panjang. Kondisi senar ini masih baru, jadi kamu akan mendapatkan kualitas suara optimal langsung dari awal pemakaian. Silakan datang ke toko kami untuk mencoba langsung dan merasakan sendiri perbedaannya. 🎸",
+   "deskripsi": "Senar gitar akustik Orphee SA39 dengan ukuran 12-53 ini terbuat dari material phosphor bronze yang memberikan respons suara lebih hangat dan jernih. Packaging hitam dengan logo biru terlihat bersih dan rapi, menandakan produk masih dalam kondisi baru. Senar ini dirancang untuk menghasilkan suara yang *loud* dan stabil, cocok untuk latihan maupun bermain di panggung. Mampir langsung ke Toko Gitar AYRI di Bogor untuk mencoba ketebalan senar ini di gitar Anda 🎸",
    "harga": 100000,
    "status": "tersedia",
    "sisa": 1,
    "foto": [
     {
-     "src": "foto/stok/orphee-sa38-gitar-akustik-ukuran-011-stk-7ma5y4-df8345.webp",
-     "kecil": "foto/stok/orphee-sa38-gitar-akustik-ukuran-011-stk-7ma5y4-df8345-k.webp"
+     "src": "foto/stok/orphee-sa39-gitar-akustik-ukuran-012-stk-sufer3-e6619f.webp",
+     "kecil": "foto/stok/orphee-sa39-gitar-akustik-ukuran-012-stk-sufer3-e6619f-k.webp"
     },
     {
-     "src": "foto/stok/orphee-sa38-gitar-akustik-ukuran-011-stk-7ma5y4-f27d69.webp",
-     "kecil": "foto/stok/orphee-sa38-gitar-akustik-ukuran-011-stk-7ma5y4-f27d69-k.webp"
+     "src": "foto/stok/orphee-sa39-gitar-akustik-ukuran-012-stk-sufer3-ebf22a.webp",
+     "kecil": "foto/stok/orphee-sa39-gitar-akustik-ukuran-012-stk-sufer3-ebf22a-k.webp"
     }
    ],
    "alat": [
     "Gitar Akustik"
    ],
-   "ukuran": "011",
+   "ukuran": "012",
    "merek": "Orphee",
    "seri": "SA",
    "fitur": [
-    "Phosphor Bronze",
-    "Warm"
+    "Phosphor Bronze"
    ],
-   "artikel": 0
+   "artikel": 0,
+   "grup": "sa-senar"
   },
   {
    "kode": "STK-ZXAD4K",
@@ -144,28 +144,38 @@
    "artikel": 4
   },
   {
-   "kode": "STK-SUFER3",
+   "kode": "STK-7MA5Y4",
    "kategori": "aksesoris",
    "jenis": "Senar",
    "kondisi": "baru",
-   "nama": "Orphee SA39",
-   "warna": "Gitar Akustik Ukuran 012",
-   "deskripsi": "Senar gitar akustik Orphee SA39 dengan ukuran 12-53 ini terbuat dari material phosphor bronze yang memberikan respons suara lebih hangat dan jernih. Packaging hitam dengan logo biru terlihat bersih dan rapi, menandakan produk masih dalam kondisi baru. Senar ini dirancang untuk menghasilkan suara yang *loud* dan stabil, cocok untuk latihan maupun bermain di panggung. Mampir langsung ke Toko Gitar AYRI di Bogor untuk mencoba ketebalan senar ini di gitar Anda 🎸",
+   "nama": "Orphee SA38",
+   "warna": "",
+   "deskripsi": "Senar Orphee SA38 ini berjenis phosphor bronze yang dirancang khusus untuk gitar akustik dengan ukuran 1152. Bahan phosphor bronze ini menghasilkan nada yang kaya, hangat, dan memiliki sustain yang panjang. Kondisi senar ini masih baru, jadi kamu akan mendapatkan kualitas suara optimal langsung dari awal pemakaian. Silakan datang ke toko kami untuk mencoba langsung dan merasakan sendiri perbedaannya. 🎸",
    "harga": 100000,
    "status": "tersedia",
    "sisa": 1,
    "foto": [
     {
-     "src": "foto/stok/orphee-sa39-gitar-akustik-ukuran-012-stk-sufer3-e6619f.webp",
-     "kecil": "foto/stok/orphee-sa39-gitar-akustik-ukuran-012-stk-sufer3-e6619f-k.webp"
+     "src": "foto/stok/orphee-sa38-gitar-akustik-ukuran-011-stk-7ma5y4-df8345.webp",
+     "kecil": "foto/stok/orphee-sa38-gitar-akustik-ukuran-011-stk-7ma5y4-df8345-k.webp"
     },
     {
-     "src": "foto/stok/orphee-sa39-gitar-akustik-ukuran-012-stk-sufer3-ebf22a.webp",
-     "kecil": "foto/stok/orphee-sa39-gitar-akustik-ukuran-012-stk-sufer3-ebf22a-k.webp"
+     "src": "foto/stok/orphee-sa38-gitar-akustik-ukuran-011-stk-7ma5y4-f27d69.webp",
+     "kecil": "foto/stok/orphee-sa38-gitar-akustik-ukuran-011-stk-7ma5y4-f27d69-k.webp"
     }
    ],
+   "alat": [
+    "Gitar Akustik"
+   ],
+   "ukuran": "011",
    "merek": "Orphee",
-   "artikel": 5
+   "seri": "SA",
+   "fitur": [
+    "Phosphor Bronze",
+    "Warm"
+   ],
+   "artikel": 5,
+   "grup": "sa-senar"
   },
   {
    "kode": "STK-QMF7J2",
