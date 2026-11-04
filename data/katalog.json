@@ -240,33 +240,34 @@
    "grup": "iso100lu-kabel"
   },
   {
-   "kode": "STK-RT4XNQ",
+   "kode": "STK-KVBRW6",
    "kategori": "aksesoris",
    "jenis": "Senar",
    "kondisi": "baru",
-   "nama": "Orphee SE2X",
+   "nama": "Orphee SE4X",
    "warna": "",
-   "deskripsi": "Senar Orphee SE2X ini adalah senar gitar listrik model Nickel Alloy dengan ketebalan 9-42. Desain packaging-nya simpel dan modern dengan dominasi warna hitam serta aksen circle biru yang khas. Kondisi barang ini 100% baru dan siap pakai. Cek langsung ketersediaan dan pasang senar ini di Toko Gitar AYRI 🎸",
+   "deskripsi": "Senar Orphee SE4X ukuran 011 ini cocok untuk gitar listrik yang membutuhkan resonansi solid dan stabil. Terbuat dari bahan Nickel Alloy, set ini dirancang untuk menghasilkan suara dengan sustain kuat, cocok untuk latihan maupun rekam. Kondisi unit masih baru dalam kemasan tertutup. Yuk, datang ke Toko Gitar AYRI untuk mencoba langsung suaranya!",
    "harga": 100000,
    "status": "tersedia",
    "sisa": 1,
    "foto": [
     {
-     "src": "foto/stok/orphee-se2x-gitar-listrik-ukuran-009-stk-rt4xnq-1eb232.webp",
-     "kecil": "foto/stok/orphee-se2x-gitar-listrik-ukuran-009-stk-rt4xnq-1eb232-k.webp"
+     "src": "foto/stok/orphee-se4x-gitar-listrik-ukuran-011-stk-kvbrw6-95a86b.webp",
+     "kecil": "foto/stok/orphee-se4x-gitar-listrik-ukuran-011-stk-kvbrw6-95a86b-k.webp"
     },
     {
-     "src": "foto/stok/orphee-se2x-gitar-listrik-ukuran-009-stk-rt4xnq-0208a6.webp",
-     "kecil": "foto/stok/orphee-se2x-gitar-listrik-ukuran-009-stk-rt4xnq-0208a6-k.webp"
+     "src": "foto/stok/orphee-se4x-gitar-listrik-ukuran-011-stk-kvbrw6-aa5f15.webp",
+     "kecil": "foto/stok/orphee-se4x-gitar-listrik-ukuran-011-stk-kvbrw6-aa5f15-k.webp"
     }
    ],
    "alat": [
     "Gitar Elektrik"
    ],
-   "ukuran": "009",
+   "ukuran": "011",
    "merek": "Orphee",
    "seri": "SE",
-   "artikel": 8
+   "artikel": 8,
+   "grup": "se-senar"
   },
   {
    "kode": "STK-NZGV2M",
@@ -557,28 +558,34 @@
    "artikel": 20
   },
   {
-   "kode": "STK-KVBRW6",
+   "kode": "STK-RT4XNQ",
    "kategori": "aksesoris",
    "jenis": "Senar",
    "kondisi": "baru",
-   "nama": "Orphee SE4X",
-   "warna": "Gitar Listrik Ukuran 011",
-   "deskripsi": "Senar Orphee SE4X ukuran 011 ini cocok untuk gitar listrik yang membutuhkan resonansi solid dan stabil. Terbuat dari bahan Nickel Alloy, set ini dirancang untuk menghasilkan suara dengan sustain kuat, cocok untuk latihan maupun rekam. Kondisi unit masih baru dalam kemasan tertutup. Yuk, datang ke Toko Gitar AYRI untuk mencoba langsung suaranya!",
+   "nama": "Orphee SE2X",
+   "warna": "",
+   "deskripsi": "Senar Orphee SE2X ini adalah senar gitar listrik model Nickel Alloy dengan ketebalan 9-42. Desain packaging-nya simpel dan modern dengan dominasi warna hitam serta aksen circle biru yang khas. Kondisi barang ini 100% baru dan siap pakai. Cek langsung ketersediaan dan pasang senar ini di Toko Gitar AYRI 🎸",
    "harga": 100000,
    "status": "tersedia",
    "sisa": 1,
    "foto": [
     {
-     "src": "foto/stok/orphee-se4x-gitar-listrik-ukuran-011-stk-kvbrw6-95a86b.webp",
-     "kecil": "foto/stok/orphee-se4x-gitar-listrik-ukuran-011-stk-kvbrw6-95a86b-k.webp"
+     "src": "foto/stok/orphee-se2x-gitar-listrik-ukuran-009-stk-rt4xnq-1eb232.webp",
+     "kecil": "foto/stok/orphee-se2x-gitar-listrik-ukuran-009-stk-rt4xnq-1eb232-k.webp"
     },
     {
-     "src": "foto/stok/orphee-se4x-gitar-listrik-ukuran-011-stk-kvbrw6-aa5f15.webp",
-     "kecil": "foto/stok/orphee-se4x-gitar-listrik-ukuran-011-stk-kvbrw6-aa5f15-k.webp"
+     "src": "foto/stok/orphee-se2x-gitar-listrik-ukuran-009-stk-rt4xnq-0208a6.webp",
+     "kecil": "foto/stok/orphee-se2x-gitar-listrik-ukuran-009-stk-rt4xnq-0208a6-k.webp"
     }
    ],
+   "alat": [
+    "Gitar Elektrik"
+   ],
+   "ukuran": "009",
    "merek": "Orphee",
-   "artikel": 21
+   "seri": "SE",
+   "artikel": 21,
+   "grup": "se-senar"
   },
   {
    "kode": "STK-Y5MC8V",
