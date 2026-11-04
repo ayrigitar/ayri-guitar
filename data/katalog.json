@@ -240,33 +240,34 @@
    "grup": "iso100lu-kabel"
   },
   {
-   "kode": "STK-UWGUKK",
+   "kode": "STK-2Z9THR",
    "kategori": "aksesoris",
    "jenis": "Senar",
    "kondisi": "baru",
-   "nama": "Orphee TX630",
+   "nama": "Orphee SA37",
    "warna": "",
-   "deskripsi": "Senar gitar akustik Orphee TX630 ukuran 011 ini hadir dengan kondisi baru dalam kemasan kuning khasnya. Terbuat dari bahan 75/25 Bronze, senar ini dirancang untuk memberikan resonansi yang hangat dan jernih pada gitar akustik maupun klasik. Ukuran 011 menawarkan keseimbangan yang pas antara kemudahan penekanan senar dan volume suara yang responsif. Mampir ke toko kami untuk mencoba langsung dan menemukan senar yang paling pas untuk gaya bermainmu. 🎸",
-   "harga": 40000,
+   "deskripsi": "Senar Orphee SA37 Phosphor Bronze ukuran .010 ini hadir dalam kemasan hitam beraksen biru yang menampilkan brand dan spesifikasi secara jelas. Sebagai senar khusus gitar akustik, material phosphor bronze-nya dirancang untuk menghasilkan nada yang hangat dan resonan. Kondisi barang masih baru, siap untuk dipasang langsung pada gitar Anda. Yuk, coba rasakan sendiri kualitas senarnya di toko kami! 🎸",
+   "harga": 100000,
    "status": "tersedia",
-   "sisa": 2,
+   "sisa": 3,
    "foto": [
     {
-     "src": "foto/stok/orphee-tx630-ukuran-011-stk-uwgukk-7c526f.webp",
-     "kecil": "foto/stok/orphee-tx630-ukuran-011-stk-uwgukk-7c526f-k.webp"
+     "src": "foto/stok/orphee-sa37-phosphor-bronze-ukuran-010-stk-2z9thr-43bfa0.webp",
+     "kecil": "foto/stok/orphee-sa37-phosphor-bronze-ukuran-010-stk-2z9thr-43bfa0-k.webp"
     },
     {
-     "src": "foto/stok/orphee-tx630-ukuran-011-stk-uwgukk-bc8ea8.webp",
-     "kecil": "foto/stok/orphee-tx630-ukuran-011-stk-uwgukk-bc8ea8-k.webp"
+     "src": "foto/stok/orphee-sa37-phosphor-bronze-ukuran-010-stk-2z9thr-b0548a.webp",
+     "kecil": "foto/stok/orphee-sa37-phosphor-bronze-ukuran-010-stk-2z9thr-b0548a-k.webp"
     }
    ],
    "alat": [
     "Gitar Akustik"
    ],
-   "ukuran": "011",
+   "ukuran": "010",
    "merek": "Orphee",
-   "seri": "TX",
-   "artikel": 8
+   "seri": "SA",
+   "artikel": 8,
+   "grup": "sa-senar"
   },
   {
    "kode": "STK-NZGV2M",
@@ -437,27 +438,32 @@
    "artikel": 15
   },
   {
-   "kode": "STK-2Z9THR",
+   "kode": "STK-UWGUKK",
    "kategori": "aksesoris",
    "jenis": "Senar",
    "kondisi": "baru",
-   "nama": "Orphee SA37",
-   "warna": "Phosphor Bronze Ukuran 010",
-   "deskripsi": "Senar Orphee SA37 Phosphor Bronze ukuran .010 ini hadir dalam kemasan hitam beraksen biru yang menampilkan brand dan spesifikasi secara jelas. Sebagai senar khusus gitar akustik, material phosphor bronze-nya dirancang untuk menghasilkan nada yang hangat dan resonan. Kondisi barang masih baru, siap untuk dipasang langsung pada gitar Anda. Yuk, coba rasakan sendiri kualitas senarnya di toko kami! 🎸",
-   "harga": 100000,
+   "nama": "Orphee TX630",
+   "warna": "",
+   "deskripsi": "Senar gitar akustik Orphee TX630 ukuran 011 ini hadir dengan kondisi baru dalam kemasan kuning khasnya. Terbuat dari bahan 75/25 Bronze, senar ini dirancang untuk memberikan resonansi yang hangat dan jernih pada gitar akustik maupun klasik. Ukuran 011 menawarkan keseimbangan yang pas antara kemudahan penekanan senar dan volume suara yang responsif. Mampir ke toko kami untuk mencoba langsung dan menemukan senar yang paling pas untuk gaya bermainmu. 🎸",
+   "harga": 40000,
    "status": "tersedia",
-   "sisa": 3,
+   "sisa": 2,
    "foto": [
     {
-     "src": "foto/stok/orphee-sa37-phosphor-bronze-ukuran-010-stk-2z9thr-43bfa0.webp",
-     "kecil": "foto/stok/orphee-sa37-phosphor-bronze-ukuran-010-stk-2z9thr-43bfa0-k.webp"
+     "src": "foto/stok/orphee-tx630-ukuran-011-stk-uwgukk-7c526f.webp",
+     "kecil": "foto/stok/orphee-tx630-ukuran-011-stk-uwgukk-7c526f-k.webp"
     },
     {
-     "src": "foto/stok/orphee-sa37-phosphor-bronze-ukuran-010-stk-2z9thr-b0548a.webp",
-     "kecil": "foto/stok/orphee-sa37-phosphor-bronze-ukuran-010-stk-2z9thr-b0548a-k.webp"
+     "src": "foto/stok/orphee-tx630-ukuran-011-stk-uwgukk-bc8ea8.webp",
+     "kecil": "foto/stok/orphee-tx630-ukuran-011-stk-uwgukk-bc8ea8-k.webp"
     }
    ],
+   "alat": [
+    "Gitar Akustik"
+   ],
+   "ukuran": "011",
    "merek": "Orphee",
+   "seri": "TX",
    "artikel": 16
   },
   {
