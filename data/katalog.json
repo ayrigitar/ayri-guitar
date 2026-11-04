@@ -240,30 +240,30 @@
    "grup": "iso100lu-kabel"
   },
   {
-   "kode": "STK-YR7ACG",
+   "kode": "STK-AKSTPX",
    "kategori": "aksesoris",
    "jenis": "Senar",
    "kondisi": "baru",
-   "nama": "Orphee RX19",
+   "nama": "Orphee RX15",
    "warna": "",
-   "deskripsi": "Senar gitar listrik Orphee RX19 ukuran 011-050 dalam kondisi baru, siap pakai untuk menggantikan senar lama Anda. Berdasarkan keterangan pada kemasan, senar ini terbuat dari paduan nikel dengan teknologi hexagonal core yang dirancang untuk memberikan resonansi dan sustain yang lebih baik. Coklat keperakan dengan kemasan plastik tertutup rapat menjaga senar tetap bersih dan bebas karat hingga saat pemasangan. Yuk, mampir langsung ke Toko Gitar AYRI di Bogor untuk cek kualitasnya dan tanya-tanya kebutuhan senar lainnya. 🎸",
+   "deskripsi": "Senar Orphee Guitar RX15 ini adalah senar gitar listrik ukuran .009 hingga .042 yang baru. Produk ini diproduksi di Indonesia dengan material 58 nickel alloy, menawarkan keseimbangan respons yang pas untuk gaya bermain yang ringan dan responsif. Keunggulan senar ini terletak pada kualitas material yang tahan lama, menjaga nada tetap stabil dan jernih dalam waktu lama. Yuk, langsung datang ke toko kami di Bogor untuk mencoba sensasi bunyinya dan dapatkan harga terbaik! 🎸",
    "harga": 40000,
    "status": "tersedia",
-   "sisa": null,
+   "sisa": 2,
    "foto": [
     {
-     "src": "foto/stok/orphee-rx19-gitar-listrik-ukuran-011-stk-yr7acg-342caf.webp",
-     "kecil": "foto/stok/orphee-rx19-gitar-listrik-ukuran-011-stk-yr7acg-342caf-k.webp"
+     "src": "foto/stok/orphee-rx15-gitar-listrik-ukuran-009-stk-akstpx-104665.webp",
+     "kecil": "foto/stok/orphee-rx15-gitar-listrik-ukuran-009-stk-akstpx-104665-k.webp"
     },
     {
-     "src": "foto/stok/orphee-rx19-gitar-listrik-ukuran-011-stk-yr7acg-54d366.webp",
-     "kecil": "foto/stok/orphee-rx19-gitar-listrik-ukuran-011-stk-yr7acg-54d366-k.webp"
+     "src": "foto/stok/orphee-rx15-gitar-listrik-ukuran-009-stk-akstpx-383477.webp",
+     "kecil": "foto/stok/orphee-rx15-gitar-listrik-ukuran-009-stk-akstpx-383477-k.webp"
     }
    ],
    "alat": [
     "Gitar Elektrik"
    ],
-   "ukuran": "011",
+   "ukuran": "009",
    "merek": "Orphee",
    "seri": "RX",
    "artikel": 8,
@@ -630,28 +630,34 @@
    "artikel": 23
   },
   {
-   "kode": "STK-AKSTPX",
+   "kode": "STK-YR7ACG",
    "kategori": "aksesoris",
    "jenis": "Senar",
    "kondisi": "baru",
-   "nama": "Orphee RX15",
-   "warna": "Gitar Listrik Ukuran 009",
-   "deskripsi": "Senar Orphee Guitar RX15 ini adalah senar gitar listrik ukuran .009 hingga .042 yang baru. Produk ini diproduksi di Indonesia dengan material 58 nickel alloy, menawarkan keseimbangan respons yang pas untuk gaya bermain yang ringan dan responsif. Keunggulan senar ini terletak pada kualitas material yang tahan lama, menjaga nada tetap stabil dan jernih dalam waktu lama. Yuk, langsung datang ke toko kami di Bogor untuk mencoba sensasi bunyinya dan dapatkan harga terbaik! 🎸",
+   "nama": "Orphee RX19",
+   "warna": "",
+   "deskripsi": "Senar gitar listrik Orphee RX19 ukuran 011-050 dalam kondisi baru, siap pakai untuk menggantikan senar lama Anda. Berdasarkan keterangan pada kemasan, senar ini terbuat dari paduan nikel dengan teknologi hexagonal core yang dirancang untuk memberikan resonansi dan sustain yang lebih baik. Coklat keperakan dengan kemasan plastik tertutup rapat menjaga senar tetap bersih dan bebas karat hingga saat pemasangan. Yuk, mampir langsung ke Toko Gitar AYRI di Bogor untuk cek kualitasnya dan tanya-tanya kebutuhan senar lainnya. 🎸",
    "harga": 40000,
    "status": "tersedia",
-   "sisa": 2,
+   "sisa": null,
    "foto": [
     {
-     "src": "foto/stok/orphee-rx15-gitar-listrik-ukuran-009-stk-akstpx-104665.webp",
-     "kecil": "foto/stok/orphee-rx15-gitar-listrik-ukuran-009-stk-akstpx-104665-k.webp"
+     "src": "foto/stok/orphee-rx19-gitar-listrik-ukuran-011-stk-yr7acg-342caf.webp",
+     "kecil": "foto/stok/orphee-rx19-gitar-listrik-ukuran-011-stk-yr7acg-342caf-k.webp"
     },
     {
-     "src": "foto/stok/orphee-rx15-gitar-listrik-ukuran-009-stk-akstpx-383477.webp",
-     "kecil": "foto/stok/orphee-rx15-gitar-listrik-ukuran-009-stk-akstpx-383477-k.webp"
+     "src": "foto/stok/orphee-rx19-gitar-listrik-ukuran-011-stk-yr7acg-54d366.webp",
+     "kecil": "foto/stok/orphee-rx19-gitar-listrik-ukuran-011-stk-yr7acg-54d366-k.webp"
     }
    ],
+   "alat": [
+    "Gitar Elektrik"
+   ],
+   "ukuran": "011",
    "merek": "Orphee",
-   "artikel": 24
+   "seri": "RX",
+   "artikel": 24,
+   "grup": "rx-senar"
   },
   {
    "kode": "STK-QW5YP5",
