@@ -72,7 +72,7 @@
         var simpan = anak.filter(function (el) { return el.classList.contains('ly-save'); })[0];
         var w = document.createElement('div'), a = document.createElement('div'), b = document.createElement('div');
         w.className = 'ly-dua'; a.className = 'ly-dua__kiri'; b.className = 'ly-dua__kanan';
-        root.insertBefore(w, kartu[0]);
+        root.insertBefore(w, kartu[0]); w.style.order = kartu[0].style.order; /* judul, kode, dan label status (order lebih kecil) tetap di atas kolom */
         kartu.forEach(function (el) { if (kanan.indexOf(el) < 0) a.appendChild(el); });
         if (simpan) b.appendChild(simpan);
         kanan.forEach(function (el) { b.appendChild(el); });
