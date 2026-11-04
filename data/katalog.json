@@ -240,31 +240,35 @@
    "grup": "iso100lu-kabel"
   },
   {
-   "kode": "STK-B9VWVH",
+   "kode": "STK-6DZ7XA",
    "kategori": "aksesoris",
    "jenis": "Capo",
    "kondisi": "baru",
-   "nama": "TaffStudio 7RTHF8BK",
-   "warna": "",
-   "deskripsi": "Capo ini baru dan siap pakai untuk semua gitar. Bagian pelat senarnya dilapisi karet bertekstur agar senar tidak bergeser dan nada tetap jernih. Desainnya universal, jadi pas di berbagai ukuran leher gitar. Silakan datang ke toko di Bogor untuk tes fit langsung di gitar Anda 🎸",
-   "harga": 40000,
+   "nama": "JOYO JCP-01",
+   "warna": "Gitar Akustik & Gitar Elektrik",
+   "deskripsi": "Capo Joyo JCP-01 ini hadir dalam desain ringan berwarna hitam yang cocok untuk gitar akustik maupun elektrik. Paketnya sudah termasuk pick oranye, sehingga kamu tidak perlu beli terpisah. Desainnya ringkas dan praktis untuk dibawa saat latihan atau tampil. Yuk, langsung cek dan cobain sendiri di Toko Gitar AYRI! 🎸",
+   "harga": 60000,
    "status": "tersedia",
-   "sisa": null,
+   "sisa": 3,
    "foto": [
     {
-     "src": "foto/stok/taffstudio-7rthf8bk-universal-stk-b9vwvh-8dacee.webp",
-     "kecil": "foto/stok/taffstudio-7rthf8bk-universal-stk-b9vwvh-8dacee-k.webp"
+     "src": "foto/stok/joyo-jcp-01-gitar-akustik-gitar-elektrik-stk-6dz7xa-69b289.webp",
+     "kecil": "foto/stok/joyo-jcp-01-gitar-akustik-gitar-elektrik-stk-6dz7xa-69b289-k.webp"
+    },
+    {
+     "src": "foto/stok/joyo-jcp-01-gitar-akustik-gitar-elektrik-stk-6dz7xa-2d5eb7.webp",
+     "kecil": "foto/stok/joyo-jcp-01-gitar-akustik-gitar-elektrik-stk-6dz7xa-2d5eb7-k.webp"
     }
    ],
    "alat": [
     "Gitar Akustik",
-    "Gitar Klasik",
     "Gitar Elektrik",
-    "Ukulele",
-    "Guitalele"
+    "Ukulele"
    ],
-   "merek": "TaffStudio",
-   "artikel": 8
+   "merek": "JOYO",
+   "seri": "JCP",
+   "artikel": 8,
+   "grup": "jcp-capo"
   },
   {
    "kode": "STK-NZGV2M",
@@ -699,27 +703,30 @@
    "artikel": 26
   },
   {
-   "kode": "STK-6DZ7XA",
+   "kode": "STK-B9VWVH",
    "kategori": "aksesoris",
    "jenis": "Capo",
    "kondisi": "baru",
-   "nama": "JOYO JCP-01",
-   "warna": "Gitar Akustik & Gitar Elektrik",
-   "deskripsi": "Capo Joyo JCP-01 ini hadir dalam desain ringan berwarna hitam yang cocok untuk gitar akustik maupun elektrik. Paketnya sudah termasuk pick oranye, sehingga kamu tidak perlu beli terpisah. Desainnya ringkas dan praktis untuk dibawa saat latihan atau tampil. Yuk, langsung cek dan cobain sendiri di Toko Gitar AYRI! 🎸",
-   "harga": 60000,
+   "nama": "TaffStudio 7RTHF8BK",
+   "warna": "",
+   "deskripsi": "Capo ini baru dan siap pakai untuk semua gitar. Bagian pelat senarnya dilapisi karet bertekstur agar senar tidak bergeser dan nada tetap jernih. Desainnya universal, jadi pas di berbagai ukuran leher gitar. Silakan datang ke toko di Bogor untuk tes fit langsung di gitar Anda 🎸",
+   "harga": 40000,
    "status": "tersedia",
-   "sisa": 3,
+   "sisa": null,
    "foto": [
     {
-     "src": "foto/stok/joyo-jcp-01-gitar-akustik-gitar-elektrik-stk-6dz7xa-69b289.webp",
-     "kecil": "foto/stok/joyo-jcp-01-gitar-akustik-gitar-elektrik-stk-6dz7xa-69b289-k.webp"
-    },
-    {
-     "src": "foto/stok/joyo-jcp-01-gitar-akustik-gitar-elektrik-stk-6dz7xa-2d5eb7.webp",
-     "kecil": "foto/stok/joyo-jcp-01-gitar-akustik-gitar-elektrik-stk-6dz7xa-2d5eb7-k.webp"
+     "src": "foto/stok/taffstudio-7rthf8bk-universal-stk-b9vwvh-8dacee.webp",
+     "kecil": "foto/stok/taffstudio-7rthf8bk-universal-stk-b9vwvh-8dacee-k.webp"
     }
    ],
-   "merek": "JOYO",
+   "alat": [
+    "Gitar Akustik",
+    "Gitar Klasik",
+    "Gitar Elektrik",
+    "Ukulele",
+    "Guitalele"
+   ],
+   "merek": "TaffStudio",
    "artikel": 27
   },
   {
@@ -747,7 +754,8 @@
    ],
    "merek": "JOYO",
    "seri": "JCP",
-   "artikel": 28
+   "artikel": 28,
+   "grup": "jcp-capo"
   },
   {
    "kode": "STK-V9FPZW",
