@@ -146,7 +146,7 @@
     <script>
 document.addEventListener('DOMContentLoaded', function () {
     var C = window.AYRI_LAYANAN || {}, toko = C.toko || {}, grid = document.getElementById('kat-grid');
-    var item = [], filter = 'semua', jenis = '', tipe = '', merek = '', cari = '', urut = 'baru';
+    var item = [], sampul = {}, filter = 'semua', jenis = '', tipe = '', merek = '', cari = '', urut = 'baru';
     /* pilihan filter ikut di alamat (katalog.html?kategori=aksesoris&jenis=Senar&tipe=Gitar%20Klasik&merek=Orphee), jadi bisa dibagikan dan tidak hilang saat tombol Kembali */
     (function () {
         var q = new URLSearchParams(location.search);
@@ -191,7 +191,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
     /* barang satu seri (grup) tampil sebagai satu kartu: harga mulai, jumlah pilihan, menuju halaman seri */
     function kartuSeri(g) {
-        var m = g.anggota.slice().sort(AYRI_UTIL.urutVarian), p = m.filter(function (y) { return y.foto[0]; })[0] || m[0], f = p.foto[0], judulS = AYRI_UTIL.judulSeri(m, C.jenisTanpaGitar, C.aksesoris);
+        var m = g.anggota.slice().sort(AYRI_UTIL.urutVarian), p = m.filter(function (y) { return y.foto[0]; })[0] || m[0], f = sampul[g.grup] || p.foto[0], judulS = AYRI_UTIL.judulSeri(m, C.jenisTanpaGitar, C.aksesoris);
         var label = m.map(AYRI_UTIL.labelVarian).filter(Boolean);
         return '<a class="kat-item" href="unit/seri-' + encodeURIComponent(g.grup) + '.html">' +
             '<span class="kat-foto">' + (f ? '<img src="' + esc(f.kecil) + '" alt="' + esc(judulS) + '" loading="lazy" decoding="async">' : '<span class="kat-nofoto">Foto menyusul</span>') +
@@ -263,7 +263,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     grid.innerHTML = new Array(8 + 1).join('<span class="kat-item kat-skel" aria-hidden="true"><span class="kat-foto"></span><span class="kat-isi"><span class="kat-harga">&nbsp;</span><b>&nbsp;</b></span></span>');
     fetch('data/katalog.json', { cache: 'no-store' }).then(function (r) { return r.ok ? r.json() : { item: [] }; }).catch(function () { return { item: [] }; }).then(function (d) {
-        item = d.item || []; gambarFilter(); gambar(); if (item.length) strukturData();
+        item = d.item || []; sampul = d.sampul || {}; gambarFilter(); gambar(); if (item.length) strukturData();
     });
 });
     </script>
