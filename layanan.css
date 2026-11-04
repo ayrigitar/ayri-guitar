@@ -350,6 +350,8 @@ html[data-theme="dark"] .kat-aks { background: rgba(245, 182, 92, .12); color: #
 .kat-bar { display: grid; grid-template-columns: 1fr auto; gap: 8px; }
 .kat-urut select { width: auto; min-width: 9.5rem; }
 .ly-filter--kecil button { padding: 5px 10px; font-size: .75rem; font-weight: 600; }
+.ly-sampul { margin: 0 0 10px; }
+.ly-sampul img { display: block; width: 100%; max-width: 280px; aspect-ratio: 4 / 3; object-fit: cover; border-radius: var(--r-md, 12px); border: 1px solid var(--line); }
 .kat-bar2 { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
 .kat-bar2[hidden], .kat-urut[hidden] { display: none; }
 .kat-kosong { display: grid; justify-items: center; gap: 10px; grid-column: 1 / -1; }

@@ -3,7 +3,7 @@
 (function () {
     var L = Layanan, C = L.C, A = L.api, E = L.esc, app = document.getElementById('app');
     var WA_IKON = '<svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.6.8-.8 1-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.2-.4.2-.4.7-1.3.1-.1 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.8 11.9 11.9 0 0 0 4.6 4c1.7.7 2.4.8 3.3.7a2.8 2.8 0 0 0 1.8-1.3 2.2 2.2 0 0 0 .2-1.3c-.1-.1-.3-.2-.5-.3z"/></svg>';
-    var cache = { servis: [], artikel: [], tebus: [], stok: [], jual: [], absen: [], opname: [], kas: [], sewa: [], titip: [] }, dimuat = false, ed = null, ae = null, te = null, sk = null, filterTb = 'aktif', filterSk = 'tersedia', cariSk = '', pilihSk = { jenis: '', tipe: '', merek: '' }, urutSk = 'baru', cepatSk = {}, saringSkDimuat = false, bukaSeri = {}, dirty = false, filter = 'aktif', cari = '', menyimpan = false;
+    var cache = { servis: [], artikel: [], tebus: [], stok: [], jual: [], absen: [], opname: [], kas: [], sewa: [], titip: [] }, dimuat = false, ed = null, ae = null, te = null, sk = null, filterTb = 'aktif', filterSk = 'tersedia', cariSk = '', pilihSk = { jenis: '', tipe: '', merek: '' }, urutSk = 'baru', cepatSk = {}, saringSkDimuat = false, sampulSeri = null, sampulLokal = {}, bukaSeri = {}, dirty = false, filter = 'aktif', cari = '', menyimpan = false;
     var AKTIF = ['menunggu_dp', 'antri', 'dikerjakan', 'selesai'];
 
     function $(s, r) { return (r || document).querySelector(s); }
@@ -2922,7 +2922,10 @@
     function buatPosterSeri(sr) {
         var m = sr.anggota, pemilik = m.filter(function (x) { return (x.foto || []).some(function (f) { return f.repo === 'publik'; }); })[0];
         var fp = pemilik && pemilik.foto.filter(function (f) { return f.repo === 'publik'; })[0];
-        return Promise.all([fp ? muatFotoPoster(pemilik, fp) : Promise.resolve(null), muatLogoPoster(), siapFontPoster()]).then(function (r) {
+        /* foto sampul seri (bila ada) jadi foto poster; bila gagal dimuat atau belum ada, pakai foto barang */
+        var fotoUtama = A.muatSampulSeri().then(function (p) { return p[sr.grup] ? muatGambar(L.situs() + p[sr.grup].src, 'no-cache') : null; }).catch(function () { return null; })
+            .then(function (im) { return im || (fp ? muatFotoPoster(pemilik, fp) : null); });
+        return Promise.all([fotoUtama, muatLogoPoster(), siapFontPoster()]).then(function (r) {
             var im = r[0], logo = r[1][0], kv = kanvasPoster(sr.judul), c = kv.c, jl = barisJudul(c, sr.judul, 2);
             var baris = m.length > 6 ? m.slice(0, 5) : m, sisa = m.length - baris.length;
             var fh = tinggiFoto(70 + jl.length * 76 + 48 + baris.length * 64 + (sisa ? 44 : 0)), sel = { x: 50, y: 215, w: 980, h: fh }, kotak = sel;
@@ -3071,6 +3074,7 @@
             '<label class="ly-cek"><input type="checkbox" id="sk-tampil"> 🌐 Tampilkan di katalog website (bila tersedia dan ada harga jual)</label>' +
             '<div class="ly-sum owner-saja" id="sk-sum"></div></fieldset>' +
             '<fieldset class="ly-card"><legend>Foto</legend><div id="sk-foto"></div><p class="ly-hint" style="margin-top:10px">Foto produk tampil di katalog website (tidak dikunci). Foto pertama menjadi sampul.</p></fieldset>' +
+            '<fieldset class="ly-card" id="sk-sampul-set" hidden><legend>Foto sampul seri</legend><div id="sk-sampul"></div></fieldset>' +
             (sk.baru ? '' : '<fieldset class="ly-card"><legend>Penjualan</legend><div class="ly-bayar" id="sk-jual"></div>' +
                 (L.sewaAktifStok(s.id, cache.sewa) ? '<p class="ly-hint" style="margin:10px 0 0"><b>Sedang disewa</b> oleh ' + E(L.sewaAktifStok(s.id, cache.sewa).nama) + ' sampai ' + L.tgl(L.batasSewa(L.sewaAktifStok(s.id, cache.sewa))) + '. <a href="#sewa/' + E(L.sewaAktifStok(s.id, cache.sewa).id) + '">Buka sewa</a></p>' : '') +
                 (L.bisaDisewa(s, cache.sewa) ? '<div class="ly-btns" style="margin-top:10px"><button type="button" class="ly-btn" id="sk-sewa-baru">Sewakan gitar ini</button></div>' : '') +
@@ -3088,21 +3092,26 @@
             '<div class="ly-save"><span class="ly-dirty" id="dirty" hidden>Belum disimpan</span><button type="button" class="ly-btn ly-btn--pri" id="sk-simpan">' + (sk.baru ? 'Simpan stok' : 'Simpan perubahan') + '</button></div></section>';
         $$('[data-s]', app).forEach(function (el) { var v = s[el.dataset.s]; el.value = v == null ? '' : v; });
         $('#sk-tampil').checked = s.tampil !== false;
-        gambarSumStok(); gambarStatusStok(); gambarJual(); gambarFotoStok(); gambarAlatStok(); gambarFiturStok(); setDirty(false);
+        gambarSumStok(); gambarStatusStok(); gambarJual(); gambarFotoStok(); gambarAlatStok(); gambarFiturStok(); gambarSampulSk(); setDirty(false);
         var el = $('#sk');
+        if (sampulSeri === null) A.muatSampulSeri().then(function (p) { sampulSeri = p; gambarSampulSk(); }, function () { /* tanpa sampul: katalog memakai foto barang */ });
         function tampilTingkat() { $('#sk-tingkat').hidden = !(s.kategori !== 'aksesoris' && s.kondisi === 'bekas'); }
         function ubah(e) {
             var t = e.target, k = t.dataset.s;
             if (t.id === 'sk-tampil') { s.tampil = t.checked; setDirty(true); return; }
+            if (t.id === 'sk-sampul-file') { unggahSampulSk(t); return; }
             if (!k) return;
             s[k] = /^(harga_beli|harga_jual|jumlah)$/.test(k) ? Math.max(0, Math.round(+t.value || 0)) : t.value; setDirty(true);
             if (k === 'sub') { var dk = skemaAks(s.sub); s.tipe = ''; s.ukuran = ''; if (!dk.alat) s.alat = []; $('#sk-skema').innerHTML = skemaHtml(s); gambarAlatStok(); } /* isian kategori lama tidak ikut terbawa */
             if (/harga|jumlah/.test(k)) gambarSumStok();
+            if (k === 'seri' || k === 'sub') gambarSampulSk();
         }
         el.addEventListener('input', ubah); el.addEventListener('change', ubah);
         el.addEventListener('keydown', function (e) { if (e.key === 'Enter' && e.target.id === 'sk-fitur-in') { e.preventDefault(); tambahFitur(); } });
         el.addEventListener('click', function (e) {
             var b = e.target.closest('button'); if (!b) return; var d = b.dataset;
+            if (d.kategori) setTimeout(gambarSampulSk);
+            if (b.id === 'sk-sampul-hapus') { hapusSampulSk(); return; }
             if (d.kondisi) { s.kondisi = d.kondisi; $$('#sk-kondisi button').forEach(function (x) { x.setAttribute('aria-pressed', x.dataset.kondisi === s.kondisi); }); tampilTingkat(); setDirty(true); }
             else if (d.kategori) {
                 s.kategori = d.kategori; var aks = s.kategori === 'aksesoris';
@@ -3182,6 +3191,30 @@
             if (p.jual_id) { var j = cariId('jual', p.jual_id); return '<div><span>' + L.tgl(p.tgl) + ' · ' + p.qty + ' unit · <a href="#jual/' + E(p.jual_id) + '">' + E(p.catatan) + '</a>' + (j ? ' · ' + E(L.STATUS_JUAL[j.status]) : '') + '</span><b>' + L.rupiah(p.harga * p.qty) + '</b></div>'; }
             return '<div><span>' + L.tgl(p.tgl) + ' · ' + p.qty + ' unit' + (p.catatan ? ' · ' + E(p.catatan) : '') + (p.baru ? ' <small class="ly-muted">(belum disimpan)</small>' : '') + '</span><b>' + L.rupiah(p.harga * p.qty) + '</b><button type="button" class="ly-x" data-deljual="' + i + '" aria-label="Hapus">×</button></div>';
         }).join('') : '<p class="ly-muted">Belum ada penjualan.</p>';
+    }
+    /* foto sampul seri: satu foto untuk semua barang yang Seri-nya sama; diunggah/dihapus langsung (terpisah dari tombol Simpan) */
+    function gambarSampulSk() {
+        var el = $('#sk-sampul'), set = $('#sk-sampul-set'); if (!el || !set) return;
+        var s = sk.s, grup = L.grupSeri(s); set.hidden = !grup; if (!grup) return;
+        var cv = sampulSeri && sampulSeri[grup];
+        el.innerHTML = '<p class="ly-hint" style="margin:0 0 10px">Satu foto untuk seri <b>' + E(s.seri) + '</b>: dipakai di kartu katalog, halaman seri, pratinjau tautan, dan poster seri. Tersimpan sendiri, tidak hilang walau semua barang seri ini terjual, jadi tidak perlu diunggah ulang saat varian baru masuk. Tanpa foto ini, katalog memakai foto barang pertama dari seri.</p>' +
+            (cv ? '<figure class="ly-sampul"><img src="' + E(sampulLokal[grup] || L.situs() + cv.kecil) + '" alt="Foto sampul seri"></figure>' : '<p class="ly-muted" style="margin:0 0 10px">Belum ada foto sampul.</p>') +
+            '<div class="ly-btns"><label class="ly-btn ly-btn--sm ly-file">' + (cv ? 'Ganti foto' : '+ Foto sampul seri') + '<input type="file" accept="image/*" id="sk-sampul-file"></label>' + (cv ? '<button type="button" class="ly-btn ly-btn--sm" id="sk-sampul-hapus">Hapus</button>' : '') + '</div>';
+    }
+    function unggahSampulSk(inp) {
+        var f = inp.files && inp.files[0], grup = L.grupSeri(sk.s); inp.value = '';
+        if (!f || !grup) return;
+        toast('Mengunggah foto sampul seri…');
+        L.kompres(f).then(function (h) {
+            return A.simpanSampulSeri(grup, h).then(function (cv) {
+                sampulSeri = sampulSeri || {}; sampulSeri[grup] = cv; sampulLokal[grup] = URL.createObjectURL(h.kecil);
+                gambarSampulSk(); toast('Foto sampul seri tersimpan. Tampil di katalog ±1 menit lagi.');
+            });
+        }).catch(gagal);
+    }
+    function hapusSampulSk() {
+        var grup = L.grupSeri(sk.s); if (!grup || !confirm('Hapus foto sampul seri? Katalog kembali memakai foto barang pertama dari seri.')) return;
+        A.simpanSampulSeri(grup, null).then(function () { if (sampulSeri) delete sampulSeri[grup]; delete sampulLokal[grup]; gambarSampulSk(); toast('Foto sampul seri dihapus.'); }).catch(gagal);
     }
     function gambarFotoStok() {
         var el = $('#sk-foto'); if (!el) return;
