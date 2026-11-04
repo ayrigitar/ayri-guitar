@@ -24,3 +24,17 @@ test('isian ringkas: ikon penjelasan (i) menggantikan paragraf bantuan, dan isia
     assert.match(css, /@media \(min-width: 1000px\) \{\s+\.ly-grid \{ grid-template-columns: repeat\(6/, 'berdampingan hanya di layar lebar');
     assert.match(css, /\.ly-tip\[hidden\] \{ display: none; \}/);
 });
+
+test('filter HP: panel dari bawah di POS Stok dan katalog (PC tetap baris dropdown), rekap stok dilipat', () => {
+    const adm = baca('admin.js'), kat = baca('katalog.html'), css = baca('layanan.css'), ut = baca('util.js');
+    assert.match(ut, /lembarFilter: function \(panel, tombol\)/);
+    assert.match(ut, /lembarReset: function/);
+    assert.match(adm, /AYRI_UTIL\.lembarFilter\(\$\('#sk-bar'\), \$\('#sk-fbtn'\)\)/);
+    assert.match(adm, /AYRI_UTIL\.lembarReset\(\);/, 'halaman stok membuka tanpa sisa kunci layar');
+    assert.match(adm, /id="sk-rekap-d"/, 'rekap stok bisa dilipat');
+    assert.match(kat, /AYRI_UTIL\.lembarFilter\(document\.getElementById\('kat-bar2'\), document\.getElementById\('kat-fbtn'\)\)/);
+    assert.match(kat, /bar2\.insertBefore\(lu,/, 'HP: urutan ikut masuk panel');
+    assert.match(css, /@media \(max-width: 700px\) \{\s+\.ly-fbtn \{ display: inline-flex; \}\s+\.kat-bar2\.ly-pnl \{ position: fixed/, 'panel hanya di HP');
+    assert.match(css, /\.ly-fbtn \{ display: none;/, 'tombol Filter tersembunyi di PC');
+    assert.ok(!/class="[^"]*\bly-lembar\b[^"]*"/.test(adm + kat), 'tidak memakai kelas ly-lembar milik panel lama');
+});
