@@ -253,6 +253,8 @@ body.nota-body { background: var(--bg-alt); color: var(--ink); font-family: var(
   background: #fff; color: #1C1815; border-radius: var(--r-md); box-shadow: var(--shadow-md); font-size: .875rem; line-height: 1.45;
 }
 .nota-head { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 14px; padding-bottom: 14px; border-bottom: 2px solid #1C1815; }
+.nota-toko { display: flex; align-items: center; gap: 12px; }
+.nota-logo { flex: none; width: auto; height: 56px; }
 .nota-toko b { display: block; font: 700 1.375rem/1.1 var(--font-display); }
 .nota-toko b span { color: #9E5A0C; }
 .nota-toko p { margin: 4px 0 0; color: #4F4740; font-size: .8125rem; }
@@ -887,3 +889,9 @@ html[data-theme="dark"] .rk-naik { color: #5CD196 !important; }
   .ly-rekap[open] > summary::after { content: "▴"; }
   .ly-rekap[open] > summary { margin-bottom: 8px; }
 }
+
+/* Jasa cepat di Kasir */
+.ks-cari-baris { display: flex; gap: 8px; align-items: stretch; }
+.ks-cari-baris .ks-cari { flex: 1; min-width: 0; }
+.ks-jasa { flex: none; white-space: nowrap; }
+.ks-jasa-f { display: grid; gap: 10px; }
