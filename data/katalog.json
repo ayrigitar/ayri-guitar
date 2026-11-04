@@ -3,34 +3,35 @@
  "v": 4,
  "item": [
   {
-   "kode": "STK-J7NEGR",
+   "kode": "STK-GKPE3H",
    "kategori": "aksesoris",
    "jenis": "Senar",
    "kondisi": "baru",
-   "nama": "Orphee SC57",
+   "nama": "Orphee SC55",
    "warna": "",
-   "deskripsi": "Senar Orphee SC57 ini adalah senar nylon klasik dengan tegangan keras (hard tension), cocok untuk pemain yang menginginkan suara lebih keras dan respons kuat saat bermain. Sebagai senar baru, kawat bassnya yang berbahan copper phosphor dengan coating (lapisan pelindung) akan terasa halus di jari dan lebih tahan lama. kemasan hitam dengan aksen ungu ini menampilkan spesifikasi jelas di bagian belakang, memastikan Anda mendapatkan tepat varian yang dibutuhkan. Mampir ke Toko Gitar AYRI di Bogor untuk mencoba langsung dan konsultasikan kebutuhan senar Anda. 🎸",
+   "deskripsi": "Set senar Orphee SC55 ini baru dalam kemasan aslinya yang didominasi warna hitam dan ungu. Sebagai senar nylon klasik tegangan normal, set 6 senar ini dirancang untuk memberikan respons yang seimbang saat dimainkan. Lapisan silver pada senar bassnya membuat resonansi suara lebih jelas dan stabil, cocok untuk pemula maupun pemain yang mencari nuansa natural. Yuk, mampir ke toko kami di Bogor untuk langsung coba sensasi mainnya! 🎸",
    "harga": 120000,
    "status": "tersedia",
    "sisa": 1,
    "foto": [
     {
-     "src": "foto/stok/orphee-sc57-nylon-klasik-hard-tension-stk-j7negr-f5133d.webp",
-     "kecil": "foto/stok/orphee-sc57-nylon-klasik-hard-tension-stk-j7negr-f5133d-k.webp"
+     "src": "foto/stok/orphee-sc55-nylon-klasik-normal-tension-stk-gkpe3h-35d5a4.webp",
+     "kecil": "foto/stok/orphee-sc55-nylon-klasik-normal-tension-stk-gkpe3h-35d5a4-k.webp"
     },
     {
-     "src": "foto/stok/orphee-sc57-nylon-klasik-hard-tension-stk-j7negr-17840f.webp",
-     "kecil": "foto/stok/orphee-sc57-nylon-klasik-hard-tension-stk-j7negr-17840f-k.webp"
+     "src": "foto/stok/orphee-sc55-nylon-klasik-normal-tension-stk-gkpe3h-af1163.webp",
+     "kecil": "foto/stok/orphee-sc55-nylon-klasik-normal-tension-stk-gkpe3h-af1163-k.webp"
     }
    ],
    "alat": [
     "Gitar Klasik",
     "Guitalele"
    ],
-   "ukuran": "Hard Tension",
+   "ukuran": "Normal Tension",
    "merek": "Orphee",
    "seri": "SC",
-   "artikel": 0
+   "artikel": 0,
+   "grup": "sc-senar"
   },
   {
    "kode": "STK-ZXAD4K",
@@ -93,28 +94,35 @@
    "grup": "qa-senar"
   },
   {
-   "kode": "STK-GKPE3H",
+   "kode": "STK-J7NEGR",
    "kategori": "aksesoris",
    "jenis": "Senar",
    "kondisi": "baru",
-   "nama": "Orphee SC55",
-   "warna": "Nylon Klasik Normal Tension",
-   "deskripsi": "Set senar Orphee SC55 ini baru dalam kemasan aslinya yang didominasi warna hitam dan ungu. Sebagai senar nylon klasik tegangan normal, set 6 senar ini dirancang untuk memberikan respons yang seimbang saat dimainkan. Lapisan silver pada senar bassnya membuat resonansi suara lebih jelas dan stabil, cocok untuk pemula maupun pemain yang mencari nuansa natural. Yuk, mampir ke toko kami di Bogor untuk langsung coba sensasi mainnya! 🎸",
+   "nama": "Orphee SC57",
+   "warna": "",
+   "deskripsi": "Senar Orphee SC57 ini adalah senar nylon klasik dengan tegangan keras (hard tension), cocok untuk pemain yang menginginkan suara lebih keras dan respons kuat saat bermain. Sebagai senar baru, kawat bassnya yang berbahan copper phosphor dengan coating (lapisan pelindung) akan terasa halus di jari dan lebih tahan lama. kemasan hitam dengan aksen ungu ini menampilkan spesifikasi jelas di bagian belakang, memastikan Anda mendapatkan tepat varian yang dibutuhkan. Mampir ke Toko Gitar AYRI di Bogor untuk mencoba langsung dan konsultasikan kebutuhan senar Anda. 🎸",
    "harga": 120000,
    "status": "tersedia",
    "sisa": 1,
    "foto": [
     {
-     "src": "foto/stok/orphee-sc55-nylon-klasik-normal-tension-stk-gkpe3h-35d5a4.webp",
-     "kecil": "foto/stok/orphee-sc55-nylon-klasik-normal-tension-stk-gkpe3h-35d5a4-k.webp"
+     "src": "foto/stok/orphee-sc57-nylon-klasik-hard-tension-stk-j7negr-f5133d.webp",
+     "kecil": "foto/stok/orphee-sc57-nylon-klasik-hard-tension-stk-j7negr-f5133d-k.webp"
     },
     {
-     "src": "foto/stok/orphee-sc55-nylon-klasik-normal-tension-stk-gkpe3h-af1163.webp",
-     "kecil": "foto/stok/orphee-sc55-nylon-klasik-normal-tension-stk-gkpe3h-af1163-k.webp"
+     "src": "foto/stok/orphee-sc57-nylon-klasik-hard-tension-stk-j7negr-17840f.webp",
+     "kecil": "foto/stok/orphee-sc57-nylon-klasik-hard-tension-stk-j7negr-17840f-k.webp"
     }
    ],
+   "alat": [
+    "Gitar Klasik",
+    "Guitalele"
+   ],
+   "ukuran": "Hard Tension",
    "merek": "Orphee",
-   "artikel": 3
+   "seri": "SC",
+   "artikel": 3,
+   "grup": "sc-senar"
   },
   {
    "kode": "STK-SUFER3",
