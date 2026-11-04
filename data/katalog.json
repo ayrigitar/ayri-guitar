@@ -3,6 +3,39 @@
  "v": 4,
  "item": [
   {
+   "kode": "STK-7MA5Y4",
+   "kategori": "aksesoris",
+   "jenis": "Senar",
+   "kondisi": "baru",
+   "nama": "Orphee SA38",
+   "warna": "",
+   "deskripsi": "Senar Orphee SA38 ini berjenis phosphor bronze yang dirancang khusus untuk gitar akustik dengan ukuran 1152. Bahan phosphor bronze ini menghasilkan nada yang kaya, hangat, dan memiliki sustain yang panjang. Kondisi senar ini masih baru, jadi kamu akan mendapatkan kualitas suara optimal langsung dari awal pemakaian. Silakan datang ke toko kami untuk mencoba langsung dan merasakan sendiri perbedaannya. 🎸",
+   "harga": 100000,
+   "status": "tersedia",
+   "sisa": 1,
+   "foto": [
+    {
+     "src": "foto/stok/orphee-sa38-gitar-akustik-ukuran-011-stk-7ma5y4-df8345.webp",
+     "kecil": "foto/stok/orphee-sa38-gitar-akustik-ukuran-011-stk-7ma5y4-df8345-k.webp"
+    },
+    {
+     "src": "foto/stok/orphee-sa38-gitar-akustik-ukuran-011-stk-7ma5y4-f27d69.webp",
+     "kecil": "foto/stok/orphee-sa38-gitar-akustik-ukuran-011-stk-7ma5y4-f27d69-k.webp"
+    }
+   ],
+   "alat": [
+    "Gitar Akustik"
+   ],
+   "ukuran": "011",
+   "merek": "Orphee",
+   "seri": "SA",
+   "fitur": [
+    "Phosphor Bronze",
+    "Warm"
+   ],
+   "artikel": 0
+  },
+  {
    "kode": "STK-ZXAD4K",
    "kategori": "aksesoris",
    "jenis": "Senar",
@@ -29,7 +62,7 @@
    "ukuran": "010",
    "merek": "Orphee",
    "seri": "QA",
-   "artikel": 0,
+   "artikel": 1,
    "grup": "qa-senar"
   },
   {
@@ -59,7 +92,7 @@
    "ukuran": "009",
    "merek": "Orphee",
    "seri": "QA",
-   "artikel": 1,
+   "artikel": 2,
    "grup": "qa-senar"
   },
   {
@@ -84,7 +117,7 @@
     }
    ],
    "merek": "Orphee",
-   "artikel": 2
+   "artikel": 3
   },
   {
    "kode": "STK-J7NEGR",
@@ -108,7 +141,7 @@
     }
    ],
    "merek": "Orphee",
-   "artikel": 3
+   "artikel": 4
   },
   {
    "kode": "STK-SUFER3",
@@ -132,38 +165,6 @@
     }
    ],
    "merek": "Orphee",
-   "artikel": 4
-  },
-  {
-   "kode": "STK-7MA5Y4",
-   "kategori": "aksesoris",
-   "jenis": "Senar",
-   "kondisi": "baru",
-   "nama": "Orphee SA38",
-   "warna": "",
-   "deskripsi": "Senar Orphee SA38 ini berjenis phosphor bronze yang dirancang khusus untuk gitar akustik dengan ukuran 1152. Bahan phosphor bronze ini menghasilkan nada yang kaya, hangat, dan memiliki sustain yang panjang. Kondisi senar ini masih baru, jadi kamu akan mendapatkan kualitas suara optimal langsung dari awal pemakaian. Silakan datang ke toko kami untuk mencoba langsung dan merasakan sendiri perbedaannya. 🎸",
-   "harga": 100000,
-   "status": "tersedia",
-   "sisa": 1,
-   "foto": [
-    {
-     "src": "foto/stok/orphee-sa38-gitar-akustik-ukuran-011-stk-7ma5y4-df8345.webp",
-     "kecil": "foto/stok/orphee-sa38-gitar-akustik-ukuran-011-stk-7ma5y4-df8345-k.webp"
-    },
-    {
-     "src": "foto/stok/orphee-sa38-gitar-akustik-ukuran-011-stk-7ma5y4-f27d69.webp",
-     "kecil": "foto/stok/orphee-sa38-gitar-akustik-ukuran-011-stk-7ma5y4-f27d69-k.webp"
-    }
-   ],
-   "alat": [
-    "Gitar Akustik"
-   ],
-   "ukuran": "011",
-   "merek": "Orphee",
-   "fitur": [
-    "Phosphor Bronze",
-    "Warm"
-   ],
    "artikel": 5
   },
   {
