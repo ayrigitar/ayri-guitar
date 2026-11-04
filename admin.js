@@ -2508,14 +2508,17 @@
         return b ? '<span class="ly-item__b">' + b + '</span>' : '';
     }
     function daftarStok() {
+        AYRI_UTIL.lembarReset();
         app.innerHTML = '<section><div class="ly-head"><h1>Stok</h1><a class="ly-btn" href="#opname">Stock opname</a><a class="ly-btn ly-btn--pri" href="#stok/baru">+ Tambah stok</a></div>' +
-            '<p class="ly-muted">Barang tersedia yang berharga jual dan berlabel 🌐 tampil di <a href="' + E(L.situs()) + 'katalog.html" target="_blank">katalog website</a> (±1 menit setelah disimpan).</p>' +
-            '<div class="ly-sum ly-card" id="sk-rekap" style="margin:0"></div>' +
-            '<div class="ly-cari"><input class="ly-in" id="cari" type="search" placeholder="Cari kode, nama, merk, warna, no. seri…" autocomplete="off"></div>' +
+            '<p class="ly-muted ly-desk">Barang tersedia yang berharga jual dan berlabel 🌐 tampil di <a href="' + E(L.situs()) + 'katalog.html" target="_blank">katalog website</a> (±1 menit setelah disimpan).</p>' +
+            '<details class="ly-rekap" id="sk-rekap-d"><summary id="sk-rekap-s"></summary><div class="ly-sum ly-card" id="sk-rekap" style="margin:0"></div></details>' +
+            '<div class="ly-cari"><input class="ly-in" id="cari" type="search" placeholder="Cari kode, nama, merk, warna, no. seri…" autocomplete="off"><button type="button" class="ly-btn ly-fbtn" id="sk-fbtn" aria-haspopup="dialog" aria-expanded="false">Filter<b id="sk-fn" hidden></b></button></div>' +
             '<div class="ly-filter" id="filter"></div>' +
-            '<div class="kat-bar2" id="sk-bar"></div><div class="ly-filter ly-filter--kecil" id="filter4" hidden></div><div class="ly-list" id="list"></div></section>';
+            '<div class="kat-bar2 ly-pnl" id="sk-bar" role="dialog" aria-label="Filter dan urutan"></div><div class="ly-filter ly-filter--kecil" id="filter4" hidden></div><div class="ly-list" id="list"></div></section>';
         if (!saringSkDimuat) { saringSkDimuat = true; muatSaringSk(); }
         $('#cari').value = cariSk;
+        $('#sk-rekap-d').open = !(window.matchMedia && window.matchMedia('(max-width: 700px)').matches); /* HP: rekap dilipat */
+        AYRI_UTIL.lembarFilter($('#sk-bar'), $('#sk-fbtn'));
         $('#cari').addEventListener('input', function () { cariSk = this.value; gambarDaftarStok(); });
         $('#filter4').addEventListener('click', function (e) { var b = e.target.closest('[data-c]'); if (b) { cepatSk[b.dataset.c] = !cepatSk[b.dataset.c]; simpanSaringSk(); gambarDaftarStok(); } });
         $('#sk-bar').addEventListener('change', function (e) {
@@ -2590,6 +2593,7 @@
             if ((s.penjualan || []).length) n.terjual++;
             (s.penjualan || []).forEach(function (p) { if (String(p.tgl).slice(0, 7) === bln) { terjualUnit += p.qty; untung += (p.harga - (+s.harga_beli || 0)) * p.qty; } });
         });
+        $('#sk-rekap-s').innerHTML = '<span>' + (unit.baru + unit.bekas + unit.aksesoris) + ' unit tersedia' + (owner() ? ' · modal ' + L.rupiah(modal) : '') + '</span>';
         $('#sk-rekap').innerHTML = '<div><span>Stok tersedia</span><span>' + (unit.baru + unit.bekas + unit.aksesoris) + ' unit</span></div>' +
             '<div><span>&nbsp; gitar baru / bekas / aksesoris</span><span>' + unit.baru + ' / ' + unit.bekas + ' / ' + unit.aksesoris + '</span></div>' +
             '<div><span>Tampil di katalog website</span><span>' + diWeb + ' barang</span></div>' +
@@ -2614,14 +2618,16 @@
             return '<button type="button" data-c="' + x[0] + '" aria-pressed="' + !!cepatSk[x[0]] + '">' + x[1] + '<b>' + tersaring.filter(CEPAT_COCOK_SK[x[0]]).length + '</b></button>';
         }).join('') : '';
         var adaPilihan = pilihSk.jenis || pilihSk.tipe || pilihSk.merek || urutSk !== 'baru' || (owner() && CEPAT_SK.some(function (x) { return cepatSk[x[0]]; }));
-        $('#sk-bar').innerHTML = pilihanSk('sk-jenis', 'Jenis', opsi.jenis, 'Semua jenis', dasar.length, pilihSk.jenis) + pilihanSk('sk-tipe', 'Tipe', opsi.tipe, 'Semua tipe', opsi.jumlahJenis, pilihSk.tipe) +
+        $('#sk-bar').innerHTML = '<div class="ly-pnl__kepala"><b>Filter &amp; urutan</b><button type="button" class="ly-x" data-tutup aria-label="Tutup">&times;</button></div>' + pilihanSk('sk-jenis', 'Jenis', opsi.jenis, 'Semua jenis', dasar.length, pilihSk.jenis) + pilihanSk('sk-tipe', 'Tipe', opsi.tipe, 'Semua tipe', opsi.jumlahJenis, pilihSk.tipe) +
             pilihanSk('sk-merek', 'Merek', opsi.merek, 'Semua merek', opsi.jumlahMerek, pilihSk.merek) +
             '<label class="kat-urut"><span class="sr-only">Urutkan</span><select class="ly-in" id="sk-urut" aria-label="Urutkan">' +
                 URUT_SK.map(function (x) { return '<option value="' + x[0] + '"' + (x[0] === urutSk ? ' selected' : '') + '>' + x[1] + '</option>'; }).join('') + '</select></label>' +
-            (adaPilihan ? '<button type="button" class="ly-btn ly-btn--sm" data-reset>Hapus filter</button>' : '');
+            '<div class="ly-pnl__aksi">' + (adaPilihan ? '<button type="button" class="ly-btn ly-btn--sm" data-reset>Hapus filter</button>' : '') + '<button type="button" class="ly-btn ly-btn--pri ly-pnl__lihat" id="sk-lihat" data-tutup>Lihat hasil</button></div>';
+        var nf = (pilihSk.jenis ? 1 : 0) + (pilihSk.tipe ? 1 : 0) + (pilihSk.merek ? 1 : 0) + (urutSk !== 'baru' ? 1 : 0); $('#sk-fn').hidden = !nf; $('#sk-fn').textContent = nf;
         var hasil = urutkanSk(tersaring.filter(function (s) { return !owner() || CEPAT_SK.every(function (x) { return !cepatSk[x[0]] || CEPAT_COCOK_SK[x[0]](s); }); })).filter(function (s) {
             return (!c || [s.kode, s.merek, s.nama, s.seri, s.sub, s.gitar_jenis, s.gitar_merk, s.tipe, (s.alat || []).join(' '), s.ukuran, (s.fitur || []).join(' '), s.warna, s.no_seri, s.deskripsi].join(' ').toLowerCase().indexOf(c) > -1);
         });
+        $('#sk-lihat').textContent = 'Lihat ' + hasil.length + ' barang';
         function kartu(s) {
             var u = L.untungStok(s), lama = L.hariAntara(s.tgl_masuk, hari);
             return '<div class="ly-item"><a class="ly-item__a" href="#stok/' + E(s.id) + '"><span class="ly-item__k">' + E(s.kode) + (L.diKatalog(s) ? ' 🌐' : '') + '</span></a>' + chipStok(s) +

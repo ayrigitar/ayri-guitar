@@ -17,6 +17,26 @@
             if (!alat && !ukuran && !x.tipe) return x.nama;
             return [sk.tanpaKategori && x.tipe ? '' : x.jenis, x.tipe, alat, x.nama, ukuran].filter(Boolean).join(' ');
         },
+        /* Panel filter dari bawah layar (HP): panel = elemen berisi dropdown filter (kelas ly-pnl), tombol = tombol "Filter".
+           Di PC panel tetap berupa baris dropdown biasa (CSS). Perubahan di panel langsung berlaku; "Lihat hasil" hanya menutup. */
+        lembarFilter: function (panel, tombol) {
+            if (!panel || !tombol || typeof document === 'undefined') return;
+            var body = document.body, root = document.documentElement;
+            function tampil() { return panel.classList.contains('buka'); }
+            function buka() { panel.classList.add('buka'); body.classList.add('ly-pnl-buka'); root.classList.add('ly-pnl-buka'); tombol.setAttribute('aria-expanded', 'true'); var f = panel.querySelector('select, button'); if (f) f.focus(); }
+            function tutup() { panel.classList.remove('buka'); body.classList.remove('ly-pnl-buka'); root.classList.remove('ly-pnl-buka'); tombol.setAttribute('aria-expanded', 'false'); }
+            function lepas() { document.removeEventListener('click', klik); document.removeEventListener('keydown', tombolKeyboard); window.removeEventListener('hashchange', pindah); }
+            function pindah() { if (!panel.isConnected) { lepas(); U.lembarReset(); return; } if (tampil()) tutup(); } /* tombol Kembali / pindah halaman: panel ikut tertutup, layar tidak terkunci */
+            function klik(e) { if (!panel.isConnected) { lepas(); return; } if (tampil() && e.target === body) tutup(); } /* ketuk area gelap di luar panel */
+            function tombolKeyboard(e) { if (!panel.isConnected) { lepas(); return; } if (e.key === 'Escape' && tampil()) { tutup(); tombol.focus(); } }
+            tombol.addEventListener('click', buka);
+            panel.addEventListener('click', function (e) { if (e.target.closest('[data-tutup]')) { tutup(); tombol.focus(); } });
+            document.addEventListener('click', klik); document.addEventListener('keydown', tombolKeyboard);
+            window.addEventListener('hashchange', pindah);
+            if (window.matchMedia) { var mq = window.matchMedia('(min-width: 701px)'), balik = function () { if (!panel.isConnected) { lepas(); return; } if (mq.matches && tampil()) tutup(); }; if (mq.addEventListener) mq.addEventListener('change', balik); }
+        },
+        /* panel ditutup paksa (mis. pindah halaman) supaya layar tidak terkunci */
+        lembarReset: function () { if (typeof document === 'undefined') return; document.body.classList.remove('ly-pnl-buka'); document.documentElement.classList.remove('ly-pnl-buka'); },
         /* alat musik di judul: hanya alat PERTAMA yang dicentang (urutan centang = pilihan pemilik), supaya judul tidak panjang;
            kategori dengan alatUmum (mis. Capo) cukup menulis "Gitar", tanpa Akustik/Elektrik/Klasik. Alat lain ditampilkan sebagai "Cocok untuk" (cocokUntuk). */
         alatJudul: function (alat, sk) {

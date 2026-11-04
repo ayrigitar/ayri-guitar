@@ -123,7 +123,8 @@
             </header>
             <div class="kat-bar">
                 <div class="ly-cari"><input class="ly-in" id="kat-cari" type="search" placeholder="Cari gitar, merk, atau aksesoris&hellip;" autocomplete="off" aria-label="Cari di katalog"></div>
-                <label class="kat-urut"><span class="sr-only">Urutkan</span>
+ <button type="button" class="ly-btn ly-fbtn" id="kat-fbtn" aria-haspopup="dialog" aria-expanded="false">Filter<b id="kat-fn" hidden></b></button>
+                <label class="kat-urut" id="kat-urut-l"><span class="sr-only">Urutkan</span>
                     <select id="kat-urut" class="ly-in" aria-label="Urutkan">
                         <option value="baru">Terbaru</option>
                         <option value="murah">Harga terendah</option>
@@ -133,11 +134,12 @@
                 </label>
             </div>
             <div class="ly-filter" id="kat-filter" role="group" aria-label="Kategori"></div>
-            <div class="kat-bar2" id="kat-bar2" hidden>
+            <div class="kat-bar2 ly-pnl" id="kat-bar2" role="dialog" aria-label="Filter dan urutan" hidden>
+                <div class="ly-pnl__kepala"><b>Filter &amp; urutan</b><button type="button" class="ly-x" data-tutup aria-label="Tutup">&times;</button></div>
                 <label class="kat-urut" id="kat-jenis-l" hidden><span class="sr-only">Jenis</span><select id="kat-jenis" class="ly-in" aria-label="Jenis"></select></label>
                 <label class="kat-urut" id="kat-tipe-l" hidden><span class="sr-only">Tipe</span><select id="kat-tipe" class="ly-in" aria-label="Tipe"></select></label>
                 <label class="kat-urut" id="kat-merek-l" hidden><span class="sr-only">Merek</span><select id="kat-merek" class="ly-in" aria-label="Merek"></select></label>
-                <button type="button" class="ly-btn ly-btn--sm" id="kat-reset" hidden>Hapus filter</button>
+                <div class="ly-pnl__aksi"><button type="button" class="ly-btn ly-btn--sm" id="kat-reset" hidden>Hapus filter</button><button type="button" class="ly-btn ly-btn--pri ly-pnl__lihat" id="kat-lihat" data-tutup>Lihat hasil</button></div>
             </div>
             <div class="kat-grid" id="kat-grid" aria-live="polite"></div>
         </div>
@@ -228,7 +230,11 @@ document.addEventListener('DOMContentLoaded', function () {
         pilihan('kat-merek', o.merek, 'Semua merek', o.jumlahMerek == null ? d.length : o.jumlahMerek, merek);
         var aktif = filter !== 'semua' || jenis || tipe || merek || cari.trim() || urut !== 'baru';
         document.getElementById('kat-reset').hidden = !aktif;
-        document.getElementById('kat-bar2').hidden = !o.jenis.length && !o.tipe.length && !o.merek.length && !aktif;
+        var hp = window.matchMedia && window.matchMedia('(max-width: 700px)').matches, bar2 = document.getElementById('kat-bar2'), lu = document.getElementById('kat-urut-l'), bar1 = document.querySelector('.kat-bar');
+        /* HP: urutan ikut masuk panel filter; PC: kembali di samping kolom cari */
+        if (hp && lu.parentNode !== bar2) bar2.insertBefore(lu, document.getElementById('kat-jenis-l')); else if (!hp && lu.parentNode !== bar1) bar1.appendChild(lu);
+        bar2.hidden = !hp && !o.jenis.length && !o.tipe.length && !o.merek.length && !aktif;
+        var nf = (jenis ? 1 : 0) + (tipe ? 1 : 0) + (merek ? 1 : 0) + (urut !== 'baru' ? 1 : 0), fn = document.getElementById('kat-fn'); fn.hidden = !nf; fn.textContent = nf;
     }
     function gambar() {
         var c = cari.trim().toLowerCase();
@@ -249,8 +255,11 @@ document.addEventListener('DOMContentLoaded', function () {
         grid.innerHTML = hasil.length ? kartuDaftar.map(function (k) { return k.html; }).join('') :
             '<div class="ly-kosong kat-kosong">' + (item.length ? 'Tidak ada yang cocok dengan pilihan ini. Coba hapus sebagian filter.' : 'Belum ada barang di katalog.') +
             '<a class="ly-btn ly-btn--wa" target="_blank" rel="noopener" href="https://wa.me/' + esc(toko.wa || '') + '?text=' + encodeURIComponent('Halo AYRI, saya mau tanya stok gitar dan aksesoris') + '">Tanya stok lewat WhatsApp</a></div>';
+        document.getElementById('kat-lihat').textContent = 'Lihat ' + hasil.length + ' produk';
         simpanUrl();
     }
+    AYRI_UTIL.lembarFilter(document.getElementById('kat-bar2'), document.getElementById('kat-fbtn'));
+    if (window.matchMedia) window.matchMedia('(max-width: 700px)').addEventListener('change', function () { gambarFilter(); });
     document.getElementById('kat-filter').addEventListener('click', function (e) { var b = e.target.closest('[data-f]'); if (b) { filter = b.dataset.f; jenis = tipe = merek = ''; gambarFilter(); gambar(); } });
     document.getElementById('kat-jenis').addEventListener('change', function () { jenis = this.value; tipe = ''; gambarFilter(); gambar(); });
     document.getElementById('kat-tipe').addEventListener('change', function () { tipe = this.value; gambarFilter(); gambar(); });
