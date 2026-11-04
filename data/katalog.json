@@ -240,6 +240,61 @@
    "grup": "iso100lu-kabel"
   },
   {
+   "kode": "STK-A725M2",
+   "kategori": "aksesoris",
+   "jenis": "Senar",
+   "kondisi": "baru",
+   "nama": "Orphee NX36",
+   "warna": "",
+   "deskripsi": "Senar NX36 Nylon Klasik dengan normal tension memberikan nada hangat dan responsif, cocok untuk pemain klasik maupun folk yang mengutamakan kehalusan suara. Terbuat dari nilon berkualitas tinggi, senar terasa nyaman di jari dan tahan lama, ideal untuk latihan rutin maupun pertunjukan. Tuning yang stabil membuat kamu fokus pada teknik tanpa khawatir melodi melenceng. Yuk, coba langsung di Toko Gitar AYRI! 🎸",
+   "harga": 40000,
+   "status": "tersedia",
+   "sisa": null,
+   "foto": [
+    {
+     "src": "foto/stok/orphee-nx36-nylon-klasik-normal-tension-stk-a725m2-fa49f9.webp",
+     "kecil": "foto/stok/orphee-nx36-nylon-klasik-normal-tension-stk-a725m2-fa49f9-k.webp"
+    },
+    {
+     "src": "foto/stok/orphee-nx36-nylon-klasik-normal-tension-stk-a725m2-9a0650.webp",
+     "kecil": "foto/stok/orphee-nx36-nylon-klasik-normal-tension-stk-a725m2-9a0650-k.webp"
+    }
+   ],
+   "alat": [
+    "Gitar Klasik",
+    "Guitalele"
+   ],
+   "ukuran": "Normal Tension",
+   "merek": "Orphee",
+   "seri": "NX",
+   "artikel": 8,
+   "grup": "nx-senar"
+  },
+  {
+   "kode": "STK-NZGV2M",
+   "kategori": "aksesoris",
+   "jenis": "Senar",
+   "kondisi": "baru",
+   "nama": "Orphee TX620",
+   "warna": "Ukuran 010",
+   "deskripsi": "Senar TX620 ukuran .010 Bronze memberikan suara yang jernih dan resonansi kuat, cocok untuk pemain yang suka tone bright pada gitar akustik. Karena terbuat dari bahan bronze, nada bass tetap terasa penuh sementara treblenya bersih tanpa berisik. Kondisinya baru, jadi kamu akan langsung merasakan respons cepat dan tuning yang stabil. Yuk, coba langsung di toko kami dan rasakan perbedaannya! 🎸",
+   "harga": 40000,
+   "status": "tersedia",
+   "sisa": null,
+   "foto": [
+    {
+     "src": "foto/stok/orphee-tx620-ukuran-010-bronze-stk-nzgv2m-deda7e.webp",
+     "kecil": "foto/stok/orphee-tx620-ukuran-010-bronze-stk-nzgv2m-deda7e-k.webp"
+    },
+    {
+     "src": "foto/stok/orphee-tx620-ukuran-010-bronze-stk-nzgv2m-2acac6.webp",
+     "kecil": "foto/stok/orphee-tx620-ukuran-010-bronze-stk-nzgv2m-2acac6-k.webp"
+    }
+   ],
+   "merek": "Orphee",
+   "artikel": 9
+  },
+  {
    "kode": "STK-APP6FK",
    "kategori": "aksesoris",
    "jenis": "Senar",
@@ -267,55 +322,8 @@
    "ukuran": "Hard Tension",
    "merek": "Orphee",
    "seri": "NX",
-   "artikel": 8
-  },
-  {
-   "kode": "STK-NZGV2M",
-   "kategori": "aksesoris",
-   "jenis": "Senar",
-   "kondisi": "baru",
-   "nama": "Orphee TX620",
-   "warna": "Ukuran 010",
-   "deskripsi": "Senar TX620 ukuran .010 Bronze memberikan suara yang jernih dan resonansi kuat, cocok untuk pemain yang suka tone bright pada gitar akustik. Karena terbuat dari bahan bronze, nada bass tetap terasa penuh sementara treblenya bersih tanpa berisik. Kondisinya baru, jadi kamu akan langsung merasakan respons cepat dan tuning yang stabil. Yuk, coba langsung di toko kami dan rasakan perbedaannya! 🎸",
-   "harga": 40000,
-   "status": "tersedia",
-   "sisa": null,
-   "foto": [
-    {
-     "src": "foto/stok/orphee-tx620-ukuran-010-bronze-stk-nzgv2m-deda7e.webp",
-     "kecil": "foto/stok/orphee-tx620-ukuran-010-bronze-stk-nzgv2m-deda7e-k.webp"
-    },
-    {
-     "src": "foto/stok/orphee-tx620-ukuran-010-bronze-stk-nzgv2m-2acac6.webp",
-     "kecil": "foto/stok/orphee-tx620-ukuran-010-bronze-stk-nzgv2m-2acac6-k.webp"
-    }
-   ],
-   "merek": "Orphee",
-   "artikel": 9
-  },
-  {
-   "kode": "STK-A725M2",
-   "kategori": "aksesoris",
-   "jenis": "Senar",
-   "kondisi": "baru",
-   "nama": "Orphee NX36",
-   "warna": "Nylon Klasik Normal Tension",
-   "deskripsi": "Senar NX36 Nylon Klasik dengan normal tension memberikan nada hangat dan responsif, cocok untuk pemain klasik maupun folk yang mengutamakan kehalusan suara. Terbuat dari nilon berkualitas tinggi, senar terasa nyaman di jari dan tahan lama, ideal untuk latihan rutin maupun pertunjukan. Tuning yang stabil membuat kamu fokus pada teknik tanpa khawatir melodi melenceng. Yuk, coba langsung di Toko Gitar AYRI! 🎸",
-   "harga": 40000,
-   "status": "tersedia",
-   "sisa": null,
-   "foto": [
-    {
-     "src": "foto/stok/orphee-nx36-nylon-klasik-normal-tension-stk-a725m2-fa49f9.webp",
-     "kecil": "foto/stok/orphee-nx36-nylon-klasik-normal-tension-stk-a725m2-fa49f9-k.webp"
-    },
-    {
-     "src": "foto/stok/orphee-nx36-nylon-klasik-normal-tension-stk-a725m2-9a0650.webp",
-     "kecil": "foto/stok/orphee-nx36-nylon-klasik-normal-tension-stk-a725m2-9a0650-k.webp"
-    }
-   ],
-   "merek": "Orphee",
-   "artikel": 10
+   "artikel": 10,
+   "grup": "nx-senar"
   },
   {
    "kode": "STK-6XYMRC",
