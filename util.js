@@ -13,9 +13,22 @@
            x = { kategori, jenis, nama, alat[], tipe, ukuran }; skema = layanan-config aksesoris */
         judulKatalog: function (x, tanpaGitar, skema) {
             if (x.kategori === 'gitar') return ((tanpaGitar || []).indexOf(x.jenis) > -1 ? x.jenis : 'Gitar ' + x.jenis) + ' ' + x.nama;
-            var alat = Array.isArray(x.alat) ? x.alat.join(' / ') : '', ukuran = x.ukuran ? (/^[0-9]+$/.test(x.ukuran) ? 'Ukuran ' + x.ukuran : x.ukuran) : '', sk = (skema || {})[x.jenis] || {};
+            var alat = U.alatJudul(x.alat, (skema || {})[x.jenis]), ukuran = x.ukuran ? (/^[0-9]+$/.test(x.ukuran) ? 'Ukuran ' + x.ukuran : x.ukuran) : '', sk = (skema || {})[x.jenis] || {};
             if (!alat && !ukuran && !x.tipe) return x.nama;
             return [sk.tanpaKategori && x.tipe ? '' : x.jenis, x.tipe, alat, x.nama, ukuran].filter(Boolean).join(' ');
+        },
+        /* alat musik di judul: hanya alat PERTAMA yang dicentang (urutan centang = pilihan pemilik), supaya judul tidak panjang;
+           kategori dengan alatUmum (mis. Capo) cukup menulis "Gitar", tanpa Akustik/Elektrik/Klasik. Alat lain ditampilkan sebagai "Cocok untuk" (cocokUntuk). */
+        alatJudul: function (alat, sk) {
+            var a = String((Array.isArray(alat) ? alat[0] : alat) || '').trim();
+            return sk && sk.alatUmum && /^Gitar\b/.test(a) ? 'Gitar' : a;
+        },
+        /* "Cocok untuk: ..." bila judul tidak memuat semua alatnya (lebih dari satu alat, atau kategori alatUmum); maks = batas alat yang ditulis, sisanya "+N". Kosong bila tidak perlu. */
+        cocokUntuk: function (alat, sk, maks) {
+            var a = (Array.isArray(alat) ? alat : []).map(function (v) { return String(v).trim(); }).filter(Boolean);
+            if (!a.length || (a.length < 2 && !(sk && sk.alatUmum))) return '';
+            var n = maks && a.length > maks ? a.length - maks : 0;
+            return 'Cocok untuk: ' + (n ? a.slice(0, maks) : a).join(', ') + (n ? ' +' + n + ' lainnya' : '');
         },
         /* varian dalam satu seri (barang dengan isian Seri yang sama): label pembeda = Ukuran / Tipe / nama; diurutkan menurut angka di depan ("3 Meter" < "5 Meter" < "10 Meter", "010" < "011") */
         labelVarian: function (x) { return x.ukuran || x.tipe || x.nama || ''; },
@@ -26,9 +39,11 @@
         },
         /* judul halaman seri, mis. "Senar Gitar Akustik Orphee QA Series": judul biasa tanpa ukuran, dengan nama = seri (merek ditambahkan bila belum ada di nama seri) */
         judulSeri: function (daftar, tanpaGitar, skema) {
-            var p = daftar[0], alat = [], merek = String(p.merek || '').trim(), seri = String(p.seri || '').trim();
-            daftar.forEach(function (x) { (x.alat || []).forEach(function (a) { if (alat.indexOf(a) < 0) alat.push(a); }); });
+            var p = daftar[0], merek = String(p.merek || '').trim(), seri = String(p.seri || '').trim(), sk = (skema || {})[p.jenis];
+            /* alat di judul seri: alat utama bersama seluruh anggota; bila anggotanya berbeda alat utama, tidak ditulis */
+            var utama = U.alatJudul(p.alat, sk), alat = utama && daftar.every(function (x) { return U.alatJudul(x.alat, sk) === utama; }) ? [utama] : [];
             var nama = merek && seri.toLowerCase().indexOf(merek.toLowerCase()) < 0 ? merek + ' ' + seri : seri;
+            if (!alat.length && daftar.some(function (x) { return (x.alat || []).length; }) && !p.tipe) return (sk && sk.tanpaKategori ? '' : p.jenis + ' ') + nama;   /* anggota beda alat utama: judul tanpa alat, kata kategori tetap ada */
             return AYRI_UTIL.judulKatalog({ kategori: 'aksesoris', jenis: p.jenis, nama: nama, alat: alat, tipe: daftar.every(function (x) { return x.tipe === p.tipe; }) ? p.tipe : '' }, tanpaGitar, skema);
         },
         /* ---------- filter bertingkat untuk daftar stok POS dan katalog: kategori → jenis → tipe, ditambah merek ----------
