@@ -3,35 +3,27 @@
  "v": 4,
  "item": [
   {
-   "kode": "STK-GKPE3H",
+   "kode": "STK-QMF7J2",
    "kategori": "aksesoris",
-   "jenis": "Senar",
+   "jenis": "Kabel",
    "kondisi": "baru",
-   "nama": "Orphee SC55",
+   "nama": "Beyer ISO100LU3",
    "warna": "",
-   "deskripsi": "Set senar Orphee SC55 ini baru dalam kemasan aslinya yang didominasi warna hitam dan ungu. Sebagai senar nylon klasik tegangan normal, set 6 senar ini dirancang untuk memberikan respons yang seimbang saat dimainkan. Lapisan silver pada senar bassnya membuat resonansi suara lebih jelas dan stabil, cocok untuk pemula maupun pemain yang mencari nuansa natural. Yuk, mampir ke toko kami di Bogor untuk langsung coba sensasi mainnya! 🎸",
-   "harga": 120000,
+   "deskripsi": "Kabel Beyer ISO100LU3 ini baru, dibungkus rapi dengan bodi hitam dan konektor jack 6.5mm mono berlapis emas di ujungnya. Desainnya yang fleksibel memudahkan penataan saat sesi rekaman atau manggung karena minim kusut. Lapisan emas pada konektornya menjanjikan sinyal audio yang stabil dan minim interferensi untuk instrumen Anda. Silakan datang ke Toko Gitar AYRI di Bogor untuk cek langsung kualitasnya. 🎸",
+   "harga": 100000,
    "status": "tersedia",
-   "sisa": 1,
+   "sisa": 2,
    "foto": [
     {
-     "src": "foto/stok/orphee-sc55-nylon-klasik-normal-tension-stk-gkpe3h-35d5a4.webp",
-     "kecil": "foto/stok/orphee-sc55-nylon-klasik-normal-tension-stk-gkpe3h-35d5a4-k.webp"
-    },
-    {
-     "src": "foto/stok/orphee-sc55-nylon-klasik-normal-tension-stk-gkpe3h-af1163.webp",
-     "kecil": "foto/stok/orphee-sc55-nylon-klasik-normal-tension-stk-gkpe3h-af1163-k.webp"
+     "src": "foto/stok/beyer-iso100lu3-kabel-6-5mm-mono-stk-qmf7j2-896c8f.webp",
+     "kecil": "foto/stok/beyer-iso100lu3-kabel-6-5mm-mono-stk-qmf7j2-896c8f-k.webp"
     }
    ],
-   "alat": [
-    "Gitar Klasik",
-    "Guitalele"
-   ],
-   "ukuran": "Normal Tension",
-   "merek": "Orphee",
-   "seri": "SC",
-   "artikel": 0,
-   "grup": "sc-senar"
+   "tipe": "Jack 6.5mm Mono",
+   "ukuran": "3 Meter",
+   "merek": "Beyer",
+   "seri": "ISO100LU",
+   "artikel": 0
   },
   {
    "kode": "STK-ZXAD4K",
@@ -94,6 +86,37 @@
    "grup": "qa-senar"
   },
   {
+   "kode": "STK-GKPE3H",
+   "kategori": "aksesoris",
+   "jenis": "Senar",
+   "kondisi": "baru",
+   "nama": "Orphee SC55",
+   "warna": "",
+   "deskripsi": "Set senar Orphee SC55 ini baru dalam kemasan aslinya yang didominasi warna hitam dan ungu. Sebagai senar nylon klasik tegangan normal, set 6 senar ini dirancang untuk memberikan respons yang seimbang saat dimainkan. Lapisan silver pada senar bassnya membuat resonansi suara lebih jelas dan stabil, cocok untuk pemula maupun pemain yang mencari nuansa natural. Yuk, mampir ke toko kami di Bogor untuk langsung coba sensasi mainnya! 🎸",
+   "harga": 120000,
+   "status": "tersedia",
+   "sisa": 1,
+   "foto": [
+    {
+     "src": "foto/stok/orphee-sc55-nylon-klasik-normal-tension-stk-gkpe3h-35d5a4.webp",
+     "kecil": "foto/stok/orphee-sc55-nylon-klasik-normal-tension-stk-gkpe3h-35d5a4-k.webp"
+    },
+    {
+     "src": "foto/stok/orphee-sc55-nylon-klasik-normal-tension-stk-gkpe3h-af1163.webp",
+     "kecil": "foto/stok/orphee-sc55-nylon-klasik-normal-tension-stk-gkpe3h-af1163-k.webp"
+    }
+   ],
+   "alat": [
+    "Gitar Klasik",
+    "Guitalele"
+   ],
+   "ukuran": "Normal Tension",
+   "merek": "Orphee",
+   "seri": "SC",
+   "artikel": 3,
+   "grup": "sc-senar"
+  },
+  {
    "kode": "STK-J7NEGR",
    "kategori": "aksesoris",
    "jenis": "Senar",
@@ -121,7 +144,7 @@
    "ukuran": "Hard Tension",
    "merek": "Orphee",
    "seri": "SC",
-   "artikel": 3,
+   "artikel": 4,
    "grup": "sc-senar"
   },
   {
@@ -154,7 +177,7 @@
    "fitur": [
     "Phosphor Bronze"
    ],
-   "artikel": 4,
+   "artikel": 5,
    "grup": "sa-senar"
   },
   {
@@ -188,28 +211,8 @@
     "Phosphor Bronze",
     "Warm"
    ],
-   "artikel": 5,
+   "artikel": 6,
    "grup": "sa-senar"
-  },
-  {
-   "kode": "STK-QMF7J2",
-   "kategori": "aksesoris",
-   "jenis": "Kabel",
-   "kondisi": "baru",
-   "nama": "Beyer ISO100LU3",
-   "warna": "Kabel Jack 6.5mm Mono 3 Meter",
-   "deskripsi": "Kabel Beyer ISO100LU3 ini baru, dibungkus rapi dengan bodi hitam dan konektor jack 6.5mm mono berlapis emas di ujungnya. Desainnya yang fleksibel memudahkan penataan saat sesi rekaman atau manggung karena minim kusut. Lapisan emas pada konektornya menjanjikan sinyal audio yang stabil dan minim interferensi untuk instrumen Anda. Silakan datang ke Toko Gitar AYRI di Bogor untuk cek langsung kualitasnya. 🎸",
-   "harga": 100000,
-   "status": "tersedia",
-   "sisa": 2,
-   "foto": [
-    {
-     "src": "foto/stok/beyer-iso100lu3-kabel-6-5mm-mono-stk-qmf7j2-896c8f.webp",
-     "kecil": "foto/stok/beyer-iso100lu3-kabel-6-5mm-mono-stk-qmf7j2-896c8f-k.webp"
-    }
-   ],
-   "merek": "Beyer",
-   "artikel": 6
   },
   {
    "kode": "STK-DN7VY2",
