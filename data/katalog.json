@@ -3,27 +3,28 @@
  "v": 4,
  "item": [
   {
-   "kode": "STK-QMF7J2",
+   "kode": "STK-DN7VY2",
    "kategori": "aksesoris",
    "jenis": "Kabel",
    "kondisi": "baru",
-   "nama": "Beyer ISO100LU3",
+   "nama": "Beyer ISO100LU5",
    "warna": "",
-   "deskripsi": "Kabel Beyer ISO100LU3 ini baru, dibungkus rapi dengan bodi hitam dan konektor jack 6.5mm mono berlapis emas di ujungnya. Desainnya yang fleksibel memudahkan penataan saat sesi rekaman atau manggung karena minim kusut. Lapisan emas pada konektornya menjanjikan sinyal audio yang stabil dan minim interferensi untuk instrumen Anda. Silakan datang ke Toko Gitar AYRI di Bogor untuk cek langsung kualitasnya. 🎸",
-   "harga": 100000,
+   "deskripsi": "Kabel Beyer ini hadir dalam kondisi baru dengan body hitam yang terlihat kokoh. Dibalut packaging asli dengan aksen merah dan putih, konektor logamnya juga tampak rapi. Panjang 5 meter dengan jack 6.5mm mono ini pas untuk menghubungkan gitar elektrik ke ampli tanpa rasa terbelenggu saat tampil. Kualitasnya prima untuk menjaga sinyal tetap jernih. Silakan langsung datang ke Toko Gitar AYRI untuk cek fisik dan uji coba kabel ini. 🎸",
+   "harga": 150000,
    "status": "tersedia",
    "sisa": 2,
    "foto": [
     {
-     "src": "foto/stok/beyer-iso100lu3-kabel-6-5mm-mono-stk-qmf7j2-896c8f.webp",
-     "kecil": "foto/stok/beyer-iso100lu3-kabel-6-5mm-mono-stk-qmf7j2-896c8f-k.webp"
+     "src": "foto/stok/beyer-iso100lu5-kabel-jack-6-5mm-mono-5-meter-stk-dn7vy2-f5b0ca.webp",
+     "kecil": "foto/stok/beyer-iso100lu5-kabel-jack-6-5mm-mono-5-meter-stk-dn7vy2-f5b0ca-k.webp"
     }
    ],
    "tipe": "Jack 6.5mm Mono",
-   "ukuran": "3 Meter",
+   "ukuran": "5 Meter",
    "merek": "Beyer",
    "seri": "ISO100LU",
-   "artikel": 0
+   "artikel": 0,
+   "grup": "iso100lu-kabel"
   },
   {
    "kode": "STK-ZXAD4K",
@@ -215,26 +216,28 @@
    "grup": "sa-senar"
   },
   {
-   "kode": "STK-DN7VY2",
+   "kode": "STK-QMF7J2",
    "kategori": "aksesoris",
    "jenis": "Kabel",
    "kondisi": "baru",
-   "nama": "Beyer ISO100LU5",
+   "nama": "Beyer ISO100LU3",
    "warna": "",
-   "deskripsi": "Kabel Beyer ini hadir dalam kondisi baru dengan body hitam yang terlihat kokoh. Dibalut packaging asli dengan aksen merah dan putih, konektor logamnya juga tampak rapi. Panjang 5 meter dengan jack 6.5mm mono ini pas untuk menghubungkan gitar elektrik ke ampli tanpa rasa terbelenggu saat tampil. Kualitasnya prima untuk menjaga sinyal tetap jernih. Silakan langsung datang ke Toko Gitar AYRI untuk cek fisik dan uji coba kabel ini. 🎸",
-   "harga": 150000,
+   "deskripsi": "Kabel Beyer ISO100LU3 ini baru, dibungkus rapi dengan bodi hitam dan konektor jack 6.5mm mono berlapis emas di ujungnya. Desainnya yang fleksibel memudahkan penataan saat sesi rekaman atau manggung karena minim kusut. Lapisan emas pada konektornya menjanjikan sinyal audio yang stabil dan minim interferensi untuk instrumen Anda. Silakan datang ke Toko Gitar AYRI di Bogor untuk cek langsung kualitasnya. 🎸",
+   "harga": 100000,
    "status": "tersedia",
    "sisa": 2,
    "foto": [
     {
-     "src": "foto/stok/beyer-iso100lu5-kabel-jack-6-5mm-mono-5-meter-stk-dn7vy2-f5b0ca.webp",
-     "kecil": "foto/stok/beyer-iso100lu5-kabel-jack-6-5mm-mono-5-meter-stk-dn7vy2-f5b0ca-k.webp"
+     "src": "foto/stok/beyer-iso100lu3-kabel-6-5mm-mono-stk-qmf7j2-896c8f.webp",
+     "kecil": "foto/stok/beyer-iso100lu3-kabel-6-5mm-mono-stk-qmf7j2-896c8f-k.webp"
     }
    ],
    "tipe": "Jack 6.5mm Mono",
-   "ukuran": "5 Meter",
+   "ukuran": "3 Meter",
    "merek": "Beyer",
-   "artikel": 7
+   "seri": "ISO100LU",
+   "artikel": 7,
+   "grup": "iso100lu-kabel"
   },
   {
    "kode": "STK-NZGV2M",
