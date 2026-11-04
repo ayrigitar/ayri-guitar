@@ -287,6 +287,16 @@ html[data-theme="dark"] .hero::after { mix-blend-mode: screen; opacity: .03; }
 /* 4. Artikel
    ========================================================================== */
 .articles { display: grid; gap: 16px; }
+/* beranda: 3 kartu. HP = berjajar ke samping (geser), PC = 3 kolom. Halaman artikel.html: semua kartu dalam grid */
+.articles--beranda { grid-auto-flow: column; grid-auto-columns: min(82%, 320px); overflow-x: auto; scroll-snap-type: x mandatory; padding-bottom: 10px; scrollbar-width: none; }
+.articles--beranda::-webkit-scrollbar { display: none; }
+.articles--beranda > .article-card { scroll-snap-align: start; }
+@media (min-width: 900px) { .articles--beranda { grid-auto-flow: row; grid-auto-columns: auto; grid-template-columns: repeat(3, minmax(0, 1fr)); overflow: visible; padding-bottom: 0; } }
+.articles--semua { grid-template-columns: minmax(0, 1fr); }
+@media (min-width: 640px) { .articles--semua { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (min-width: 1000px) { .articles--semua { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+.section-more { display: flex; justify-content: center; margin-top: 28px; }
+.harga-cta { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-top: 28px; }
 .article-card {
   display: grid; overflow: hidden;
   border: 1px solid var(--line); border-radius: var(--r-lg);
@@ -294,10 +304,10 @@ html[data-theme="dark"] .hero::after { mix-blend-mode: screen; opacity: .03; }
   transition: transform .5s var(--ease-out), box-shadow .5s var(--ease-out), border-color .3s;
 }
 .article-card:active { transform: scale(.99); }
-@media (min-width: 640px) { .article-card { grid-template-columns: minmax(200px, 38%) 1fr; } }
+.article-card { grid-template-rows: auto 1fr; }
 
 .article-card__thumb {
-  display: grid; place-items: center; min-height: 170px; padding: 28px; overflow: hidden;
+  display: grid; place-items: center; aspect-ratio: 16 / 9; padding: 28px; overflow: hidden; /* semua foto kartu satu rasio */
   background:
     radial-gradient(70% 60% at 50% 45%, rgba(226, 166, 90, .28), transparent 70%),
     repeating-linear-gradient(180deg, rgba(255, 255, 255, .02) 0 1px, transparent 1px 5px),
@@ -306,7 +316,6 @@ html[data-theme="dark"] .hero::after { mix-blend-mode: screen; opacity: .03; }
 .article-card__thumb .nut { width: 72%; max-width: 200px; transition: transform .7s var(--ease-out); }
 
 .article-card__body { display: flex; flex-direction: column; align-items: flex-start; gap: 10px; padding: 22px 22px 24px; }
-@media (min-width: 640px) { .article-card__body { padding: 30px 32px; } }
 .article-card__title {
   font-size: clamp(1.125rem, 1rem + .5vw, 1.375rem); font-weight: 700;
   line-height: 1.35; letter-spacing: -.01em; text-wrap: balance;
@@ -488,5 +497,5 @@ html[data-theme="dark"] .map-frame iframe { filter: invert(.9) hue-rotate(180deg
 
 /* Kartu artikel otomatis: sampul berupa foto hasil servis */
 .article-card__thumb:has(img) { padding: 0; }
-.article-card__thumb img { width: 100%; height: 100%; min-height: 170px; object-fit: cover; transition: transform .7s var(--ease-out); }
+.article-card__thumb img { width: 100%; height: 100%; object-fit: cover; transition: transform .7s var(--ease-out); }
 @media (hover: hover) { .article-card:hover .article-card__thumb img { transform: scale(1.04); } }

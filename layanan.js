@@ -1952,7 +1952,7 @@
         })).then(function () {
             return ubahAtomik('situs', function (baca) {
                 var stokArt = art.stok_id ? cari(data.stok, art.stok_id) : null, adaUnit = !!(stokArt && L.diKatalog(stokArt));
-                return Promise.all([baca('scripts/artikel-template.html'), baca('index.html'), baca('sitemap.xml'), tampil ? baca('artikel-' + art.slug + '.html') : null, adaUnit ? baca('data/katalog.json') : null, adaUnit ? baca('scripts/unit-template.html') : null]).then(function (r) {
+                return Promise.all([baca('scripts/artikel-template.html'), baca('index.html'), baca('sitemap.xml'), tampil ? baca('artikel-' + art.slug + '.html') : null, adaUnit ? baca('data/katalog.json') : null, adaUnit ? baca('scripts/unit-template.html') : null, baca('artikel.html')]).then(function (r) {
                     var tpl = r[0], beranda = r[1], peta = r[2], ada = r[3], files = fotoFile.slice();
                     if (!tpl || !beranda || !peta) throw new Error('File template/beranda/sitemap tidak ditemukan di repo situs.');
                     if (ada && ada.indexOf(B.PENANDA) < 0) throw new Error('Alamat artikel-' + art.slug + '.html sudah dipakai halaman buatan tangan. Ganti alamatnya.');
@@ -1980,7 +1980,8 @@
                     }
                     var semua = data.artikel.filter(function (x) { return x.id !== art.id && x.status === 'terbit'; }).concat(tampil ? [art] : [])
                         .sort(function (a, b) { return a.terbit_at < b.terbit_at ? 1 : -1; });
-                    files.push({ path: 'index.html', teks: B.gantiBlok(beranda, semua.slice(0, 12).map(B.kartu).join('\n'), 'index.html') });
+                    files.push({ path: 'index.html', teks: B.gantiBlok(beranda, semua.slice(0, 3).map(B.kartu).join('\n'), 'index.html') }); /* beranda: 3 terbaru */
+                    if (r[6]) files.push({ path: 'artikel.html', teks: B.gantiBlok(r[6], semua.map(B.kartu).join('\n'), 'artikel.html') }); /* halaman daftar: semua artikel */
                     files.push({ path: 'sitemap.xml', teks: B.gantiBlok(peta, semua.map(function (a) { return B.entriSitemap(a, L.situs()); }).join('\n'), 'sitemap.xml') });
                     return files;
                 });

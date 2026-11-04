@@ -147,7 +147,7 @@
                 <li><a href="#harga" class="nav__link">Harga</a></li>
                 <li><a href="katalog.html" class="nav__link">Katalog</a></li>
                 <li><a href="cek-servis.html" class="nav__link">Cek Servis</a></li>
-                <li><a href="#artikel" class="nav__link">Artikel</a></li>
+                <li><a href="artikel.html" class="nav__link">Artikel</a></li>
                 <li><a href="#tuner" class="nav__link">Alat Latihan</a></li>
                 <li><a href="#lokasi" class="nav__link">Lokasi</a></li>
             </ul>
@@ -172,7 +172,7 @@
                 <li style="--i:1"><a href="#harga" class="mobile-link"><span class="mobile-link__icon"><svg class="ic" aria-hidden="true"><use href="#i-tag"/></svg></span>Harga Servis<svg class="ic mobile-link__chev" aria-hidden="true"><use href="#i-chevron"/></svg></a></li>
                 <li style="--i:2"><a href="katalog.html" class="mobile-link"><span class="mobile-link__icon"><svg class="ic" aria-hidden="true"><use href="#i-tag"/></svg></span>Katalog Gitar &amp; Aksesoris<svg class="ic mobile-link__chev" aria-hidden="true"><use href="#i-chevron"/></svg></a></li>
                 <li style="--i:2"><a href="cek-servis.html" class="mobile-link"><span class="mobile-link__icon"><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg></span>Cek Status Servis<svg class="ic mobile-link__chev" aria-hidden="true"><use href="#i-chevron"/></svg></a></li>
-                <li style="--i:2"><a href="#artikel" class="mobile-link"><span class="mobile-link__icon"><svg class="ic" aria-hidden="true"><use href="#i-book"/></svg></span>Artikel<svg class="ic mobile-link__chev" aria-hidden="true"><use href="#i-chevron"/></svg></a></li>
+                <li style="--i:2"><a href="artikel.html" class="mobile-link"><span class="mobile-link__icon"><svg class="ic" aria-hidden="true"><use href="#i-book"/></svg></span>Artikel<svg class="ic mobile-link__chev" aria-hidden="true"><use href="#i-chevron"/></svg></a></li>
                 <li style="--i:3"><a href="#tuner" class="mobile-link"><span class="mobile-link__icon"><svg class="ic" aria-hidden="true"><use href="#i-gauge"/></svg></span>Alat Latihan<svg class="ic mobile-link__chev" aria-hidden="true"><use href="#i-chevron"/></svg></a></li>
                 <li style="--i:4"><a href="#lokasi" class="mobile-link"><span class="mobile-link__icon"><svg class="ic" aria-hidden="true"><use href="#i-pin"/></svg></span>Lokasi<svg class="ic mobile-link__chev" aria-hidden="true"><use href="#i-chevron"/></svg></a></li>
                 <li style="--i:5"><a href="#kontak" class="mobile-link"><span class="mobile-link__icon"><svg class="ic" aria-hidden="true"><use href="#i-chat"/></svg></span>Kontak<svg class="ic mobile-link__chev" aria-hidden="true"><use href="#i-chevron"/></svg></a></li>
@@ -426,111 +426,44 @@
                     <svg class="ic ic--fill" aria-hidden="true"><use href="#i-wa"/></svg> Konsultasi Harga
                 </a>
             </div>
+
+            <div class="harga-cta" data-reveal>
+                <a href="https://wa.me/6285795738637?text=Halo%20AYRI%2C%20saya%20mau%20booking%20servis%20gitar.%0AJenis%20gitar%3A%20%0AServis%20yang%20dibutuhkan%3A%20%0ARencana%20datang%3A%20" target="_blank" rel="noopener" class="btn btn--wa btn--lg">
+                    <svg class="ic ic--fill" aria-hidden="true"><use href="#i-wa"/></svg> Booking Servis Sekarang
+                </a>
+                <a href="#lokasi" class="btn btn--ghost btn--lg">Lihat Lokasi Bengkel <svg class="ic btn__arrow" aria-hidden="true"><use href="#i-arrow"/></svg></a>
+            </div>
         </div>
     </section>
 
-    <!-- Artikel / Edukasi Section -->
-    <section id="artikel" class="section">
-        <div class="container container--narrow">
-            <header class="section-head" data-reveal>
-                <p class="eyebrow">Belajar dari bengkel</p>
-                <h2 class="section-title">Artikel &amp; Tips Edukasi</h2>
-            </header>
-            <div class="articles">
-                <!-- ARTIKEL-OTOMATIS:MULAI (diisi otomatis oleh scripts/build-artikel.js) -->
-                <a href="artikel-samick-sejarah-ciri-khas-dan-pilihan-gitarnya.html" class="article-card" data-reveal>
-                    <div class="article-card__thumb" aria-hidden="true"><svg class="nut" viewBox="0 0 240 64"><use href="#nut" fill="url(#g-bone)"/></svg></div>
-                    <div class="article-card__body">
-                        <span class="tag">Profil Merek</span>
-                        <h3 class="article-card__title">Samick: Sejarah, Ciri Khas, dan Pilihan Gitarnya</h3>
-                        <p class="article-card__excerpt">Profil lengkap Samick, sejarah, ciri khas, lini produk, tips beli bekas, dan info di Toko Gitar AYRI.</p>
-                        <span class="article-card__more" aria-hidden="true">Baca artikel <svg class="ic"><use href="#i-arrow"/></svg></span>
-                    </div>
+    <!-- Location & Operating Hours Section -->
+    <section id="lokasi" class="section" data-edit-bagian="Alamat &amp; jam buka">
+        <div class="container location">
+            <div class="location__info" data-reveal>
+                <p class="eyebrow">Datang langsung</p>
+                <h2 class="section-title">Kunjungi Bengkel Kami</h2>
+                <p class="section-sub">Kami selalu siap membantu merawat instrumen Anda. Silakan mampir ke alamat kami:</p>
+
+                <address class="address">
+                    <span class="icon-tile"><svg class="ic" aria-hidden="true"><use href="#i-pin"/></svg></span>
+                    <span data-edit="lokasi.alamat" data-edit-label="Alamat">Jln. Jabaru II, Bojong Baru, Pasirkuda, Kota Bogor</span>
+                </address>
+
+                <div class="hours-card">
+                    <h3 class="hours-card__title"><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg> Jam Operasional</h3>
+                    <ul class="hours">
+                        <li class="hours__row" data-edit-item data-days="1 2 3 4 6 0"><span class="hours__day" data-edit="jam.0.hari" data-edit-label="Hari">Senin - Kamis &amp; Sabtu - Minggu:</span><span class="hours__time" data-edit="jam.0.jam" data-edit-label="Jam">12:00 - 19:00</span></li>
+                        <li class="hours__row" data-edit-item data-days="5"><span class="hours__day" data-edit="jam.1.hari" data-edit-label="Hari">Jumat:</span><span class="hours__time" data-edit="jam.1.jam" data-edit-label="Jam">13:00 - 19:00</span></li>
+                        <li class="hours__row hours__row--closed" data-edit-item><span class="hours__day" data-edit="jam.2.hari" data-edit-label="Hari">Hari Libur Nasional:</span><span class="hours__time" data-edit="jam.2.jam" data-edit-label="Jam">Tutup</span></li>
+                    </ul>
+                </div>
+
+                <a href="https://maps.app.goo.gl/siPKx3ksHu6sZY7h8" target="_blank" rel="noopener" class="btn btn--dark">
+                    Buka di Google Maps <svg class="ic btn__arrow" aria-hidden="true"><use href="#i-arrow"/></svg>
                 </a>
-                <a href="artikel-cort-sejarah-ciri-khas-dan-pilihan-gitarnya.html" class="article-card" data-reveal>
-                    <div class="article-card__thumb" aria-hidden="true"><svg class="nut" viewBox="0 0 240 64"><use href="#nut" fill="url(#g-bone)"/></svg></div>
-                    <div class="article-card__body">
-                        <span class="tag">Profil Merek</span>
-                        <h3 class="article-card__title">Cort: Sejarah, Ciri Khas, dan Pilihan Gitarnya</h3>
-                        <p class="article-card__excerpt">Cort, produsen gitar Korea, hadir dengan kualitas terjangkau, beragam model, cocok untuk pemula hingga profesional.</p>
-                        <span class="article-card__more" aria-hidden="true">Baca artikel <svg class="ic"><use href="#i-arrow"/></svg></span>
-                    </div>
-                </a>
-                <a href="artikel-gitar-elektrik-samick-ss51-hitam-glossy-spesifikasi-perawatan-dan-tips-membeli-b.html" class="article-card" data-reveal>
-                    <div class="article-card__thumb" aria-hidden="true"><img src="foto/artikel/gitar-elektrik-samick-ss51-hitam-glossy-spesifikasi-perawatan-dan-511723.webp" alt="" loading="lazy" decoding="async"></div>
-                    <div class="article-card__body">
-                        <span class="tag">Profil Gitar</span>
-                        <h3 class="article-card__title">Gitar Elektrik Samick SS51 Hitam Glossy: Spesifikasi, Perawatan, dan Tips Membeli Bekas</h3>
-                        <p class="article-card__excerpt">Gitar listrik Samick SS51 hitam glossy kondisi excellent, spesifikasi lengkap, tips beli bekas, dan cara perawatan.</p>
-                        <span class="article-card__more" aria-hidden="true">Baca artikel <svg class="ic"><use href="#i-arrow"/></svg></span>
-                    </div>
-                </a>
-                <a href="artikel-fender-sejarah-ciri-khas-dan-pilihan-gitarnya.html" class="article-card" data-reveal>
-                    <div class="article-card__thumb" aria-hidden="true"><svg class="nut" viewBox="0 0 240 64"><use href="#nut" fill="url(#g-bone)"/></svg></div>
-                    <div class="article-card__body">
-                        <span class="tag">Profil Merek</span>
-                        <h3 class="article-card__title">Fender: Sejarah, Ciri Khas, dan Pilihan Gitarnya</h3>
-                        <p class="article-card__excerpt">Fender, legenda gitar Amerika, dikenal lewat Stratocaster, Telecaster, dan bass ikonik, tersedia di Toko Gitar AYRI Bogor.</p>
-                        <span class="article-card__more" aria-hidden="true">Baca artikel <svg class="ic"><use href="#i-arrow"/></svg></span>
-                    </div>
-                </a>
-                <a href="artikel-bass-yamaha-rbx-100-hitam-spesifikasi-perawatan-dan-tips-membeli-bekas.html" class="article-card" data-reveal>
-                    <div class="article-card__thumb" aria-hidden="true"><img src="foto/artikel/bass-yamaha-rbx-100-hitam-spesifikasi-perawatan-dan-tips-membeli-8c5f5a.webp" alt="" loading="lazy" decoding="async"></div>
-                    <div class="article-card__body">
-                        <span class="tag">Profil Gitar</span>
-                        <h3 class="article-card__title">Bass Yamaha RBX 100 Hitam: Spesifikasi, Perawatan, dan Tips Membeli Bekas</h3>
-                        <p class="article-card__excerpt">Bass Yamaha RBX 100 hitam bekas, kondisi good, spesifikasi lengkap, tips beli, perawatan, dan info toko AYRI.</p>
-                        <span class="article-card__more" aria-hidden="true">Baca artikel <svg class="ic"><use href="#i-arrow"/></svg></span>
-                    </div>
-                </a>
-                <a href="artikel-bass-fender-aerodyne-jazz-bass-hitam-glossy-spesifikasi-perawatan-dan-tips-membe.html" class="article-card" data-reveal>
-                    <div class="article-card__thumb" aria-hidden="true"><img src="foto/artikel/bass-fender-aerodyne-jazz-bass-hitam-glossy-spesifikasi-perawatan-dan-e9fdd2.webp" alt="" loading="lazy" decoding="async"></div>
-                    <div class="article-card__body">
-                        <span class="tag">Profil Gitar</span>
-                        <h3 class="article-card__title">Bass Fender Aerodyne Jazz Bass Hitam Glossy: Spesifikasi, Perawatan, dan Tips Membeli Bekas</h3>
-                        <p class="article-card__excerpt">Bass Fender Aerodyne Jazz Bass hitam glossy 2003, kondisi Very Good, cocok untuk pemain pemula‑menengah, tips beli bekas &amp; perawatan.</p>
-                        <span class="article-card__more" aria-hidden="true">Baca artikel <svg class="ic"><use href="#i-arrow"/></svg></span>
-                    </div>
-                </a>
-                <a href="artikel-basic-setup-akustik-yamaha-f310-nut-rusak-buzzing-senar-nomer-6-dan-5.html" class="article-card" data-reveal>
-                    <div class="article-card__thumb" aria-hidden="true"><img src="foto/artikel/ee798a2643b169cb3b25.webp" alt="" loading="lazy" decoding="async"></div>
-                    <div class="article-card__body">
-                        <span class="tag">Hasil Servis</span>
-                        <h3 class="article-card__title">Basic Setup (Akustik) Yamaha F310: Nut rusak buzzing senar nomer 6 dan 5</h3>
-                        <p class="article-card__excerpt">Perbaikan nut Yamaha F310 menghilangkan buzz senar 5‑6, action lebih rendah, suara lebih jernih. Konsultasi gratis via WhatsApp.</p>
-                        <span class="article-card__more" aria-hidden="true">Baca artikel <svg class="ic"><use href="#i-arrow"/></svg></span>
-                    </div>
-                </a>
-                <a href="artikel-basic-setup-akustik-yamaha-cpx-600.html" class="article-card" data-reveal>
-                    <div class="article-card__thumb" aria-hidden="true"><img src="foto/artikel/625444e9e48d01099232.webp" alt="" loading="lazy" decoding="async"></div>
-                    <div class="article-card__body">
-                        <span class="tag">Hasil Servis</span>
-                        <h3 class="article-card__title">Basic Setup (Akustik) Yamaha CPX 600</h3>
-                        <p class="article-card__excerpt">Servis basic setup Yamaha CPX 600 di AYRI, Bogor, turunkan action, hilangkan fret buzz, suara lebih jernih, plus saran upgrade nut &amp; saddle.</p>
-                        <span class="article-card__more" aria-hidden="true">Baca artikel <svg class="ic"><use href="#i-arrow"/></svg></span>
-                    </div>
-                </a>
-                <a href="artikel-basic-set-up-cowboy-aeg240cg-ns-action-tinggi.html" class="article-card" data-reveal>
-                    <div class="article-card__thumb" aria-hidden="true"><img src="foto/artikel/841c8cf6bf8fef3d07ca.webp" alt="" loading="lazy" decoding="async"></div>
-                    <div class="article-card__body">
-                        <span class="tag">Hasil Servis</span>
-                        <h3 class="article-card__title">Basic Set Up Cowboy AEG240CG NS: Action tinggi</h3>
-                        <p class="article-card__excerpt">Servis basic set‑up pada Cowboy AEG240CG NS menurunkan action, hilangkan buzz, dan suaranya jadi lebih jernih.</p>
-                        <span class="article-card__more" aria-hidden="true">Baca artikel <svg class="ic"><use href="#i-arrow"/></svg></span>
-                    </div>
-                </a>
-                <!-- ARTIKEL-OTOMATIS:SELESAI -->
-                <a href="artikel-custom-nut.html" class="article-card" data-reveal>
-                    <div class="article-card__thumb" aria-hidden="true">
-                        <svg class="nut" viewBox="0 0 240 64"><use href="#nut" fill="url(#g-bone)"/></svg>
-                    </div>
-                    <div class="article-card__body">
-                        <span class="tag">Tips Servis</span>
-                        <h3 class="article-card__title">Keunggulan Custom Nut &amp; Saddle: Kenapa "Beli Jadi" Sering Tidak Pas?</h3>
-                        <p class="article-card__excerpt">Ketahui perbedaan material tulang, brass, dan tanduk, serta alasan mengapa fitting presisi sangat penting.</p>
-                        <span class="article-card__more" aria-hidden="true">Baca artikel <svg class="ic"><use href="#i-arrow"/></svg></span>
-                    </div>
-                </a>
+            </div>
+            <div class="map-frame" data-reveal style="--i:1">
+                <iframe title="Peta lokasi Toko Gitar AYRI di Bogor" src="https://maps.google.com/maps?q=Toko%20Gitar%20AYRI%20JUAL%20-%20BELI%20-%20SERVIS%20Bogor&t=&z=15&ie=UTF8&iwloc=&output=embed" width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
             </div>
         </div>
     </section>
@@ -590,7 +523,7 @@
     </section>
 
     <!-- Marketplace Section -->
-    <section id="marketplace" class="section">
+    <section id="marketplace" class="section section--alt">
         <div class="container container--narrow">
             <header class="section-head" data-reveal>
                 <p class="eyebrow">Belanja online</p>
@@ -618,34 +551,46 @@
         </div>
     </section>
 
-    <!-- Location & Operating Hours Section -->
-    <section id="lokasi" class="section section--alt" data-edit-bagian="Alamat &amp; jam buka">
-        <div class="container location">
-            <div class="location__info" data-reveal>
-                <p class="eyebrow">Datang langsung</p>
-                <h2 class="section-title">Kunjungi Bengkel Kami</h2>
-                <p class="section-sub">Kami selalu siap membantu merawat instrumen Anda. Silakan mampir ke alamat kami:</p>
-
-                <address class="address">
-                    <span class="icon-tile"><svg class="ic" aria-hidden="true"><use href="#i-pin"/></svg></span>
-                    <span data-edit="lokasi.alamat" data-edit-label="Alamat">Jln. Jabaru II, Bojong Baru, Pasirkuda, Kota Bogor</span>
-                </address>
-
-                <div class="hours-card">
-                    <h3 class="hours-card__title"><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg> Jam Operasional</h3>
-                    <ul class="hours">
-                        <li class="hours__row" data-edit-item data-days="1 2 3 4 6 0"><span class="hours__day" data-edit="jam.0.hari" data-edit-label="Hari">Senin - Kamis &amp; Sabtu - Minggu:</span><span class="hours__time" data-edit="jam.0.jam" data-edit-label="Jam">12:00 - 19:00</span></li>
-                        <li class="hours__row" data-edit-item data-days="5"><span class="hours__day" data-edit="jam.1.hari" data-edit-label="Hari">Jumat:</span><span class="hours__time" data-edit="jam.1.jam" data-edit-label="Jam">13:00 - 19:00</span></li>
-                        <li class="hours__row hours__row--closed" data-edit-item><span class="hours__day" data-edit="jam.2.hari" data-edit-label="Hari">Hari Libur Nasional:</span><span class="hours__time" data-edit="jam.2.jam" data-edit-label="Jam">Tutup</span></li>
-                    </ul>
-                </div>
-
-                <a href="https://maps.app.goo.gl/siPKx3ksHu6sZY7h8" target="_blank" rel="noopener" class="btn btn--dark">
-                    Buka di Google Maps <svg class="ic btn__arrow" aria-hidden="true"><use href="#i-arrow"/></svg>
+    <!-- Artikel / Edukasi Section -->
+    <section id="artikel" class="section">
+        <div class="container">
+            <header class="section-head" data-reveal>
+                <p class="eyebrow">Belajar dari bengkel</p>
+                <h2 class="section-title">Artikel &amp; Tips Edukasi</h2>
+            </header>
+            <div class="articles articles--beranda">
+                <!-- ARTIKEL-OTOMATIS:MULAI (diisi otomatis oleh scripts/build-artikel.js) -->
+                <a href="artikel-samick-sejarah-ciri-khas-dan-pilihan-gitarnya.html" class="article-card" data-reveal>
+                    <div class="article-card__thumb" aria-hidden="true"><svg class="nut" viewBox="0 0 240 64"><use href="#nut" fill="url(#g-bone)"/></svg></div>
+                    <div class="article-card__body">
+                        <span class="tag">Profil Merek</span>
+                        <h3 class="article-card__title">Samick: Sejarah, Ciri Khas, dan Pilihan Gitarnya</h3>
+                        <p class="article-card__excerpt">Profil lengkap Samick, sejarah, ciri khas, lini produk, tips beli bekas, dan info di Toko Gitar AYRI.</p>
+                        <span class="article-card__more" aria-hidden="true">Baca artikel <svg class="ic"><use href="#i-arrow"/></svg></span>
+                    </div>
                 </a>
+                <a href="artikel-cort-sejarah-ciri-khas-dan-pilihan-gitarnya.html" class="article-card" data-reveal>
+                    <div class="article-card__thumb" aria-hidden="true"><svg class="nut" viewBox="0 0 240 64"><use href="#nut" fill="url(#g-bone)"/></svg></div>
+                    <div class="article-card__body">
+                        <span class="tag">Profil Merek</span>
+                        <h3 class="article-card__title">Cort: Sejarah, Ciri Khas, dan Pilihan Gitarnya</h3>
+                        <p class="article-card__excerpt">Cort, produsen gitar Korea, hadir dengan kualitas terjangkau, beragam model, cocok untuk pemula hingga profesional.</p>
+                        <span class="article-card__more" aria-hidden="true">Baca artikel <svg class="ic"><use href="#i-arrow"/></svg></span>
+                    </div>
+                </a>
+                <a href="artikel-gitar-elektrik-samick-ss51-hitam-glossy-spesifikasi-perawatan-dan-tips-membeli-b.html" class="article-card" data-reveal>
+                    <div class="article-card__thumb" aria-hidden="true"><img src="foto/artikel/gitar-elektrik-samick-ss51-hitam-glossy-spesifikasi-perawatan-dan-511723.webp" alt="" loading="lazy" decoding="async"></div>
+                    <div class="article-card__body">
+                        <span class="tag">Profil Gitar</span>
+                        <h3 class="article-card__title">Gitar Elektrik Samick SS51 Hitam Glossy: Spesifikasi, Perawatan, dan Tips Membeli Bekas</h3>
+                        <p class="article-card__excerpt">Gitar listrik Samick SS51 hitam glossy kondisi excellent, spesifikasi lengkap, tips beli bekas, dan cara perawatan.</p>
+                        <span class="article-card__more" aria-hidden="true">Baca artikel <svg class="ic"><use href="#i-arrow"/></svg></span>
+                    </div>
+                </a>
+                <!-- ARTIKEL-OTOMATIS:SELESAI -->
             </div>
-            <div class="map-frame" data-reveal style="--i:1">
-                <iframe title="Peta lokasi Toko Gitar AYRI di Bogor" src="https://maps.google.com/maps?q=Toko%20Gitar%20AYRI%20JUAL%20-%20BELI%20-%20SERVIS%20Bogor&t=&z=15&ie=UTF8&iwloc=&output=embed" width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+            <div class="section-more" data-reveal>
+                <a href="artikel.html" class="btn btn--ghost btn--lg">Lihat Semua Artikel <svg class="ic btn__arrow" aria-hidden="true"><use href="#i-arrow"/></svg></a>
             </div>
         </div>
     </section>
