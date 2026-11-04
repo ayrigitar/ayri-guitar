@@ -240,30 +240,30 @@
    "grup": "iso100lu-kabel"
   },
   {
-   "kode": "STK-BABWUM",
+   "kode": "STK-4SX3UT",
    "kategori": "aksesoris",
    "jenis": "Senar",
    "kondisi": "baru",
-   "nama": "Orphee QA170",
+   "nama": "Orphee QA160",
    "warna": "",
-   "deskripsi": "Senar Orphee QA170 baru ini hadir dengan gauge medium .012-.053 dan material 85/15 Bronze yang menghasilkan karakter suara *full bright tone*. Ukuran ini sangat pas untuk pemain yang suka riff blues dan rock, di mana responsnya cepat dan nadanya terasa jelas serta punchy. Karena kondisinya masih baru, kamu bisa merasakan konsistensi ketegangan dan daya tahan yang optimal, sekaligus membuat teknik bending saat solo jadi lebih mudah. Yuk, langsung coba dan rasakan bedanya di toko kami! 🎸",
+   "deskripsi": "Senar akustik Orphee QA160 ukuran 011-052 ini masih dalam kondisi baru dan siap pasang. Dengan material 85/15 Bronze yang melapisi inti baja, senar ini menghasilkan karakter nada yang jernih dan terang. Tegasnya senar yang ringan membuatnya sangat nyaman untuk dipetik, menjadikannya pilihan ideal bagi pemula maupun pemain yang sering menggunakan teknik fingerstyle. Silakan datang langsung ke Toko Gitar AYRI di Bogor untuk mencoba feel dan suara senar ini. 🎸",
    "harga": 60000,
    "status": "tersedia",
-   "sisa": null,
+   "sisa": 2,
    "foto": [
     {
-     "src": "foto/stok/orphee-qa170-ukuran-012-stk-babwum-e97e09.webp",
-     "kecil": "foto/stok/orphee-qa170-ukuran-012-stk-babwum-e97e09-k.webp"
+     "src": "foto/stok/orphee-qa160-ukuran-011-stk-4sx3ut-a30ae9.webp",
+     "kecil": "foto/stok/orphee-qa160-ukuran-011-stk-4sx3ut-a30ae9-k.webp"
     },
     {
-     "src": "foto/stok/orphee-qa170-ukuran-012-stk-babwum-610a68.webp",
-     "kecil": "foto/stok/orphee-qa170-ukuran-012-stk-babwum-610a68-k.webp"
+     "src": "foto/stok/orphee-qa160-ukuran-011-stk-4sx3ut-ad4510.webp",
+     "kecil": "foto/stok/orphee-qa160-ukuran-011-stk-4sx3ut-ad4510-k.webp"
     }
    ],
    "alat": [
     "Gitar Akustik"
    ],
-   "ukuran": "012",
+   "ukuran": "011",
    "merek": "Orphee",
    "seri": "QA",
    "artikel": 8,
@@ -390,28 +390,34 @@
    "artikel": 13
   },
   {
-   "kode": "STK-4SX3UT",
+   "kode": "STK-BABWUM",
    "kategori": "aksesoris",
    "jenis": "Senar",
    "kondisi": "baru",
-   "nama": "Orphee QA160",
-   "warna": "Ukuran 011",
-   "deskripsi": "Senar akustik Orphee QA160 ukuran 011-052 ini masih dalam kondisi baru dan siap pasang. Dengan material 85/15 Bronze yang melapisi inti baja, senar ini menghasilkan karakter nada yang jernih dan terang. Tegasnya senar yang ringan membuatnya sangat nyaman untuk dipetik, menjadikannya pilihan ideal bagi pemula maupun pemain yang sering menggunakan teknik fingerstyle. Silakan datang langsung ke Toko Gitar AYRI di Bogor untuk mencoba feel dan suara senar ini. 🎸",
+   "nama": "Orphee QA170",
+   "warna": "",
+   "deskripsi": "Senar Orphee QA170 baru ini hadir dengan gauge medium .012-.053 dan material 85/15 Bronze yang menghasilkan karakter suara *full bright tone*. Ukuran ini sangat pas untuk pemain yang suka riff blues dan rock, di mana responsnya cepat dan nadanya terasa jelas serta punchy. Karena kondisinya masih baru, kamu bisa merasakan konsistensi ketegangan dan daya tahan yang optimal, sekaligus membuat teknik bending saat solo jadi lebih mudah. Yuk, langsung coba dan rasakan bedanya di toko kami! 🎸",
    "harga": 60000,
    "status": "tersedia",
-   "sisa": 2,
+   "sisa": null,
    "foto": [
     {
-     "src": "foto/stok/orphee-qa160-ukuran-011-stk-4sx3ut-a30ae9.webp",
-     "kecil": "foto/stok/orphee-qa160-ukuran-011-stk-4sx3ut-a30ae9-k.webp"
+     "src": "foto/stok/orphee-qa170-ukuran-012-stk-babwum-e97e09.webp",
+     "kecil": "foto/stok/orphee-qa170-ukuran-012-stk-babwum-e97e09-k.webp"
     },
     {
-     "src": "foto/stok/orphee-qa160-ukuran-011-stk-4sx3ut-ad4510.webp",
-     "kecil": "foto/stok/orphee-qa160-ukuran-011-stk-4sx3ut-ad4510-k.webp"
+     "src": "foto/stok/orphee-qa170-ukuran-012-stk-babwum-610a68.webp",
+     "kecil": "foto/stok/orphee-qa170-ukuran-012-stk-babwum-610a68-k.webp"
     }
    ],
+   "alat": [
+    "Gitar Akustik"
+   ],
+   "ukuran": "012",
    "merek": "Orphee",
-   "artikel": 14
+   "seri": "QA",
+   "artikel": 14,
+   "grup": "qa-senar"
   },
   {
    "kode": "STK-2Z9THR",
