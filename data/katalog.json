@@ -240,34 +240,34 @@
    "grup": "iso100lu-kabel"
   },
   {
-   "kode": "STK-4SX3UT",
+   "kode": "STK-SD6VFA",
    "kategori": "aksesoris",
    "jenis": "Senar",
    "kondisi": "baru",
-   "nama": "Orphee QA160",
+   "nama": "Orphee QC9",
    "warna": "",
-   "deskripsi": "Senar akustik Orphee QA160 ukuran 011-052 ini masih dalam kondisi baru dan siap pasang. Dengan material 85/15 Bronze yang melapisi inti baja, senar ini menghasilkan karakter nada yang jernih dan terang. Tegasnya senar yang ringan membuatnya sangat nyaman untuk dipetik, menjadikannya pilihan ideal bagi pemula maupun pemain yang sering menggunakan teknik fingerstyle. Silakan datang langsung ke Toko Gitar AYRI di Bogor untuk mencoba feel dan suara senar ini. 🎸",
+   "deskripsi": "Senar Orphee QC9 ini dirancang khusus untuk gitar klasik dengan tegangan tinggi (hard tension) dan ukuran 028-045. Kemasannya mencantumkan fitur \"Silver Line\" yang diklaim menghasilkan timbre penuh (full timbre), cocok untuk kamu yang suka respons suara tegas dan detail. Produk ini masih dalam kondisi baru, siap langsung dipasang di gitar kesayanganmu. Mampir ke toko AYRI di Bogor untuk cek kualitasnya langsung. 🎸",
    "harga": 60000,
    "status": "tersedia",
-   "sisa": 2,
+   "sisa": null,
    "foto": [
     {
-     "src": "foto/stok/orphee-qa160-ukuran-011-stk-4sx3ut-a30ae9.webp",
-     "kecil": "foto/stok/orphee-qa160-ukuran-011-stk-4sx3ut-a30ae9-k.webp"
+     "src": "foto/stok/orphee-qc5-nylon-klasik-hard-tension-stk-sd6vfa-6c2cd5.webp",
+     "kecil": "foto/stok/orphee-qc5-nylon-klasik-hard-tension-stk-sd6vfa-6c2cd5-k.webp"
     },
     {
-     "src": "foto/stok/orphee-qa160-ukuran-011-stk-4sx3ut-ad4510.webp",
-     "kecil": "foto/stok/orphee-qa160-ukuran-011-stk-4sx3ut-ad4510-k.webp"
+     "src": "foto/stok/orphee-qc5-nylon-klasik-hard-tension-stk-sd6vfa-21735b.webp",
+     "kecil": "foto/stok/orphee-qc5-nylon-klasik-hard-tension-stk-sd6vfa-21735b-k.webp"
     }
    ],
    "alat": [
-    "Gitar Akustik"
+    "Gitar Klasik",
+    "Guitalele"
    ],
-   "ukuran": "011",
+   "ukuran": "Hard Tension",
    "merek": "Orphee",
-   "seri": "QA",
-   "artikel": 8,
-   "grup": "qa-senar"
+   "seri": "QC",
+   "artikel": 8
   },
   {
    "kode": "STK-NZGV2M",
@@ -366,28 +366,34 @@
    "artikel": 12
   },
   {
-   "kode": "STK-SD6VFA",
+   "kode": "STK-4SX3UT",
    "kategori": "aksesoris",
    "jenis": "Senar",
    "kondisi": "baru",
-   "nama": "Orphee QC9",
-   "warna": "Nylon Klasik Hard Tension",
-   "deskripsi": "Senar Orphee QC9 ini dirancang khusus untuk gitar klasik dengan tegangan tinggi (hard tension) dan ukuran 028-045. Kemasannya mencantumkan fitur \"Silver Line\" yang diklaim menghasilkan timbre penuh (full timbre), cocok untuk kamu yang suka respons suara tegas dan detail. Produk ini masih dalam kondisi baru, siap langsung dipasang di gitar kesayanganmu. Mampir ke toko AYRI di Bogor untuk cek kualitasnya langsung. 🎸",
+   "nama": "Orphee QA160",
+   "warna": "",
+   "deskripsi": "Senar akustik Orphee QA160 ukuran 011-052 ini masih dalam kondisi baru dan siap pasang. Dengan material 85/15 Bronze yang melapisi inti baja, senar ini menghasilkan karakter nada yang jernih dan terang. Tegasnya senar yang ringan membuatnya sangat nyaman untuk dipetik, menjadikannya pilihan ideal bagi pemula maupun pemain yang sering menggunakan teknik fingerstyle. Silakan datang langsung ke Toko Gitar AYRI di Bogor untuk mencoba feel dan suara senar ini. 🎸",
    "harga": 60000,
    "status": "tersedia",
-   "sisa": null,
+   "sisa": 2,
    "foto": [
     {
-     "src": "foto/stok/orphee-qc5-nylon-klasik-hard-tension-stk-sd6vfa-6c2cd5.webp",
-     "kecil": "foto/stok/orphee-qc5-nylon-klasik-hard-tension-stk-sd6vfa-6c2cd5-k.webp"
+     "src": "foto/stok/orphee-qa160-ukuran-011-stk-4sx3ut-a30ae9.webp",
+     "kecil": "foto/stok/orphee-qa160-ukuran-011-stk-4sx3ut-a30ae9-k.webp"
     },
     {
-     "src": "foto/stok/orphee-qc5-nylon-klasik-hard-tension-stk-sd6vfa-21735b.webp",
-     "kecil": "foto/stok/orphee-qc5-nylon-klasik-hard-tension-stk-sd6vfa-21735b-k.webp"
+     "src": "foto/stok/orphee-qa160-ukuran-011-stk-4sx3ut-ad4510.webp",
+     "kecil": "foto/stok/orphee-qa160-ukuran-011-stk-4sx3ut-ad4510-k.webp"
     }
    ],
+   "alat": [
+    "Gitar Akustik"
+   ],
+   "ukuran": "011",
    "merek": "Orphee",
-   "artikel": 13
+   "seri": "QA",
+   "artikel": 13,
+   "grup": "qa-senar"
   },
   {
    "kode": "STK-BABWUM",
