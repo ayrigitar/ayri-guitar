@@ -240,31 +240,32 @@
    "grup": "iso100lu-kabel"
   },
   {
-   "kode": "STK-Y5MC8V",
+   "kode": "STK-RT4XNQ",
    "kategori": "aksesoris",
    "jenis": "Senar",
    "kondisi": "baru",
-   "nama": "Orphee KX80",
+   "nama": "Orphee SE2X",
    "warna": "",
-   "deskripsi": "Senar Orphee Guitar KX80 ini baru dan dikemas dalam plastik berwarna pink. Bahan senar ini terbuat dari serat karbon dengan ketegangan tinggi, yang menghasilkan suara jernih dan responsif. Ukurannya pas untuk ukulele standar dengan nada A, E, C, dan G. Silakan datang ke toko untuk mencoba langsung senar ini di instrumen Anda. 🎶",
-   "harga": 40000,
+   "deskripsi": "Senar Orphee SE2X ini adalah senar gitar listrik model Nickel Alloy dengan ketebalan 9-42. Desain packaging-nya simpel dan modern dengan dominasi warna hitam serta aksen circle biru yang khas. Kondisi barang ini 100% baru dan siap pakai. Cek langsung ketersediaan dan pasang senar ini di Toko Gitar AYRI 🎸",
+   "harga": 100000,
    "status": "tersedia",
-   "sisa": 3,
+   "sisa": 1,
    "foto": [
     {
-     "src": "foto/stok/orphee-kx80-ukulele-hard-tension-stk-y5mc8v-04f244.webp",
-     "kecil": "foto/stok/orphee-kx80-ukulele-hard-tension-stk-y5mc8v-04f244-k.webp"
+     "src": "foto/stok/orphee-se2x-gitar-listrik-ukuran-009-stk-rt4xnq-1eb232.webp",
+     "kecil": "foto/stok/orphee-se2x-gitar-listrik-ukuran-009-stk-rt4xnq-1eb232-k.webp"
     },
     {
-     "src": "foto/stok/orphee-kx80-ukulele-hard-tension-stk-y5mc8v-0b43b3.webp",
-     "kecil": "foto/stok/orphee-kx80-ukulele-hard-tension-stk-y5mc8v-0b43b3-k.webp"
+     "src": "foto/stok/orphee-se2x-gitar-listrik-ukuran-009-stk-rt4xnq-0208a6.webp",
+     "kecil": "foto/stok/orphee-se2x-gitar-listrik-ukuran-009-stk-rt4xnq-0208a6-k.webp"
     }
    ],
    "alat": [
-    "Ukulele"
+    "Gitar Elektrik"
    ],
-   "ukuran": "Hard Tension",
+   "ukuran": "009",
    "merek": "Orphee",
+   "seri": "SE",
    "artikel": 8
   },
   {
@@ -580,26 +581,30 @@
    "artikel": 21
   },
   {
-   "kode": "STK-RT4XNQ",
+   "kode": "STK-Y5MC8V",
    "kategori": "aksesoris",
    "jenis": "Senar",
    "kondisi": "baru",
-   "nama": "Orphee SE2X",
-   "warna": "Gitar Listrik Ukuran 009",
-   "deskripsi": "Senar Orphee SE2X ini adalah senar gitar listrik model Nickel Alloy dengan ketebalan 9-42. Desain packaging-nya simpel dan modern dengan dominasi warna hitam serta aksen circle biru yang khas. Kondisi barang ini 100% baru dan siap pakai. Cek langsung ketersediaan dan pasang senar ini di Toko Gitar AYRI 🎸",
-   "harga": 100000,
+   "nama": "Orphee KX80",
+   "warna": "",
+   "deskripsi": "Senar Orphee Guitar KX80 ini baru dan dikemas dalam plastik berwarna pink. Bahan senar ini terbuat dari serat karbon dengan ketegangan tinggi, yang menghasilkan suara jernih dan responsif. Ukurannya pas untuk ukulele standar dengan nada A, E, C, dan G. Silakan datang ke toko untuk mencoba langsung senar ini di instrumen Anda. 🎶",
+   "harga": 40000,
    "status": "tersedia",
-   "sisa": 1,
+   "sisa": 3,
    "foto": [
     {
-     "src": "foto/stok/orphee-se2x-gitar-listrik-ukuran-009-stk-rt4xnq-1eb232.webp",
-     "kecil": "foto/stok/orphee-se2x-gitar-listrik-ukuran-009-stk-rt4xnq-1eb232-k.webp"
+     "src": "foto/stok/orphee-kx80-ukulele-hard-tension-stk-y5mc8v-04f244.webp",
+     "kecil": "foto/stok/orphee-kx80-ukulele-hard-tension-stk-y5mc8v-04f244-k.webp"
     },
     {
-     "src": "foto/stok/orphee-se2x-gitar-listrik-ukuran-009-stk-rt4xnq-0208a6.webp",
-     "kecil": "foto/stok/orphee-se2x-gitar-listrik-ukuran-009-stk-rt4xnq-0208a6-k.webp"
+     "src": "foto/stok/orphee-kx80-ukulele-hard-tension-stk-y5mc8v-0b43b3.webp",
+     "kecil": "foto/stok/orphee-kx80-ukulele-hard-tension-stk-y5mc8v-0b43b3-k.webp"
     }
    ],
+   "alat": [
+    "Ukulele"
+   ],
+   "ukuran": "Hard Tension",
    "merek": "Orphee",
    "artikel": 22
   },
