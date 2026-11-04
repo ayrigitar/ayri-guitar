@@ -3,37 +3,6 @@
  "v": 4,
  "item": [
   {
-   "kode": "STK-J7NEGR",
-   "kategori": "aksesoris",
-   "jenis": "Senar",
-   "kondisi": "baru",
-   "nama": "Orphee SC57",
-   "warna": "",
-   "deskripsi": "Senar Orphee SC57 ini adalah senar nylon klasik dengan tegangan keras (hard tension), cocok untuk pemain yang menginginkan suara lebih keras dan respons kuat saat bermain. Sebagai senar baru, kawat bassnya yang berbahan copper phosphor dengan coating (lapisan pelindung) akan terasa halus di jari dan lebih tahan lama. kemasan hitam dengan aksen ungu ini menampilkan spesifikasi jelas di bagian belakang, memastikan Anda mendapatkan tepat varian yang dibutuhkan. Mampir ke Toko Gitar AYRI di Bogor untuk mencoba langsung dan konsultasikan kebutuhan senar Anda. 🎸",
-   "harga": 120000,
-   "status": "tersedia",
-   "sisa": 1,
-   "foto": [
-    {
-     "src": "foto/stok/orphee-sc57-nylon-klasik-hard-tension-stk-j7negr-f5133d.webp",
-     "kecil": "foto/stok/orphee-sc57-nylon-klasik-hard-tension-stk-j7negr-f5133d-k.webp"
-    },
-    {
-     "src": "foto/stok/orphee-sc57-nylon-klasik-hard-tension-stk-j7negr-17840f.webp",
-     "kecil": "foto/stok/orphee-sc57-nylon-klasik-hard-tension-stk-j7negr-17840f-k.webp"
-    }
-   ],
-   "alat": [
-    "Gitar Klasik",
-    "Guitalele"
-   ],
-   "ukuran": "Hard Tension",
-   "merek": "Orphee",
-   "seri": "SC",
-   "artikel": 0,
-   "grup": "sc-senar"
-  },
-  {
    "kode": "STK-ZXAD4K",
    "kategori": "aksesoris",
    "jenis": "Senar",
@@ -60,7 +29,7 @@
    "ukuran": "010",
    "merek": "Orphee",
    "seri": "QA",
-   "artikel": 1,
+   "artikel": 0,
    "grup": "qa-senar"
   },
   {
@@ -90,7 +59,7 @@
    "ukuran": "009",
    "merek": "Orphee",
    "seri": "QA",
-   "artikel": 2,
+   "artikel": 1,
    "grup": "qa-senar"
   },
   {
@@ -119,6 +88,37 @@
     "Guitalele"
    ],
    "ukuran": "Normal Tension",
+   "merek": "Orphee",
+   "seri": "SC",
+   "artikel": 2,
+   "grup": "sc-senar"
+  },
+  {
+   "kode": "STK-J7NEGR",
+   "kategori": "aksesoris",
+   "jenis": "Senar",
+   "kondisi": "baru",
+   "nama": "Orphee SC57",
+   "warna": "",
+   "deskripsi": "Senar Orphee SC57 ini adalah senar nylon klasik dengan tegangan keras (hard tension), cocok untuk pemain yang menginginkan suara lebih keras dan respons kuat saat bermain. Sebagai senar baru, kawat bassnya yang berbahan copper phosphor dengan coating (lapisan pelindung) akan terasa halus di jari dan lebih tahan lama. kemasan hitam dengan aksen ungu ini menampilkan spesifikasi jelas di bagian belakang, memastikan Anda mendapatkan tepat varian yang dibutuhkan. Mampir ke Toko Gitar AYRI di Bogor untuk mencoba langsung dan konsultasikan kebutuhan senar Anda. 🎸",
+   "harga": 120000,
+   "status": "tersedia",
+   "sisa": 1,
+   "foto": [
+    {
+     "src": "foto/stok/orphee-sc57-nylon-klasik-hard-tension-stk-j7negr-f5133d.webp",
+     "kecil": "foto/stok/orphee-sc57-nylon-klasik-hard-tension-stk-j7negr-f5133d-k.webp"
+    },
+    {
+     "src": "foto/stok/orphee-sc57-nylon-klasik-hard-tension-stk-j7negr-17840f.webp",
+     "kecil": "foto/stok/orphee-sc57-nylon-klasik-hard-tension-stk-j7negr-17840f-k.webp"
+    }
+   ],
+   "alat": [
+    "Gitar Klasik",
+    "Guitalele"
+   ],
+   "ukuran": "Hard Tension",
    "merek": "Orphee",
    "seri": "SC",
    "artikel": 3,
@@ -1423,13 +1423,16 @@
   }
  ],
  "sampul": {
-  "sc-senar": {
-   "kolase": true
-  },
   "qa-senar": {
    "kolase": true
   },
+  "sc-senar": {
+   "kolase": true
+  },
   "sa-senar": {
+   "kolase": true
+  },
+  "se-senar": {
    "kolase": true
   },
   "rx-senar": {
