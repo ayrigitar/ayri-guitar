@@ -3,37 +3,34 @@
  "v": 4,
  "item": [
   {
-   "kode": "STK-SUFER3",
+   "kode": "STK-J7NEGR",
    "kategori": "aksesoris",
    "jenis": "Senar",
    "kondisi": "baru",
-   "nama": "Orphee SA39",
+   "nama": "Orphee SC57",
    "warna": "",
-   "deskripsi": "Senar gitar akustik Orphee SA39 dengan ukuran 12-53 ini terbuat dari material phosphor bronze yang memberikan respons suara lebih hangat dan jernih. Packaging hitam dengan logo biru terlihat bersih dan rapi, menandakan produk masih dalam kondisi baru. Senar ini dirancang untuk menghasilkan suara yang *loud* dan stabil, cocok untuk latihan maupun bermain di panggung. Mampir langsung ke Toko Gitar AYRI di Bogor untuk mencoba ketebalan senar ini di gitar Anda 🎸",
-   "harga": 100000,
+   "deskripsi": "Senar Orphee SC57 ini adalah senar nylon klasik dengan tegangan keras (hard tension), cocok untuk pemain yang menginginkan suara lebih keras dan respons kuat saat bermain. Sebagai senar baru, kawat bassnya yang berbahan copper phosphor dengan coating (lapisan pelindung) akan terasa halus di jari dan lebih tahan lama. kemasan hitam dengan aksen ungu ini menampilkan spesifikasi jelas di bagian belakang, memastikan Anda mendapatkan tepat varian yang dibutuhkan. Mampir ke Toko Gitar AYRI di Bogor untuk mencoba langsung dan konsultasikan kebutuhan senar Anda. 🎸",
+   "harga": 120000,
    "status": "tersedia",
    "sisa": 1,
    "foto": [
     {
-     "src": "foto/stok/orphee-sa39-gitar-akustik-ukuran-012-stk-sufer3-e6619f.webp",
-     "kecil": "foto/stok/orphee-sa39-gitar-akustik-ukuran-012-stk-sufer3-e6619f-k.webp"
+     "src": "foto/stok/orphee-sc57-nylon-klasik-hard-tension-stk-j7negr-f5133d.webp",
+     "kecil": "foto/stok/orphee-sc57-nylon-klasik-hard-tension-stk-j7negr-f5133d-k.webp"
     },
     {
-     "src": "foto/stok/orphee-sa39-gitar-akustik-ukuran-012-stk-sufer3-ebf22a.webp",
-     "kecil": "foto/stok/orphee-sa39-gitar-akustik-ukuran-012-stk-sufer3-ebf22a-k.webp"
+     "src": "foto/stok/orphee-sc57-nylon-klasik-hard-tension-stk-j7negr-17840f.webp",
+     "kecil": "foto/stok/orphee-sc57-nylon-klasik-hard-tension-stk-j7negr-17840f-k.webp"
     }
    ],
    "alat": [
-    "Gitar Akustik"
+    "Gitar Klasik",
+    "Guitalele"
    ],
-   "ukuran": "012",
+   "ukuran": "Hard Tension",
    "merek": "Orphee",
-   "seri": "SA",
-   "fitur": [
-    "Phosphor Bronze"
-   ],
-   "artikel": 0,
-   "grup": "sa-senar"
+   "seri": "SC",
+   "artikel": 0
   },
   {
    "kode": "STK-ZXAD4K",
@@ -120,28 +117,37 @@
    "artikel": 3
   },
   {
-   "kode": "STK-J7NEGR",
+   "kode": "STK-SUFER3",
    "kategori": "aksesoris",
    "jenis": "Senar",
    "kondisi": "baru",
-   "nama": "Orphee SC57",
-   "warna": "Nylon Klasik Hard Tension",
-   "deskripsi": "Senar Orphee SC57 ini adalah senar nylon klasik dengan tegangan keras (hard tension), cocok untuk pemain yang menginginkan suara lebih keras dan respons kuat saat bermain. Sebagai senar baru, kawat bassnya yang berbahan copper phosphor dengan coating (lapisan pelindung) akan terasa halus di jari dan lebih tahan lama. kemasan hitam dengan aksen ungu ini menampilkan spesifikasi jelas di bagian belakang, memastikan Anda mendapatkan tepat varian yang dibutuhkan. Mampir ke Toko Gitar AYRI di Bogor untuk mencoba langsung dan konsultasikan kebutuhan senar Anda. 🎸",
-   "harga": 120000,
+   "nama": "Orphee SA39",
+   "warna": "",
+   "deskripsi": "Senar gitar akustik Orphee SA39 dengan ukuran 12-53 ini terbuat dari material phosphor bronze yang memberikan respons suara lebih hangat dan jernih. Packaging hitam dengan logo biru terlihat bersih dan rapi, menandakan produk masih dalam kondisi baru. Senar ini dirancang untuk menghasilkan suara yang *loud* dan stabil, cocok untuk latihan maupun bermain di panggung. Mampir langsung ke Toko Gitar AYRI di Bogor untuk mencoba ketebalan senar ini di gitar Anda 🎸",
+   "harga": 100000,
    "status": "tersedia",
    "sisa": 1,
    "foto": [
     {
-     "src": "foto/stok/orphee-sc57-nylon-klasik-hard-tension-stk-j7negr-f5133d.webp",
-     "kecil": "foto/stok/orphee-sc57-nylon-klasik-hard-tension-stk-j7negr-f5133d-k.webp"
+     "src": "foto/stok/orphee-sa39-gitar-akustik-ukuran-012-stk-sufer3-e6619f.webp",
+     "kecil": "foto/stok/orphee-sa39-gitar-akustik-ukuran-012-stk-sufer3-e6619f-k.webp"
     },
     {
-     "src": "foto/stok/orphee-sc57-nylon-klasik-hard-tension-stk-j7negr-17840f.webp",
-     "kecil": "foto/stok/orphee-sc57-nylon-klasik-hard-tension-stk-j7negr-17840f-k.webp"
+     "src": "foto/stok/orphee-sa39-gitar-akustik-ukuran-012-stk-sufer3-ebf22a.webp",
+     "kecil": "foto/stok/orphee-sa39-gitar-akustik-ukuran-012-stk-sufer3-ebf22a-k.webp"
     }
    ],
+   "alat": [
+    "Gitar Akustik"
+   ],
+   "ukuran": "012",
    "merek": "Orphee",
-   "artikel": 4
+   "seri": "SA",
+   "fitur": [
+    "Phosphor Bronze"
+   ],
+   "artikel": 4,
+   "grup": "sa-senar"
   },
   {
    "kode": "STK-7MA5Y4",
