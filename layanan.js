@@ -309,6 +309,16 @@
         }
     };
 
+    /* Satu tombol "kabari pelanggan" di form servis: judul + isi pesan mengikuti status yang sedang berjalan */
+    L.kabarServis = function (s) {
+        var st = s.status;
+        if (st === 'menunggu_dp') return { judul: 'Kabari: menunggu DP', ket: 'Rincian biaya, DP, dan rekening', pesan: L.pesan.tandaTerima(s) };
+        if (st === 'selesai') return { judul: 'Kabari: siap diambil', ket: 'Barang selesai, sisa bayar, jam buka', pesan: L.pesan.selesai(s) };
+        if (st === 'diambil') return { judul: 'Terima kasih & minta ulasan', ket: 'Ucapan terima kasih + garansi + link ulasan', pesan: L.pesanTindak.servisTerimaKasih(s) };
+        var ket = { antri: 'Gitar sudah masuk antrian', dikerjakan: 'Gitar sedang dikerjakan', batal: 'Servis dibatalkan' };
+        return { judul: 'Kabari: ' + ({ antri: 'masuk antrian', dikerjakan: 'sedang dikerjakan', batal: 'dibatalkan' })[st], ket: ket[st] || 'Kabar perkembangan', pesan: L.pesan.update(s) };
+    };
+
     /* ---------- kompres foto di HP sebelum diunggah ---------- */
     function muatGambar(file) {
         return new Promise(function (ok, gagal) {
