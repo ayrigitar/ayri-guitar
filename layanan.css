@@ -643,6 +643,7 @@ html[data-theme="dark"] .kb-selesai { border-color: rgba(92, 209, 150, .25); bac
 .kb-nav button:hover { border-color: var(--accent); color: var(--accent); }
 .kb-k__c { display: flex; flex-wrap: wrap; gap: 6px; }
 .kb-k__c .ly-btn { flex: 1 1 auto; }
+.kb-k__c .ly-btn--ikon { flex: none; margin-left: auto; }
 .kb-kosong { margin: 0; padding: 18px 8px; border: 1.5px dashed var(--line-strong); border-radius: var(--r-md); color: var(--ink-3); font-size: .75rem; text-align: center; }
 
 /* peran: owner / karyawan */
