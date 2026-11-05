@@ -62,7 +62,7 @@ body.ly { min-height: 100dvh; background: var(--bg); color: var(--ink); font-fam
 .ly-kode small, .ly-kode a { font: 600 .8rem var(--font-sans); letter-spacing: 0; color: var(--ink-3); }
 
 .ly-f { display: grid; gap: 10px; }
-.ly-f label, .ly-lbl { display: grid; gap: 5px; font-size: .8125rem; font-weight: 700; color: var(--ink-2); }
+.ly-f label, .ly-lbl { display: grid; align-content: start; gap: 5px; font-size: .8125rem; font-weight: 700; color: var(--ink-2); }
 .ly-f input:not([type="checkbox"]):not([type="file"]), .ly-f select, .ly-f textarea, .ly-in {
   width: 100%; min-height: 44px; padding: 9px 12px; border: 1px solid var(--line-strong); border-radius: var(--r-sm);
   background: var(--surface); color: var(--ink); font: 500 1rem/1.35 var(--font-sans);
@@ -169,6 +169,8 @@ body.ly { min-height: 100dvh; background: var(--bg); color: var(--ink); font-fam
 .ly-it__n { grid-column: 1 / -1; }
 .ly-it__tag { grid-column: 1 / -1; display: flex; align-items: center; justify-content: space-between; gap: 8px; margin: -2px 0 -4px; font-size: .7rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3); }
 .ly-it__tag .ly-x { width: 30px; height: 30px; }
+.ly-pil { padding: 3px 9px; border-radius: 999px; background: var(--accent-soft, rgba(171, 106, 34, .14)); color: var(--accent); }
+.ly-it--part .ly-pil { background: var(--surface); border: 1px solid var(--line-strong); color: var(--ink-2); }
 .ly-add { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
 .ly-add select { flex: 1 1 220px; }
 

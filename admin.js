@@ -1430,6 +1430,12 @@
             ed = { baru: !id, s: s, antri: [] }; gambarServis();
         });
     }
+    /* tombol WhatsApp servis: tanda terima, SATU tombol kabar yang berubah mengikuti status, nota, (pengingat bila Selesai) */
+    function waServis() {
+        var k = L.kabarServis(ed.s);
+        return barisWa([['tandaTerima', 'Tanda terima', 'Barang sudah kami terima'], ['kabar', k.judul, k.ket], ['nota', 'Kirim nota', 'Tautan nota & rincian biaya']]
+            .concat(ed.s.status === 'selesai' ? [['pengingat', 'Ingatkan ambil', 'Barang belum diambil']] : []), 'wa');
+    }
     function gambarServis() {
         var s = ed.s, katalog = {}, kat = '';
         C.katalogJasa.forEach(function (k, i) { (katalog[k.grup] = katalog[k.grup] || []).push('<option value="' + i + '">' + E(k.nama) + (k.harga ? ' – ' + L.rupiah(k.harga) : '') + '</option>'); });
@@ -1474,8 +1480,7 @@
             '<fieldset class="ly-card ly-f"><legend>Catatan internal</legend><label>Hanya terlihat admin<textarea data-f="catatan_admin" rows="2"></textarea></label></fieldset>' +
 
             (ed.baru ? '<fieldset class="ly-card"><legend>Kirim ke calon pelanggan</legend>' + barisWa([['estimasi', 'Kirim estimasi biaya', 'Jasa & part yang dipilih di bawah + total + DP'], ['ketentuan', 'Kirim ketentuan servis', 'Sekali saja: DP, garansi, penitipan']], 'wc') + '<p class="ly-hint ly-hint--c">Tanpa nomor: pilih kontaknya di WhatsApp.</p></fieldset>' : '<fieldset class="ly-card"><legend>Kirim &amp; lainnya</legend>' +
-                barisWa([['tandaTerima', 'Tanda terima', 'Barang sudah kami terima'], ['update', 'Update status', 'Kabari perkembangan'], ['selesai', 'Kabari selesai', 'Barang siap diambil'], ['nota', 'Kirim nota', 'Tautan nota & rincian biaya']]
-                    .concat(s.status === 'selesai' ? [['pengingat', 'Ingatkan ambil', 'Barang belum diambil']] : []), 'wa') +
+                '<div id="sv-wa">' + waServis() + '</div>' +
                 '<h3 class="ly-sub">Aksi lainnya</h3>' +
                 kisiAksi([
                     aksi({ href: 'cek-servis.html?k=' + encodeURIComponent(s.kode) + '&amp;h=' + encodeURIComponent(L.hp4(s.hp)), luar: true, ikon: 'lihat', teks: 'Lihat halaman pelanggan' }),
@@ -1529,11 +1534,11 @@
     function gambarItems() {
         $('#sv-items').innerHTML = ed.s.items.length ? ed.s.items.map(function (it, i) {
             var hapus = '<button type="button" class="ly-x" data-del="' + i + '" aria-label="Hapus">×</button>';
-            if (it.jenis === 'part') return '<div class="ly-it" data-i="' + i + '"><div class="ly-it__tag">Part' + hapus + '</div>' +
+            if (it.jenis === 'part') return '<div class="ly-it ly-it--part" data-i="' + i + '"><div class="ly-it__tag"><span class="ly-pil">Part</span>' + hapus + '</div>' +
                 '<input class="ly-in ly-it__n" data-k="nama" placeholder="Nama part, mis. Senar Elixir 11" value="' + E(it.nama) + '" aria-label="Nama part">' +
                 '<label class="ly-lbl">Jumlah<input class="ly-in" data-k="qty" type="number" inputmode="numeric" min="1" value="' + (it.qty || 1) + '"></label>' +
                 '<label class="ly-lbl">Harga satuan (Rp)<input class="ly-in" data-k="harga" type="number" inputmode="numeric" min="0" step="1000" value="' + (it.harga || 0) + '"></label></div>';
-            return '<div class="ly-it" data-i="' + i + '"><div class="ly-it__tag">Jasa' + hapus + '</div>' +
+            return '<div class="ly-it" data-i="' + i + '"><div class="ly-it__tag"><span class="ly-pil">Jasa</span>' + hapus + '</div>' +
                 '<input class="ly-in ly-it__n" data-k="nama" placeholder="Nama jasa" value="' + E(it.nama) + '" aria-label="Nama jasa">' +
                 '<label class="ly-lbl">Harga (Rp)<input class="ly-in" data-k="harga" type="number" inputmode="numeric" min="0" step="1000" value="' + (it.harga || 0) + '"></label>' +
                 '<label class="ly-lbl">Garansi<select class="ly-in" data-k="garansi">' + opsi(L.GARANSI_PILIHAN, it.garansi || '') + '</select></label>' +
@@ -1605,6 +1610,7 @@
         if (st === 'diambil' && h.sisa > 0 && !confirm('Masih ada sisa pembayaran ' + L.rupiah(h.sisa) + '. Tandai sudah diambil?')) return;
         if (st === 'batal' && !confirm('Tandai servis ini dibatalkan? Pelanggan tidak bisa lagi membuka status dan notanya.')) return;
         ed.s.status = st; gambarStatus(); gambarRingkas(); setDirty(true);
+        var wa = $('#sv-wa'); if (wa) wa.innerHTML = waServis();
         if (st === 'selesai' && !ed.s.foto.concat(ed.antri).some(function (f) { return f.tahap === 'sesudah'; })) toast('Jangan lupa tambahkan foto sesudah servis dan saran untuk pelanggan.');
     }
     function tambahBayar() {
@@ -1659,7 +1665,7 @@
             if (ed.s.status !== 'selesai') return toast('Pengingat ambil hanya untuk status Selesai.', true);
             return catatPengingat('servis', ed.s.id);
         }
-        bukaWa(ed.s.hp, L.pesan[jenis](ed.s));
+        bukaWa(ed.s.hp, jenis === 'kabar' ? L.kabarServis(ed.s).pesan : L.pesan[jenis](ed.s));
     }
     function jadikanArtikel() {
         if (dirty) return toast('Simpan perubahan dulu.', true);
