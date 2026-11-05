@@ -666,9 +666,9 @@ body.ly-karyawan .owner-saja { display: none !important; }
 .nav-lainnya { display: none; }
 .ly-lembar { position: fixed; inset: 0; z-index: 30; display: flex; align-items: flex-end; background: rgba(15, 10, 6, .45); }
 .ly-lembar[hidden] { display: none; }
-.ly-pnl__in { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; width: 100%; margin: 0 0 calc(64px + env(safe-area-inset-bottom)); padding: 14px; border-radius: 20px 20px 0 0; }
-.ly-pnl__in a, .ly-pnl__in button { display: grid; justify-items: center; gap: 6px; padding: 14px 6px; border: 1px solid var(--line); border-radius: var(--r-md); background: var(--surface-2); color: var(--ink-2); font-size: .8125rem; font-weight: 700; text-align: center; }
-.ly-pnl__in svg { width: 24px; height: 24px; fill: none; stroke: var(--accent); stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.ly-lembar__in { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; width: 100%; margin: 0 0 calc(64px + env(safe-area-inset-bottom)); padding: 14px; border-radius: 20px 20px 0 0; }
+.ly-lembar__in a, .ly-lembar__in button { display: grid; justify-items: center; gap: 6px; padding: 14px 6px; border: 1px solid var(--line); border-radius: var(--r-md); background: var(--surface-2); color: var(--ink-2); font-size: .8125rem; font-weight: 700; text-align: center; }
+.ly-lembar__in svg { width: 24px; height: 24px; fill: none; stroke: var(--accent); stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 @media (max-width: 899.98px) {
   .ly-tabs { grid-template-columns: repeat(6, minmax(0, 1fr)); }
   .ly-tabs a.nav-lain { display: none; }
