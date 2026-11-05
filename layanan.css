@@ -169,8 +169,6 @@ body.ly { min-height: 100dvh; background: var(--bg); color: var(--ink); font-fam
 .ly-it__n { grid-column: 1 / -1; }
 .ly-it__tag { grid-column: 1 / -1; display: flex; align-items: center; justify-content: space-between; gap: 8px; margin: -2px 0 -4px; font-size: .7rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3); }
 .ly-it__tag .ly-x { width: 30px; height: 30px; }
-.ly-pil { padding: 3px 9px; border-radius: 999px; background: var(--accent-soft, rgba(171, 106, 34, .14)); color: var(--accent); }
-.ly-it--part .ly-pil { background: var(--surface); border: 1px solid var(--line-strong); color: var(--ink-2); }
 .ly-add { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
 .ly-add select { flex: 1 1 220px; }
 
@@ -927,3 +925,136 @@ html[data-theme="dark"] .sv-k__info .sv-ok, html[data-theme="dark"] .sv-k__info 
 .sv-k__aksi .ly-btn:not(.ly-btn--ikon) { flex: 1 1 auto; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
 .sv-k__aksi .ly-btn--ikon { flex: none; }
 .sv-k__aksi .ly-btn svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+
+/* ================= Halaman edit (Servis, Stok, Jual, Sewa, Tebus, Titip jual, Artikel, Jasa) =================
+   Gaya mengikuti desain referensi pemilik (Nov 2026): kartu putih rapi, judul sans, label kecil, isian abu muda,
+   daftar kirim WA tanpa bingkai, aksi berupa ubin ikon di atas teks. Hanya berlaku di halaman edit (body.ly-detail). */
+body.ly-detail .ly-main > section { gap: 20px; }
+body.ly-detail .ly-head:has(> .ly-back) { margin-bottom: -12px; }
+body.ly-detail .ly-back { font-size: .875rem; font-weight: 600; }
+body.ly-detail .ly-head h1 { flex: 0 1 auto; font: 700 1.5rem/1.2 var(--font-sans); letter-spacing: -.01em; }
+body.ly-detail .ly-head .st-chip { border-color: transparent; }
+body.ly-detail .ly-kode { margin-top: -14px; font: 700 .875rem/1.4 var(--font-sans); letter-spacing: .05em; }
+body.ly-detail .ly-kode small, body.ly-detail .ly-kode a { font-size: .875rem; font-weight: 500; }
+
+/* kartu */
+body.ly-detail .ly-card { padding: 20px; border: 1px solid var(--line); border-radius: 16px; box-shadow: 0 1px 2px rgba(40, 28, 16, .05); }
+body.ly-detail .ly-card > legend, body.ly-detail .ly-card > h2 { margin-bottom: 16px; font: 700 1rem/1.3 var(--font-sans); color: var(--ink); }
+
+/* isian */
+body.ly-detail .ly-f { gap: 16px; }
+body.ly-detail .ly-row2 { gap: 16px; }
+body.ly-detail .ly-f label, body.ly-detail .ly-lbl { gap: 6px; font-size: .75rem; font-weight: 600; color: var(--ink-2); }
+body.ly-detail .ly-f input:not([type="checkbox"]):not([type="file"]):not([type="radio"]), body.ly-detail .ly-f select, body.ly-detail .ly-f textarea, body.ly-detail .ly-in {
+  min-height: 44px; padding: 8px 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface-2); color: var(--ink); font: 400 1rem/1.4 var(--font-sans);
+}
+body.ly-detail .ly-f textarea { min-height: 64px; }
+body.ly-detail .ly-f label, body.ly-detail .ly-row2 > *, body.ly-detail .ly-f input, body.ly-detail .ly-f select { min-width: 0; }
+body.ly-detail .ly-f input:focus, body.ly-detail .ly-f select:focus, body.ly-detail .ly-f textarea:focus, body.ly-detail .ly-in:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-soft); }
+body.ly-detail .ly-hint { font-size: .6875rem; font-weight: 400; line-height: 1.5; }
+body.ly-detail .ly-cek { gap: 8px; font-size: .875rem; font-weight: 400 !important; color: var(--ink-2); }
+body.ly-detail .ly-cek input { width: 16px; height: 16px; margin-top: 2px; }
+body.ly-detail .ly-muted { font-size: .8125rem; }
+
+/* tombol */
+body.ly-detail .ly-btn { border-radius: 8px; font-weight: 600; }
+body.ly-detail .ly-btn--sm { min-height: 32px; padding: 0 10px; font-size: .75rem; }
+body.ly-detail .ly-btn--pri { box-shadow: 0 1px 2px rgba(0, 0, 0, .12); }
+body.ly-detail .ly-save .ly-btn { border-radius: 12px; font-weight: 700; }
+
+/* jasa & part */
+body.ly-detail .ly-items { gap: 12px; }
+body.ly-detail .ly-it { position: relative; gap: 10px 12px; padding: 14px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface-2); transition: border-color .15s; }
+body.ly-detail .ly-it:hover { border-color: var(--line-strong); }
+body.ly-detail .ly-it--part { grid-template-columns: 96px minmax(0, 1fr); }
+body.ly-detail .ly-it__tag { margin: -2px 0 -2px; font-size: .625rem; font-weight: 700; letter-spacing: .08em; color: var(--ink-3); }
+body.ly-detail .ly-it__tag .ly-x { width: 24px; height: 24px; margin: -4px -6px -4px 0; background: transparent; color: var(--ink-3); font-size: 1.15rem; line-height: 1; }
+body.ly-detail .ly-it__tag .ly-x:hover { color: var(--danger); }
+body.ly-detail .ly-it .ly-in, body.ly-detail .ly-add .ly-in { min-height: 40px; padding: 6px 12px; background: var(--surface) !important; }
+body.ly-detail .ly-it--part [data-k="qty"] { text-align: center; }
+body.ly-detail label.ly-btn { display: inline-flex; align-items: center; align-content: normal; gap: 4px; }
+body.ly-detail .ly-judul2 { margin: 24px 0 12px; font: 700 1rem/1.3 var(--font-sans); color: var(--ink); }
+body.ly-detail .ly-it .ly-lbl { font-size: .6875rem; font-weight: 500; color: var(--ink-3); }
+body.ly-detail .ly-it .ly-cek { font-size: .6875rem !important; color: var(--ink-2); }
+body.ly-detail .ly-it .ly-cek input { width: 14px; height: 14px; margin-top: 1px; }
+body.ly-detail .ly-add { gap: 8px; margin-top: 16px; padding-bottom: 24px; border-bottom: 1px solid var(--line); }
+body.ly-detail .ly-add .ly-in { font-weight: 500; }
+body.ly-detail .ly-add .ly-btn { min-height: 40px; padding: 0 12px; font-size: .8125rem; font-weight: 500; }
+body.ly-detail .ly-card:has(> #sv-sum) > .ly-f { margin-top: 24px !important; }
+body.ly-detail .ly-card:has(> #sv-sum) > .ly-f label { max-width: 160px !important; }
+
+/* ringkasan biaya */
+body.ly-detail .ly-sum { gap: 10px; margin-top: 24px; padding-top: 0; border-top: 0; font-size: .875rem; }
+body.ly-detail .ly-sum > div > span:first-child { color: var(--ink-3); }
+body.ly-detail .ly-sum > div > span:last-child { font-weight: 500; color: var(--ink); }
+body.ly-detail .ly-sum .ly-total { padding-top: 10px; border-top: 1px dashed var(--line-strong); font-size: .9375rem; }
+body.ly-detail .ly-sum .ly-total > span { color: var(--ink) !important; font-weight: 700 !important; }
+body.ly-detail .ly-sum .ly-total:last-child { border-top-style: solid; border-color: var(--line); font-size: 1.125rem; }
+body.ly-detail .ly-sum .ly-warn > span, body.ly-detail .ly-sum .ly-ok > span { color: inherit !important; font-weight: 600; }
+
+/* pembayaran & status */
+body.ly-detail .ly-bayar > div { padding: 12px; border: 1px solid var(--line); border-radius: 8px; }
+body.ly-detail .ly-status { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+body.ly-detail .ly-status button { min-height: 40px; padding: 8px 6px; border-radius: 8px; font: 500 .8125rem/1.2 var(--font-sans); }
+body.ly-detail .ly-status button:hover { background: var(--surface-2); }
+body.ly-detail .ly-status button[aria-pressed="true"] { background: var(--accent); font-weight: 600; box-shadow: 0 1px 2px rgba(0, 0, 0, .15); }
+
+/* kirim WhatsApp: baris tanpa bingkai, ikon hijau muda */
+body.ly-detail .ly-wa { gap: 4px; border: 0; border-radius: 0; background: transparent; overflow: visible; }
+body.ly-detail .ly-wa__b { min-height: 0; gap: 12px; padding: 8px; border-radius: 8px; }
+body.ly-detail .ly-wa__b + .ly-wa__b { border-top: 0; }
+body.ly-detail .ly-wa__i { width: 32px; height: 32px; background: rgba(18, 128, 77, .12); color: var(--wa-ink); }
+body.ly-detail .ly-wa__i svg { width: 16px; height: 16px; }
+body.ly-detail .ly-wa__t b { font-size: .875rem; }
+body.ly-detail .ly-wa__go { width: 16px; height: 16px; }
+
+/* aksi lainnya: ubin ikon di atas teks; Hapus selebar kartu berwarna merah muda */
+body.ly-detail .ly-aksi { gap: 12px; }
+body.ly-detail .ly-wa + .ly-aksi { margin-top: 12px; }
+body.ly-detail .ly-akt { flex-direction: column; justify-content: center; gap: 8px; min-height: 80px; padding: 12px 8px; border-color: var(--line-strong); border-radius: 12px; text-align: center; font: 600 .75rem/1.3 var(--font-sans); color: var(--ink-2); }
+body.ly-detail .ly-akt:hover { background: var(--surface-2); }
+body.ly-detail .ly-akt__i { width: auto; height: auto; border-radius: 0; background: none; color: inherit; }
+body.ly-detail .ly-akt__i svg { width: 20px; height: 20px; stroke-width: 1.9; }
+body.ly-detail .ly-akt--pri { color: var(--on-accent); }
+body.ly-detail .ly-akt--pri:hover { background: var(--accent); filter: brightness(1.06); }
+body.ly-detail .ly-akt--pri .ly-akt__i { background: none; }
+body.ly-detail .ly-aksi > .ly-akt:nth-child(odd):has(+ .ly-akt--del) { grid-column: 1 / -1; }
+body.ly-detail .ly-akt--del { flex-direction: row; min-height: 48px; margin-top: 8px; border-color: rgba(220, 70, 60, .22); background: rgba(220, 70, 60, .07); color: var(--danger); font-size: .875rem; }
+body.ly-detail .ly-akt--del:hover { background: rgba(220, 70, 60, .12); }
+body.ly-detail .ly-akt--del .ly-akt__i svg { width: 16px; height: 16px; }
+body.ly-detail .ly-hint--c { margin-top: 16px; font-size: .625rem; }
+
+/* foto */
+body.ly-detail .ly-fgrup { gap: 12px; }
+body.ly-detail .ly-fgrup + .ly-fgrup { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--line); }
+body.ly-detail .ly-fgrup h3 { font-size: .875rem; font-weight: 600; color: var(--ink-2); }
+body.ly-detail .ly-fgrup .ly-muted { margin: -6px 0 0; font-size: .75rem; }
+body.ly-detail .ly-foto { grid-template-columns: repeat(auto-fill, 80px); }
+body.ly-detail .ly-foto figure { border: 1px solid var(--line); border-radius: 12px; }
+body.ly-detail .ly-foto .ly-fx { width: 22px; height: 22px; font-size: .8rem; line-height: 1; }
+body.ly-detail .ly-foto .ly-ft { padding: 2px 6px; font-size: .5625rem; }
+
+/* PC: kolom 65/35 seperti referensi, isian ringkas, Simpan tanpa bingkai dengan label "Belum disimpan" kecil di pojoknya */
+@media (min-width: 1000px) {
+  body.ly-detail .ly-main:has(.ly-dua) { width: min(100% - 48px, 1152px); }
+  body.ly-detail .ly-dua { grid-template-columns: minmax(0, 65fr) minmax(300px, 35fr); gap: 24px; }
+  body.ly-detail .ly-dua__kiri, body.ly-detail .ly-dua__kanan { gap: 20px; }
+  body.ly-detail .ly-dua__kanan .ly-row2 { grid-template-columns: minmax(0, 1fr); }
+  body.ly-detail .ly-dua__kanan .ly-card .ly-btns > .ly-btn { flex: 1 1 auto; }
+  body.ly-detail .ly-grid { column-gap: 16px; }
+  body.ly-detail .ly-grid--2 > label:not(.ly-cek):not(:has(textarea)), body.ly-detail .ly-grid--2 .ly-row2:has(> label) > label:not(.ly-cek):not(:has(textarea)) { grid-column: span 3; }
+  body.ly-detail .ly-f input:not([type="checkbox"]):not([type="file"]):not([type="radio"]), body.ly-detail .ly-f select, body.ly-detail .ly-f textarea, body.ly-detail .ly-in { min-height: 38px; font-size: .875rem; }
+  body.ly-detail .ly-it .ly-in, body.ly-detail .ly-add .ly-in { min-height: 36px; }
+  body.ly-detail .ly-dua__kanan > .ly-save { padding: 0; border: 0; border-radius: 12px; background: transparent; box-shadow: none; }
+  body.ly-detail .ly-dua__kanan > .ly-save .ly-btn { min-height: 52px; font-size: .9375rem; box-shadow: 0 8px 18px -8px rgba(120, 70, 15, .55); }
+  body.ly-detail .ly-dua__kanan > .ly-save .ly-dirty {
+    position: absolute; top: -9px; right: 14px; left: auto; transform: none; flex: none; padding: 3px 9px;
+    border: 1px solid #F7D9A8; border-radius: 999px; background: #FEF3E2; color: #A15C07; font-size: .6875rem; font-weight: 700; text-align: left; box-shadow: 0 2px 6px rgba(0, 0, 0, .08);
+  }
+  html[data-theme="dark"] body.ly-detail .ly-dua__kanan > .ly-save .ly-dirty { border-color: rgba(245, 182, 92, .35); background: #2A2117; color: #F5B65C; }
+  /* Jasa & part: Diskon di kiri, ringkasan biaya di kanan */
+  body.ly-detail .ly-card:has(> #sv-sum) { display: grid; grid-template-columns: minmax(0, 1fr) 17rem; column-gap: 24px; align-items: start; }
+  body.ly-detail .ly-card:has(> #sv-sum) > :not(.ly-f):not(.ly-sum) { grid-column: 1 / -1; }
+  body.ly-detail .ly-card:has(> #sv-sum) > .ly-f { grid-column: 1; }
+  body.ly-detail .ly-card:has(> #sv-sum) > .ly-sum { grid-column: 2; }
+}

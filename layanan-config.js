@@ -27,7 +27,7 @@ var AYRI_LAYANAN = {
         alamat: 'Jln. Jabaru II, Bojong Baru, Pasirkuda, Kota Bogor',
         jam: 'Senin–Minggu 12.00–19.00 (Jumat mulai 13.00)',
         wa: '6285795738637',
-        ulasan: '',                    /* tautan "beri ulasan" Google (dari Google Business Profile > Minta ulasan); kosong = pesan terima kasih tanpa tautan ulasan */
+        ulasan: 'https://maps.app.goo.gl/w3kYHUswujQD5T7a8',                    /* tautan "beri ulasan" Google (dari Google Business Profile > Minta ulasan); kosong = pesan terima kasih tanpa tautan ulasan */
         rekening: [
             { bank: 'BCA', nomor: '6395460912', atasNama: 'Rio Alam Nur' }
         ]
