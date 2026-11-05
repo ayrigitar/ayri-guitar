@@ -69,3 +69,21 @@ test('admin: bilah format, pratinjau berdampingan di PC, hitungan kata, cadangan
     assert.match(kode, /document\.addEventListener\('visibilitychange'/, 'dicadangkan saat aplikasi ditutup');
     for (const id of ['ar-prev', 'ar-ai', 'ar-pv', 'ar-simpan', 'ar-file']) assert.ok(kode.includes('id="' + id + '"'), id + ' tetap ada');
 });
+
+test('penulis artikel: tampil di halaman & data Google; kosong = atas nama toko', () => {
+    const sb = { AYRI_UTIL: { esc: s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;') } };
+    vm.createContext(sb); vm.runInContext(baca('artikel-md.js'), sb); vm.runInContext(baca('artikel-builder.js'), sb);
+    const tpl = baca('scripts/artikel-template.html'), dasar = { judul: 'Setup Gitar', slug: 'setup-gitar', isi: 'x', foto: [] };
+    const ld = h => JSON.parse(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/.exec(h)[1].replace(/\u003c/g, '<'));
+    const tanpa = sb.ArtikelBuilder.halaman(tpl, dasar, 'https://ayrigitar.com/');
+    assert.match(tanpa, /#i-pen"\/><\/svg> Toko Gitar AYRI<\/span>/);
+    assert.equal(ld(tanpa).author['@type'], 'Organization');
+    const ada = sb.ArtikelBuilder.halaman(tpl, Object.assign({ penulis: '  Rio  <b>' }, dasar), 'https://ayrigitar.com/');
+    assert.match(ada, /#i-pen"\/><\/svg> Rio &lt;b&gt; · Toko Gitar AYRI<\/span>/, 'nama di-escape, disertai nama toko');
+    assert.deepEqual(ld(ada).author, { '@type': 'Person', name: 'Rio <b>', worksFor: { '@type': 'Organization', name: 'Toko Gitar AYRI', url: 'https://ayrigitar.com/' } });
+    assert.equal(ld(ada).publisher.name, 'Toko Gitar AYRI');
+    assert.doesNotMatch(tpl, /AYRI Gitar Bogor/);
+    const kode = baca('admin.js');
+    assert.match(kode, /<label>Penulis<input data-a="penulis" maxlength="60" list="ar-penulis"/);
+    assert.match(kode, /function daftarPenulis\(\)/, 'nama yang pernah dipakai muncul sebagai pilihan');
+});
