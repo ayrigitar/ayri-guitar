@@ -8,7 +8,7 @@ test('poster servis: ikon sesuai status, bersyarat izin dan foto, tanpa data pri
     assert.match(adm, /function modePosterServis\(s\) \{ return s\.status === 'dikerjakan' \? 'proses' : \(s\.status === 'selesai' \|\| s\.status === 'diambil'\) \? 'hasil' : null; \}/, 'dikerjakan = proses; selesai/diambil = hasil; status lain tanpa poster');
     assert.match(adm, /if \(!s\.izin_publikasi\) return toast\('Pelanggan belum setuju/, 'wajib izin pelanggan');
     assert.match(adm, /if \(!fotoPosterServis\(s, mode\)\.length\) return toast\('Belum ada foto servis/);
-    assert.match(adm, /\(tombolPosterServis\(s\) \? '<span class="ly-item__b">'/, 'ikon di tampilan Daftar');
+    assert.match(adm, /\+ tombolPosterServis\(s\);\s+return '<div class="sv-k">/, 'ikon di tampilan Daftar (kartu servis)');
     assert.match(adm, /tombolPosterServis\(s\) \? '<div class="kb-k__c">'/, 'ikon di tampilan Papan');
     assert.match(adm, /\[data-poster-sv\]/);
     /* isi poster: hanya merek/model gitar + nama jasa; tidak memakai nama, HP, kode, atau harga */
@@ -21,4 +21,17 @@ test('poster servis: ikon sesuai status, bersyarat izin dan foto, tanpa data pri
     assert.match(jasa, /biaya penitipan/, 'biaya penitipan tidak ikut');
     assert.match(adm, /'servis-' \+ opsi\.servis\.mode/, 'nama berkas tanpa kode servis');
     assert.match(adm, /if \(opsi && opsi\.servis\) return buatPosterServis\(opsi\.servis\);/);
+});
+
+test('kartu servis (Daftar): baris berikon hanya bila relevan, tombol utama pengingat, warna menurut makna', () => {
+    const adm = baca('admin.js'), css = baca('layanan.css');
+    assert.match(adm, /function kartuServis\(s, hari\)/);
+    assert.match(adm, /\$\('#list'\)\.innerHTML = hasil\.length \? hasil\.map\(function \(s\) \{ return kartuServis\(s, hari\); \}\)/);
+    assert.match(adm, /'Sisa tagihan: <b>'/);
+    assert.match(adm, /if \(s\.estimasi && !beres\) info \+= baris\(telat/, 'estimasi hanya bila belum beres');
+    assert.match(adm, /if \(t\) \{\s+info \+= baris\(/, 'baris penitipan hanya untuk gitar selesai yang kena aturan titip');
+    assert.match(adm, /\(t \? '<button type="button" class="ly-btn ' \+ \(perlu \? 'ly-btn--wa' : 'ly-btn--pri'\)/, 'tombol pengingat hanya bila ada penitipan');
+    for (const n of ['tanggal', 'uang', 'jam', 'lonceng', 'amplop']) assert.ok(adm.includes('        ' + n + ": '<"), 'ikon ' + n);
+    assert.match(css, /\.sv-k__info \.sv-bad[^{]*\{ color: #B42318; \}/);
+    assert.match(css, /html\[data-theme="dark"\] \.sv-k__info \.sv-bad/, 'mode gelap');
 });
