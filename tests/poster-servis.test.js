@@ -8,7 +8,7 @@ test('poster servis: ikon sesuai status, bersyarat izin dan foto, tanpa data pri
     assert.match(adm, /function modePosterServis\(s\) \{ return s\.status === 'dikerjakan' \? 'proses' : \(s\.status === 'selesai' \|\| s\.status === 'diambil'\) \? 'hasil' : null; \}/, 'dikerjakan = proses; selesai/diambil = hasil; status lain tanpa poster');
     assert.match(adm, /if \(!s\.izin_publikasi\) return toast\('Pelanggan belum setuju/, 'wajib izin pelanggan');
     assert.match(adm, /if \(!fotoPosterServis\(s, mode\)\.length\) return toast\('Belum ada foto servis/);
-    assert.match(adm, /\+ tombolPosterServis\(s\);\s+return '<div class="sv-k">/, 'ikon di tampilan Daftar (kartu servis)');
+    assert.match(adm, /\+ tombolPosterServis\(s\);\s+return kartuIkon\(/, 'ikon di tampilan Daftar (kartu servis)');
     assert.match(adm, /tombolPosterServis\(s\) \? '<div class="kb-k__c">'/, 'ikon di tampilan Papan');
     assert.match(adm, /\[data-poster-sv\]/);
     /* isi poster: hanya merek/model gitar + nama jasa; tidak memakai nama, HP, kode, atau harga */
@@ -34,4 +34,18 @@ test('kartu servis (Daftar): baris berikon hanya bila relevan, tombol utama peng
     for (const n of ['tanggal', 'uang', 'jam', 'lonceng', 'amplop']) assert.ok(adm.includes('        ' + n + ": '<"), 'ikon ' + n);
     assert.match(css, /\.sv-k__info \.sv-bad[^{]*\{ color: #B42318; \}/);
     assert.match(css, /html\[data-theme="dark"\] \.sv-k__info \.sv-bad/, 'mode gelap');
+});
+
+test('kartu seragam: Jual, Tebus, Titip jual, Sewa, dan Stok memakai kartuIkon; Stok punya foto kecil dan tombol bagikan', () => {
+    const adm = baca('admin.js'), css = baca('layanan.css');
+    assert.match(adm, /function kartuIkon\(o\)/);
+    for (const href of ['#jual/', '#tebus/', '#titip/', '#sewa/', '#stok/', '#servis/']) assert.ok(adm.includes("kartuIkon({ href: '" + href), 'kartuIkon dipakai untuk ' + href);
+    assert.ok(!/class="ly-item"><a class="ly-item__a" href="#(jual|tebus|stok)\//.test(adm), 'kartu lama diganti');
+    assert.match(adm, /foto: f \? \(f\.thumb_path \|\| f\.path\) : true/, 'Stok: foto kecil bila ada, kotak kosong bila belum');
+    assert.match(adm, /'Harga jual belum diisi'/, 'peringatan harga jual kosong');
+    assert.match(adm, />Hapus foto KTP</, 'tombol hapus KTP tetap ada di Tebus');
+    assert.match(adm, /data-ingat="' \+ E\(t\.id\)/, 'pengingat Tebus tetap ada');
+    assert.match(adm, /awas: '<path/, 'ikon peringatan');
+    assert.match(css, /\.sv-foto \{ flex: none; width: 64px; height: 64px;/);
+    assert.match(css, /\.sv-k__aksi \{[^}]*justify-content: flex-end/);
 });
