@@ -794,17 +794,17 @@
     function urutTerbaru(a, b) { var x = a.created_at || '', y = b.created_at || ''; return x < y ? 1 : x > y ? -1 : 0; }
     /* simpan satu catatan ke file daftar, ATOMIK: dibaca & ditulis di atas kepala yang sama (lihat ubahAtomik), jadi perubahan perangkat
        lain pada catatan LAIN tidak tertimpa. file lain di repo data (mis. foto tebus) ikut dalam commit yang sama */
-    function simpanDaftar(jenis, rec, hapus, tambahan, dasar) {
+    function simpanDaftar(jenis, rec, hapus, tambahan, dasar, ekstra) {
         var nama = jenis + '.json', rp = repoJenis(jenis), stokPisah = PISAH && jenis === 'stok', list, simpan = salin(rec);
         delete simpan._dasar;
         return ubahAtomik(rp, function (baca) {
             return baca(nama).then(function (t) {
-                var l = t ? JSON.parse(t) : [];
-                if (!hapus) cekVersi(l, rec, dasar);
+                var l = t ? JSON.parse(t) : [], diFile = hapus ? cari(l, rec.id) : cekVersi(l, rec, dasar);
                 l = l.filter(function (x) { return x.id !== rec.id; });
                 if (!hapus) l.unshift(stokPisah ? bersihStok(simpan) : simpan);
                 l.sort(urutTerbaru); list = l;
-                return { files: [{ path: nama, teks: JSON.stringify(l, null, 1) + '\n' }].concat(tambahan || []) };
+                var f = [{ path: nama, teks: JSON.stringify(l, null, 1) + '\n' }].concat(tambahan || []);
+                return ekstra ? Promise.resolve(ekstra(baca, diFile)).then(function (x) { return { files: f.concat(x || []) }; }) : { files: f };
             });
         }, (hapus ? 'Hapus ' : 'Simpan ') + (rec.kode || rec.slug || rec.id)).then(function () {
             data[jenis] = stokPisah ? gabungStok(list) : list; return stokPisah && !hapus ? simpanRahasia(rec) : null;
@@ -822,9 +822,9 @@
     /* simpan catatan + file pendukungnya di dua repo (files: { situs: [], data: [] }). Repo yang memuat foto baru
        di-commit lebih dulu, supaya catatan tidak pernah merujuk foto yang belum terunggah. Bila langkah kedua gagal,
        catatan yang sudah lengkap (e.rec) dikembalikan supaya admin cukup menekan Simpan lagi */
-    function simpanDua(jenis, rec, files, pesanSitus, dataDulu, dasar) {
+    function simpanDua(jenis, rec, files, pesanSitus, dataDulu, dasar, ekstra) {
         function situs() { return commitBila('situs', files.situs, pesanSitus); }
-        function utama() { return simpanDaftar(jenis, rec, false, files[repoJenis(jenis)], dasar); }
+        function utama() { return simpanDaftar(jenis, rec, false, files[repoJenis(jenis)], dasar, ekstra); }
         return (dataDulu ? utama : situs)().then(function () {
             return (dataDulu ? situs : utama)().catch(function (e) {
                 e.sebagian = true; e.rec = salin(rec);
@@ -834,8 +834,8 @@
             });
         }).then(function () { return salin(rec); });
     }
-    function hapusDua(jenis, rec, files, pesanSitus) {
-        return commitBila('situs', files.situs, pesanSitus).then(function () { return simpanDaftar(jenis, rec, true, files[repoJenis(jenis)]); });
+    function hapusDua(jenis, rec, files, pesanSitus, ekstra) {
+        return commitBila('situs', files.situs, pesanSitus).then(function () { return simpanDaftar(jenis, rec, true, files[repoJenis(jenis)], undefined, ekstra); });
     }
     function idBaru() { return crypto.randomUUID ? crypto.randomUUID() : acakHex(16); }
     /* catatan baru: id, kode unik (mis. AYR-XXXXXX), waktu dibuat */
@@ -925,10 +925,68 @@
             fk: foto.length ? s.fk : undefined
         };
     }
-    /* simpan servis: (1) foto + versi publik terenkripsi ke situs dalam satu commit, (2) data lengkap ke repo privat */
+    /* ---------- part servis yang diambil dari stok (mis. senar) ----------
+       Item part dengan stok_id mengurangi stok SAAT SERVIS DISIMPAN (part sudah diambil dari rak dan dipasang).
+       Dihitung sebagai selisih antara versi servis di repo dan versi baru, jadi Simpan berulang aman; part dihapus,
+       jumlah dikurangi, servis dibatalkan, atau servis dihapus mengembalikan stoknya. Catatan penjualan di stok (servis_id)
+       dipakai untuk untung per barang dan Rekap. servis.json + stok.json ditulis dalam SATU commit atomik. */
+    function qtyStokServis(s) {
+        var m = {};
+        if (s && s.status !== 'batal') (s.items || []).forEach(function (i) {
+            if (!i.stok_id || i.jenis !== 'part') return;
+            var q = Math.max(1, Math.round(+i.qty || 1)), x = m[i.stok_id] = m[i.stok_id] || { qty: 0, total: 0, nama: i.nama };
+            x.qty += q; x.total += (+i.harga || 0) * q;
+        });
+        return m;
+    }
+    L.adaStokServis = function (s) { return !!(s && (s.items || []).some(function (i) { return i.stok_id && i.jenis === 'part'; })); };
+    /* qty part stok yang sudah dipakai servis ini (versi tersimpan), untuk menghitung sisa yang bisa dipilih di layar */
+    L.qtyStokServis = function (s, stokId) { var x = qtyStokServis(s)[stokId]; return x ? x.qty : 0; };
+    function terapkanStokServis(lama, baru, stokList, rec, hari) {
+        var a = qtyStokServis(lama), b = qtyStokServis(baru), diubah = {};
+        Object.keys(Object.assign({}, a, b)).forEach(function (id) {
+            var x = b[id], d = (x ? x.qty : 0) - (a[id] ? a[id].qty : 0), s = cari(stokList, id), nama = (x || a[id]).nama;
+            if (!s) { if (d > 0) throw new Error('Part ' + nama + ' tidak ada lagi di stok.'); return; }
+            if (d > 0 && (+s.jumlah || 0) < d) throw new Error('Stok ' + nama + ' tinggal ' + (+s.jumlah || 0) + '.');
+            var pj = s.penjualan || [], ada = pj.filter(function (p) { return p.servis_id === rec.id; })[0];
+            var p = x ? { id: rec.id + '-sv', tgl: ada ? ada.tgl : hari || L.hariIni(), qty: x.qty, harga: Math.round(x.total / x.qty), catatan: rec.kode + ' · servis' + (rec.nama ? ' · ' + rec.nama : ''), servis_id: rec.id } : null;
+            if (!d && JSON.stringify(ada || null) === JSON.stringify(p)) return;
+            s.jumlah = (+s.jumlah || 0) - d;
+            s.penjualan = pj.filter(function (q) { return q.servis_id !== rec.id; }).concat(p ? [p] : []);
+            diubah[s.id] = s;
+        });
+        return diubah;
+    }
+    L._terapkanStokServis = terapkanStokServis;
+    /* kait simpanDaftar: baca stok.json + jual.json dari repo di dalam commit yang sama, tulis stok.json bila berubah */
+    function ekstraStokServis(rec, hapus, hasil) {
+        return function (baca, diFile) {
+            hasil.stok = null;
+            if (!L.adaStokServis(rec) && !L.adaStokServis(diFile)) return [];
+            return Promise.all([baca('stok.json'), baca('jual.json')]).then(function (r) {
+                var stok = r[0] ? JSON.parse(r[0]) : [], jual = r[1] ? JSON.parse(r[1]) : [];
+                var diubah = terapkanStokServis(diFile, hapus ? null : rec, stok, rec);
+                aturStatusStok(diubah, jual, new Date().toISOString());
+                hasil.stok = stok;
+                return Object.keys(diubah).length ? [{ path: 'stok.json', teks: JSON.stringify(stok, null, 1) + '\n' }] : [];
+            });
+        };
+    }
+    /* setelah servis tersimpan: stok di memori + katalog situs mengikuti stok terbaru (file katalog hanya ditulis bila berbeda) */
+    function lanjutStokServis(rec, hasil, nilai) {
+        if (!hasil.stok) return nilai;
+        data.stok = gabungStok(hasil.stok);
+        return fileKatalogDari(hasil.stok).then(function (kat) { return commitBila('situs', kat, 'Katalog: stok part servis'); }).then(function () { return nilai; }, function (e) {
+            e.sebagian = true; e.rec = salin(rec);
+            e.message = 'Servis dan stok tersimpan, tapi katalog di situs belum diperbarui: ' + e.message + ' Tekan Simpan sekali lagi.';
+            throw e;
+        });
+    }
+
+    /* simpan servis: (1) foto + versi publik terenkripsi ke situs dalam satu commit, (2) data lengkap ke repo privat (+ stok part bila ada) */
     L.api.simpanServis = function (rec, fotoBaru) {
         rec = salin(rec);
-        var dv = ambilDasar(rec), dasar = dv.d, sekarang = new Date().toISOString(), lama = cari(data.servis, rec.id), files = { situs: [], data: [] }, t = L.hariIni();
+        var dv = ambilDasar(rec), dasar = dv.d, sekarang = new Date().toISOString(), lama = cari(data.servis, rec.id), files = { situs: [], data: [] }, t = L.hariIni(), stokH = {};
         siapkanBaru(rec, data.servis, 'AYR', sekarang);
         L.kunciServis(rec.kode, L.hp4(rec.hp)); /* mulai hitung kunci (lambat) bersamaan dengan enkripsi foto */
         if (!rec.fk) rec.fk = b64(crypto.getRandomValues(new Uint8Array(32)));
@@ -938,11 +996,12 @@
         return cekBentrok('servis', rec, dasar, lama)
             .then(function () { return unggahTerkunci(rec, fotoBaru || [], 'data/foto/', files.situs, function (fb) { return { keterangan: fb.keterangan || '', tampil: fb.tampil !== false, created_at: sekarang }; }); })
             .then(function () { hapusFotoHilang(lama, rec, files); return filePublik('servis', rec, lama, versiPublik, files.situs); })
-            .then(function () { return simpanDua('servis', rec, files, 'Servis: perbarui data pelanggan', false, dasar); }).catch(tandaiRec(rec, dasar));
+            .then(function () { return simpanDua('servis', rec, files, 'Servis: perbarui data pelanggan', false, dasar, ekstraStokServis(rec, false, stokH)); })
+            .then(function (r) { return lanjutStokServis(rec, stokH, r); }).catch(tandaiRec(rec, dasar));
     };
     L.api.hapusServis = function (rec) {
-        var files = hapusFoto(rec.foto || [], { situs: rec.pubId ? [{ path: 'data/servis/' + rec.pubId + '.json', hapus: true }] : [], data: [] });
-        return hapusDua('servis', rec, files, 'Servis: hapus data pelanggan');
+        var files = hapusFoto(rec.foto || [], { situs: rec.pubId ? [{ path: 'data/servis/' + rec.pubId + '.json', hapus: true }] : [], data: [] }), stokH = {};
+        return hapusDua('servis', rec, files, 'Servis: hapus data pelanggan', ekstraStokServis(rec, true, stokH)).then(function (r) { return lanjutStokServis(rec, stokH, r); });
     };
 
     /* ---------- beli dengan hak tebus ----------
@@ -2063,7 +2122,12 @@
             });
         };
     }
-    bisaAntri('simpanServis', function (rec) { taruhLokal(data.servis, rec); });
+    bisaAntri('simpanServis', function (rec) {
+        var lama = cari(data.servis, rec.id), stok = salin(data.stok);
+        var diubah = terapkanStokServis(lama, rec, stok, rec);
+        taruhLokal(data.servis, rec); data.stok = stok;
+        aturStatusStok(diubah, data.jual, rec.updated_at);
+    });
     bisaAntri('simpanAbsen', function (rec) { taruhLokal(data.absen, rec); });
     bisaAntri('simpanJual', function (rec) {
         /* stok di perangkat ikut dikurangi/dikembalikan supaya barang yang sama tidak terjual dua kali saat offline */

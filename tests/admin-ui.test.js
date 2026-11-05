@@ -40,7 +40,7 @@ test('pilih dari kontak: tombol di form servis, tebus/titip, jual, dan sewa; han
     assert.match(kode, /function bisaPilihKontak\(\) \{ return kontakAplikasi\(\) \|\| !!\(navigator\.contacts && typeof navigator\.contacts\.select === 'function' && window\.ContactsManager\); \}/);
     assert.match(kode, /\(\+m\[1\] > 1 \|\| \(\+m\[1\] === 1 && \+m\[2\] >= 4\)\)/, 'aplikasi: hanya versi 1.4.0 ke atas');
     assert.match(kode, /kirimKeAplikasi\('pilihKontak', \{\}\)/); assert.match(kode, /window\.addEventListener\('ayri-kontak'/);
-    assert.match(kode, /return bisaPilihKontak\(\) \? '<div class="ly-btns">/, 'tanpa dukungan browser: tombol tidak ditampilkan');
+    assert.match(kode, /return bisaPilihKontak\(\) \? '<div class="ly-btns ly-kontak">/, 'tanpa dukungan browser: tombol tidak ditampilkan');
     for (const pasangan of ['[data-f="nama"]', '[data-t="nama"]', '#jb-nama', '[data-w="nama"]']) assert.ok(kode.includes("tombolKontak('" + pasangan), 'tombol kontak untuk ' + pasangan);
     assert.match(kode, /navigator\.contacts\.select\(\['name', 'tel'\], \{ multiple: false \}\)/, 'hanya nama dan nomor yang diminta, satu kontak');
 });
