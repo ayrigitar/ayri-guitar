@@ -28,3 +28,11 @@ test('desain halaman edit mengikuti referensi: gaya khusus body.ly-detail, Pelan
     assert.match(css, /body\.ly-detail \.ly-dua__kanan > \.ly-save \.ly-dirty \{\s*position: absolute;/, 'Belum disimpan: label kecil di pojok tombol, tidak gepeng');
     assert.match(css, /body\.ly-detail \.ly-dua \{ grid-template-columns: minmax\(0, 65fr\) minmax\(300px, 35fr\)/);
 });
+
+test('Pilih dari kontak ada di bawah kolom No. HP (semua form), ikon garis, tanpa jarak dobel di judul kartu', () => {
+    const adm = baca('admin.js'), css = baca('layanan.css');
+    assert.ok(!/<\/legend>' \+ tombolKontak\(/.test(adm), 'tidak lagi di atas Nama');
+    assert.equal((adm.match(/tombolKontak\('/g) || []).length, 5, 'servis, tebus, titip, jual, sewa');
+    assert.match(adm, /kontak: '<circle/);
+    assert.match(css, /body\.ly-detail \.ly-card\.ly-f > legend \{ margin-bottom: 0; \}/);
+});
