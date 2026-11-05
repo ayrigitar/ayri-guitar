@@ -34,7 +34,12 @@
         bagikan: '<circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="6" r="2.5"/><circle cx="18" cy="18" r="2.5"/><path d="M8.2 10.8l7.6-3.6M8.2 13.2l7.6 3.6"/>',
         luar: '<path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/>',
         stok: '<path d="M3 7.5 12 3l9 4.5v9L12 21l-9-4.5z"/><path d="M3 7.5 12 12l9-4.5M12 12v9"/>',
-        surat: '<path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5M9 13h7M9 17h4"/>'
+        surat: '<path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5M9 13h7M9 17h4"/>',
+        tanggal: '<path d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5"/>',
+        uang: '<rect x="2.5" y="6" width="19" height="12" rx="2"/><circle cx="12" cy="12" r="2.8"/><path d="M5.5 9v.01M18.5 15v.01"/>',
+        jam: '<circle cx="12" cy="12" r="9"/><path d="M12 6.5V12l3.5 2"/>',
+        lonceng: '<path d="M6 9a6 6 0 0 1 12 0c0 4.5 1.5 6 2 7H4c.5-1 2-2.5 2-7z"/><path d="M10 19a2 2 0 0 0 4 0"/>',
+        amplop: '<rect x="3" y="5.5" width="18" height="13" rx="2"/><path d="m3.5 7 8.5 6 8.5-6"/>'
     };
     function ikon(n) { return '<svg viewBox="0 0 24 24" aria-hidden="true">' + IKON[n] + '</svg>'; }
     /* tombol kecil hanya berikon (kirim = bagikan poster/penawaran, tautan = salin/bagikan link); label untuk pembaca layar dan tooltip */
@@ -1372,16 +1377,32 @@
         $$('#tampilan button').forEach(function (b) { b.setAttribute('aria-pressed', b.dataset.v === tampilSv); });
         $('#filter').hidden = tampilSv === 'papan';
         if (tampilSv === 'papan') { $('#list').innerHTML = gambarPapan(rows, c, hari); return; }
-        $('#list').innerHTML = hasil.length ? hasil.map(function (s) {
-            var h = L.hitung(s, s.items, s.bayar), beres = L.beres(s), telat = s.estimasi && s.estimasi < hari && ['menunggu_dp', 'antri', 'dikerjakan'].indexOf(s.status) > -1;
-            var bayar = !h.total ? 'Biaya belum diisi' : h.lunas ? 'Lunas' : h.kurangAwal && !beres ? '<span class="ly-warn">Bayar awal kurang ' + L.rupiah(h.kurangAwal) + '</span>' : 'Sisa ' + L.rupiah(h.sisa);
-            return '<div class="ly-item"><a class="ly-item__a" href="#servis/' + E(s.id) + '"><span class="ly-item__k">' + E(s.kode) + '</span></a><span class="st-chip st-' + s.status + '">' + E(L.STATUS[s.status].label) + '</span>' +
-                '<span class="ly-item__t">' + E(L.namaGitar(s, 'Gitar')) + ' · ' + E(s.nama) + '</span>' +
-                '<span class="ly-item__m"><span>Masuk ' + L.tgl(s.tgl_masuk) + '</span>' + (s.estimasi && !beres ? '<span' + (telat ? ' class="ly-telat"' : '') + '>Estimasi ' + L.tgl(s.estimasi) + (telat ? ' (lewat)' : '') + '</span>' : '') + '<span>' + bayar + '</span></span>' +
-                (s.status === 'selesai' ? infoTitip(s, hari) : '') + (tombolPosterServis(s) ? '<span class="ly-item__b">' + tombolPosterServis(s) + '</span>' : '') + '</div>';
-        }).join('') : '<p class="ly-kosong">' + (rows.length ? 'Tidak ada yang cocok.' : 'Belum ada data servis. Tekan “+ Gitar masuk”.') + '</p>';
+        $('#list').innerHTML = hasil.length ? hasil.map(function (s) { return kartuServis(s, hari); }).join('') : '<p class="ly-kosong">' + (rows.length ? 'Tidak ada yang cocok.' : 'Belum ada data servis. Tekan “+ Gitar masuk”.') + '</p>';
     }
-    /* baris penitipan + tombol pengingat untuk gitar yang sudah selesai */
+    /* kartu servis (tampilan Daftar): nama pelanggan sebagai judul, baris berikon (tanggal masuk, tagihan, estimasi, penitipan, pengingat) hanya bila relevan,
+       lalu tombol utama (pengingat) dan ikon bagikan poster sesuai status */
+    function baris(kls, ik, isi) { return '<li' + (kls ? ' class="' + kls + '"' : '') + '><span class="sv-i" aria-hidden="true">' + ikon(ik) + '</span><span>' + isi + '</span></li>'; }
+    function kartuServis(s, hari) {
+        var h = L.hitung(s, s.items, s.bayar), beres = L.beres(s), telat = s.estimasi && s.estimasi < hari && ['menunggu_dp', 'antri', 'dikerjakan'].indexOf(s.status) > -1;
+        var t = s.status === 'selesai' ? L.titip(s, hari) : null, akhir = (s.pengingat || []).slice(-1)[0], perlu = t && L.perluIngat(s, hari);
+        var info = baris('', 'tanggal', 'Masuk: <b>' + L.tgl(s.tgl_masuk) + '</b>');
+        if (!h.total) info += baris('sv-warn', 'uang', 'Biaya belum diisi');
+        else if (h.lunas) info += baris('sv-ok', 'uang', '<b>Lunas</b>');
+        else if (h.kurangAwal && !beres) info += baris('sv-warn', 'uang', 'Bayar awal kurang <b>' + L.rupiah(h.kurangAwal) + '</b>');
+        else info += baris('sv-bad', 'uang', 'Sisa tagihan: <b>' + L.rupiah(h.sisa) + '</b>');
+        if (s.estimasi && !beres) info += baris(telat ? 'sv-bad' : '', 'jam', 'Estimasi ' + L.tgl(s.estimasi) + (telat ? ' <b>(lewat)</b>' : ''));
+        if (t) {
+            info += baris(t.hariBiaya || t.lepas || t.garansiHangus ? 'sv-bad' : 'sv-warn', 'jam', 'Selesai ' + t.lama + ' hari lalu · ' + (t.hariBiaya ? '<b>Biaya titip ' + t.hariBiaya + ' hari = ' + L.rupiah(t.biaya) + '</b>' : 'Gratis titip s/d ' + L.tgl(t.batasGratis) + ' (' + t.sisaGratis + ' hari lagi)') +
+                (t.garansiHangus ? ' · <b>Garansi hangus</b>' : '') + (t.lepas ? ' · <b>Lewat ' + C.penyimpananLamaHari + ' hari</b>' : ''));
+            if (akhir) info += baris('sv-muted', 'lonceng', 'Diingatkan: ' + L.tgl(akhir));
+        }
+        var aksi = (t ? '<button type="button" class="ly-btn ' + (perlu ? 'ly-btn--wa' : 'ly-btn--pri') + '" data-ingat="' + E(s.id) + '">' + ikon('amplop') + (perlu ? 'Ingatkan via WA' : 'Kirim pengingat') + '</button>' : '') + tombolPosterServis(s);
+        return '<div class="sv-k"><a class="sv-k__a" href="#servis/' + E(s.id) + '"><span class="sv-k__top"><span class="sv-kode"><span class="sv-i" aria-hidden="true">' + ikon('surat') + '</span>' + E(s.kode) + '</span>' +
+            '<span class="st-chip st-' + s.status + '">' + E(L.STATUS[s.status].label) + '</span></span>' +
+            '<b class="sv-k__nama">' + E(s.nama || 'Tanpa nama') + '</b><span class="sv-k__gitar">' + E(L.namaGitar(s, 'Gitar')) + '</span></a>' +
+            '<ul class="sv-k__info">' + info + '</ul>' + (aksi ? '<div class="sv-k__aksi">' + aksi + '</div>' : '') + '</div>';
+    }
+    /* baris penitipan + tombol pengingat untuk gitar yang sudah selesai (dipakai tampilan lama; kartu Daftar memakai kartuServis) */
     function infoTitip(s, hari) {
         var t = L.titip(s, hari); if (!t) return '';
         var teks = t.hariBiaya ? '<span class="ly-telat">Biaya titip ' + t.hariBiaya + ' hari = ' + L.rupiah(t.biaya) + '</span>' : '<span>Gratis titip s/d ' + L.tgl(t.batasGratis) + ' (' + t.sisaGratis + ' hari lagi)</span>';

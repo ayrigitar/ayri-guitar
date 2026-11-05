@@ -896,3 +896,28 @@ html[data-theme="dark"] .rk-naik { color: #5CD196 !important; }
 .ks-cari-baris .ks-cari { flex: 1; min-width: 0; }
 .ks-jasa { flex: none; white-space: nowrap; }
 .ks-jasa-f { display: grid; gap: 10px; }
+
+/* kartu servis (tampilan Daftar): judul nama pelanggan, baris berikon berwarna, tombol utama + bagikan */
+.sv-k { position: relative; display: grid; gap: 12px; padding: 16px; border: 1px solid var(--line); border-radius: var(--r-lg); background: var(--surface); box-shadow: var(--shadow-sm); }
+.sv-k__a { display: grid; gap: 3px; color: inherit; }
+.sv-k__a::after { content: ""; position: absolute; inset: 0; border-radius: inherit; }
+.sv-k__top { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
+.sv-kode { display: inline-flex; align-items: center; gap: 6px; color: var(--ink-3); font: 700 .75rem var(--font-sans); letter-spacing: .06em; }
+.sv-k__nama { font: 700 1.1875rem/1.2 var(--font-display); color: var(--ink); }
+.sv-k__gitar { color: var(--ink-3); font-size: .875rem; font-weight: 500; }
+.sv-k__info { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; font-size: .875rem; color: var(--ink-2); }
+.sv-k__info li { display: flex; align-items: flex-start; gap: 10px; }
+.sv-i svg { display: block; width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+.sv-k__info .sv-i { flex: none; margin-top: 2px; color: var(--ink-3); }
+.sv-k__info .sv-bad, .sv-k__info .sv-bad .sv-i { color: #B42318; }
+.sv-k__info .sv-warn, .sv-k__info .sv-warn .sv-i { color: #B45309; }
+.sv-k__info .sv-ok, .sv-k__info .sv-ok .sv-i { color: #15803D; }
+.sv-k__info .sv-muted { color: var(--ink-3); }
+html[data-theme="dark"] .sv-k__info .sv-bad, html[data-theme="dark"] .sv-k__info .sv-bad .sv-i { color: #F87171; }
+html[data-theme="dark"] .sv-k__info .sv-warn, html[data-theme="dark"] .sv-k__info .sv-warn .sv-i { color: #FBBF77; }
+html[data-theme="dark"] .sv-k__info .sv-ok, html[data-theme="dark"] .sv-k__info .sv-ok .sv-i { color: #6EE7A0; }
+.sv-k__aksi { position: relative; z-index: 1; display: flex; gap: 8px; padding-top: 12px; border-top: 1px solid var(--line); }
+.sv-k__aksi .ly-btn { min-height: 44px; }
+.sv-k__aksi .ly-btn:not(.ly-btn--ikon) { flex: 1 1 auto; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+.sv-k__aksi .ly-btn--ikon { flex: none; margin-left: auto; }
+.sv-k__aksi .ly-btn svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
