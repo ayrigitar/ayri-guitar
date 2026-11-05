@@ -85,7 +85,7 @@ test('poster: doodle musik di latar, bubble fitur separuh di luar foto dengan wa
     const js = require('fs').readFileSync(require('path').join(__dirname, '..', 'admin.js'), 'utf8'), sw = require('fs').readFileSync(require('path').join(__dirname, '..', 'sw.js'), 'utf8');
     for (const j of ['akustik', 'listrik', 'bass', 'ukulele', 'amp', 'headphone', 'radio', 'mikrofon', 'vinyl', 'not1', 'not2']) assert.ok(js.includes('        ' + j + ': function (c)') || js.includes('        ' + j + ': function (c) {'), 'doodle ' + j);
     assert.ok(js.includes('latarDoodle(c, benih)'), 'doodle digambar di latar semua poster');
-    assert.equal((js.match(/kanvasPoster\((?!benih)[^)]+\)/g) || []).length, 3, 'tiga poster memberi benih judul');
+    assert.equal((js.match(/kanvasPoster\((?!benih)[^)]+\)/g) || []).length, 4, 'empat poster memberi benih judul (barang, seri, artikel, servis)');
     assert.match(js, /pusat = Math\.min\(tepi, 1066 - bw \/ 2\)/, 'bubble berpusat di tepi foto');
     assert.match(js, /var WARNA_BUBBLE = \[\[.*\], \[.*\], \[.*\], \[.*\]\]/, 'empat warna bubble');
     assert.match(sw, /new Request\(req, \{ cache: 'no-cache' \}\)/);

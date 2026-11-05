@@ -779,7 +779,7 @@
                     (ki > 0 ? '<button type="button" data-geser="-1" aria-label="Pindah ke ' + E(KOLOM[ki - 1][1]) + '" title="Ke ' + E(KOLOM[ki - 1][1]) + '">‹</button>' : '') +
                     (ki < KOLOM.length - 1 ? '<button type="button" data-geser="1" aria-label="Pindah ke ' + E(KOLOM[ki + 1][1]) + '" title="Ke ' + E(KOLOM[ki + 1][1]) + '">›</button>' : '') + '</div></div>' +
                     (k[0] === 'selesai' ? '<div class="kb-k__c">' + (h.sisa ? '<a class="ly-btn ly-btn--sm" href="#kasir" data-kasir="' + E(s.id) + '">Bayar di kasir</a>' : '') +
-                        '<button type="button" class="ly-btn ly-btn--sm' + (L.perluIngat(s, hari) ? ' ly-btn--wa' : '') + '" data-ingat="' + E(s.id) + '">' + (L.perluIngat(s, hari) ? 'Ingatkan via WA' : 'Pengingat') + '</button></div>' : '') + '</div>';
+                        '<button type="button" class="ly-btn ly-btn--sm' + (L.perluIngat(s, hari) ? ' ly-btn--wa' : '') + '" data-ingat="' + E(s.id) + '">' + (L.perluIngat(s, hari) ? 'Ingatkan via WA' : 'Pengingat') + '</button>' + tombolPosterServis(s) + '</div>' : tombolPosterServis(s) ? '<div class="kb-k__c">' + tombolPosterServis(s) + '</div>' : '') + '</div>';
             }).join('') : '<p class="kb-kosong">Tidak ada</p>') + (lebih ? '<p class="kb-kosong">+' + lebih + ' lagi di tampilan Daftar</p>' : '') + '</div></div>';
         }).join('') + '</div>';
     }
@@ -1343,6 +1343,7 @@
         $('#list').addEventListener('click', function (e) {
             var b = e.target.closest('[data-ingat]'); if (b) { e.preventDefault(); catatPengingat('servis', b.dataset.ingat, b); return; }
             var g = e.target.closest('[data-geser]'); if (g) { e.preventDefault(); geserServis(g.closest('[data-id]').dataset.id, +g.dataset.geser, g.closest('.kb-k')); return; }
+            var ps = e.target.closest('[data-poster-sv]'); if (ps) { e.preventDefault(); bagikanServis(cariId('servis', ps.dataset.posterSv), ps); return; }
             var k = e.target.closest('[data-kasir]'); if (k) { e.preventDefault(); keKasir(k.dataset.kasir); }
         });
         $('#tampilan').addEventListener('click', function (e) { var b = e.target.closest('[data-v]'); if (!b) return; tampilSv = b.dataset.v; try { localStorage.setItem('ayri-admin-tampilan', tampilSv); } catch (x) {} gambarDaftar(); });
@@ -1377,7 +1378,7 @@
             return '<div class="ly-item"><a class="ly-item__a" href="#servis/' + E(s.id) + '"><span class="ly-item__k">' + E(s.kode) + '</span></a><span class="st-chip st-' + s.status + '">' + E(L.STATUS[s.status].label) + '</span>' +
                 '<span class="ly-item__t">' + E(L.namaGitar(s, 'Gitar')) + ' · ' + E(s.nama) + '</span>' +
                 '<span class="ly-item__m"><span>Masuk ' + L.tgl(s.tgl_masuk) + '</span>' + (s.estimasi && !beres ? '<span' + (telat ? ' class="ly-telat"' : '') + '>Estimasi ' + L.tgl(s.estimasi) + (telat ? ' (lewat)' : '') + '</span>' : '') + '<span>' + bayar + '</span></span>' +
-                (s.status === 'selesai' ? infoTitip(s, hari) : '') + '</div>';
+                (s.status === 'selesai' ? infoTitip(s, hari) : '') + (tombolPosterServis(s) ? '<span class="ly-item__b">' + tombolPosterServis(s) + '</span>' : '') + '</div>';
         }).join('') : '<p class="ly-kosong">' + (rows.length ? 'Tidak ada yang cocok.' : 'Belum ada data servis. Tekan “+ Gitar masuk”.') + '</p>';
     }
     /* baris penitipan + tombol pengingat untuk gitar yang sudah selesai */
@@ -2899,6 +2900,57 @@
             return jpegPoster(kv.cv);
         });
     }
+    /* ---------- poster servis untuk pemasaran (Story WhatsApp / Instagram) ----------
+       Hanya dua jenis, sesuai status: "Sedang dikerjakan" (status Dikerjakan) dan "Hasil servis" (Selesai / Diambil, sebelum & sesudah).
+       Publik: TANPA nama, nomor HP, kode, dan harga; hanya nama jasa. Wajib centang "Pelanggan setuju foto gitarnya dipakai" di form servis.
+       Untuk kabar ke pelanggan sudah ada draf WhatsApp, jadi poster ini khusus pemasaran. */
+    function modePosterServis(s) { return s.status === 'dikerjakan' ? 'proses' : (s.status === 'selesai' || s.status === 'diambil') ? 'hasil' : null; }
+    function jasaPoster(s) {
+        var ada = {}, hasil = [];
+        (s.items || []).forEach(function (i) {
+            var n = String(i.nama || '').replace(/\s+/g, ' ').trim();
+            if (i.jenis !== 'jasa' || !n || /^biaya penitipan/i.test(n) || ada[n.toLowerCase()]) return;
+            ada[n.toLowerCase()] = 1; hasil.push(n);
+        });
+        return hasil;
+    }
+    /* foto poster servis: urutan gitar, sebelum, sesudah (cocok dengan selFotoPoster); "sedang dikerjakan" cukup satu foto */
+    function fotoPosterServis(s, mode) {
+        var f = s.foto || [], ambil = function (t) { return f.filter(function (x) { return L.tahapFoto(x) === t; })[0]; };
+        var g = ambil('gitar'), sb = ambil('sebelum'), ss = ambil('sesudah');
+        if (mode === 'proses') { var satu = g || sb || ss; return satu ? [{ f: satu, label: '' }] : []; }
+        var d = []; if (g) d.push({ f: g, label: '' }); if (sb) d.push({ f: sb, label: 'SEBELUM' }); if (ss) d.push({ f: ss, label: 'SESUDAH' });
+        return d;
+    }
+    function buatPosterServis(o) {
+        var s = o.s, mode = o.mode, daftar = fotoPosterServis(s, mode), judul = L.namaGitar(s, 'Gitar'), jasa = jasaPoster(s), tag = mode === 'proses' ? 'SEDANG DIKERJAKAN' : 'HASIL SERVIS';
+        return Promise.all([Promise.all(daftar.map(function (d) { return muatFotoPoster(s, d.f).catch(function () { return null; }); })), muatLogoPoster(), siapFontPoster()]).then(function (r) {
+            var im = r[0], logo = r[1][0], kv = kanvasPoster(judul + tag), c = kv.c, jl = barisJudul(c, judul, 2);
+            c.font = '600 34px ' + SANS;
+            var baris = jasa.slice(0, 5).map(function (n) { return barisTeks(c, '•  ' + n, 980, 1)[0]; });
+            if (jasa.length > 5) baris.push('dan ' + (jasa.length - 5) + ' pekerjaan lainnya');
+            var fh = tinggiFoto(70 + jl.length * 76 + 48 + (baris.length ? baris.length * 46 + 8 : 0)), sel = selFotoPoster(Math.max(1, daftar.length), fh), ada = 0;
+            im.forEach(function (foto, n) { if (foto) { bingkaiFoto(c, foto, sel[n], daftar[n].label); ada++; } });
+            if (!ada) fotoKosong(c, r[1][1], sel[0]);
+            var y = 215 + fh + 44; lencana(c, 50, y, tag); y += 70;
+            y = garisEmas(c, judulPoster(c, jl, y));
+            c.fillStyle = TEMA.tinta2; c.font = '600 34px ' + SANS; baris.forEach(function (b) { y += 46; c.fillText(b, 50, y - 6); });
+            pitaBawah(c, logo, 'Servis gitar di ');
+            return jpegPoster(kv.cv);
+        });
+    }
+    function teksPosterServis(s, mode) {
+        var jasa = jasaPoster(s), judul = L.namaGitar(s, 'Gitar');
+        return (mode === 'proses' ? 'Lagi dikerjakan di bengkel ' + C.toko.nama + ': ' + judul : 'Hasil servis ' + judul + ' di ' + C.toko.nama) +
+            (jasa.length ? '\nPekerjaan: ' + jasa.join(', ') : '') + '\n\nServis gitar di ' + C.toko.nama + ', ' + C.toko.alamat + '\nTanya / booking: https://wa.me/' + C.toko.wa;
+    }
+    function bagikanServis(s, tombol) {
+        var mode = s && modePosterServis(s); if (!mode) return;
+        if (!s.izin_publikasi) return toast('Pelanggan belum setuju fotonya dipakai. Centang "Pelanggan setuju foto gitarnya dipakai" di form servis dulu.', true);
+        if (!fotoPosterServis(s, mode).length) return toast('Belum ada foto servis. Tambahkan foto (Gitar / Sebelum / Sesudah) di form servis dulu.', true);
+        bagikanPoster(s, teksPosterServis(s, mode), { servis: { s: s, mode: mode } }, tombol);
+    }
+    function tombolPosterServis(s) { var m = modePosterServis(s); return m ? tombolIkon('poster-sv', s.id, 'kirim', m === 'proses' ? 'Bagikan poster: sedang dikerjakan' : 'Bagikan poster: hasil servis') : ''; }
     /* WhatsApp / chat: cukup TAUTAN (tampil sebagai kartu pratinjau yang bisa diketuk). Di browser lewat menu bagikan; di aplikasi & PC lewat WhatsApp tanpa nomor */
     function bagikanLinkArtikel(a) {
         if (a.status !== 'terbit') return toast('Hanya artikel yang sudah terbit yang bisa dibagikan.', true);
@@ -2932,6 +2984,7 @@
     function buatPoster(s, opsi) {
         if (opsi && opsi.artikel) return buatPosterArtikel(opsi.artikel);
         if (opsi && opsi.seri) return buatPosterSeri(opsi.seri);
+        if (opsi && opsi.servis) return buatPosterServis(opsi.servis);
         var sewa = opsi && opsi.sewa, sold = opsi && opsi.terjual, aksPoster = s.kategori === 'aksesoris'; /* aksesoris: tanpa lencana BARU/kategori (sudah ada di judul) */ /* sold = poster gitar yang sudah terjual: cap SOLD, tanpa harga dan tanpa data pembeli */
         var fp = (s.foto || []).filter(function (f) { return f.repo === 'publik'; })[0];
         var judul = L.judulStok(s), foto = fp ? muatFotoPoster(s, fp) : Promise.resolve(null);
@@ -3051,7 +3104,7 @@
     function teksTerjual(s) { return L.judulStok(s) + (s.warna ? ' (' + s.warna + ')' : '') + ' – SOLD\nTerima kasih atas kepercayaannya!\nCari gitar serupa? Lihat koleksi: ' + L.situs() + 'katalog.html\nTanya / pesan: https://wa.me/' + C.toko.wa; }
     function bagikanTerjual(s, tombol) { bagikanPoster(s, teksTerjual(s), { terjual: true }, tombol); }
     function bagikanPoster(s, teks, opsi, tombol) {
-        var nama = 'ayri-' + (opsi && opsi.artikel ? 'artikel-' + String(opsi.artikel.slug || 'artikel').slice(0, 60) : opsi && opsi.seri ? 'seri-' + opsi.seri.grup : (opsi && opsi.sewa ? 'sewa-' : opsi && opsi.terjual ? 'sold-' : '') + String(s.kode || 'barang').toLowerCase()) + '.jpg';
+        var nama = 'ayri-' + (opsi && opsi.artikel ? 'artikel-' + String(opsi.artikel.slug || 'artikel').slice(0, 60) : opsi && opsi.seri ? 'seri-' + opsi.seri.grup : opsi && opsi.servis ? 'servis-' + opsi.servis.mode + '-' + idAcak().slice(-5) : (opsi && opsi.sewa ? 'sewa-' : opsi && opsi.terjual ? 'sold-' : '') + String(s.kode || 'barang').toLowerCase()) + '.jpg';
         if (tombol) sibuk(tombol, true, 'Menyiapkan…');
         function lepas() { if (tombol) sibuk(tombol, false); }
         /* PC / browser tanpa menu bagikan berkas: tanpa unduhan gambar, kirim teks penawaran lewat WhatsApp */
