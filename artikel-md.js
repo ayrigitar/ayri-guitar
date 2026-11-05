@@ -46,5 +46,54 @@
         if (t.length > 80) t = (t.charAt(80) === '-' ? t.slice(0, 80) : t.slice(0, 80).replace(/-[^-]*$/, '')) || t.slice(0, 80);
         return t.replace(/-+$/, '');
     }
-    root.ArtikelMd = { keHtml: keHtml, teksPolos: teksPolos, slug: slug, esc: esc };
+    /* jumlah kata (tanpa tanda format) dan perkiraan menit baca (±200 kata per menit) */
+    function hitung(teks) {
+        var p = teksPolos(teks), kata = p ? p.split(' ').length : 0;
+        return { kata: kata, menit: kata ? Math.max(1, Math.round(kata / 200)) : 0 };
+    }
+    /* Tombol format editor: ubah teks di sekitar pilihan [awal, akhir).
+       Hasil: ganti teks[dari, sampai) dengan sisip, lalu pilih [pilihA, pilihB) di teks baru. */
+    var BUNGKUS = { tebal: ['**', 'teks tebal'], miring: ['_', 'teks miring'] };
+    var AWALAN = { judul: '## ', sub: '### ', poin: '- ', nomor: '1. ', kutip: '> ' };
+    var POLA_AWALAN = /^(#{2,3}\s+|[-*•]\s+|\d+[.)]\s+|>\s?)/;
+    function format(teks, awal, akhir, jenis) {
+        teks = String(teks || ''); awal = Math.max(0, Math.min(awal, teks.length)); akhir = Math.max(awal, Math.min(akhir, teks.length));
+        var pilih = teks.slice(awal, akhir);
+        if (BUNGKUS[jenis]) {
+            var t = BUNGKUS[jenis][0], n = t.length;
+            /* spasi di tepi pilihan dibiarkan di luar tanda (**kata** , bukan **kata **) */
+            var kiri = /^\s*/.exec(pilih)[0].length, kanan = /\s*$/.exec(pilih.slice(kiri))[0].length;
+            var a = awal + kiri, b = akhir - kanan, isi = teks.slice(a, b);
+            if (teks.slice(a - n, a) === t && teks.slice(b, b + n) === t && (n > 1 || teks.charAt(a - n - 1) !== t)) /* sudah bertanda: dilepas */
+                return { dari: a - n, sampai: b + n, sisip: isi, pilihA: a - n, pilihB: b - n };
+            if (isi.length > 2 * n && isi.slice(0, n) === t && isi.slice(-n) === t)
+                return { dari: a, sampai: b, sisip: isi.slice(n, -n), pilihA: a, pilihB: b - 2 * n };
+            if (!isi) isi = BUNGKUS[jenis][1];
+            return { dari: a, sampai: b, sisip: t + isi + t, pilihA: a + n, pilihB: a + n + isi.length };
+        }
+        if (jenis === 'tautan') {
+            var url = /^\s*(https?:\/\/\S+|www\.\S+)\s*$/i.exec(pilih);
+            if (url) { var u = /^www\./i.test(url[1]) ? 'https://' + url[1] : url[1]; return { dari: awal, sampai: akhir, sisip: '[teks tautan](' + u + ')', pilihA: awal + 1, pilihB: awal + 12 }; }
+            var label = pilih.trim() || 'teks tautan', s = '[' + label + '](https://)';
+            return { dari: awal, sampai: akhir, sisip: s, pilihA: awal + label.length + 3, pilihB: awal + s.length - 1 };
+        }
+        if (AWALAN[jenis]) {
+            /* per baris yang tersentuh pilihan */
+            var dari = teks.lastIndexOf('\n', awal - 1) + 1, ujung = teks.indexOf('\n', akhir > awal && teks.charAt(akhir - 1) === '\n' ? akhir - 1 : akhir);
+            if (ujung < 0) ujung = teks.length;
+            var baris = teks.slice(dari, ujung).split('\n');
+            var cocok = function (b) { return jenis === 'nomor' ? /^\d+[.)]\s+/.test(b) : b.indexOf(AWALAN[jenis]) === 0 && !(jenis === 'judul' && /^###/.test(b)); };
+            var berisi = baris.filter(function (b) { return b.trim(); }), lepas = berisi.length > 0 && berisi.every(cocok), no = 0;
+            var hasil = baris.map(function (b) {
+                if (!b.trim()) return b;
+                var polos = b.replace(POLA_AWALAN, '');
+                if (lepas) return polos;
+                return (jenis === 'nomor' ? (++no) + '. ' : AWALAN[jenis]) + polos;
+            }).join('\n');
+            if (!berisi.length) { hasil = AWALAN[jenis]; return { dari: dari, sampai: ujung, sisip: hasil, pilihA: dari + hasil.length, pilihB: dari + hasil.length }; }
+            return { dari: dari, sampai: ujung, sisip: hasil, pilihA: baris.length > 1 ? dari : dari + hasil.length, pilihB: dari + hasil.length };
+        }
+        return null;
+    }
+    root.ArtikelMd = { keHtml: keHtml, teksPolos: teksPolos, slug: slug, esc: esc, hitung: hitung, format: format };
 })(this);
