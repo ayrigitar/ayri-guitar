@@ -17,3 +17,14 @@ test('tombol Kabari servis: satu tombol, isi pesan sesuai status, dirakit ulang 
     assert.match(css, /\.ly-f label, \.ly-lbl \{ display: grid; align-content: start;/, 'kotak isian tidak melar mengikuti kolom sebelahnya');
 });
 
+
+test('desain halaman edit mengikuti referensi: gaya khusus body.ly-detail, Pelanggan 2 kolom, Catatan internal di kartu Status, Aksi lainnya kartu sendiri', () => {
+    const adm = baca('admin.js'), css = baca('layanan.css');
+    assert.match(adm, /ly-grid ly-grid--2"><legend>Pelanggan<\/legend>/);
+    assert.match(adm, /bantu\('tip-hp'\)/, 'keterangan HP jadi ikon (i), kolom tidak melar');
+    assert.match(adm, /<h3 class="ly-judul2">Catatan internal<\/h3><textarea class="ly-in" data-f="catatan_admin"/);
+    assert.equal((adm.match(/<\/fieldset><fieldset class="ly-card"><legend>Aksi lainnya<\/legend>/g) || []).length, 3, 'servis, tebus, titip jual');
+    assert.ok(!/ly-pilb/.test(adm + css), 'label Jasa/Part teks biasa seperti referensi');
+    assert.match(css, /body\.ly-detail \.ly-dua__kanan > \.ly-save \.ly-dirty \{\s*position: absolute;/, 'Belum disimpan: label kecil di pojok tombol, tidak gepeng');
+    assert.match(css, /body\.ly-detail \.ly-dua \{ grid-template-columns: minmax\(0, 65fr\) minmax\(300px, 35fr\)/);
+});

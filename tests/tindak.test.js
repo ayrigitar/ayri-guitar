@@ -42,7 +42,7 @@ test('jual barang: terima kasih hanya setelah selesai/diserahkan, bukan DP atau 
 });
 
 test('pesan: nama, garansi, tanpa data pembayaran; tautan ulasan hanya bila diisi', () => {
-    const s = servis();
+    const s = servis(), asli = L.C.toko.ulasan; L.C.toko.ulasan = '';
     const m = L.pesanTindak.servisTerimaKasih(s);
     assert.match(m, /Halo Kak Budi/); assert.match(m, /Garansi servis berlaku sampai/); assert.ok(!/Rp\d/.test(m), 'tanpa harga');
     assert.ok(!/ulasan di Google/.test(m), 'tanpa tautan ulasan saat belum diisi');
@@ -50,7 +50,7 @@ test('pesan: nama, garansi, tanpa data pembayaran; tautan ulasan hanya bila diis
     assert.match(g, /garansi servis gitar/); assert.match(g, /\*1 November 2026\*|\*1 Nov 2026\*/);
     assert.match(L.pesanTindak.jualTerimaKasih({ nama: 'Sari', items: [{ nama: 'Bass', qty: 1 }] }), /terima kasih sudah membeli Bass/);
     L.C.toko.ulasan = 'https://g.page/r/contoh/review';
-    try { assert.match(L.pesanTindak.servisTerimaKasih(s), /ulasan di Google[\s\S]*https:\/\/g\.page\/r\/contoh\/review/); } finally { L.C.toko.ulasan = ''; }
+    try { assert.match(L.pesanTindak.servisTerimaKasih(s), /ulasan di Google[\s\S]*https:\/\/g\.page\/r\/contoh\/review/); } finally { L.C.toko.ulasan = asli; }
 });
 
 test('halaman Hari ini dan Rekap: kelompok Hubungi pelanggan, catat setelah WA dibuka, kartu stok mengendap dan jasa terbanyak', () => {
