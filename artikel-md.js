@@ -5,6 +5,7 @@
      ## Judul bagian        ### Sub-judul
      - poin daftar          1. daftar bernomor
      > kutipan / catatan    **tebal**   _miring_   [teks tautan](https://alamat)
+     [foto 2]  (satu baris sendiri) = foto ke-2 dari daftar foto artikel ditaruh di situ
      baris kosong = paragraf baru */
 (function (root) {
     var esc = root.AYRI_UTIL.esc;
@@ -16,13 +17,16 @@
             .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
             .replace(/(^|[\s(])_([^_]+)_(?=$|[\s).,!?;:])/g, '$1<em>$2</em>');
     }
-    function keHtml(teks) {
+    var POLA_FOTO = /^\[foto\s+(\d{1,3})\]$/i;
+    /* opsi.foto(n) -> HTML foto ke-n (1 = foto pertama); tanpa opsi, penanda foto dilewati */
+    function keHtml(teks, opsi) {
         var out = [], para = [], list = null;
         function tutupPara() { if (para.length) { out.push('<p>' + para.map(inline).join('<br>') + '</p>'); para = []; } }
         function tutupList() { if (list) { out.push('<' + list.tag + '>' + list.li.map(function (x) { return '<li>' + inline(x) + '</li>'; }).join('') + '</' + list.tag + '>'); list = null; } }
         String(teks || '').replace(/\r/g, '').split('\n').forEach(function (baris) {
             var b = baris.trim(), m;
             if (!b) { tutupPara(); tutupList(); return; }
+            if ((m = POLA_FOTO.exec(b))) { tutupPara(); tutupList(); var f = opsi && opsi.foto ? opsi.foto(+m[1]) : ''; if (f) out.push(f); return; }
             if ((m = /^(#{2,3})\s+(.+)$/.exec(b))) { tutupPara(); tutupList(); out.push('<h' + m[1].length + '>' + inline(m[2]) + '</h' + m[1].length + '>'); return; }
             if ((m = /^[-*•]\s+(.+)$/.exec(b)) || (m = /^\d+[.)]\s+(.+)$/.exec(b))) {
                 var tag = /^\d/.test(b) ? 'ol' : 'ul';
@@ -37,7 +41,7 @@
         return out.join('\n');
     }
     function teksPolos(teks) {
-        return String(teks || '').replace(/\[([^\]]+)\]\([^)]*\)/g, '$1').replace(/^#{2,3}\s+|^[-*•>]\s+|^\d+[.)]\s+/gm, '').replace(/\*\*|_/g, '').replace(/\s+/g, ' ').trim();
+        return String(teks || '').replace(/^[ \t]*\[foto\s+\d{1,3}\][ \t]*$/gim, '').replace(/\[([^\]]+)\]\([^)]*\)/g, '$1').replace(/^#{2,3}\s+|^[-*•>]\s+|^\d+[.)]\s+/gm, '').replace(/\*\*|_/g, '').replace(/\s+/g, ' ').trim();
     }
     function slug(s) {
         var t = String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/&/g, ' dan ')
@@ -95,5 +99,23 @@
         }
         return null;
     }
-    root.ArtikelMd = { keHtml: keHtml, teksPolos: teksPolos, slug: slug, esc: esc, hitung: hitung, format: format };
+    /* sisipkan penanda [foto n] di baris sendiri dekat posisi kursor (tidak memotong kalimat) */
+    function sisipFoto(teks, pos, nomor) {
+        teks = String(teks || ''); pos = Math.max(0, Math.min(pos, teks.length));
+        var eol = teks.indexOf('\n', pos), p = pos > 0 && teks.charAt(pos - 1) !== '\n' ? (eol < 0 ? teks.length : eol) : pos;
+        var sblm = teks.slice(0, p), ssdh = teks.slice(p), s = [].concat(nomor).map(function (n) { return '[foto ' + n + ']'; }).join('\n\n');
+        var depan = !sblm ? '' : /\n\n$/.test(sblm) ? '' : /\n$/.test(sblm) ? '\n' : '\n\n';
+        var belakang = !ssdh ? '\n' : /^\n\n/.test(ssdh) ? '' : /^\n/.test(ssdh) ? '\n' : '\n\n';
+        var ujung = p + depan.length + s.length + Math.min(2, /^\n*/.exec(belakang + ssdh)[0].length); /* kursor di awal paragraf sesudah foto */
+        return { dari: p, sampai: p, sisip: depan + s + belakang, pilihA: ujung, pilihB: ujung };
+    }
+    /* urutan foto berubah: peta[indeks lama] = indeks baru (-1 = foto dihapus, penandanya ikut hilang) */
+    function renomorFoto(teks, peta) {
+        return String(teks || '').replace(/^([ \t]*)\[foto\s+(\d{1,3})\][ \t]*(\n|$)/gim, function (m, sp, n, nl) {
+            var baru = peta[+n - 1];
+            if (baru == null) return m;
+            return baru < 0 ? '' : sp + '[foto ' + (baru + 1) + ']' + nl;
+        }).replace(/\n{3,}/g, '\n\n');
+    }
+    root.ArtikelMd = { keHtml: keHtml, teksPolos: teksPolos, slug: slug, esc: esc, hitung: hitung, format: format, sisipFoto: sisipFoto, renomorFoto: renomorFoto };
 })(this);
