@@ -87,3 +87,35 @@ test('penulis artikel: tampil di halaman & data Google; kosong = atas nama toko'
     assert.match(kode, /<label>Penulis<input data-a="penulis" maxlength="60" list="ar-penulis"/);
     assert.match(kode, /function daftarPenulis\(\)/, 'nama yang pernah dipakai muncul sebagai pilihan');
 });
+
+test('foto di sela paragraf: [foto n] tampil di tempatnya, tidak diulang di galeri, artikel lama tetap sama', () => {
+    const sb = { AYRI_UTIL: { esc: s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;') } };
+    vm.createContext(sb); vm.runInContext(baca('artikel-md.js'), sb); vm.runInContext(baca('artikel-builder.js'), sb);
+    const M = sb.ArtikelMd, B = sb.ArtikelBuilder, tpl = baca('scripts/artikel-template.html');
+    const foto = [{ path: 'foto/artikel/a.webp', alt: 'Sampul' }, { path: 'foto/artikel/b.webp', alt: 'Proses' }, { path: 'foto/artikel/c.webp', alt: 'Hasil' }];
+    const h = B.halaman(tpl, { judul: 'T', slug: 't', isi: 'Pembuka\n\n[foto 2]\n\nLanjut\n[foto 1]\n[foto 9]', foto }, 'https://ayrigitar.com/');
+    const urut = h.match(/class="(article-photo|article-figure|article-gallery__item)[^"]*"><img src="[^"]+"/g).map(x => x.replace(/.*src="foto\/artikel\/(.)\.webp"/, '$1'));
+    assert.deepEqual(urut, ['a', 'b', 'c'], 'sampul a di atas, b di sela paragraf, c di galeri (b tidak diulang)');
+    assert.match(h, /<p>Pembuka<\/p>\n\s*<figure class="article-figure"><img src="foto\/artikel\/b\.webp" alt="Proses" loading="lazy"/);
+    assert.ok(!/\[foto/.test(h), 'penanda tidak pernah tampil sebagai teks (foto 1 = sampul, foto 9 tidak ada)');
+    const lama = B.halaman(tpl, { judul: 'T', slug: 't', isi: 'Pembuka', foto }, 'https://ayrigitar.com/');
+    assert.equal((lama.match(/article-gallery__item/g) || []).length, 2, 'tanpa penanda: galeri seperti sebelumnya');
+    assert.equal(M.keHtml('a\n\n[foto 2]\n\nb'), '<p>a</p>\n<p>b</p>', 'tanpa daftar foto, penanda dilewati');
+    assert.equal(M.teksPolos('a\n\n[foto 2]\n\nb'), 'a b', 'penanda tidak ikut ringkasan Google / hitungan kata');
+    assert.match(baca('style-artikel.css'), /\.article-figure img \{/);
+});
+
+test('penanda foto: disisipkan di baris sendiri, nomor ikut saat foto dihapus/dipindah', () => {
+    const M = md();
+    const sisip = (t, p, n) => { const h = M.sisipFoto(t, p, n), x = t.slice(0, h.dari) + h.sisip + t.slice(h.sampai); return [x, x.slice(h.pilihA)]; };
+    assert.deepEqual(sisip('satu dua\n\ntiga', 3, 2), ['satu dua\n\n[foto 2]\n\ntiga', 'tiga'], 'kursor di tengah kalimat: foto ditaruh sesudah paragrafnya');
+    assert.deepEqual(sisip('', 0, 2), ['[foto 2]\n', '']);
+    assert.deepEqual(sisip('a\n\nb', 3, [2, 3]), ['a\n\n[foto 2]\n\n[foto 3]\n\nb', 'b']);
+    assert.equal(M.renomorFoto('a\n\n[foto 2]\n\nb\n\n[foto 3]\n', [0, -1, 1]), 'a\n\nb\n\n[foto 2]\n', 'foto 2 dihapus: penandanya hilang, foto 3 jadi foto 2');
+    assert.equal(M.renomorFoto('[foto 2]\n\n[foto 3]', [0, 2, 1]), '[foto 3]\n\n[foto 2]', 'foto ditukar: penanda ikut');
+    const kode = baca('admin.js');
+    assert.ok(kode.includes("['foto', 'Taruh foto di sini', IKON_MD.foto]"), 'tombol foto di bilah format');
+    assert.match(kode, /ta\.addEventListener\('drop'/); assert.match(kode, /ta\.addEventListener\('paste'/);
+    assert.match(kode, /function lepasFoto\(i\)/); assert.match(kode, /renomorTulisan\(peta\)/);
+    assert.match(kode, /\+ Unggah foto baru di sini<input type="file" accept="image\/\*" multiple id="ar-file2">/);
+});

@@ -254,6 +254,9 @@ html[data-theme="dark"] .offer { border: 1px solid var(--line); }
 .article-photo figcaption, .article-gallery figcaption { margin-top: .5rem; font-size: .8125rem; color: var(--ink-3); text-align: center; }
 .article-gallery { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
 .article-gallery__item { margin: 0; }
+.prose .article-figure { margin: 1.75em 0; }
+.article-figure img { width: 100%; height: auto; border-radius: var(--r-lg); box-shadow: var(--shadow-md); background: var(--surface-2); }
+.article-figure figcaption { margin-top: .5rem; font-size: .8125rem; color: var(--ink-3); text-align: center; }
 .prose ul:not([class]), .prose ol:not([class]) { padding-left: 1.3em; }
 .prose ul:not([class]) { list-style: disc; }
 .prose ol:not([class]) { list-style: decimal; }
