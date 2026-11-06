@@ -540,6 +540,16 @@ html[data-theme="dark"] .ks-tag--servis { border-color: rgba(140, 180, 245, .3);
 .ks-tot > div { display: flex; justify-content: space-between; gap: 10px; font-variant-numeric: tabular-nums; }
 .ks-tot .t { font-size: 1.125rem; font-weight: 800; color: var(--ink); }
 .ks-tot .t span:last-child { color: var(--accent); }
+.ks-tot .ks-tot__d span:last-child { color: var(--ok, #12804D); font-weight: 700; }
+.ks-disk { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; padding-top: 10px; border-top: 1px dashed var(--line-strong); font-size: .875rem; }
+.ks-disk[hidden] { display: none; }
+.ks-disk > label { font-weight: 700; color: var(--ink-2); }
+.ks-disk__in { display: flex; flex: 1 1 120px; align-items: center; gap: 6px; min-width: 0; }
+.ks-disk__in > span { color: var(--ink-3); font-size: .8125rem; }
+.ks-disk__in .ly-in { width: 100%; min-width: 0; min-height: 36px; text-align: right; }
+.ks-disk__cepat { display: flex; gap: 4px; }
+.ks-disk__cepat .ly-btn { min-width: 40px; padding: 0 8px; }
+.ks-m__total small + b + small, .ks-m__total b + small { display: block; color: var(--ok, #12804D); font-weight: 600; }
 .ks-bayar { min-height: 52px; border-radius: var(--r-md); font-size: 1rem; }
 .ks-bar, .ks-tutup { display: none; }
 @media (min-width: 900px) {
