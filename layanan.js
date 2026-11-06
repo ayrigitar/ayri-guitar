@@ -178,14 +178,45 @@
         var akhir = daftar.reduce(function (m, x) { return x.akhir > m ? x.akhir : m; }, daftar[0].akhir);
         return { akhir: akhir, daftar: daftar };
     };
-    L.tindakServis = function (s, hari) {
+    /* semua (opsional) = daftar servis lengkap, untuk pengingat servis berkala: hanya servis TERAKHIR pelanggan itu yang diingatkan */
+    L.tindakServis = function (s, hari, semua) {
         var hasil = [], h = hari || L.hariIni(), T = C.tindak;
         if (!L.hp4(s.hp) || s.status !== 'diambil' || !s.tgl_diambil) return hasil;
         var lama = hariSetelah(s.tgl_diambil, h);
         if (!sudahTindak(s, 'terima_kasih') && lama >= T.terimaKasihSetelahHari && lama <= T.terimaKasihBatasHari) hasil.push('terima_kasih');
         var g = L.garansiServis(s), sisa = g ? L.hariAntara(h, g.akhir) : null;
         if (g && !sudahTindak(s, 'garansi') && sisa >= 0 && sisa <= T.garansiSebelumHari) hasil.push('garansi');
+        if (semua && T.berkalaSetelahBulan && !sudahTindak(s, 'berkala') && lama >= T.berkalaSetelahBulan * 30 && lama <= (T.berkalaBatasBulan || 12) * 30) {
+            var k = L.kunciHp(s.hp), adaBaru = k && semua.some(function (x) { return x.id !== s.id && x.status !== 'batal' && L.kunciHp(x.hp) === k && String(x.tgl_masuk || '') > String(s.tgl_diambil); });
+            if (k && !adaBaru) hasil.push('berkala');
+        }
         return hasil;
+    };
+    /* nomor HP sebagai kunci pelanggan: 0812…, +62 812…, 62-812… dianggap sama. Terlalu pendek = tidak dipakai */
+    L.kunciHp = function (hp) { var n = L.waNomor(hp); return n.length >= 10 ? n : ''; };
+    /* riwayat satu pelanggan (dicari dari nomor HP) di servis, jual, dan sewa; transaksi batal tidak dihitung. Hanya untuk admin. */
+    L.riwayatPelanggan = function (hp, data, kecualiId) {
+        var k = L.kunciHp(hp); if (!k) return null;
+        var list = [], nama = '', tglNama = '';
+        function cocok(x) { return x && x.id !== kecualiId && x.status !== 'batal' && L.kunciHp(x.hp) === k; }
+        function catatNama(x, tgl) { if (x.nama && String(tgl || '') >= tglNama) { nama = x.nama; tglNama = String(tgl || ''); } }
+        (data.servis || []).filter(cocok).forEach(function (x) {
+            var it = (x.items || []).map(function (i) { return i.nama; }).slice(0, 2).join(', ');
+            list.push({ jenis: 'servis', tgl: x.tgl_masuk, kode: x.kode, href: '#servis/' + x.id, judul: L.namaGitar(x, 'Gitar') + (it ? ' · ' + it : x.keluhan ? ' · ' + x.keluhan : ''), nilai: L.hitung(x, x.items, x.bayar).total });
+            catatNama(x, x.tgl_masuk);
+        });
+        (data.jual || []).filter(cocok).forEach(function (x) {
+            list.push({ jenis: 'beli', tgl: x.tgl, kode: x.kode, href: '#jual/' + x.id, judul: L.namaJual(x), nilai: L.hitungJual(x).total });
+            catatNama(x, x.tgl);
+        });
+        (data.sewa || []).filter(cocok).forEach(function (x) {
+            list.push({ jenis: 'sewa', tgl: x.tgl_mulai, kode: x.kode, href: '#sewa/' + x.id, judul: 'Sewa ' + (x.nama_barang || 'gitar'), nilai: null });
+            catatNama(x, x.tgl_mulai);
+        });
+        if (!list.length) return null;
+        list.sort(function (a, b) { return String(b.tgl || '').localeCompare(String(a.tgl || '')); });
+        var n = { servis: 0, beli: 0, sewa: 0 }; list.forEach(function (x) { n[x.jenis]++; });
+        return { n: n, nama: nama, list: list, terakhir: list[0], total: list.reduce(function (t, x) { return t + (x.nilai || 0); }, 0) };
     };
     L.tindakJual = function (j, hari) {
         var h = hari || L.hariIni(), T = C.tindak, tgl = j.tgl_selesai || j.tgl_lunas;
@@ -206,6 +237,12 @@
             return 'Halo Kak ' + s.nama + ', kami mengingatkan garansi servis gitar ' + L.namaGitar(s, 'Kakak') + ' (kode *' + s.kode + '*) berlaku sampai *' + L.tgl(g.akhir) + '*' +
                 (sisa > 0 ? ' (' + sisa + ' hari lagi)' : ' (hari ini)') + '.\nKalau ada keluhan pada pekerjaan kami, silakan bawa ke toko sebelum tanggal itu supaya bisa kami cek tanpa biaya jasa.\n' +
                 (C.syaratJatuh ? '\n' + C.syaratJatuh + '\n' : '') + jamBuka() + '\nDetail & nota: ' + L.urlCek(s.kode);
+        },
+        servisBerkala: function (s) {
+            var bln = Math.max(1, Math.round(L.hariAntara(s.tgl_diambil, L.hariIni()) / 30));
+            return 'Halo Kak ' + s.nama + ', apa kabar gitar ' + L.namaGitar(s, 'Kakak') + '? Sudah sekitar ' + bln + ' bulan sejak terakhir diservis di ' + C.toko.nama + ' 🎸\n\n' +
+                'Karena cuaca dan pemakaian, senar, action, dan leher gitar biasanya pelan-pelan berubah. Kalau mulai terasa fals, senar berkarat, atau ada bunyi buzz, boleh mampir untuk dicek dan disetel lagi.\n' +
+                jamBuka() + '\nSalam, ' + C.toko.nama;
         },
         jualTerimaKasih: function (j) {
             return 'Halo Kak ' + (j.nama || '') + ', terima kasih sudah membeli ' + L.namaJual(j) + ' di ' + C.toko.nama + ' 🙏\n\n' +

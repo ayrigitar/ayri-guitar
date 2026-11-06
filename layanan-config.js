@@ -48,7 +48,9 @@ var AYRI_LAYANAN = {
     tindak: {
         terimaKasihSetelahHari: 2,         /* kirim ucapan terima kasih mulai sekian hari setelah gitar diambil / barang diserahkan */
         terimaKasihBatasHari: 14,          /* lewat sekian hari: tidak diingatkan lagi */
-        garansiSebelumHari: 7              /* garansi servis diingatkan sekian hari sebelum berakhir */
+        garansiSebelumHari: 7,             /* garansi servis diingatkan sekian hari sebelum berakhir */
+        berkalaSetelahBulan: 5,            /* pengingat servis berkala: sekian bulan setelah gitar diambil (bila belum servis lagi) */
+        berkalaBatasBulan: 12              /* lewat sekian bulan: tidak diingatkan lagi */
     },
 
     /* garansi: '7h' = 7 hari, '1b' = 1 bulan, '6b' = 6 bulan */
