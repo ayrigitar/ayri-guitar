@@ -1128,3 +1128,25 @@ html[data-theme="dark"] .ar-pulih { border-color: rgba(245, 182, 92, .35); backg
 .ly-prev .ar-fcatat { margin: .6em 0; padding: 6px 10px; border-radius: 8px; background: var(--surface-2); }
 .ly-prev .ar-fcatat--salah { color: var(--danger); }
 @media (max-width: 380px) { .ar-md { min-width: 24px; padding: 0 2px; } .ar-md svg { width: 16px; height: 16px; } .ar-alat { gap: 6px; } }
+
+/* Riwayat pelanggan di bawah kolom HP */
+.ly-riwayat { display: grid; gap: 8px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface-2); font-size: .8125rem; }
+.ly-riwayat[hidden] { display: none; }
+.ly-grid > .ly-riwayat { grid-column: 1 / -1; }
+.ly-riwayat summary { display: grid; gap: 2px; cursor: pointer; list-style: none; }
+.ly-riwayat summary::-webkit-details-marker { display: none; }
+.ly-riwayat summary::after { content: 'Lihat riwayat ▾'; justify-self: start; margin-top: 2px; font-size: .75rem; font-weight: 700; color: var(--accent); }
+.ly-riwayat details[open] summary::after { content: 'Tutup ▴'; }
+.ly-riwayat__t b { color: var(--ink); }
+.ly-riwayat summary small { color: var(--ink-3); overflow-wrap: anywhere; }
+.ly-riwayat ul { display: grid; gap: 2px; margin: 8px 0 0; padding: 0; list-style: none; }
+.ly-riwayat li a { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 8px; padding: 6px 4px; border-radius: 8px; color: var(--ink); text-decoration: none; }
+.ly-riwayat li a:hover { background: var(--surface); }
+.ly-riwayat li small { display: block; color: var(--ink-3); font-size: .6875rem; }
+.ly-riwayat li b { font-size: .75rem; font-variant-numeric: tabular-nums; }
+.ly-riwayat__j { padding: 2px 7px; border-radius: 999px; background: var(--surface); font-size: .625rem; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; color: var(--ink-2); }
+.ly-riwayat__j--servis { color: #2659A8; }
+.ly-riwayat__j--beli { color: var(--accent); }
+.ly-riwayat__j--sewa { color: #B5651D; }
+.ly-riwayat > .ly-btn { justify-self: start; }
+.ks-pel + .ly-riwayat { margin-top: -4px; }
