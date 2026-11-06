@@ -211,8 +211,8 @@
         };
         var GATE = { r:0.004, s:0.002, t:0.001 };
         var $ = function (id) { return document.getElementById(id); };
-        var A4 = 440, lockIdx = -1, inst = 'ak', tun = 's', cust = [40,45,50,55,59,64], target = null, lock = null;
-        var ctx, analyser, buf, timer, tickMs = TICK_MS, hist = [], rej = 0, lastHeard = 0, stream, cs = null, tuned = false, act = -1, done = {}, doneKey = '';
+        var A4 = 440, inst = 'ak', tun = 's', cust = [40,45,50,55,59,64], target = null;
+        var ctx, analyser, buf, timer, tickMs = TICK_MS, lastHeard = 0, stream, tuned = false, act = -1, done = {}, doneKey = '';
         var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
         /* setelan senar custom dari penyimpanan: hanya dipakai bila bentuknya sah (1-12 nada MIDI), kalau rusak diabaikan */
         try { var sv = JSON.parse(localStorage.getItem('ayri-tuner-custom')); if (Array.isArray(sv) && sv.length && sv.length <= 12 && sv.every(function (m) { return typeof m === 'number' && m >= 12 && m <= 108; })) cust = sv; } catch (e) {}
@@ -290,29 +290,29 @@
             $('editor').innerHTML = h + '<div class="t-row"><button type="button" class="t-btn alt" data-add="1">+ Tambah senar</button><button type="button" class="t-btn alt" data-add="-1">&minus; Kurangi senar</button></div><p class="t-help" style="margin-top:0">Pilih nada dan oktaf tiap senar (contoh gitar: E2 untuk senar 6). Pengaturan ini tersimpan di perangkat Anda.</p>';
         }
         function saveCust() { try { localStorage.setItem('ayri-tuner-custom', JSON.stringify(cust)); } catch (e) {} }
-        function reset() { target = (inst === 'pn' && pT !== null) ? 0 : null; lock = null; lockIdx = -1; cs = null; hist = []; drawStrings(); }
+        function reset() { target = (inst === 'pn' && pT !== null) ? 0 : null; baca.lepas(); drawStrings(); }
         $('inst').addEventListener('change', function () { inst = this.value; tun = 's'; fillTun(); reset(); });
         $('tuning').addEventListener('change', function () { tun = this.value; reset(); });
-        $('auto').addEventListener('click', function () { target = null; drawStrings(); });
+        $('auto').addEventListener('click', function () { target = null; baca.pick(); drawStrings(); });
         $('editor').addEventListener('change', function (e) {
             var s = e.target, i = s.getAttribute('data-n'), j = s.getAttribute('data-o');
             if (i !== null) cust[i] = Math.floor(cust[i] / 12) * 12 + (+s.value);
             if (j !== null) cust[j] = (+s.value + 1) * 12 + cust[j] % 12;
-            saveCust(); target = null; drawStrings();
+            saveCust(); target = null; baca.lepas(); drawStrings();
         });
         $('editor').addEventListener('click', function (e) {
             var d = e.target.getAttribute('data-add'); if (!d) return;
             if (d === '1' && cust.length < 8) cust.push(Math.min(cust[cust.length - 1] + 5, 95));
             if (d === '-1' && cust.length > 1) cust.pop();
-            saveCust(); target = null; drawEditor(); drawStrings();
+            saveCust(); target = null; baca.lepas(); drawEditor(); drawStrings();
         });
         $('tonic').innerHTML = NAMES.map(function (n, i) { return '<option value="' + i + '"' + (i === tonic ? ' selected' : '') + '>' + n + '</option>'; }).join('');
         $('pn').innerHTML = NAMES.map(function (n, i) { return '<option value="' + i + '"' + (i === 9 ? ' selected' : '') + '>' + n + '</option>'; }).join('');
         $('po').innerHTML = [0, 1, 2, 3, 4, 5, 6, 7, 8].map(function (o) { return '<option value="' + o + '"' + (o === 4 ? ' selected' : '') + '>' + o + '</option>'; }).join('');
-        function pSet() { pT = Math.max(21, Math.min(108, (+$('po').value + 1) * 12 + (+$('pn').value))); target = 0; cs = null; hist = []; lock = null; $('pauto').classList.remove('on'); drawStrings(); }
+        function pSet() { pT = Math.max(21, Math.min(108, (+$('po').value + 1) * 12 + (+$('pn').value))); target = 0; baca.lepas(); $('pauto').classList.remove('on'); drawStrings(); }
         $('tonic').addEventListener('change', function () { tonic = +this.value; kcFill(); reset(); });
         $('pn').addEventListener('change', pSet); $('po').addEventListener('change', pSet);
-        $('pauto').addEventListener('click', function () { pT = null; target = null; cs = null; hist = []; lock = null; this.classList.add('on'); drawStrings(); });
+        $('pauto').addEventListener('click', function () { pT = null; target = null; baca.lepas(); this.classList.add('on'); drawStrings(); });
         $('pplay').addEventListener('click', function () { if (pT === null) pSet(); play(f(pT)); });
         $('edopen').addEventListener('click', function () { $('dr-editor').hidden = false; });
         function audio() { if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)(); if (ctx.state === 'suspended') ctx.resume(); return ctx; }
@@ -325,12 +325,77 @@
         }
         $('strings').addEventListener('click', function (e) {
             var b = e.target.closest('.t-string'); if (!b) return;
-            target = +b.getAttribute('data-i'); cs = null; hist = []; mark(); play(f(cur()[target]));
+            target = +b.getAttribute('data-i'); baca.pick(); mark(); play(f(cur()[target]));
         });
 
         /* ---------- deteksi nada ---------- */
         /* ENGINE-START */
-        function nsdfCoarse(b, fs, fmin, fmax) {
+        /* Diukur pada 390 rekaman nada gitar (dataset guitar-fretboard-notes, CC BY-SA 4.0): dua tambahan di bawah ini
+           menaikkan bacaan yang benar, terutama saat nada mulai meluruh (sama dengan aplikasi AYRI Studio). */
+        /* Cek harmoni: spektrum 4096 titik (jendela Hann) dari ujung sinyal. Nada yang terbaca satu oktaf terlalu rendah
+           hampir tak punya harmoni ganjil; yang terbaca 3x terlalu rendah (mis. senar A ikut berbunyi di bawah senar 1)
+           hanya punya harmoni kelipatan tiga; yang satu oktaf terlalu tinggi punya puncak kuat di tengah harmoninya. */
+        var HC = [0.2, 0.5], HC_N = 4096, hcW = null, hcCos, hcSin, hcRev, hcRe, hcIm, hcMag;
+        function spektrum(raw) {
+            var N = HC_N, h = N >> 1, x0 = raw.length - N, i, j, k, len, half, step;
+            if (!hcW) {
+                hcW = new Float64Array(N); hcCos = new Float64Array(h); hcSin = new Float64Array(h); hcRev = new Uint16Array(N);
+                hcRe = new Float64Array(N); hcIm = new Float64Array(N); hcMag = new Float64Array(h);
+                for (i = 0; i < N; i++) hcW[i] = 0.5 - 0.5 * Math.cos(2 * Math.PI * i / N);
+                for (i = 0; i < h; i++) { hcCos[i] = Math.cos(2 * Math.PI * i / N); hcSin[i] = -Math.sin(2 * Math.PI * i / N); }
+                for (i = 0, j = 0; i < N; i++) { hcRev[i] = j; k = h; while (j & k) { j ^= k; k >>= 1; } j ^= k; }
+            }
+            for (i = 0; i < N; i++) { hcRe[hcRev[i]] = raw[x0 + i] * hcW[i]; hcIm[hcRev[i]] = 0; }
+            for (len = 2; len <= N; len <<= 1) {
+                half = len >> 1; step = N / len;
+                for (i = 0; i < N; i += len) for (j = 0; j < half; j++) {
+                    var wr = hcCos[j * step], wi = hcSin[j * step], a = i + j, b = a + half;
+                    var xr = hcRe[b] * wr - hcIm[b] * wi, xi = hcRe[b] * wi + hcIm[b] * wr;
+                    hcRe[b] = hcRe[a] - xr; hcIm[b] = hcIm[a] - xi; hcRe[a] += xr; hcIm[a] += xi;
+                }
+            }
+            for (k = 0; k < h; k++) hcMag[k] = Math.sqrt(hcRe[k] * hcRe[k] + hcIm[k] * hcIm[k]);
+        }
+        function cekHarmoni(raw, sr, hz, fmin, fmax, hc) {
+            if (raw.length < HC_N) return hz;
+            spektrum(raw);
+            var binHz = sr / HC_N, h = HC_N >> 1;
+            var at = function (fr) {
+                var bin = fr / binHz; if (bin < 1 || bin >= h - 3) return 0;
+                var reach = 1 + Math.floor(bin / 120), c = Math.round(bin), m = 0, k;
+                for (k = Math.max(1, c - reach); k <= Math.min(h - 1, c + reach); k++) if (hcMag[k] > m) m = hcMag[k];
+                return m;
+            };
+            if (hc[0] > 0) {
+                var odd = at(hz) + at(3 * hz) + at(5 * hz) + at(7 * hz), even = at(2 * hz) + at(4 * hz) + at(6 * hz) + at(8 * hz);
+                if (2 * hz < fmax && even > 0 && odd < hc[0] * even) return 2 * hz;
+                var rest = at(hz) + at(2 * hz) + at(4 * hz) + at(5 * hz), third = at(3 * hz) + at(6 * hz) + at(9 * hz);
+                if (3 * hz < fmax && third > 0 && rest < hc[0] * third) return 3 * hz;
+            }
+            if (hc[1] > 0 && hz / 2 > fmin) {
+                var between = at(0.5 * hz) + at(1.5 * hz) + at(2.5 * hz), on = at(hz) + at(2 * hz) + at(3 * hz);
+                if (on > 0 && between > hc[1] * on) return hz / 2;
+            }
+            return hz;
+        }
+        /* Mengikuti nada yang meluruh: nada yang sudah bertahan ±0,1 detik jadi patokan selama 100 ms berikutnya. Bila
+           detektor memilih kelipatan 2-4 kali periodenya (pola lebih lambat di bawahnya: senar lain, ruangan) sementara
+           puncak nada itu masih ada (>= 30 % puncak terpilih), nada itu yang dipakai. */
+        var LACAK = 0.3;
+        function makeLacak() {
+            var held = 0, heldT = -1e9, run = 0, run0 = 0;
+            var jarak = function (a, b) { return Math.abs(1200 * Math.log(a / b) / Math.LN2); };
+            return {
+                reset: function () { held = 0; heldT = -1e9; run = 0; },
+                feed: function (hz, t) {
+                    if (!(run > 0 && jarak(hz, run) < 30)) run0 = t;
+                    run = hz;
+                    if (t - run0 >= 90) { held = hz; heldT = t; } else if (held > 0 && jarak(hz, held) < 30) heldT = t;
+                },
+                trk: function (t) { return held > 0 && t - heldT <= 100 ? { hz: held, r: LACAK } : null; }
+            };
+        }
+        function nsdfCoarse(b, fs, fmin, fmax, trk) {
             var n = b.length, maxLag = Math.min(n >> 1, Math.ceil(fs / fmin)), minLag = Math.max(2, Math.floor(fs / fmax)), j, tau, acf, m;
             var sq = new Float64Array(n + 1); for (j = 0; j < n; j++) sq[j + 1] = sq[j] + b[j] * b[j];
             var nz = new Float32Array(maxLag + 2);
@@ -344,6 +409,18 @@
             if (!peaks.length) return null;
             var top = 0; peaks.forEach(function (p) { if (nz[p] > top) top = nz[p]; });
             var p = peaks.filter(function (q) { return nz[q] >= 0.88 * top; })[0];
+            if (trk) {
+                var prev = fs / trk.hz;
+                for (j = 0; j < peaks.length; j++) {
+                    var q = peaks[j];
+                    if (Math.abs(q - prev) <= 1 + prev * 0.03 && q !== p) {
+                        var ra = p / q, kali = false;
+                        for (m = 2; m <= 4; m++) kali = kali || Math.abs(ra - m) < 0.06 * m;
+                        if (kali && nz[q] >= trk.r * nz[p]) p = q;
+                        break;
+                    }
+                }
+            }
             var a = nz[p - 1], bb = nz[p], c = nz[p + 1], den = a - 2 * bb + c;
             return { lag: p + (den ? 0.5 * (a - c) / den : 0), clar: top };
         }
@@ -352,7 +429,7 @@
             var D = o.D || 4, fmin = o.fmin || 25, fmax = o.fmax || 1400, N = raw.length, n = Math.floor(N / D), b = new Float32Array(n), i, j, rms = 0;
             for (i = 0; i < n; i++) { var s = 0; for (j = 0; j < D; j++) s += raw[i * D + j]; b[i] = s / D; rms += b[i] * b[i]; }
             rms = Math.sqrt(rms / n); if (rms < gate) return [-1, 0, rms];
-            var co = nsdfCoarse(b, sr / D, fmin, fmax); if (!co || co.clar < 0.6) return [-1, co ? co.clar : 0, rms];
+            var co = nsdfCoarse(b, sr / D, fmin, fmax, o.trk || null); if (!co || co.clar < 0.6) return [-1, co ? co.clar : 0, rms];
             var p0 = co.lag * D, m = Math.max(1, Math.min(24, Math.floor(0.06 * sr / p0), Math.floor((p0 - 8) / 4))), target = m * p0, r = 2 * m + 3, lo = Math.floor(target - r), hi = Math.ceil(target + r);
             if (hi + 64 > N) { m = 1; target = p0; r = 6; lo = Math.floor(target - r); hi = Math.ceil(target + r); }
             var e0 = 0, vals = [], L, k;
@@ -361,7 +438,8 @@
             var Ls = lo + bi;
             if (bi > 0 && bi < vals.length - 1) { var a = vals[bi - 1], bb = vals[bi], c = vals[bi + 1], den = a - 2 * bb + c; if (den) Ls += 0.5 * (a - c) / den; }
             var per = Ls / m; if (Math.abs(per - p0) > D * 1.5) per = p0;
-            var hz = sr / per; return [(hz > fmin * 0.7 && hz < fmax * 1.3) ? hz : -1, co.clar, rms];
+            var hz = sr / per; if (o.hc) hz = cekHarmoni(raw, sr, hz, fmin, fmax, o.hc);
+            return [(hz > fmin * 0.7 && hz < fmax * 1.3) ? hz : -1, co.clar, rms];
         }
         function makeFilter() {
             var s = null, raw = [], onset = 0, lastT = 0, outl = 0;
@@ -387,37 +465,92 @@
         var TICK_MS = 25;
         /* jendela adaptif: 4096 sampel (±85 ms) cukup untuk nada gitar dan lebih cepat mengikuti petikan baru;
            nada rendah (< 70 Hz, mis. bass) atau sinyal yang belum terbaca dicek ulang dengan jendela lebih panjang supaya tetap akurat */
-        function deteksi(buf, sr, gt, po) {
+        /* ex: { hc: cek harmoni, trk: nada yang diikuti } untuk alat musik bersenar (bukan piano) */
+        function deteksi(buf, sr, gt, po, ex) {
+            if (ex) po = { D: po && po.D, fmin: po && po.fmin, fmax: po && po.fmax, hc: ex.hc, trk: ex.trk };
             var r = pitch(buf.subarray(buf.length - 4096), sr, gt, po);
             if ((r[0] > 0 && r[0] < 70) || (r[0] <= 0 && r[2] >= gt)) { var r2 = pitch(buf.subarray(buf.length - 8192), sr, gt, po); if (r2[0] > 0 || r[0] <= 0) r = r2; }
             if (r[0] > 0 && r[0] < 50) { var rf = pitch(buf, sr, gt, po); if (rf[0] > 0) r = rf; }
             return r;
         }
+        /* Memilih senar yang sedang disetel dan menghaluskan jarum (sama dengan aplikasi AYRI Studio, TunerLogic):
+           - senar yang sedang didengar tetap ditampilkan sampai 400 sen jauhnya; senar lain mengambil alih bila nada sudah
+             100 sen dekatnya (nada yang bergeser pelan karena pasak diputar: 150 ms, lompatan karena nada atas: 400 ms);
+           - selama senar itu masih berbunyi (belum ada petikan baru), bacaan 1/4, 1/3, 1/2, 2, 3, 4 kali nadanya tetap senar itu
+             (senar 1 tidak lompat ke senar 5 yang ikut berdengung); petikan baru = suara mendadak lebih keras;
+           - satu bacaan yang jauh dari jarum dilewati (bacaan berikutnya yang menentukan). */
+        function makeBaca() {
+            var HARM = [0.5, 2, 1 / 3, 3, 0.25, 4];
+            var lockIdx, heardMs, heardFrom, heardIdx, pending, pendingSince = 0, pendingSlid = false, lastHz, skipped, lock, cs, tuned, act, shownMidi = NaN;
+            var onsetMs = -1e9, levels = [];
+            var cents = function (hz, ref) { return 1200 * Math.log(hz / ref) / Math.LN2; };
+            function lepas() { lock = null; lockIdx = -1; pending = null; cs = null; lastHz = 0; skipped = false; }
+            function clear() { lepas(); heardFrom = NaN; heardIdx = -1; heardMs = -1e9; tuned = false; act = -1; }
+            clear();
+            return {
+                clear: clear,          // diam lama / tuner berhenti
+                lepas: lepas,          // ganti alat musik, setelan, A4
+                pick: function () { cs = null; pending = null; skipped = false; },   // pilih senar / kembali ke otomatis
+                level: function (rms, t) {
+                    while (levels.length && t - levels[0][0] > 150) levels.shift();
+                    var q = Infinity, i; for (i = 0; i < levels.length; i++) if (levels[i][1] < q) q = levels[i][1];
+                    if (levels.length && rms > 1.8 * q && rms > 0.002 && t - onsetMs > 200) { onsetMs = t; heardFrom = NaN; }
+                    levels.push([t, rms]);
+                },
+                /* hz: bacaan tersaring; s: nada senar (MIDI, terendah dulu); target: senar dipilih atau null.
+                   Hasil: { idx, midi, hz, cs, tuned } atau null (tampilan tetap) */
+                baca: function (input, t, s, target, a4) {
+                    var f = function (m) { return a4 * Math.pow(2, (m - 69) / 12); };
+                    var hz = input, slid = lastHz > 0 && Math.abs(cents(input, lastHz)) < 60, n = s.length, idx = -1, i, d, best, ref, fold = 0;
+                    lastHz = input;
+                    if (target !== null && target < n) { idx = target; ref = f(s[idx]); while (hz / ref > 1.45) hz /= 2; while (hz / ref < 0.69) hz *= 2; }
+                    else if (n) {
+                        var lockRef = lockIdx >= 0 ? f(s[lockIdx]) : 0, captured = -1;
+                        var ringing = lockIdx >= 0 && heardFrom === heardFrom && heardMs - heardFrom >= 300;
+                        if (ringing && cs !== null) for (i = 0; i < HARM.length && !fold; i++) if (Math.abs(cents(hz * HARM[i], lockRef) - cs) < 40) fold = HARM[i];
+                        if (lockIdx >= 0) for (i = 0; i < n && captured < 0; i++) if (i !== lockIdx && Math.abs(cents(hz, f(s[i]))) < 100) captured = i;
+                        if (fold) { idx = lockIdx; hz *= fold; }
+                        else if (captured >= 0) idx = captured;
+                        else if (lockIdx >= 0 && Math.abs(cents(hz, lockRef)) < 400) idx = lockIdx;
+                        else if (lockIdx >= 0 && cs !== null && Math.abs(cents(hz / 2, lockRef) - cs) < 60 && s.every(function (m) { return Math.abs(cents(hz, f(m))) > 100; })) { idx = lockIdx; hz /= 2; }
+                        else {
+                            best = 1e9;
+                            for (i = 0; i < n; i++) { d = Math.abs(cents(hz, f(s[i]))); if (d < best) { best = d; idx = i; } }
+                            if (best > 250) {
+                                idx = -1;
+                                [0.5, 2].forEach(function (k) { for (i = 0; i < n; i++) if (idx < 0 && Math.abs(cents(hz * k, f(s[i]))) < 50) { idx = i; hz *= k; } });
+                            }
+                        }
+                        if (lockIdx >= 0 && idx !== lockIdx) {
+                            if (pending !== idx) { pending = idx; pendingSince = t; pendingSlid = slid; } else if (!slid) pendingSlid = false;
+                            if (t - pendingSince < (pendingSlid ? 150 : 400)) return null;
+                        }
+                        var since = pending === idx ? pendingSince : t;
+                        pending = null; lockIdx = idx;
+                        if (idx >= 0 && !fold) { if (heardFrom !== heardFrom || idx !== heardIdx) heardFrom = since; heardIdx = idx; heardMs = t; }
+                    }
+                    var midi;
+                    if (idx >= 0) midi = s[idx];
+                    else {
+                        midi = Math.round(12 * Math.log(hz / a4) / Math.LN2 + 69);
+                        if (lock !== null && Math.abs(cents(hz, f(lock))) < 65) midi = lock; else lock = midi;
+                    }
+                    var c = cents(hz, f(midi));
+                    if (cs !== null && idx === act && midi === shownMidi && Math.abs(c - cs) > 25 && !skipped) { skipped = true; return null; }
+                    skipped = false; shownMidi = midi;
+                    cs = (cs === null || idx !== act) ? c : cs + 0.6 * (c - cs);
+                    tuned = Math.abs(cs) <= (tuned ? 7 : 4);
+                    act = idx;
+                    return { idx: idx, midi: midi, hz: hz, cs: cs, tuned: tuned };
+                }
+            };
+        }
         /* ENGINE-END */
         var cents = function (hz, ref) { return 1200 * Math.log(hz / ref) / Math.LN2; };
-        function show(hz) {
-            var s = cur(), n = s.length, midi, ref, idx = -1, i, d, best;
-            if (target !== null && target < n) { idx = target; ref = f(s[idx]); while (hz / ref > 1.45) hz /= 2; while (hz / ref < 0.69) hz *= 2; }
-            else if (n) {
-                if (lockIdx >= 0 && Math.abs(cents(hz, f(s[lockIdx]))) < 250) idx = lockIdx;
-                else {
-                    best = 1e9;
-                    for (i = 0; i < n; i++) { d = Math.abs(cents(hz, f(s[i]))); if (d < best) { best = d; idx = i; } }
-                    if (best > 200) {
-                        idx = -1;
-                        [0.5, 2].forEach(function (k) { for (i = 0; i < n; i++) if (idx < 0 && Math.abs(cents(hz * k, f(s[i]))) < 50) { idx = i; hz *= k; } });
-                    }
-                }
-                lockIdx = idx;
-            }
-            if (idx >= 0) { midi = s[idx]; ref = f(midi); }
-            else {
-                midi = Math.round(12 * Math.log(hz / A4) / Math.LN2 + 69);
-                if (lock !== null && Math.abs(cents(hz, f(lock))) < 65) midi = lock; else lock = midi;
-                ref = f(midi);
-            }
-            var c = cents(hz, ref); cs = (cs === null || idx !== act) ? c : cs + 0.6 * (c - cs);
-            tuned = Math.abs(cs) <= (tuned ? 7 : 4);
+        var baca = makeBaca(), lacak = makeLacak(), cs = null;
+        function show(b) {
+            var n = cur().length, idx = b.idx, midi = b.midi, hz = b.hz;
+            cs = b.cs; tuned = b.tuned;
             if (idx !== act) { act = idx; mark(); }
             if (tuned && idx >= 0 && !done[idx]) { done[idx] = true; mark(); }
             var LB = labs(); if (LB && idx >= 0) { $('note').textContent = LB[idx].n; $('oct').textContent = LB[idx].o; } else { $('note').textContent = NAMES[((Math.round(midi) % 12) + 12) % 12]; $('oct').textContent = Math.floor(Math.round(midi) / 12) - 1; }
@@ -439,15 +572,17 @@
             var now = Date.now(), sr = ctx.sampleRate, gt = GATE[$('sens').value], po = pOpts(), r;
             if (inst === 'pn' && !po) r = pianoAuto(buf, sr, gt);
             else {
-                r = deteksi(buf, sr, gt, po);
+                /* alat bersenar: cek harmoni; mode otomatis: juga mengikuti nada yang meluruh */
+                r = deteksi(buf, sr, gt, po, inst === 'pn' ? null : { hc: HC, trk: po ? null : lacak.trk(now) });
                 if (r[0] <= 0 && r[2] >= gt && inst === 'pn') { var rf = pitch(buf, sr, gt, po); if (rf[0] > 0) r = rf; }
             }
             var ok = r[0] > 0 && r[1] >= 0.6;
-            if (ok) lastHeard = now;
+            if (ok) { lastHeard = now; lacak.feed(r[0], now); }
+            baca.level(r[2], now);
             var sm = filt.feed(ok ? r[0] : -1, now);
-            if (sm !== null) show(440 * Math.pow(2, sm / 1200));
+            if (sm !== null) { var b = baca.baca(440 * Math.pow(2, sm / 1200), now, cur(), target, A4); if (b) show(b); }
             else if (!ok && now - lastHeard > 900) {
-                filt.reset(); hist = []; lock = null; lockIdx = -1; cs = null; tuned = false; aim(-58); lamp(null); act = -1; mark();
+                filt.reset(); baca.clear(); cs = null; tuned = false; aim(-58); lamp(null); act = -1; mark();
                 $('status').className = 't-status'; $('status').textContent = 'Petik satu senar...';
             }
         }
@@ -462,7 +597,7 @@
             navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false } }).then(function (s) {
                 stream = s; var c = audio(); analyser = c.createAnalyser(); analyser.fftSize = 16384;
                 c.createMediaStreamSource(s).connect(analyser); buf = new Float32Array(analyser.fftSize);
-                btn.textContent = 'Berhenti'; keepAwake(); $('status').textContent = 'Petik satu senar...'; filt.reset(); tickMs = 50; jadwal();
+                btn.textContent = 'Berhenti'; keepAwake(); $('status').textContent = 'Petik satu senar...'; filt.reset(); lacak.reset(); baca.clear(); tickMs = 50; jadwal();
             }).catch(function () { $('status').className = 't-status bad'; $('status').textContent = 'Mikrofon tidak diizinkan. Buka pengaturan situs di browser dan izinkan mikrofon.'; });
         });
         function setA4(v) {
@@ -470,7 +605,7 @@
             A4 = Math.round(v * 10) / 10; $('a4').value = A4;
             var std = A4 === 440; $('a4r').style.display = std ? 'none' : ''; $('a4s').className = 't-a4s' + (std ? '' : ' chg'); $('a4s').textContent = std ? '\u2713 Standar' : '\u26A0 Diubah';
             try { localStorage.setItem('ayri-tuner-a4', A4); } catch (e) {}
-            cs = null; hist = []; lock = null; lockIdx = -1;
+            baca.lepas();
         }
         $('a4').addEventListener('change', function () { setA4(this.value); });
         $('a4m').addEventListener('click', function () { setA4(A4 - 1); });

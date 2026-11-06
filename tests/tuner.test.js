@@ -5,7 +5,7 @@ const fs = require('fs'), path = require('path');
 
 const html = fs.readFileSync(path.join(__dirname, '..', 'tuner.html'), 'utf8');
 const kode = html.slice(html.indexOf('/* ENGINE-START */'), html.indexOf('/* ENGINE-END */'));
-const mesin = new Function(kode + '; return { pitch: pitch, makeFilter: makeFilter, deteksi: deteksi, TICK_MS: TICK_MS };')();
+const mesin = new Function(kode + '; return { pitch: pitch, makeFilter: makeFilter, deteksi: deteksi, TICK_MS: TICK_MS, cekHarmoni: cekHarmoni, HC: HC, makeLacak: makeLacak, makeBaca: makeBaca };')();
 
 const SR = 48000;
 /* petikan senar: diam 0,5 detik (penyangga 16384 sampel sudah penuh seperti di halaman), lalu nada berharmoni yang meluruh + derau serangan 15 ms */
@@ -48,4 +48,85 @@ for (const [nama, hz] of Object.entries(SENAR)) {
 test('nada bass rendah (E1 41 Hz) tetap akurat dengan jendela panjang', () => {
     const h = jalankan(41.2 * Math.pow(2, -8 / 1200));
     assert.ok(h.sen !== null && Math.abs(h.sen) < 1, 'meleset ' + h.sen);
+});
+
+/* ---- cek harmoni: bacaan satu oktaf / 3x terlalu rendah, atau satu oktaf terlalu tinggi, dibetulkan dari spektrumnya ---- */
+function nada(hz, harmoni) {
+    const x = new Float32Array(8192);
+    for (let i = 0; i < x.length; i++) for (const k of harmoni) x[i] += Math.sin(2 * Math.PI * hz * k * i / SR + k) / k * 0.2;
+    return x;
+}
+test('cek harmoni: bacaan 110 Hz untuk nada 220 Hz (tanpa harmoni ganjil) jadi 220 Hz', () => {
+    const hz = mesin.cekHarmoni(nada(220, [1, 2, 3, 4]), SR, 110, 25, 1400, mesin.HC);
+    assert.ok(Math.abs(hz - 220) < 0.01, 'hasil ' + hz);
+});
+test('cek harmoni: bacaan 110 Hz untuk senar 1 (E4 330 Hz) jadi 330 Hz', () => {
+    const hz = mesin.cekHarmoni(nada(330, [1, 2, 3]), SR, 110, 25, 1400, mesin.HC);
+    assert.ok(Math.abs(hz - 330) < 0.01, 'hasil ' + hz);
+});
+test('cek harmoni: bacaan 220 Hz untuk nada 110 Hz jadi 110 Hz, bacaan yang benar tidak diubah', () => {
+    const x = nada(110, [1, 2, 3, 4, 5]);
+    assert.ok(Math.abs(mesin.cekHarmoni(x, SR, 220, 25, 1400, mesin.HC) - 110) < 0.01);
+    assert.equal(mesin.cekHarmoni(x, SR, 110, 25, 1400, mesin.HC), 110);
+});
+test('mengikuti nada: patokan baru ada setelah nada bertahan 90 ms, dan hilang 100 ms setelah tak terdengar', () => {
+    const l = mesin.makeLacak();
+    l.feed(330, 0); l.feed(331, 25); l.feed(330, 50);
+    assert.equal(l.trk(50), null);
+    l.feed(330, 100);
+    assert.equal(l.trk(125).hz, 330);
+    assert.equal(l.trk(201), null);
+});
+
+/* ---- pemilih senar (gitar standar, mode otomatis), satu bacaan tiap 25 ms ---- */
+const GITAR = [40, 45, 50, 55, 59, 64];
+const midiHz = (m, sen = 0) => 440 * Math.pow(2, (m - 69) / 12 + sen / 1200);
+function pemilih() {
+    const b = mesin.makeBaca();
+    let t = 10000, h = null;
+    return {
+        dengar(hz, rms = 0, kali = 1) { for (let i = 0; i < kali; i++) { t += 25; if (rms) b.level(rms, t); const r = b.baca(hz, t, GITAR, null, 440); if (r) h = r; } },
+        get senar() { return h ? h.idx : -1; },
+        get sen() { return h ? h.cs : null; },
+        geser(m, dari, ke) {   // pasak diputar: 10 sen per bacaan
+            const tampil = [], step = ke > dari ? 10 : -10;
+            for (let c = dari; step > 0 ? c <= ke : c >= ke; c += step) { this.dengar(midiHz(m, c)); tampil.push([c, this.senar]); }
+            return tampil;
+        }
+    };
+}
+test('senar 1 yang meluruh lalu terbaca sebagai senar A (1/3 nadanya) tetap senar 1', () => {
+    const p = pemilih();
+    p.dengar(midiHz(64, -8), 0, 16);          // terdengar sendiri 0,4 detik
+    p.dengar(midiHz(64, -8) / 3, 0, 120);     // 3 detik senar A ikut berdengung
+    assert.equal(p.senar, 5);
+    assert.ok(Math.abs(p.sen + 8) < 1, 'sen ' + p.sen);
+});
+test('senar A dipetik setelah senar 1: senar A yang tampil', () => {
+    const p = pemilih();
+    p.dengar(midiHz(64), 0.05, 6);
+    p.dengar(midiHz(64), 0.01, 12);           // senar 1 meluruh
+    p.dengar(midiHz(45, 2), 0.06, 18);        // senar A dipetik: mendadak lebih keras
+    assert.equal(p.senar, 1);
+});
+test('senar 1 dipetik saat senar A masih berbunyi: senar 1 yang tampil', () => {
+    const p = pemilih();
+    p.dengar(midiHz(45), 0.01, 6);
+    p.dengar(midiHz(45), 0.05, 2);
+    p.dengar(midiHz(64), 0.05, 24);
+    assert.equal(p.senar, 5);
+});
+test('menyetel senar A naik dari nada E rendah: E rendah tetap tampil sampai 100 sen dari A', () => {
+    const p = pemilih();
+    p.dengar(midiHz(40), 0, 4);
+    const tampil = p.geser(45, -500, -20);
+    assert.ok(tampil.filter(x => x[0] <= -120).every(x => x[1] === 0), JSON.stringify(tampil));
+    const pertama = tampil.find(x => x[1] === 1)[0];
+    assert.ok(pertama >= -100 && pertama <= -30, 'A tampil mulai ' + pertama + ' sen');
+});
+test('satu bacaan nyasar tidak menggeser jarum', () => {
+    const p = pemilih();
+    p.dengar(midiHz(45, -10), 0, 8);
+    p.dengar(midiHz(45, 30));
+    assert.ok(Math.abs(p.sen + 10) < 1e-6, 'sen ' + p.sen);
 });
