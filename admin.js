@@ -262,10 +262,45 @@
         return !!m && adaAplikasi() && typeof window.AyriApp.postMessage === 'function' && (+m[1] > 1 || (+m[1] === 1 && +m[2] >= 3));
     }
     /* cetak baris struk 58 mm (Layanan.strukThermal / strukServis): ke printer Bluetooth lewat aplikasi, atau lewat dialog cetak browser */
+    /* logo toko untuk printer thermal: gambar 1-bit selebar kertas 58 mm (384 titik), logo di tengah.
+       Dikirim sebagai baris { img: base64, w, h } (aplikasi AYRI POS 1.5.0 ke atas; versi lama melewatinya) */
+    var LEBAR_STRUK = 384, TINGGI_LOGO = 144;
+    function bisaLogoStruk() {
+        var m = /AyriApp\/(\d+)\.(\d+)/.exec(navigator.userAgent);
+        return !!m && (+m[1] > 1 || (+m[1] === 1 && +m[2] >= 5));
+    }
+    function logoStruk() {
+        if (logoStruk.janji) return logoStruk.janji;
+        logoStruk.janji = new Promise(function (ok) {
+            var img = new Image();
+            img.onload = function () {
+                try {
+                    var h = TINGGI_LOGO, w = Math.round(img.naturalWidth / img.naturalHeight * h) || h, W = LEBAR_STRUK;
+                    var c = document.createElement('canvas'); c.width = W; c.height = h;
+                    var x = c.getContext('2d'); x.fillStyle = '#fff'; x.fillRect(0, 0, W, h); x.drawImage(img, Math.round((W - w) / 2), 0, w, h);
+                    var px = x.getImageData(0, 0, W, h).data, bw = W / 8, data = new Uint8Array(bw * h);
+                    for (var y = 0; y < h; y++) for (var i = 0; i < W; i++) {
+                        var p = (y * W + i) * 4, terang = 0.299 * px[p] + 0.587 * px[p + 1] + 0.114 * px[p + 2];
+                        if (terang < 170) data[y * bw + (i >> 3)] |= 0x80 >> (i & 7); /* ambang: emas & cokelat jadi hitam, latar putih */
+                    }
+                    var bin = ''; for (var k = 0; k < data.length; k++) bin += String.fromCharCode(data[k]);
+                    ok({ img: btoa(bin), w: W, h: h });
+                } catch (e) { ok(null); }
+            };
+            img.onerror = function () { ok(null); };
+            img.src = 'logo/ayri-logo.svg';
+        });
+        return logoStruk.janji;
+    }
     function cetakBaris(baris) {
-        if (bisaCetakBt()) { kirimKeAplikasi('cetakStruk', { baris: baris }); toast('Mencetak…'); return; }
+        if (bisaCetakBt()) {
+            toast('Mencetak…');
+            if (!bisaLogoStruk()) return kirimKeAplikasi('cetakStruk', { baris: baris });
+            logoStruk().then(function (logo) { kirimKeAplikasi('cetakStruk', { baris: (logo ? [logo] : []).concat(baris) }); });
+            return;
+        }
         var el = $('#struk-cetak'); if (!el) { el = document.createElement('div'); el.id = 'struk-cetak'; document.body.appendChild(el); }
-        el.innerHTML = '<div class="struk struk-pre">' + baris.map(function (x) {
+        el.innerHTML = '<div class="struk struk-pre"><div class="c struk-logo"><img src="logo/ayri-logo.svg" alt="" width="26" height="42"></div>' + baris.map(function (x) {
             return '<div class="' + (x.a === 'c' ? 'c' : '') + (x.besar ? ' besar' : '') + '">' + (x.b ? '<b>' + E(x.t) + '</b>' : E(x.t)) + '&nbsp;</div>';
         }).join('') + '</div>';
         document.body.classList.add('cetak-struk');
@@ -494,7 +529,11 @@
     function siapBayar(s) { return s.status === 'selesai' && L.hitung(s, s.items, s.bayar).sisa > 0; }
     function bisaDijual(s) { return +s.jumlah > 0 && s.status !== 'ditarik' && !L.sewaAktifStok(s.id, cache.sewa) && !L.titipanTerkunci(s); }
     function namaBarang(s) { return L.judulStok(s) + (s.warna ? ' (' + s.warna + ')' : '') + (s.kondisi === 'bekas' ? ' – Used' + (L.tingkatStok(s) ? ' ' + L.tingkatStok(s) : '') : ''); }
-    function totalKr() { return kr.items.reduce(function (t, i) { return t + i.harga * i.qty; }, 0); }
+    function subtotalKr() { return kr.items.reduce(function (t, i) { return t + i.harga * i.qty; }, 0); }
+    /* diskon hanya untuk barang & jasa cepat (pelunasan servis punya diskon sendiri di halaman servis) */
+    function barangKr() { return kr.items.filter(function (i) { return i.jenis === 'stok' || i.jenis === 'jasa'; }).reduce(function (t, i) { return t + i.harga * i.qty; }, 0); }
+    function diskonKr() { return Math.min(barangKr(), Math.max(0, Math.round(+kr.diskon || 0))); }
+    function totalKr() { return subtotalKr() - diskonKr(); }
     function nKr() { return kr.items.reduce(function (t, i) { return t + i.qty; }, 0); }
     function kasir() {
         app.innerHTML = '<section class="ks">' +
@@ -503,7 +542,10 @@
             '<aside class="ks-kanan" id="ks-kanan"><div class="ly-card ks-inv">' +
             '<div class="ks-inv__head"><span class="ks-bulat">' + SVG.troli + '</span><div><b>Invoice kasir</b><small>' + L.tgl(L.hariIni()) + '</small></div><button type="button" class="ly-x ks-tutup" id="ks-tutup" aria-label="Tutup">×</button></div>' +
             '<div class="ks-pel"><input class="ly-in" id="ks-nama" placeholder="Nama pelanggan (opsional)" autocomplete="off"><input class="ly-in" id="ks-hp" type="tel" inputmode="tel" placeholder="No. HP / WA (opsional)" autocomplete="off"></div>' + kotakRiwayat('#ks-nama', '#ks-hp') +
-            '<div class="ks-isi" id="ks-isi"></div><div class="ks-tot" id="ks-tot"></div>' +
+            '<div class="ks-isi" id="ks-isi"></div>' +
+            '<div class="ks-disk" id="ks-disk" hidden><label for="ks-diskon">Diskon</label><span class="ks-disk__in"><span>Rp</span><input class="ly-in" id="ks-diskon" type="text" inputmode="numeric" autocomplete="off" data-rp placeholder="0" aria-label="Diskon (Rp)"></span>' +
+            '<span class="ks-disk__cepat">' + [5, 10].map(function (p) { return '<button type="button" class="ly-btn ly-btn--sm" data-persen="' + p + '">' + p + '%</button>'; }).join('') + '<button type="button" class="ly-btn ly-btn--sm" data-persen="0" aria-label="Hapus diskon">×</button></span></div>' +
+            '<div class="ks-tot" id="ks-tot"></div>' +
             '<button type="button" class="ly-btn ly-btn--pri ks-bayar" id="ks-bayar"></button></div></aside>' +
             '<button type="button" class="ks-bar" id="ks-bar"></button></section>' +
             '<div class="ly-modal" id="ks-modal" hidden></div>';
@@ -525,6 +567,13 @@
             if (e.target.dataset.harga != null) it.harga = Math.max(0, Math.round(+e.target.value || 0));
             if (e.target.dataset.ambil != null) it.ambil = e.target.checked;
             gambarKeranjang();
+        });
+        $('#ks-diskon').addEventListener('input', function () { kr.diskon = Math.max(0, Math.round(+this.value || 0)); gambarTotalKr(); });
+        $('#ks-diskon').addEventListener('change', function () { if (+kr.diskon > barangKr()) { kr.diskon = barangKr(); this.value = kr.diskon; toast('Diskon tidak bisa melebihi harga barang.', true); } gambarTotalKr(); });
+        $('#ks-disk').addEventListener('click', function (e) {
+            var b = e.target.closest('[data-persen]'); if (!b) return;
+            var p = +b.dataset.persen, bulat = C.bulatkanKe || 1000;
+            kr.diskon = p ? Math.round(barangKr() * p / 100 / bulat) * bulat : 0; $('#ks-diskon').value = kr.diskon || ''; gambarTotalKr();
         });
         $('#ks-bayar').addEventListener('click', bukaBayar);
         $('#ks-bar').addEventListener('click', function () { $('#ks-kanan').classList.add('buka'); document.body.classList.add('ly-kunci-gulir'); });
@@ -586,7 +635,7 @@
     function keKasir(id) { if (!kr.items.some(function (i) { return i.jenis === 'servis' && i.id === id; })) tambahKr('servis:' + id); filterKs = 'servis'; pindah('#kasir'); }
     function gambarKeranjang() {
         if (!$('#ks-isi')) return;
-        var tot = totalKr(), n = nKr();
+        var n = nKr();
         $('#ks-isi').innerHTML = kr.items.length ? kr.items.map(function (it, i) {
             return '<div class="ks-it"><div class="ks-it__a"><b>' + E(it.nama) + '</b><small>' + E(it.jenis === 'jasa' ? 'Jasa cepat' : it.kode) + '</small></div><button type="button" class="ly-x" data-hapus data-i="' + i + '" aria-label="Hapus dari keranjang">×</button>' +
                 '<div class="ks-it__b">' + (it.jenis !== 'servis' ? '<span class="ks-qty"><button type="button" data-q="-1" data-i="' + i + '" aria-label="' + (it.qty > 1 ? 'Kurangi' : 'Hapus dari keranjang') + '">' + (it.qty > 1 ? '−' : '🗑') + '</button><b>' + it.qty + '</b><button type="button" data-q="1" data-i="' + i + '" aria-label="Tambah"' + (it.qty >= it.maks ? ' disabled' : '') + '>+</button></span>' +
@@ -594,7 +643,15 @@
                     : '<label class="ks-ambil"><input type="checkbox" data-ambil data-i="' + i + '"' + (it.ambil ? ' checked' : '') + '> Gitar diambil sekarang</label>') +
                 '<b class="ks-it__sub">' + L.rupiah(it.harga * it.qty) + '</b></div></div>';
         }).join('') : '<div class="ks-kosong">' + SVG.troli + '<b>Keranjang masih kosong</b><span>Ketuk barang atau servis siap bayar di sebelah kiri untuk membuat invoice.</span></div>';
-        $('#ks-tot').innerHTML = '<div><span>' + n + ' item</span><span>' + L.rupiah(tot) + '</span></div><div class="t"><span>Total bayar</span><span>' + L.rupiah(tot) + '</span></div>';
+        var dk = $('#ks-disk'), di = $('#ks-diskon'); dk.hidden = !barangKr();
+        if (!barangKr()) kr.diskon = 0;
+        if (document.activeElement !== di) di.value = kr.diskon || '';
+        gambarTotalKr();
+    }
+    function gambarTotalKr() {
+        if (!$('#ks-tot')) return;
+        var tot = totalKr(), n = nKr(), d = diskonKr();
+        $('#ks-tot').innerHTML = '<div><span>' + n + ' item</span><span>' + L.rupiah(subtotalKr()) + '</span></div>' + (d ? '<div class="ks-tot__d"><span>Diskon</span><span>-' + L.rupiah(d) + '</span></div>' : '') + '<div class="t"><span>Total bayar</span><span>' + L.rupiah(tot) + '</span></div>';
         var b = $('#ks-bayar'); b.textContent = 'Proses pembayaran (' + L.rupiah(tot) + ')'; b.disabled = !kr.items.length;
         var bar = $('#ks-bar'); bar.hidden = !kr.items.length; bar.innerHTML = '<span class="ks-bulat">' + SVG.troli + '<i>' + n + '</i></span><span>' + L.rupiah(tot) + '</span><b>Lihat &amp; bayar ›</b>';
     }
@@ -652,7 +709,7 @@
             var dp = bayar.dp, kembali = bayar.diterima - perlu(), uji = { items: [{ harga: tot, qty: 1 }], bayar: [{ jumlah: +bayar.jumlahDp || 0 }] }, hh = L.hitungJual(uji);
             m.innerHTML = '<div class="ly-modal__in ks-m" role="dialog" aria-modal="true" aria-label="Pembayaran">' +
                 '<div class="ks-m__head"><b>Pembayaran</b><button type="button" class="ly-x" data-tutup aria-label="Tutup">×</button></div>' +
-                '<div class="ks-m__total"><small>Total bayar</small><b>' + L.rupiah(tot) + '</b></div>' +
+                '<div class="ks-m__total"><small>Total bayar</small><b>' + L.rupiah(tot) + '</b>' + (diskonKr() ? '<small>sudah dipotong diskon ' + L.rupiah(diskonKr()) + '</small>' : '') + '</div>' +
                 (kreditList.length && !dp ? '<label class="ly-cek"><input type="checkbox" id="km-pakai-kredit"' + (bayar.pakaiKredit ? ' checked' : '') + '><span>Pakai <b>kredit tukar</b> (pembeli menukar unit)</span></label>' +
                     (bayar.pakaiKredit ? '<div class="ly-f"><label>Kredit dari<select id="km-kredit">' + kreditList.map(function (k) { return '<option value="' + E(k.id) + '"' + (k.id === bayar.kredit ? ' selected' : '') + '>' + E(k.kode + (k.nama ? ' · ' + k.nama : '') + ' · sisa ' + L.rupiah(k.sisa)) + '</option>'; }).join('') + '</select></label></div>' +
                         '<div class="ly-sum"><div><span>Dipotong dari kredit</span><span>' + L.rupiah(Math.min(tot, (kreditDipilih() || { sisa: 0 }).sisa)) + '</span></div><div class="ly-total"><span>Yang masih dibayar</span><span>' + L.rupiah(Math.max(0, tot - (kreditDipilih() || { sisa: 0 }).sisa)) + '</span></div></div>' : '') : '') +
@@ -702,13 +759,13 @@
        keranjang, supaya bila langkah berikutnya gagal, Bayar diulang tanpa mencatat dua kali */
     function prosesBayar(bayar, btn) {
         var stokIt = kr.items.filter(function (i) { return i.jenis === 'stok' || i.jenis === 'jasa'; }), svIt = kr.items.filter(function (i) { return i.jenis === 'servis'; });
-        var nama = $('#ks-nama').value.trim(), hp = $('#ks-hp').value.trim(), tgl = L.hariIni(), tot = totalKr();
-        var struk = { waktu: new Date(), nama: nama, hp: hp, items: kr.items.map(function (i) { return { nama: i.nama, kode: i.kode, qty: i.qty, harga: i.harga }; }), total: tot, metode: bayar.metode, dp: bayar.dp,
+        var nama = $('#ks-nama').value.trim(), hp = $('#ks-hp').value.trim(), tgl = L.hariIni(), tot = totalKr(), diskon = diskonKr();
+        var struk = { waktu: new Date(), nama: nama, hp: hp, items: kr.items.map(function (i) { return { nama: i.nama, kode: i.kode, qty: i.qty, harga: i.harga }; }), total: tot, diskon: diskon, metode: bayar.metode, dp: bayar.dp,
             dibayar: bayar.dp ? +bayar.jumlahDp || 0 : tot, diterima: !bayar.dp && bayar.metode === 'tunai' ? bayar.diterima : null, kode: [], nota: [] };
         sibuk(btn, true, 'Menyimpan…'); menyimpan = true;
         var p = Promise.resolve();
         if (stokIt.length) p = p.then(function () {
-            var tStok = stokIt.reduce(function (t, i) { return t + i.harga * i.qty; }, 0), dibayar = bayar.dp ? +bayar.jumlahDp || 0 : tStok;
+            var tStok = stokIt.reduce(function (t, i) { return t + i.harga * i.qty; }, 0) - diskon, dibayar = bayar.dp ? +bayar.jumlahDp || 0 : tStok;
             /* kredit tukar (pembeli menukar unit dalam 1x24 jam): dipotong dulu, sisanya dibayar uang */
             var asalKredit = !bayar.dp && bayar.pakaiKredit ? cariId('jual', bayar.kredit) : null, kreditPakai = asalKredit ? Math.min(tStok, (L.kreditTukar(asalKredit) || { sisa: 0 }).sisa) : 0;
             var bayarBaru = []; if (kreditPakai) bayarBaru.push({ id: idAcak(), tgl: tgl, jumlah: kreditPakai, jenis: 'pelunasan', metode: 'tukar' });
@@ -716,6 +773,7 @@
             struk.kredit = kreditPakai;
             var rec = { nama: nama, hp: hp, tgl: tgl, catatan: 'Kasir', items: stokIt.map(function (i) { return i.jenis === 'jasa' ? { jenis: 'jasa', kode: '', nama: i.nama, qty: i.qty, harga: i.harga } : { stok_id: i.id, kode: i.kode, nama: i.nama, qty: i.qty, harga: i.harga }; }),
                 bayar: bayarBaru };
+            if (diskon) rec.diskon = diskon;
             if (bayar.dp) rec.batas_lunas = bayar.batas; else rec.status = 'selesai';
             return A.simpanJual(rec).then(function (row) {
                 taruh('jual', row); cache.stok = A.daftar('stok'); struk.kode.push(row.kode); struk.jual = row;
@@ -756,7 +814,7 @@
         return '<div class="struk"><div class="struk-c"><b>' + E(t.nama.toUpperCase()) + '</b><span>' + E(t.alamat) + '</span><span>WA +' + E(t.wa) + '</span></div>' +
             '<div class="struk-g"></div><div class="struk-r"><span>' + E(s.kode.join(', ')) + '</span><span>' + jamStruk(s.waktu) + '</span></div>' + (s.nama ? '<div class="struk-r"><span>Pelanggan</span><span>' + E(s.nama) + '</span></div>' : '') +
             '<div class="struk-g"></div>' + s.items.map(function (i) { return '<div class="struk-i"><span>' + E(i.nama) + '</span><div class="struk-r"><span>' + i.qty + ' x ' + L.rupiah(i.harga) + '</span><span>' + L.rupiah(i.qty * i.harga) + '</span></div></div>'; }).join('') +
-            '<div class="struk-g"></div><div class="struk-r t"><span>TOTAL</span><span>' + L.rupiah(s.total) + '</span></div>' +
+            '<div class="struk-g"></div>' + (s.diskon ? '<div class="struk-r"><span>Subtotal</span><span>' + L.rupiah(s.total + s.diskon) + '</span></div><div class="struk-r"><span>Diskon</span><span>-' + L.rupiah(s.diskon) + '</span></div>' : '') + '<div class="struk-r t"><span>TOTAL</span><span>' + L.rupiah(s.total) + '</span></div>' +
             (s.dp ? '<div class="struk-r"><span>DP (' + METODE_STRUK[s.metode] + ')</span><span>' + L.rupiah(s.dibayar) + '</span></div><div class="struk-r t"><span>SISA</span><span>' + L.rupiah(sisa) + '</span></div>' +
                 (s.jual && s.jual.batas_lunas ? '<div class="struk-r"><span>Lunasi s/d</span><span>' + L.tgl(s.jual.batas_lunas) + '</span></div>' : '')
                 : (s.kredit ? '<div class="struk-r"><span>Kredit tukar</span><span>-' + L.rupiah(s.kredit) + '</span></div>' : '') + (s.total - (s.kredit || 0) > 0 ? '<div class="struk-r"><span>Bayar (' + METODE_STRUK[s.metode] + ')</span><span>' + L.rupiah(s.diterima != null ? s.diterima : s.total - (s.kredit || 0)) + '</span></div>' + (s.diterima != null ? '<div class="struk-r"><span>Kembali</span><span>' + L.rupiah(s.diterima - (s.total - (s.kredit || 0))) + '</span></div>' : '') : '')) +
@@ -765,6 +823,7 @@
     function teksStruk(s) {
         var t = 'Halo' + (s.nama ? ' Kak ' + s.nama : '') + ', terima kasih sudah berbelanja di ' + C.toko.nama + ' 🙏\n\nStruk ' + s.kode.join(', ') + ' · ' + jamStruk(s.waktu) + '\n';
         t += s.items.map(function (i) { return '• ' + i.nama + (i.qty > 1 ? ' ×' + i.qty : '') + ' – ' + L.rupiah(i.harga * i.qty); }).join('\n');
+        if (s.diskon) t += '\n• Diskon – -' + L.rupiah(s.diskon);
         t += '\n\nTotal: *' + L.rupiah(s.total) + '*\n' + (s.dp ? 'DP (' + METODE_STRUK[s.metode].toLowerCase() + '): ' + L.rupiah(s.dibayar) + '\nSisa: *' + L.rupiah(s.total - s.dibayar) + '*' + (s.jual ? ' (lunasi paling lambat ' + L.tgl(s.jual.batas_lunas) + ')' : '') : (s.kredit ? 'Kredit tukar: ' + L.rupiah(s.kredit) + '\n' : '') + (s.total - (s.kredit || 0) > 0 ? 'Dibayar (' + METODE_STRUK[s.metode].toLowerCase() + '): ' + L.rupiah(s.total - (s.kredit || 0)) + ' ✅' : 'Lunas ✅'));
         if (s.nota.length) t += '\n\nNota online:\n' + s.nota.join('\n') + '\n(masukkan 4 digit terakhir no. HP Kakak)';
         if (s.dp) t += '\n\nKetentuan DP (batas pelunasan, biaya pembatalan ' + C.jual.potonganPersen + '%) ada di nota. Mohon balas *SETUJU* bila sudah sesuai.';
@@ -782,7 +841,7 @@
         var h = L.hitungJual(j), bayar = (j.bayar || []).filter(function (b) { return b.jenis !== 'refund' && b.metode !== 'tukar'; }), metode = (bayar.slice(-1)[0] || {}).metode || 'tunai';
         var kredit = (j.bayar || []).filter(function (b) { return b.metode === 'tukar'; }).reduce(function (t, b) { return t + (+b.jumlah || 0); }, 0);
         return { waktu: new Date(j.created_at || j.tgl), nama: j.nama || '', hp: j.hp || '', items: (j.items || []).map(function (i) { return { nama: i.nama, kode: i.kode, qty: i.qty, harga: i.harga }; }),
-            total: h.total, metode: metode, dp: j.status === 'dp', dibayar: h.dibayar, kredit: kredit, diterima: null, kode: [j.kode], nota: L.hp4(j.hp).length === 4 ? [L.urlNotaJual(j.kode)] : [], jual: j };
+            total: h.total, diskon: h.diskon, metode: metode, dp: j.status === 'dp', dibayar: h.dibayar, kredit: kredit, diterima: null, kode: [j.kode], nota: L.hp4(j.hp).length === 4 ? [L.urlNotaJual(j.kode)] : [], jual: j };
     }
     /* menu bagikan HP yang universal untuk teks (WhatsApp, Instagram, Telegram, SMS, dll): aplikasi 1.4.1+, menu bagikan browser, atau WhatsApp tanpa nomor */
     function bagikanTeks(teks) {
@@ -1307,7 +1366,9 @@
         r.untung = 0; r.tanpaModal = 0; r.terjual = 0; r.jasa = 0; var laris = {};
         cache.jual.forEach(function (j) {
             if (j.status === 'batal' || String(j.tgl).slice(0, 7) !== bln) return;
-            (j.items || []).forEach(function (i) {
+            var fk = L.faktorDiskon(j); /* diskon kasir disebar ke barang sesuai porsi harganya */
+            (j.items || []).forEach(function (x) {
+                var i = Object.assign({}, x, { harga: x.harga * fk });
                 if (i.jenis === 'jasa') { r.jasa += i.harga * i.qty; return; } /* jasa cepat: dihitung terpisah, bukan unit barang terjual */
                 var s = cariId('stok', i.stok_id), m = s && +s.harga_beli; r.terjual += i.qty;
                 if (m) r.untung += (i.harga - m) * i.qty; else r.tanpaModal++;
@@ -2239,6 +2300,7 @@
                 return '<div><span>' + (it.stok_id ? '<a href="#stok/' + E(it.stok_id) + '">' + E(it.kode) + '</a>' : '<i>Jasa</i>') + ' · ' + E(it.nama) + (it.qty > 1 ? ' ×' + it.qty : '') + '</span><b>' + L.rupiah(it.harga * it.qty) + '</b></div>';
             }).join('') + '</div>' + (j.catatan ? '<p class="ly-hint" style="margin:8px 0 0">' + E(j.catatan) + '</p>' : '') + '</fieldset>' +
             '<fieldset class="ly-card"><legend>Pembayaran</legend><div class="ly-sum">' +
+            (h.diskon ? '<div><span>Subtotal</span><span>' + L.rupiah(h.subtotal) + '</span></div><div><span>Diskon</span><span>-' + L.rupiah(h.diskon) + '</span></div>' : '') +
             '<div><span>Total</span><span>' + L.rupiah(h.total) + '</span></div><div><span>Sudah dibayar</span><span>' + L.rupiah(h.dibayar) + '</span></div>' +
             (j.status === 'batal' && j.batal_oleh === 'tukar' ? '<div class="ly-total"><span>Ditukar: uang jadi kredit tukar (tidak dikembalikan)</span><span>' + L.rupiah(h.dibayar) + '</span></div>' : j.status === 'batal' ? '<div><span>Potongan pembatalan' + (j.batal_oleh === 'toko' ? ' (dibatalkan toko)' : '') + '</span><span>' + L.rupiah(h.potongan) + '</span></div><div class="ly-total"><span>Dikembalikan</span><span>' + L.rupiah(h.kembali) + '</span></div>'
                 : '<div class="ly-total"><span>Sisa</span><span>' + L.rupiah(h.sisa) + '</span></div>') +
