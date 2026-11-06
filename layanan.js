@@ -479,6 +479,7 @@
         garis();
         (s.items || []).forEach(function (i) { kiri(i.nama); dua('  ' + i.qty + ' x ' + L.rupiah(i.harga), L.rupiah(i.qty * i.harga)); });
         garis();
+        if (s.diskon) { dua('Subtotal', L.rupiah(s.total + s.diskon)); dua('Diskon', '-' + L.rupiah(s.diskon)); }
         dua('TOTAL', L.rupiah(s.total), { b: true });
         if (s.dp) {
             dua('DP (' + METODE[s.metode] + ')', L.rupiah(s.dibayar));
@@ -1717,13 +1718,15 @@
     L.STATUS_JUAL = { dp: 'Dipesan (DP)', lunas: 'Lunas, belum diambil', selesai: 'Selesai', batal: 'Batal' };
     L.urlNotaJual = function (kode) { return L.situs() + 'nota-jual.html?k=' + encodeURIComponent(kode); };
     L.hitungJual = function (j) {
-        var total = 0, dibayar = 0, kembali = 0, bulat = C.bulatkanKe;
-        (j.items || []).forEach(function (i) { total += (+i.harga || 0) * (+i.qty || 1); });
+        var subtotal = 0, dibayar = 0, kembali = 0, bulat = C.bulatkanKe;
+        (j.items || []).forEach(function (i) { subtotal += (+i.harga || 0) * (+i.qty || 1); });
+        /* diskon kasir: satu potongan per transaksi (Rp), tidak melebihi harga barang */
+        var diskon = Math.min(subtotal, Math.max(0, Math.round(+j.diskon || 0))), total = subtotal - diskon;
         (j.bayar || []).forEach(function (b) { if (b.jenis === 'refund') kembali += +b.jumlah || 0; else dibayar += +b.jumlah || 0; });
         /* biaya pembatalan oleh pembeli: % harga barang, paling banyak sebesar uang yang sudah dibayar; batal oleh toko tanpa potongan */
         var potongan = j.batal_oleh === 'toko' || j.batal_oleh === 'tukar' ? 0 : Math.min(dibayar, Math.round(total * C.jual.potonganPersen / 100 / bulat) * bulat);
         return {
-            total: total, dibayar: dibayar, kembali: kembali, sisa: Math.max(0, total - dibayar), lunas: total > 0 && dibayar >= total,
+            subtotal: subtotal, diskon: diskon, total: total, dibayar: dibayar, kembali: kembali, sisa: Math.max(0, total - dibayar), lunas: total > 0 && dibayar >= total,
             potongan: potongan, harusKembali: j.batal_oleh === 'tukar' ? 0 : Math.max(0, dibayar - potongan) /* ditukar: uang jadi kredit, tidak dikembalikan */
         };
     };
@@ -1744,13 +1747,15 @@
         if (i.lewat) return true;
         return C.jual.pengingatHari.some(function (d) { return i.sisa <= d && terakhir < L.tambahHari(j.batas_lunas, -d); });
     };
+    /* bagian harga yang benar-benar dibayar setelah diskon (untuk untung & catatan penjualan stok) */
+    L.faktorDiskon = function (j) { var h = L.hitungJual(j); return h.subtotal ? h.total / h.subtotal : 1; };
     L.namaJual = function (j) { return (j.items || []).map(function (i) { return i.nama + (i.qty > 1 ? ' ×' + i.qty : ''); }).join(', ') || 'Barang'; };
     L.ketentuanJual = function (j) {
         return C.jual.ketentuan.map(function (k) {
             return k.split('{batas}').join(j.batas_lunas ? L.tglPanjang(j.batas_lunas) : 'batas yang disepakati').split('{potongan}').join(String(C.jual.potonganPersen));
         });
     };
-    function barisBarang(j) { return (j.items || []).map(function (i) { return '• ' + i.nama + (i.qty > 1 ? ' ×' + i.qty : '') + ' – ' + L.rupiah(i.harga * (i.qty || 1)); }).join('\n'); }
+    function barisBarang(j) { var d = L.hitungJual(j).diskon; return (j.items || []).map(function (i) { return '• ' + i.nama + (i.qty > 1 ? ' ×' + i.qty : '') + ' – ' + L.rupiah(i.harga * (i.qty || 1)); }).join('\n') + (d ? '\n• Diskon – -' + L.rupiah(d) : ''); }
     L.pesanJual = {
         /* bukti pesanan dengan DP: pembeli diminta membalas SETUJU atas ketentuan */
         dp: function (j) {
@@ -1782,7 +1787,7 @@
         return {
             kode: j.kode, nama: j.nama, hp_samar: '••••' + L.hp4(j.hp), tgl: j.tgl, status: j.status, batas_lunas: j.batas_lunas || null,
             tgl_lunas: j.tgl_lunas || null, tgl_selesai: j.tgl_selesai || null, tgl_batal: j.tgl_batal || null, batal_oleh: j.batal_oleh || null, disetujui: j.disetujui || null,
-            items: (j.items || []).map(function (i) { return { nama: i.nama, qty: i.qty, harga: i.harga }; }),
+            items: (j.items || []).map(function (i) { return { nama: i.nama, qty: i.qty, harga: i.harga }; }), diskon: +j.diskon || 0,
             bayar: (j.bayar || []).map(function (b) { return { tgl: b.tgl, jumlah: b.jumlah, jenis: b.jenis, metode: b.metode }; })
         };
     }
@@ -1796,7 +1801,7 @@
     }
     /* terapkan transaksi ke daftar stok (jumlah + catatan penjualan). aktif = transaksi masih menahan barang */
     function terapkanStok(rec, stokList, aktifLama, aktifBaru) {
-        var diubah = {};
+        var diubah = {}, faktor = L.faktorDiskon(rec);
         (rec.items || []).forEach(function (it, n) {
             if (it.jenis === 'jasa') return; /* jasa cepat (Kasir): bukan barang stok */
             var s = stokList.filter(function (x) { return x.id === it.stok_id; })[0];
@@ -1805,7 +1810,7 @@
             if (!aktifLama && aktifBaru) {
                 if ((+s.jumlah || 0) < it.qty) throw new Error('Stok ' + it.nama + ' tinggal ' + (+s.jumlah || 0) + ' unit.');
                 s.jumlah = (+s.jumlah || 0) - it.qty;
-                s.penjualan.push({ id: rec.id + '-' + n, tgl: rec.tgl, qty: it.qty, harga: it.harga, catatan: rec.kode + (rec.nama ? ' · ' + rec.nama : ''), jual_id: rec.id });
+                s.penjualan.push({ id: rec.id + '-' + n, tgl: rec.tgl, qty: it.qty, harga: Math.round(it.harga * faktor), catatan: rec.kode + (rec.nama ? ' · ' + rec.nama : ''), jual_id: rec.id });
             } else if (aktifLama && !aktifBaru) {
                 s.jumlah = (+s.jumlah || 0) + it.qty;
                 s.penjualan = s.penjualan.filter(function (p) { return p.jual_id !== rec.id; });

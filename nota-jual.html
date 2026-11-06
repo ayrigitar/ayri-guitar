@@ -44,7 +44,7 @@
             (j.items || []).map(function (it) { return '<tr><td>' + E(it.nama) + '</td><td class="r">' + (it.qty || 1) + '</td><td class="r">' + L.rupiah(it.harga) + '</td><td class="r">' + L.rupiah(it.harga * (it.qty || 1)) + '</td></tr>'; }).join('') +
             '</tbody></table>' +
 
-            '<div class="nota-tot"><div class="t"><span>Total</span><span>' + L.rupiah(h.total) + '</span></div>' +
+            '<div class="nota-tot">' + (h.diskon ? '<div><span>Subtotal</span><span>' + L.rupiah(h.subtotal) + '</span></div><div><span>Diskon</span><span>−' + L.rupiah(h.diskon) + '</span></div>' : '') + '<div class="t"><span>Total</span><span>' + L.rupiah(h.total) + '</span></div>' +
             (j.bayar || []).map(function (b) { return '<div><span>' + NAMA[b.jenis] + ' ' + L.tgl(b.tgl) + ' (' + (METODE[b.metode] || b.metode) + ')</span><span>' + (b.jenis === 'refund' ? '−' : '') + L.rupiah(b.jumlah) + '</span></div>'; }).join('') +
             (j.status === 'batal' && j.batal_oleh === 'tukar' ? '<div class="s"><span>Menjadi kredit tukar (tidak dikembalikan)</span><span>' + L.rupiah(h.dibayar) + '</span></div>' : j.status === 'batal' ? '<div><span>Biaya pembatalan</span><span>' + L.rupiah(h.potongan) + '</span></div><div class="s"><span>Dikembalikan ke pembeli</span><span>' + L.rupiah(h.kembali || h.harusKembali) + '</span></div>'
                 : '<div class="s"><span>Sisa pembayaran</span><span>' + L.rupiah(h.sisa) + '</span></div>') + '</div>' +
