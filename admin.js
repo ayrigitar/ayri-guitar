@@ -233,10 +233,45 @@
         return !!m && adaAplikasi() && typeof window.AyriApp.postMessage === 'function' && (+m[1] > 1 || (+m[1] === 1 && +m[2] >= 3));
     }
     /* cetak baris struk 58 mm (Layanan.strukThermal / strukServis): ke printer Bluetooth lewat aplikasi, atau lewat dialog cetak browser */
+    /* logo toko untuk printer thermal: gambar 1-bit selebar kertas 58 mm (384 titik), logo di tengah.
+       Dikirim sebagai baris { img: base64, w, h } (aplikasi AYRI POS 1.5.0 ke atas; versi lama melewatinya) */
+    var LEBAR_STRUK = 384, TINGGI_LOGO = 144;
+    function bisaLogoStruk() {
+        var m = /AyriApp\/(\d+)\.(\d+)/.exec(navigator.userAgent);
+        return !!m && (+m[1] > 1 || (+m[1] === 1 && +m[2] >= 5));
+    }
+    function logoStruk() {
+        if (logoStruk.janji) return logoStruk.janji;
+        logoStruk.janji = new Promise(function (ok) {
+            var img = new Image();
+            img.onload = function () {
+                try {
+                    var h = TINGGI_LOGO, w = Math.round(img.naturalWidth / img.naturalHeight * h) || h, W = LEBAR_STRUK;
+                    var c = document.createElement('canvas'); c.width = W; c.height = h;
+                    var x = c.getContext('2d'); x.fillStyle = '#fff'; x.fillRect(0, 0, W, h); x.drawImage(img, Math.round((W - w) / 2), 0, w, h);
+                    var px = x.getImageData(0, 0, W, h).data, bw = W / 8, data = new Uint8Array(bw * h);
+                    for (var y = 0; y < h; y++) for (var i = 0; i < W; i++) {
+                        var p = (y * W + i) * 4, terang = 0.299 * px[p] + 0.587 * px[p + 1] + 0.114 * px[p + 2];
+                        if (terang < 170) data[y * bw + (i >> 3)] |= 0x80 >> (i & 7); /* ambang: emas & cokelat jadi hitam, latar putih */
+                    }
+                    var bin = ''; for (var k = 0; k < data.length; k++) bin += String.fromCharCode(data[k]);
+                    ok({ img: btoa(bin), w: W, h: h });
+                } catch (e) { ok(null); }
+            };
+            img.onerror = function () { ok(null); };
+            img.src = 'logo/ayri-logo.svg';
+        });
+        return logoStruk.janji;
+    }
     function cetakBaris(baris) {
-        if (bisaCetakBt()) { kirimKeAplikasi('cetakStruk', { baris: baris }); toast('Mencetak…'); return; }
+        if (bisaCetakBt()) {
+            toast('Mencetak…');
+            if (!bisaLogoStruk()) return kirimKeAplikasi('cetakStruk', { baris: baris });
+            logoStruk().then(function (logo) { kirimKeAplikasi('cetakStruk', { baris: (logo ? [logo] : []).concat(baris) }); });
+            return;
+        }
         var el = $('#struk-cetak'); if (!el) { el = document.createElement('div'); el.id = 'struk-cetak'; document.body.appendChild(el); }
-        el.innerHTML = '<div class="struk struk-pre">' + baris.map(function (x) {
+        el.innerHTML = '<div class="struk struk-pre"><div class="c struk-logo"><img src="logo/ayri-logo.svg" alt="" width="26" height="42"></div>' + baris.map(function (x) {
             return '<div class="' + (x.a === 'c' ? 'c' : '') + (x.besar ? ' besar' : '') + '">' + (x.b ? '<b>' + E(x.t) + '</b>' : E(x.t)) + '&nbsp;</div>';
         }).join('') + '</div>';
         document.body.classList.add('cetak-struk');
