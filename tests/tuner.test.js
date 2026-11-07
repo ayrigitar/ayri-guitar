@@ -5,7 +5,7 @@ const fs = require('fs'), path = require('path');
 
 const html = fs.readFileSync(path.join(__dirname, '..', 'tuner.html'), 'utf8');
 const kode = html.slice(html.indexOf('/* ENGINE-START */'), html.indexOf('/* ENGINE-END */'));
-const mesin = new Function(kode + '; return { pitch: pitch, makeFilter: makeFilter, deteksi: deteksi, TICK_MS: TICK_MS, cekHarmoni: cekHarmoni, HC: HC, makeLacak: makeLacak, makeBaca: makeBaca };')();
+const mesin = new Function(kode + '; return { pitch: pitch, makeFilter: makeFilter, deteksi: deteksi, TICK_MS: TICK_MS, cekHarmoni: cekHarmoni, HC: HC, makeLacak: makeLacak, makeBaca: makeBaca, makeGerbang: makeGerbang, JELAS_MIN: JELAS_MIN };')();
 
 const SR = 48000;
 /* petikan senar: diam 0,5 detik (penyangga 16384 sampel sudah penuh seperti di halaman), lalu nada berharmoni yang meluruh + derau serangan 15 ms */
@@ -129,4 +129,17 @@ test('satu bacaan nyasar tidak menggeser jarum', () => {
     p.dengar(midiHz(45, -10), 0, 8);
     p.dengar(midiHz(45, 30));
     assert.ok(Math.abs(p.sen + 10) < 1e-6, 'sen ' + p.sen);
+});
+
+test('gerbang stabil: jarum menunggu beberapa bacaan yang sepakat, bacaan meleset menahannya, lalu lanjut lagi', () => {
+    const g = mesin.makeGerbang(), hz = 110, sen = (c) => hz * Math.pow(2, c / 1200);
+    assert.equal(mesin.JELAS_MIN, 0.8);
+    const hasil = [0, 3, -2, 4, 1].map((c) => g.feed(sen(c), 25));
+    assert.deepEqual(hasil, [false, false, false, false, true], 'lima bacaan (125 ms) dalam 20 sen');
+    assert.equal(g.feed(sen(30), 25), false, 'satu bacaan 30 sen jauhnya: belum mantap');
+    for (let i = 0; i < 4; i++) g.feed(sen(30), 25);
+    assert.equal(g.feed(sen(31), 25), true, 'nada baru yang sudah stabil');
+    assert.equal(g.feed(-1, 25), false, 'tanpa bacaan: mulai dari awal');
+    assert.equal(g.feed(sen(0), 100), false);
+    assert.equal(g.feed(sen(1), 100), true, 'HP lambat (tick 100 ms): cukup dua bacaan');
 });
