@@ -1,7 +1,7 @@
 /* Service worker Toko Gitar AYRI.
    Naikkan angka VERSION setiap kali Anda mengubah daftar file di bawah. */
-var VERSION = 'ayri-v46';
-var CORE = ['./', 'index.html', 'tuner.html', 'chords.html', 'metronom.html', 'transkrip.html', 'partitur.html', 'partitur.js', 'partitur-edit.js', 'efek.html', 'efek.js', 'efek-worklet.js', 'chord-engine.js', 'artikel-custom-nut.html', 'style-index.css', 'style-artikel.css',
+var VERSION = 'ayri-v47';
+var CORE = ['./', 'index.html', 'tuner.html', 'chords.html', 'metronom.html', 'transkrip.html', 'partitur.html', 'partitur.js', 'partitur-edit.js', 'efek.html', 'efek.js', 'efek-worklet.js', 'chord-engine.js', 'transkrip-ai/nn.js', 'transkrip-ai/chordnet.js', 'artikel-custom-nut.html', 'style-index.css', 'style-artikel.css',
     'theme-dark.css', 'tools.css', 'app.css', 'app.js', 'theme.js', 'pwa.js', 'site.js', 'util.js', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png', 'apple-touch-icon.png', 'favicon-48.png', 'favicon.svg', 'logo/ayri-ikon.svg',
     'admin.html', 'admin.js', 'admin.webmanifest', 'layanan.js', 'layanan.css', 'layanan-config.js', 'artikel-md.js', 'artikel-builder.js'];
 var FONT_HOSTS = ['fonts.googleapis.com', 'fonts.gstatic.com'];
