@@ -17,6 +17,7 @@ Uji memuat kode ASLI dari repo (`layanan.js`, `admin.js`, `artikel-*.js`, `sw.js
 | `pin.test.js` | PIN, penguncian setelah salah 5 kali, token tidak di sessionStorage, cadangan terenkripsi |
 | `hitungan.test.js` | hitungan uang, DP, penitipan, pembatalan pesanan, format |
 | `artikel.test.js` | teks artikel aman dari penyisipan HTML, pembuat halaman menolak alamat berbahaya |
+| `transkrip-ai.test.js` | deteksi chord AI: CQT sama dengan librosa, jaringan (JavaScript dan WebAssembly) sama dengan PyTorch, lima model mengenali C G Am F Dm7 G7 |
 | `tuner.test.js` | mesin tuner: akurasi (< 1 sen) dan kecepatan jarum muncul (< 200 ms) pada petikan senar buatan |
 | `admin-ui.test.js` | tombol aksi admin memakai komponen seragam (id tetap ada), poster Bagikan memuat foto lewat GitHub |
 | `chord.test.js` | mesin chord (bentuk jari, kecepatan) dan pembaca chart |
