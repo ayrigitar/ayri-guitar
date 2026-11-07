@@ -219,6 +219,7 @@
         <button type="button" class="chip drawer-x" data-close>Tutup</button>
         <h2>Cara memakai</h2>
         <p class="t-help">Pilih file lagu. Chord dianalisis langsung di HP atau laptop Anda dan <b>file tidak dikirim ke server</b>. Gunakan hanya file yang Anda miliki atau berhak pakai.</p>
+        <p class="t-help">Chord dikenali oleh jaringan saraf <b>Chord-CNN-LSTM</b> (Junyan Jiang, Ke Chen, Wei Li, Gus Xia; ISMIR 2019; lisensi MIT) yang dijalankan di perangkat Anda. Saat pertama dipakai, model ±4,7 MB diunduh sekali. Di browser lama yang belum mendukungnya, dipakai deteksi sederhana. Lisensi dan sumbernya ada di <a href="transkrip-ai/README.md">transkrip-ai/README.md</a>.</p>
         <h2>Tingkat kesulitan chord</h2>
         <p class="t-help">Tingkat hanya menyederhanakan <b>nama</b> chord; jumlah dan waktu chord tetap sama, tidak ada yang dihilangkan. <b>Asli</b> (bawaan): seperti tertulis di chart (mis. Fmaj9, D7b9, Bbdim7, A/C#) atau seperti terdeteksi. <b>Sedang</b>: paling rumit sampai chord 7 (Fmaj9 jadi Fmaj7, D7b9 jadi D7, C9sus4 jadi C7sus4; Bbdim7 tetap). <b>Mudah</b>: hanya mayor dan minor (Fmaj9 jadi F, D7b9 jadi D, Bbdim7 jadi Bbm).</p>
         <h2>Chart dengan kapo</h2>
@@ -246,6 +247,8 @@
     </div></div>
     <div class="print-only" id="pa"></div>
     <script src="chord-engine.js"></script>
+    <script src="transkrip-ai/chordnet.js" defer></script>
+    <script src="transkrip-ai/nn.js" defer></script>
     <script>
 (function () {
     var $ = function (i) { return document.getElementById(i); };
@@ -274,7 +277,13 @@
             if (chartShift.k >= 1 && chartShift.k <= 9 && !I.kb) { st.capo = chartShift.k; save(); } else if (chartShift.src !== 'none' && !I.kb) { st.capo = 0; save(); }
             var r = alignChart(ana, items, auto); r.key = auto.key; segs = r; akey = r.key; heard = decode(ana, 'rinci'); return;
         }
-        chartOn = false; chartShift = null; heard = null; segs = decode(ana, 'auto'); akey = segs.key;
+        chartOn = false; chartShift = null; heard = null; segs = autoSegs(ana); akey = segs.key;
+    }
+    /* chord otomatis: dari jaringan saraf bila sudah ada (ana.nn), selain itu decoder lama */
+    function autoSegs(ana) {
+        if (!ana.nn || !ana.nn.length) return decode(ana, 'auto');
+        var res = ana.nn.map(function (g) { return { r: g.r, ti: g.ti, t0: g.t0, t1: g.t1 }; });
+        res.key = keyFromSegs(res, estKey(ana)); return res;
     }
     /* keluarga minor (untuk level Mudah) dan penyederhanaan level Sedang (maks. chord 7) */
     var MINK = { m: 1, m7: 1, m9: 1, m6: 1, madd9: 1, mmaj7: 1, m7b5: 1, dim: 1, dim7: 1 };
@@ -320,7 +329,9 @@
                 for (i = 0; i < n; i += size) for (j = i, k = 0; j < i + half; j++, k += step) { a = j + half; tr = re[a] * cs[k] - im[a] * sn[k]; ti = re[a] * sn[k] + im[a] * cs[k]; re[a] = re[j] - tr; im[a] = im[j] - ti; re[j] += tr; im[j] += ti; } }
         };
     }
-    function progress(p, txt) { $('prog').hidden = false; $('bar').style.width = Math.round(p * 100) + '%'; $('ptxt').textContent = txt + ' ' + Math.round(p * 100) + '%'; }
+    /* selama deteksi chord AI berjalan, analisis lama hanya mengisi bagian awal bilah kemajuan */
+    var progBase = 0, progSpan = 1;
+    function progress(p, txt) { p = progBase + progSpan * p; $('prog').hidden = false; $('bar').style.width = Math.round(p * 100) + '%'; $('ptxt').textContent = txt + ' ' + Math.round(p * 100) + '%'; }
     /* batas supaya HP tidak kehabisan memori: lagu 5 menit stereo ±100 MB saat didecode */
     var MAKS_BYTE = 80 * 1048576, DETIK_PENUH = 360, MAKS_DETIK = 600;
     function galatBatas(pesan) { var e = new Error(pesan); e.batas = true; return e; }
@@ -338,7 +349,20 @@
         progress(0.02, 'Membaca audio');
         buf = await c.decodeAudioData(ab); if (c.close) c.close();
         var chl = []; for (var q = 0; q < buf.numberOfChannels; q++) chl.push(buf.getChannelData(q));
-        return analyzePCM(chl, buf.sampleRate, buf.length, buf.duration, opts);
+        /* chord dikenali jaringan saraf (transkrip-ai/) di Worker, bersamaan dengan analisis lama (ketukan, kunci, chart) */
+        var nnF = 0, nnLive = false, nn = window.TranskripAI ? TranskripAI.chords(chl, buf.sampleRate, function (f) { nnF = f; if (nnLive) progress(nnF, 'Mengenali chord (AI)'); }) : null;
+        if (nn) { progBase = 0; progSpan = 0.3; }
+        var res;
+        try { res = await analyzePCM(chl, buf.sampleRate, buf.length, buf.duration, opts); }
+        finally { progBase = 0; progSpan = 1; }
+        if (nn) {
+            progBase = 0.3; progSpan = 0.7; nnLive = true; progress(nnF, 'Mengenali chord (AI)');
+            try {
+                var ns = await nn;
+                if (ns && ns.length) res.nn = ns.map(function (g) { return { r: g.r, ti: tIdx(g.k), t0: g.t0, t1: g.t1 }; });
+            } finally { progBase = 0; progSpan = 1; }
+        }
+        return res;
     }
     /* Rekaman stereo: vokal, bas, dan drum biasanya di tengah, sedangkan gitar (strum) tersebar kiri-kanan.
        Chord dihitung dari selisih kiri-kanan (side) supaya vokal tidak ikut terbaca; bas tetap dari suara tengah. */
@@ -1097,7 +1121,7 @@
     function restore(str) { segs = JSON.parse(str).map(function (a) { var g = { r: a[0], ti: a[1], t0: a[2], t1: a[3] }; if (typeof a[4] === 'string') { g.q = a[4]; g.bass = a[5]; } if (a[6]) g.src = a[6]; return g; }); st.sel = -1; $('edit').hidden = true; }
     function hashStr(t) { var h = 0, i; t = String(t || ''); for (i = 0; i < t.length; i++) h = (h * 31 + t.charCodeAt(i)) | 0; return (h >>> 0).toString(36); }
     function editKey() { return 'ayri-edit:' + fname + '|' + Math.round(dur || 0); }
-    function editBase() { return chartOn ? 'chart:' + hashStr(chartText) : 'auto'; }
+    function editBase() { return chartOn ? 'chart:' + hashStr(chartText) : (ana && ana.nn ? 'auto-ai' : 'auto'); }
     function hasSaved() { try { return !!localStorage.getItem(editKey()); } catch (e) { return false; } }
     function persist() { try { if (snap() === baseSnap) localStorage.removeItem(editKey()); else localStorage.setItem(editKey(), JSON.stringify({ v: 1, base: editBase(), segs: snap() })); } catch (e) {} }
     function undoUi() { $('undo').disabled = !hist.length; $('redo').disabled = !fut.length; var dirty = snap() !== baseSnap; [].forEach.call(document.querySelectorAll('.xreset'), function (b) { b.disabled = !dirty; }); }
