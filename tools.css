@@ -787,8 +787,8 @@ canvas.ctab.seret { cursor: grabbing; }
   .trans-app .tapp, .trans-app .tr-stage { min-height: 0; }
   .trans-app .tr-stage { overflow: hidden; }
   .trans-app .tr-stage > .tr-now { min-height: 84px; overflow: hidden; }
-  .trans-app .tr-nd { max-height: 44px; width: auto; }
-  .trans-app .tr-nd svg { max-height: 44px; width: auto; }
+  .trans-app .tr-nd { width: 46px; flex: none; }
+  .trans-app .tr-nd svg { display: block; width: 100%; height: auto; }
   .trans-app .tr-stage > .tr-top { display: none; }
   .trans-app .tr-stage > .tr-now { grid-area: now; }
   .trans-app .tr-stage > .tr-adj { grid-area: adj; }
