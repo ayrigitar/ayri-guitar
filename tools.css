@@ -813,6 +813,9 @@ canvas.ctab.seret { cursor: grabbing; }
   /* daftar disembunyikan: chord yang dimainkan memenuhi lebar kartu */
   .trans-app .tapp[data-daftar="tutup"] .tr-stage { grid-template-columns: minmax(0, 1fr); grid-template-areas: "now" "adj" "next" "tab" "bawah"; }
   .trans-app .tapp[data-daftar="tutup"] .tr-stage > .tr-lagu { display: none; }
+  /* daftar disembunyikan: diagram chord sekarang di kanan, jadi chord berikutnya ikut ke kanan, dekat di mata */
+  .trans-app .tapp[data-daftar="tutup"] .tr-next { justify-content: flex-end; gap: 6px 12px; }
+  .trans-app .tapp[data-daftar="tutup"] .tr-next small { margin-left: 0; }
   /* tombol pemutar minimalis: tanpa bingkai dan bayangan, hanya Putar yang berwarna */
   .tr-bawah .tb:not(.tb-go) { border-color: transparent; background: transparent; box-shadow: none; color: var(--ink-2); }
   .tr-bawah .tb:not(.tb-go):hover { background: var(--surface-2); color: var(--ink); }
