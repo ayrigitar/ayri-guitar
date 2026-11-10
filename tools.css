@@ -749,6 +749,8 @@ canvas.ctab.seret { cursor: grabbing; }
 .tr-more-panel.buka { display: flex; }
 .tr-more-panel .tr-saran { flex: 0 0 auto; }
 .tr-more-btn { position: relative; }
+.tr-lstbtn { display: none; }
+.tr-lstbtn[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
 .tr-kontrol:has(#capohint:not([hidden])) .tr-more-btn::after { content: ""; position: absolute; top: -1px; right: -1px; width: 9px; height: 9px; border-radius: 50%; background: var(--accent); border: 2px solid var(--surface); }
 .tr-tampil { flex: 0 0 auto; display: inline-flex; gap: 2px; padding: 2px; border: 1px solid var(--line-strong); border-radius: var(--r-pill); background: var(--surface-2); }
 .tr-tampil .tt-b { display: inline-flex; align-items: center; justify-content: center; width: 34px; height: 28px; padding: 0; border: 0; border-radius: var(--r-pill); background: none; color: var(--ink-3); cursor: pointer; }
@@ -799,14 +801,18 @@ canvas.ctab.seret { cursor: grabbing; }
   .tr-lagu #edit { position: absolute; left: 8px; right: 8px; bottom: 8px; z-index: 3; box-shadow: var(--shadow-md); }
   /* bar bawah: satu baris ala transport DAW. Kiri tombol pemutar, tengah posisi lagu, kanan kecepatan + transpose + tombol pengaturan lain */
   .trans-app .tr-stage > .tr-bawah {
-    grid-area: bawah; position: relative; display: grid; grid-template-columns: auto minmax(160px, 1fr) auto auto; align-items: center; gap: 4px 18px;
+    grid-area: bawah; position: relative; display: grid; grid-template-columns: auto minmax(160px, 1fr) auto auto auto; align-items: center; gap: 4px 18px;
     margin-top: 6px; padding-top: 12px; border-top: 1px solid var(--line);
   }
   .tr-bawah .tr-kontrol { display: contents; }
   .tr-bawah .tr-bar { --tb: 40px; --go: 50px; grid-column: 1; grid-row: 1; justify-content: flex-start; gap: 4px; padding: 0; }
   .tr-bawah .tr-seek { grid-column: 2; grid-row: 1; margin: 0; }
   .tr-bawah .tr-set { grid-column: 3; grid-row: 1; display: flex; flex-wrap: nowrap; align-items: center; gap: 6px; }
-  .tr-bawah .tr-more-btn { grid-column: 4; grid-row: 1; }
+  .tr-bawah #lstbtn { display: inline-flex; grid-column: 4; grid-row: 1; }
+  .tr-bawah .tr-more-btn { grid-column: 5; grid-row: 1; }
+  /* daftar disembunyikan: chord yang dimainkan memenuhi lebar kartu */
+  .trans-app .tapp[data-daftar="tutup"] .tr-stage { grid-template-columns: minmax(0, 1fr); grid-template-areas: "now" "adj" "next" "tab" "bawah"; }
+  .trans-app .tapp[data-daftar="tutup"] .tr-stage > .tr-lagu { display: none; }
   /* tombol pemutar minimalis: tanpa bingkai dan bayangan, hanya Putar yang berwarna */
   .tr-bawah .tb:not(.tb-go) { border-color: transparent; background: transparent; box-shadow: none; color: var(--ink-2); }
   .tr-bawah .tb:not(.tb-go):hover { background: var(--surface-2); color: var(--ink); }

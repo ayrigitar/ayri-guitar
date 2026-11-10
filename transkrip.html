@@ -179,6 +179,7 @@
                         <label class="ts" title="Kecepatan lagu (nada tetap)"><svg class="ic" aria-hidden="true"><use href="#i-gauge"/></svg><span class="ts-s"><b class="ts-v" aria-hidden="true"></b><select id="rates" aria-label="Kecepatan lagu, nada tetap"></select></span></label>
                         <label class="ts" title="Transpose / kapo: ubah kunci nama chord, atau pakai kapo"><span class="ts-k">Transpose</span><span class="ts-s"><b class="ts-v" aria-hidden="true"></b><select id="capo" aria-label="Transpose atau kapo"></select></span></label>
                     </div>
+                    <button type="button" class="tr-more-btn tr-lstbtn" id="lstbtn" aria-pressed="true" aria-label="Tampilkan daftar chord di samping" title="Daftar chord: tampilkan / sembunyikan"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6h11M9 12h11M9 18h11M4.5 6h.01M4.5 12h.01M4.5 18h.01"/></svg></button>
                     <button type="button" class="tr-more-btn" id="morebtn" aria-expanded="false" aria-controls="morepanel" aria-label="Pengaturan lain: instrumen, klik, tempo, tingkat chord" title="Pengaturan lain"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></svg></button>
                     <div class="tr-more-panel" id="morepanel" role="group" aria-label="Pengaturan lain">
                         <label class="ts" title="Instrumen"><svg class="ic" aria-hidden="true"><use href="#i-chord"/></svg><span class="ts-k">Instrumen</span><span class="ts-s"><b class="ts-v" aria-hidden="true"></b><select id="insts" aria-label="Instrumen"></select></span></label>
@@ -1098,6 +1099,12 @@
         function pasang(x) { v = x; app.setAttribute('data-tampil', x); [].forEach.call(tb, function (b) { b.setAttribute('aria-pressed', b.getAttribute('data-tampil') === x); }); try { localStorage.setItem('ayri-tr-tampil', x); } catch (e) {} }
         [].forEach.call(tb, function (b) { b.addEventListener('click', function () { pasang(b.getAttribute('data-tampil')); }); });
         pasang(v);
+        /* layar lebar: daftar chord di kanan bisa disembunyikan supaya chord yang dimainkan memenuhi layar */
+        var lb = $('lstbtn'), tutup = false;
+        try { tutup = localStorage.getItem('ayri-tr-daftar') === 'tutup'; } catch (e) {}
+        function daftar(t) { tutup = t; app.setAttribute('data-daftar', t ? 'tutup' : 'buka'); lb.setAttribute('aria-pressed', !t); lb.setAttribute('aria-label', t ? 'Tampilkan daftar chord di samping' : 'Sembunyikan daftar chord di samping'); try { localStorage.setItem('ayri-tr-daftar', t ? 'tutup' : 'buka'); } catch (e) {} }
+        lb.addEventListener('click', function () { daftar(!tutup); });
+        daftar(tutup);
     })();
     $('sheet').addEventListener('click', function (e) {
         var b = e.target.closest('[data-i]'); if (!b) return; var i = +b.dataset.i, s = segs[i]; st.sel = i; au.currentTime = s.t0; mark(s.t0, true);
