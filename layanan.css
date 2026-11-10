@@ -1162,3 +1162,55 @@ html[data-theme="dark"] .ar-pulih { border-color: rgba(245, 182, 92, .35); backg
 .ly-riwayat__j--sewa { color: #B5651D; }
 .ly-riwayat > .ly-btn { justify-self: start; }
 .ks-pel + .ly-riwayat { margin-top: -4px; }
+
+/* ================= PC: menu samping (sidebar) yang bisa dilipat =================
+   Header + tab digabung jadi satu kolom di kiri: logo, menu, lalu muat ulang & kunci di bawah.
+   HP tidak berubah (header atas + bilah bawah). Sebelum login tidak ada sidebar. */
+.ly-side-btn, .ly-side-btn[hidden] { display: none; }
+#sinkron .ly-lbl { display: none; }
+#kunci svg { display: none; }
+@media (min-width: 900px) {
+  body.ly { --side-w: 248px; }
+  body.ly.ly-side-ciut { --side-w: 72px; }
+  body.ly:has(#tabs:not([hidden])) { padding-left: var(--side-w); transition: padding-left .2s var(--ease-out); }
+  body.ly:has(#tabs:not([hidden])) .ly-side {
+    position: fixed; inset: 0 auto 0 0; z-index: 25; width: var(--side-w); display: flex; flex-direction: column; gap: 4px;
+    padding: 12px 10px; border-right: 1px solid var(--line); background: var(--surface);
+    overflow: hidden auto; scrollbar-width: thin; transition: width .2s var(--ease-out);
+  }
+  body.ly:has(#tabs:not([hidden])) .ly-top { display: contents; }
+  body.ly:has(#tabs:not([hidden])) .ly-side > * { flex: none; }
+  body.ly:has(#tabs:not([hidden])) .ly-side-btn { display: inline-flex; order: 0; border: 0; background: none; color: var(--ink-2); }
+  body.ly:has(#tabs:not([hidden])) .ly-side-btn:hover { background: var(--surface-2); }
+  body.ly:has(#tabs:not([hidden])) .ly-side .ly-brand { order: 1; margin: 6px 0 14px; padding: 0 9px; }
+  body.ly:has(#tabs:not([hidden])) .ly-side .ly-brand > span:last-child { overflow: hidden; }
+  body.ly:has(#tabs:not([hidden])) .ly-side .ly-tabs { order: 2; flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; gap: 1px; width: auto; margin: 0; padding: 0; border: 0; border-radius: 0; background: none; overflow: hidden auto; scrollbar-width: thin; }
+  body.ly:has(#tabs:not([hidden])) .ly-side .ly-tabs a, body.ly:has(#tabs:not([hidden])) .ly-side #sinkron, body.ly:has(#tabs:not([hidden])) .ly-side #kunci {
+    display: flex; align-items: center; justify-content: flex-start; gap: 14px; width: 100%; height: auto; min-height: 38px; padding: 7px 13px;
+    border: 0; border-radius: var(--r-pill); background: none; box-shadow: none; color: var(--ink-3);
+    font: 700 .9375rem/1.2 var(--font-sans); white-space: nowrap; cursor: pointer;
+  }
+  body.ly:has(#tabs:not([hidden])) .ly-side .ly-tabs a:hover, body.ly:has(#tabs:not([hidden])) .ly-side #sinkron:hover, body.ly:has(#tabs:not([hidden])) .ly-side #kunci:hover { background: var(--surface-2); color: var(--ink); }
+  body.ly:has(#tabs:not([hidden])) .ly-side .ly-tabs a[aria-current="page"] { background: var(--surface-2); color: var(--ink); box-shadow: none; }
+  body.ly:has(#tabs:not([hidden])) .ly-side .ly-tabs a[aria-current="page"] svg { color: var(--accent); }
+  body.ly:has(#tabs:not([hidden])) .ly-side .ly-tabs svg, body.ly:has(#tabs:not([hidden])) .ly-side #sinkron svg, body.ly:has(#tabs:not([hidden])) .ly-side #kunci svg { display: block; flex: none; width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+  body.ly:has(#tabs:not([hidden])) .ly-side #sinkron .ly-lbl { display: inline; }
+  body.ly:has(#tabs:not([hidden])) .ly-side .ly-net { order: 3; align-self: flex-start; margin: 6px 0 2px 4px; }
+  body.ly:has(#tabs:not([hidden])) .ly-side .ly-peran { order: 4; align-self: flex-start; margin: 2px 0 6px 4px; }
+  body.ly:has(#tabs:not([hidden])) .ly-side #sinkron { order: 5; }
+  body.ly:has(#tabs:not([hidden])) .ly-side #kunci { order: 6; }
+  /* lipat: hanya ikon */
+  body.ly-side-ciut:has(#tabs:not([hidden])) .ly-side .ly-brand > span:last-child,
+  body.ly-side-ciut:has(#tabs:not([hidden])) .ly-side .ly-tabs a span,
+  body.ly-side-ciut:has(#tabs:not([hidden])) .ly-side .ly-lbl,
+  body.ly-side-ciut:has(#tabs:not([hidden])) .ly-side .ly-peran { display: none !important; }
+  body.ly-side-ciut:has(#tabs:not([hidden])) .ly-side .ly-tabs a, body.ly-side-ciut:has(#tabs:not([hidden])) .ly-side #sinkron, body.ly-side-ciut:has(#tabs:not([hidden])) .ly-side #kunci { justify-content: center; padding-inline: 0; }
+  body.ly-side-ciut:has(#tabs:not([hidden])) .ly-side .ly-brand { justify-content: center; padding: 0; }
+  body.ly-side-ciut:has(#tabs:not([hidden])) .ly-side .ly-net { align-self: center; margin-left: 0; max-width: 100%; padding: 3px 4px; overflow: hidden; text-overflow: ellipsis; font-size: .625rem; }
+  /* isi halaman: bilah bawah & notifikasi digeser selebar sidebar */
+  body.ly:has(#tabs:not([hidden])) .ly-main { margin-top: 24px; }
+  body.ly:has(#tabs:not([hidden])) .ly-save { left: var(--side-w); transition: left .2s var(--ease-out); }
+  body.ly:has(#tabs:not([hidden])) .ly-toast { left: calc(50% + var(--side-w) / 2); bottom: 28px; }
+  body.ly:has(#tabs:not([hidden])) .ks-kanan { top: 16px; }
+}
+@media (prefers-reduced-motion: reduce) { body.ly, body.ly:has(#tabs:not([hidden])) .ly-side, .ly-save { transition: none !important; } }
