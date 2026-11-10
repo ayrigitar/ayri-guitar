@@ -453,6 +453,22 @@
         A.muat().then(function (d) { cache = d; b.classList.remove('putar'); b.disabled = false; terapkanPeran(); if (!layarPisah()) rute(); toast(A.statusOffline().offline ? 'Tidak ada internet: memakai data terakhir di perangkat ini.' : 'Data terbaru dimuat.', A.statusOffline().offline); }).catch(function (e) { b.classList.remove('putar'); b.disabled = false; gagal(e); });
     });
     $('#b-lainnya').addEventListener('click', function () { $('#lainnya').hidden = !$('#lainnya').hidden; });
+    /* menu samping (PC): lipat / buka, pilihan diingat per perangkat; bawaan terbuka di layar lebar */
+    (function () {
+        var b = $('#side-toggle'), kunciMenu = 'ayri-menu-samping', simpan = null;
+        try { simpan = localStorage.getItem(kunciMenu); } catch (e) {}
+        function atur(ciut) {
+            document.body.classList.toggle('ly-side-ciut', ciut);
+            b.setAttribute('aria-expanded', ciut ? 'false' : 'true');
+            b.setAttribute('aria-label', ciut ? 'Buka menu' : 'Ciutkan menu'); b.title = ciut ? 'Buka menu' : 'Ciutkan menu';
+        }
+        atur(simpan ? simpan === 'ciut' : window.innerWidth < 1280);
+        b.addEventListener('click', function () {
+            var ciut = !document.body.classList.contains('ly-side-ciut'); atur(ciut);
+            try { localStorage.setItem(kunciMenu, ciut ? 'ciut' : 'buka'); } catch (e) {}
+        });
+        $$('#tabs a').forEach(function (a) { a.title = a.textContent.trim(); });
+    })();
     $('#lainnya').addEventListener('click', function (e) { if (e.target === this || e.target.closest('a')) this.hidden = true; });
     /* status internet + antrian transaksi offline (dikirim otomatis saat online) */
     function net() {
