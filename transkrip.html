@@ -161,6 +161,7 @@
                 <div class="t-card" id="edit" hidden style="margin-top:.6rem"><b id="etl"></b><div class="pg-row"><select id="er" class="srch" style="width:auto" aria-label="Nada dasar chord"></select><select id="et" class="srch" style="width:auto" aria-label="Jenis chord"></select></div><div class="pg-row"><button id="eok" type="button" class="t-btn" style="min-height:46px;font-size:1rem">Terapkan</button><button id="edel" type="button" class="chip">Hapus chord ini</button><button id="ebatal" type="button" class="chip">Batal</button></div><p class="hint" style="margin:.5rem 0 .2rem">Waktu mulai chord ini salah? Geser satu ketukan:</p><div class="pg-row"><button id="emvl" type="button" class="chip">&#9664; Lebih awal</button><button id="emvr" type="button" class="chip">Lebih akhir &#9654;</button></div></div>
                 </div>
                 <div class="tr-now"><div><div class="tr-cn" id="cn">&ndash;</div><div class="tr-cs" id="cs"></div><div class="tr-hd" id="hd"></div></div><div class="tr-cd" id="cd"></div></div>
+                <div class="tr-prog" aria-hidden="true"><span><i id="pgb"></i></span></div>
                 <div class="tr-adj" role="group" aria-label="Waktu dan edit chord"><span class="tr-adjl">Waktu</span><button type="button" class="chip" id="adjE" title="Pergantian ke chord berikutnya dimajukan 1 ketukan (tampilan terlambat dari lagu)" aria-label="Waktu ganti chord lebih awal">&#9664;&nbsp;<span class="lw">lebih&nbsp;</span>awal</button><button type="button" class="chip" id="adjL" title="Pergantian ke chord ini dimundurkan 1 ketukan (tampilan terlalu cepat)" aria-label="Waktu ganti chord lebih akhir"><span class="lw">lebih&nbsp;</span>akhir&nbsp;&#9654;</button><button type="button" class="chip tr-edb" id="adjX" title="Ganti, tambah, atau hapus chord yang sedang tampil" aria-label="Edit chord">&#9998;&nbsp;Edit<span class="lw">&nbsp;chord</span></button><button type="button" class="chip ic" id="undo" title="Urungkan (Ctrl+Z)" aria-label="Urungkan" disabled>&#8630;</button><button type="button" class="chip ic" id="redo" title="Ulangi (Ctrl+Y)" aria-label="Ulangi" disabled>&#8631;</button><span class="tr-adjm" id="adjm" role="status"></span></div>
                 
                 <div class="tr-next"><span>Berikutnya</span><b id="nx"></b><div class="tr-nd" id="nd"></div><small id="nt"></small></div>
@@ -849,6 +850,8 @@
         $('cd').innerHTML = v ? diagram(v, { alt: 'Diagram ' + cname(s) }) : '<p class="hint">Bentuk belum tersedia untuk ' + I.name + '.</p>';
         var nx = segs[idx + 1]; $('nx').textContent = nx ? cname(nx) : 'selesai';
         $('nd').innerHTML = nx && voic(nx) ? diagram(voic(nx), { mini: true }) : '';
+        /* gerak singkat saat chord berganti (tampilan satu baris di PC) */
+        var ap = $('app'); ap.classList.remove('gantikan'); void ap.offsetWidth; ap.classList.add('gantikan');
     }
     function sheet() {
         $('sheet').innerHTML = segs.map(function (s, i) { return '<button type="button" class="sc" data-i="' + i + '"><b>' + cname(s) + '</b><small>' + fmt(s.t0) + (s.src === 'auto' ? ' *' : '') + '</small></button>'; }).join('');
@@ -966,7 +969,9 @@
             if (ch[i] && !au.paused && $('sheet').offsetParent) $('sheet').scrollTop = ch[i].offsetTop - $('sheet').clientHeight / 2 + 20;
         }
         var hl = chartOn && heard ? heardDiff(segs[i], heard[idxIn(heard, t)]) : '', ht = hl ? 'terdengar: ' + hl : ''; if ($('hd').textContent !== ht) $('hd').textContent = ht;
-        var nx = segs[i + 1]; if (nx && !counting) $('nt').textContent = 'dalam ' + Math.max(0, (nx.t0 - t) / st.rate).toFixed(1) + ' dtk';
+        var nx = segs[i + 1];
+        $('pgb').style.transform = 'scaleX(' + (nx && segs[i] ? Math.min(1, Math.max(0, (t - segs[i].t0) / Math.max(0.05, nx.t0 - segs[i].t0))) : 0).toFixed(3) + ')';
+        if (nx && !counting) $('nt').textContent = 'dalam ' + Math.max(0, (nx.t0 - t) / st.rate).toFixed(1) + ' dtk';
         waktuUi(t);
         drawCTab(t);
     }
