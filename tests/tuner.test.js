@@ -197,3 +197,48 @@ test('gitar 12 senar: dua senar kembar (B3, E4) dan sepuluh sasaran sudah terdaf
     assert.ok(/g12:\['Gitar 12 senar'/.test(html));
     assert.ok(html.includes('[40,52,45,57,50,62,55,67,59,64]'));
 });
+
+/* ---- penunjuk: sama dengan aplikasi (angka dalam langkah, skala lebih lembut, warna bertahap) ---- */
+const kodeGauge = html.slice(html.indexOf('/* GAUGE-START */'), html.indexOf('/* GAUGE-END */'));
+const gauge = new Function(kodeGauge + '; return { posisi: posisi, senDi: senDi, langkah: langkah, warnaTingkat: warnaTingkat };')();
+test('penunjuk: angka dalam langkah seperti GuitarTuna (diukur pada nada E4 dan A2)', () => {
+    for (const [sen, tampil] of [[-8, -1], [-30, -4], [15, 2], [-50, -6], [-80, -8], [0, 0], [8, 1]]) assert.equal(gauge.langkah(sen), tampil, 'sen ' + sen);
+    assert.equal(gauge.langkah(300), 10);
+    assert.equal(gauge.langkah(-300), -10);
+});
+test('penunjuk: posisi dan sen saling berbalik, dan +-50 sen hanya mengisi 22 persen dari setengah medan', () => {
+    for (const c of [-300, -120, -50, -23, -4, 0, 1, 7, 30, 50, 64, 200]) assert.ok(Math.abs(gauge.senDi(gauge.posisi(c, false), false) - c) < 0.05, 'sen ' + c);
+    assert.ok(Math.abs(gauge.posisi(50, false) - (50 + 40 * 0.22)) < 1e-9);
+    assert.ok(Math.abs(gauge.posisi(-300, false) - 10) < 1e-9);
+});
+test('penunjuk: mode presisi merata dalam +-25 sen', () => {
+    assert.equal(gauge.posisi(25, true), 90);
+    assert.equal(gauge.posisi(-25, true), 10);
+    assert.equal(gauge.posisi(0, true), 50);
+    for (const c of [-25, -13, 0, 4.5, 25]) assert.ok(Math.abs(gauge.senDi(gauge.posisi(c, true), true) - c) < 1e-9);
+    assert.equal(gauge.senDi(gauge.posisi(80, true), true), 25);
+});
+test('penunjuk: warna cincin makin hangat makin jauh dari pas', () => {
+    const rgb = (t) => gauge.warnaTingkat(t).match(/\d+/g).map(Number);
+    const dekat = rgb(1), tengah = rgb(4), jauh = rgb(9);
+    assert.ok(dekat[1] > dekat[0], 'dekat hijau');
+    assert.ok(jauh[0] > jauh[1], 'jauh merah');
+    assert.ok(tengah[0] > dekat[0] && tengah[1] > jauh[1], 'di antaranya');
+    assert.equal(gauge.warnaTingkat(10), gauge.warnaTingkat(8));
+});
+
+/* ---- serangan 0,2 detik dan menahan saat nada meluruh ---- */
+test('tahan: 0,2 detik pertama setelah petikan adalah serangan, dan nada yang meluruh jauh ditahan', () => {
+    const b = mesin.makeBaca();
+    let t = 10000;
+    for (let i = 0; i < 10; i++) { t += 10; b.level(0.0005, t); }          // ruangan sunyi
+    t += 10; b.level(0.05, t);                                              // petikan
+    assert.equal(b.tahan(t + 50, 0.05).attack, true);
+    assert.equal(b.tahan(t + 190, 0.05).attack, true);
+    for (let i = 0; i < 50; i++) { t += 10; b.level(0.1, t); }
+    assert.equal(b.tahan(t, 0.1).attack, false);
+    assert.equal(b.tahan(t, 0.1).fading, false);
+    assert.equal(b.tahan(t + 20, 0.012).fading, true, 'di bawah 20 persen dari yang terkeras');
+    assert.equal(b.tahan(t + 20, 0).attack, false, 'tanpa ukuran keras tidak ada yang ditahan');
+    assert.equal(b.tahan(t + 20, 0).fading, false);
+});
