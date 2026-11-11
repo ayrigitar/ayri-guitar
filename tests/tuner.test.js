@@ -143,3 +143,57 @@ test('gerbang stabil: jarum menunggu beberapa bacaan yang sepakat, bacaan melese
     assert.equal(g.feed(sen(0), 100), false);
     assert.equal(g.feed(sen(1), 100), true, 'HP lambat (tick 100 ms): cukup dua bacaan');
 });
+
+/* ---- suara acuan: dihitung sendiri, nadanya harus tepat (diukur dengan mesin deteksi yang sama) ---- */
+const kodeSuara = html.slice(html.indexOf('/* SOUND-START */'), html.indexOf('/* SOUND-END */'));
+const suara = new Function(kode + '\n' + kodeSuara + '; return { pitch: pitch, bufSuara: bufSuara };')();
+for (const [jenis, hz] of [['ak', 82.41], ['ak', 220], ['g12', 392], ['g12', 164.81], ['uk', 440], ['gl', 110], ['b4', 41.2], ['md', 659.26], ['ce', 65.41], ['vl', 659.26], ['pn', 110], ['pn', 261.63]]) {
+    for (const sr of [44100, 48000]) {
+        test('suara acuan ' + jenis + ' ' + hz + ' Hz (' + sr + '): nadanya tepat dalam 3 sen', () => {
+            const x = suara.bufSuara(jenis, hz, sr), mulai = Math.round(sr * 0.25), w = x.subarray(mulai, mulai + 16384);
+            assert.ok(Math.max(...x.subarray(0, 4000).map(Math.abs)) > 0.01, 'tidak ada suara');
+            const r = suara.pitch(w, sr, 0.002, null);
+            assert.ok(r[0] > 0, 'nada tidak terbaca');
+            const sen = 1200 * Math.log2(r[0] / hz);
+            assert.ok(Math.abs(sen) < 3, 'meleset ' + sen.toFixed(2) + ' sen');
+        });
+    }
+}
+
+/* ---- gitar 12 senar: senar utama dan senar oktaf sama-sama jadi sasaran ---- */
+const G12 = [40, 52, 45, 57, 50, 62, 55, 67, 59, 64];
+function pemilih12() {
+    const b = mesin.makeBaca();
+    let t = 10000, h = null;
+    return {
+        dengar(hz, rms = 0, kali = 1) { for (let i = 0; i < kali; i++) { t += 25; if (rms) b.level(rms, t); const r = b.baca(hz, t, G12, null, 440); if (r) h = r; } },
+        get midi() { return h ? G12[h.idx] : -1; },
+        get sen() { return h ? h.cs : null; }
+    };
+}
+test('gitar 12 senar: senar oktaf (A3) dipetik setelah senar utama (A2): senar oktaf yang tampil', () => {
+    const p = pemilih12();
+    p.dengar(midiHz(45), 0.05, 6);
+    p.dengar(midiHz(45), 0.01, 12);
+    p.dengar(midiHz(57, 3), 0.06, 20);
+    assert.equal(p.midi, 57);
+    assert.ok(Math.abs(p.sen - 3) < 1.5, 'sen ' + p.sen);
+});
+test('gitar 12 senar: senar utama (A2) dipetik setelah senar oktaf (A3): senar utama yang tampil', () => {
+    const p = pemilih12();
+    p.dengar(midiHz(57), 0.05, 6);
+    p.dengar(midiHz(57), 0.01, 12);
+    p.dengar(midiHz(45, -3), 0.06, 20);
+    assert.equal(p.midi, 45);
+});
+test('gitar 12 senar: senar A2 disetel sementara oktafnya ikut berdengung: tetap senar A2', () => {
+    const p = pemilih12();
+    p.dengar(midiHz(45, -8), 0, 16);
+    p.dengar(midiHz(45, -8) * 2, 0, 60);
+    assert.equal(p.midi, 45);
+    assert.ok(Math.abs(p.sen + 8) < 1.5, 'sen ' + p.sen);
+});
+test('gitar 12 senar: dua senar kembar (B3, E4) dan sepuluh sasaran sudah terdaftar di halaman', () => {
+    assert.ok(/g12:\['Gitar 12 senar'/.test(html));
+    assert.ok(html.includes('[40,52,45,57,50,62,55,67,59,64]'));
+});

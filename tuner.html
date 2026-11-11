@@ -184,6 +184,7 @@
         <h2>Tips per alat musik</h2>
         <p class="t-help"><b>Piano:</b> pilih nada dan oktaf yang disetel (atau Auto untuk semua nada). Satu nada piano punya 2 sampai 3 senar, jadi redam senar lain dan setel satu per satu. Tuner ini memakai skala sama rata (equal temperament); penyetel piano profesional memakai penalaan "regang" di nada sangat rendah dan tinggi, jadi anggap ini panduan. Nada acuan untuk nada sangat rendah dimainkan lebih tinggi karena speaker HP tidak mampu menghasilkannya.</p>
         <p class="t-help"><b>Oud / Gambus:</b> pilih setelan Arab atau Turki. Nada oud sering disetel sedikit lebih rendah dari patokan, jadi ubah acuan A4 bila perlu.</p>
+        <p class="t-help"><b>Gitar 12 senar:</b> setel senar satu per satu. Pasangan 6 sampai 3 berisi senar utama dan senar oktaf (satu oktaf lebih tinggi). Pasangan 2 dan 1 berisi dua senar dengan nada sama (kembar): setel yang satu, lalu samakan yang lain sampai tidak ada getaran yang saling bertabrakan. Tahan senar lain dengan jari agar tidak ikut berbunyi, atau ketuk kotak senarnya supaya yang didengar hanya senar itu.</p>
         <p class="t-help"><b>Kecapi Sunda:</b> pilih laras (Saléndro, Degung, atau Madenda) lalu nada dasar (da) sesuai suling atau penyanyi. Nilai nada di sini pendekatan ke skala Barat dan tiap perangkat gamelan atau kecapi punya penalaannya sendiri, jadi pakai telinga sebagai penentu akhir. Tersedia 2 oktaf; da adalah nada tertinggi di tiap oktaf.</p>
         <button type="button" class="t-btn alt pwa-btn" data-install style="display:none">Pasang Tuner di HP</button>
         <p class="t-help pwa-note" data-install-ios style="display:none">Di iPhone/iPad: ketuk tombol Bagikan di Safari, lalu pilih &quot;Tambah ke Layar Utama&quot; agar tuner ini jadi aplikasi.</p>
@@ -199,6 +200,7 @@
             b5:['Bass 5 senar',{ s:['Standar (B E A D G)',[23,28,33,38,43]], h:['Turun setengah nada',[22,27,32,37,42]] }],
             uk:['Ukulele',{ s:['Standar (G C E A)',[67,60,64,69]], l:['Low G (G rendah)',[55,60,64,69]], b:['Baritone (D G B E)',[50,55,59,64]] }],
             gl:['Guitalele',{ s:['Standar (A D G C E A)',[45,50,55,60,64,69]], h:['Turun setengah nada',[44,49,54,59,63,68]] }],
+            g12:['Gitar 12 senar',{ s:['Standar (E A D G B E, tiap pasang)',[40,52,45,57,50,62,55,67,59,64]], h:['Turun setengah nada (Eb)',[39,51,44,56,49,61,54,66,58,63]] }],
             pn:['Piano akustik',null],
             vl:['Biola / Violin',{ s:['Standar (G D A E)',[55,62,69,76]] }],
             va:['Viola',{ s:['Standar (C G D A)',[48,55,62,69]] }],
@@ -223,7 +225,10 @@
         var KC = { sa: [0, [-9.6, -7.2, -4.8, -2.4, 0, 2.4, 4.8, 7.2, 9.6, 12]], dg: [0, [-8, -7, -5, -1, 0, 4, 5, 7, 11, 12]], md: [0, [-8, -6, -5, -1, 0, 4, 6, 7, 11, 12]] };
         var KCN = ['la', 'ti', 'na', 'mi', 'da', 'la', 'ti', 'na', 'mi', 'da'], KCD = ['5', '4', '3', '2', '1', "5'", "4'", "3'", "2'", "1'"];
         function kcFill() { var da = 60 + tonic; Object.keys(KC).forEach(function (k) { INST.kc[1][k][1] = KC[k][1].map(function (o) { return da + o; }); }); }
-        function labs() { return inst === 'kc' ? KCN.map(function (n, i) { return { n: n, o: KCD[i] }; }) : null; }
+        /* gitar 12 senar: pasangan 6-3 = senar utama + senar oktaf, pasangan 2 dan 1 = dua senar kembar (satu kotak) */
+        var G12S = ['6 utama', '6 oktaf', '5 utama', '5 oktaf', '4 utama', '4 oktaf', '3 utama', '3 oktaf', '2 (kembar)', '1 (kembar)'];
+        function labs() { if (inst === 'g12') return cur().map(function (m, i) { return { n: NAMES[m % 12], o: Math.floor(m / 12) - 1, s: G12S[i] }; });
+            return inst === 'kc' ? KCN.map(function (n, i) { return { n: n, o: KCD[i] }; }) : null; }
         function pOpts() { var s = cur(); if (target === null || s[target] === undefined) return null; var fr = f(s[target]); return { D: fr < 450 ? 4 : (fr < 1200 ? 2 : 1), fmin: fr * 0.6, fmax: fr * 1.8 }; }
         function pianoAuto(buf, sr, gt) {
             var sub = buf.subarray(buf.length - 8192), p1 = pitch(sub, sr, gt, { D: 4, fmin: 25, fmax: 400 });
@@ -270,7 +275,7 @@
             if (key !== doneKey) { doneKey = key; done = {}; act = -1; }
             $('strings').innerHTML = s.map(function (m, i) {
                 var L = labs(), nm = L ? L[i].n : NAMES[m % 12], oc = L ? L[i].o : (Math.floor(m / 12) - 1);
-                return '<button type="button" class="t-string" data-i="' + i + '">' + nm + '<sub>' + oc + '</sub><small>Senar ' + (n - i) + '</small></button>';
+                return '<button type="button" class="t-string" data-i="' + i + '">' + nm + '<sub>' + oc + '</sub><small>' + (L && L[i].s ? L[i].s : 'Senar ' + (n - i)) + '</small></button>';
             }).join('');
             mark();
         }
@@ -316,12 +321,62 @@
         $('pplay').addEventListener('click', function () { if (pT === null) pSet(); play(f(pT)); });
         $('edopen').addEventListener('click', function () { $('dr-editor').hidden = false; });
         function audio() { if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)(); if (ctx.state === 'suspended') ctx.resume(); return ctx; }
+        /* SOUND-START */
+        /* Suara acuan tiap alat musik, semuanya dihitung sendiri (tanpa file suara) dan tepat di nadanya:
+           petik = model senar Karplus-Strong (panjang jeda pecahan supaya nadanya tidak meleset), gesek = gergaji disaring dengan serangan pelan,
+           piano = harmoni yang meluruh sendiri-sendiri. */
+        var SUARA = { ak: ['petik', 0.62, 2.6], el: ['petik', 0.5, 3], g12: ['petik', 0.72, 2.6], b4: ['petik', 0.3, 3.2], b5: ['petik', 0.3, 3.2], uk: ['petik', 0.28, 1.6], gl: ['petik', 0.3, 1.7],
+            md: ['petik', 0.8, 1.4], ou: ['petik', 0.5, 2], kc: ['petik', 0.6, 1.2], cu: ['petik', 0.55, 2.4], vl: ['gesek', 0.9], va: ['gesek', 0.75], ce: ['gesek', 0.6], pn: ['piano'] };
+        function bufPetik(hz, sr, detik, terang, t60) {
+            var n = Math.round(sr * detik), out = new Float32Array(n), D = sr / hz - 0.5, k = Math.floor(D), fr = D - k, L = k + 4, ring = new Float32Array(L);
+            var rugi = Math.pow(0.001, 1 / (t60 * hz)), a = 0.12 + 0.85 * terang, e = 0, w = 0, seed = 7919, lenEx = Math.ceil(D) + 1, i, g = function (j) { return ring[(w - j + 2 * L) % L]; }, mx = 0;
+            for (i = 0; i < n; i++) {
+                seed = (seed * 1103515245 + 12345) & 0x7fffffff;
+                var ex = 0; if (i < lenEx) { e += a * ((seed / 0x7fffffff - 0.5) * 2 - e); ex = e; }
+                var d1 = (1 - fr) * g(k) + fr * g(k + 1), d2 = (1 - fr) * g(k + 1) + fr * g(k + 2);
+                var v = rugi * 0.5 * (d1 + d2) + ex;
+                ring[w] = v; w = (w + 1) % L; out[i] = v; if (Math.abs(v) > mx) mx = Math.abs(v);
+            }
+            var gain = mx > 0 ? 0.5 / mx : 0, fade = Math.round(sr * 0.12);
+            for (i = 0; i < n; i++) out[i] *= gain * (i > n - fade ? (n - i) / fade : 1);
+            return out;
+        }
+        function bufGesek(hz, sr, detik, terang) {
+            var n = Math.round(sr * detik), out = new Float32Array(n), K = Math.max(1, Math.min(40, Math.floor(Math.min(sr / 2.2, 4500) / hz))), i, k, mx = 0;
+            for (i = 0; i < n; i++) {
+                var t = i / sr, env = Math.min(1, t / 0.2) * Math.min(1, (detik - t) / 0.25), v = 0;
+                for (k = 1; k <= K; k++) v += Math.sin(2 * Math.PI * hz * k * t) / Math.pow(k, 1.5 - terang * 0.6);
+                out[i] = v * env; if (Math.abs(out[i]) > mx) mx = Math.abs(out[i]);
+            }
+            for (i = 0; i < n; i++) out[i] *= 0.45 / mx;
+            return out;
+        }
+        function bufPiano(hz, sr, detik) {
+            var n = Math.round(sr * detik), out = new Float32Array(n), i, k, mx = 0, K = Math.max(1, Math.min(10, Math.floor(sr / 2.2 / hz)));
+            for (i = 0; i < n; i++) {
+                var t = i / sr, v = 0;
+                for (k = 1; k <= K; k++) v += Math.sin(2 * Math.PI * hz * k * t) / Math.pow(k, 1.2) * Math.exp(-t * (0.9 + 0.7 * k));
+                out[i] = v * Math.min(1, t / 0.004) * Math.min(1, (detik - t) / 0.2); if (Math.abs(out[i]) > mx) mx = Math.abs(out[i]);
+            }
+            for (i = 0; i < n; i++) out[i] *= 0.5 / mx;
+            return out;
+        }
+        function bufSuara(kind, hz, sr) {
+            var p = SUARA[kind] || SUARA.cu;
+            if (p[0] === 'gesek') return bufGesek(hz, sr, 2.2, p[1]);
+            if (p[0] === 'piano') return bufPiano(hz, sr, 3);
+            return bufPetik(hz, sr, p[2] + 0.4, p[1], p[2]);
+        }
+        /* SOUND-END */
+        var sedang = null;
         function play(freq) {
-            while (freq < 98) freq *= 2;
-            var c = audio(), o = c.createOscillator(), g = c.createGain(), t = c.currentTime;
-            o.type = 'triangle'; o.frequency.value = freq;
-            g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.5, t + 0.03); g.gain.exponentialRampToValueAtTime(0.0001, t + 1.8);
-            o.connect(g); g.connect(c.destination); o.start(t); o.stop(t + 1.9);
+            var c = audio(), t = c.currentTime;
+            if (sedang) { try { sedang.g.gain.cancelScheduledValues(t); sedang.g.gain.setTargetAtTime(0.0001, t, 0.03); sedang.s.stop(t + 0.15); } catch (e) {} }
+            var d = bufSuara(inst, freq, c.sampleRate), ab = c.createBuffer(1, d.length, c.sampleRate);
+            ab.getChannelData(0).set(d);
+            var src = c.createBufferSource(), g = c.createGain();
+            src.buffer = ab; g.gain.value = 0.9; src.connect(g); g.connect(c.destination); src.start(t);
+            sedang = { s: src, g: g };
         }
         $('strings').addEventListener('click', function (e) {
             var b = e.target.closest('.t-string'); if (!b) return;
