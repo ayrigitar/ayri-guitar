@@ -287,8 +287,8 @@
         res.key = keyFromSegs(res, estKey(ana)); return res;
     }
     /* keluarga minor (untuk level Mudah) dan penyederhanaan level Sedang (maks. chord 7) */
-    var MINK = { m: 1, m7: 1, m9: 1, m6: 1, madd9: 1, mmaj7: 1, m7b5: 1, dim: 1, dim7: 1 };
-    var SEDK = { '9': '7', '11': '7', '13': '7', '7b9': '7', '7#9': '7', '7b5': '7', '7#5': '7', maj9: 'maj7', m9: 'm7', '9sus4': '7sus4', add9: 'maj', madd9: 'm', '69': '6' };
+    var MINK = { m: 1, m7: 1, m9: 1, m11: 1, m6: 1, madd9: 1, mmaj7: 1, m7b5: 1, dim: 1, dim7: 1 };
+    var SEDK = { '9': '7', '11': '7', '13': '7', '7b9': '7', '7#9': '7', '7b5': '7', '7#5': '7', '7b13': '7', maj9: 'maj7', m9: 'm7', m11: 'm7', '9sus4': '7sus4', add9: 'maj', madd9: 'm', '69': '6' };
     function lvTi(s) {
         var k = TYPES[s.ti].k;
         if (st.level === 'mudah') return tIdx(MINK[k] ? 'm' : 'maj');

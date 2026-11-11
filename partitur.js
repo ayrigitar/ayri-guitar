@@ -331,7 +331,7 @@
     $('#kidal').addEventListener('change', function () { kidal = this.checked; gambarPanel(); ikutChord(at.tickPosition || 0, true); simpan(); });
 
     /* saran kapo (seperti halaman Transkrip): posisi kapo yang membuat chord paling banyak berbentuk terbuka */
-    var MUDAH = { maj: [0, 2, 4, 7, 9], m: [2, 4, 9] }, MINOR = { m: 1, m7: 1, m6: 1, m9: 1, madd9: 1, mmaj7: 1, m7b5: 1, dim: 1, dim7: 1 };
+    var MUDAH = { maj: [0, 2, 4, 7, 9], m: [2, 4, 9] }, MINOR = { m: 1, m7: 1, m6: 1, m9: 1, m11: 1, madd9: 1, mmaj7: 1, m7b5: 1, dim: 1, dim7: 1 };
     function saranKapo() {
         if (!garisChord.length || !adaKapo || (alat !== 'gtr' && alat !== 'gll') || !at.score) return null;
         var mb = at.score.masterBars, akhir = mb[mb.length - 1].start + mb[mb.length - 1].calculateDuration();
