@@ -24,7 +24,8 @@ var TYPES = [
     { k: '7b9', s: '7b9', n: 'Dominan 7 b9', iv: [0, 4, 7, 10, 1] }, { k: '7#9', s: '7#9', n: 'Dominan 7 #9', iv: [0, 4, 7, 10, 3] },
     { k: '7b5', s: '7b5', n: 'Dominan 7 b5', iv: [0, 4, 6, 10] }, { k: '7#5', s: '7#5', n: 'Dominan 7 #5', iv: [0, 4, 8, 10] },
     { k: '11', s: '11', n: 'Dominan 11', iv: [0, 7, 10, 2, 5] }, { k: '13', s: '13', n: 'Dominan 13', iv: [0, 4, 7, 10, 2, 9] },
-    { k: 'm11', s: 'm11', n: 'Minor 11 (m7 + 11)', iv: [0, 3, 7, 10, 5] }
+    { k: 'm11', s: 'm11', n: 'Minor 11 (m7 + 11)', iv: [0, 3, 7, 10, 5] },
+    { k: '7b13', s: '7b13', n: 'Dominan 7 b13', iv: [0, 4, 7, 10, 8] }
 ];
 var NBASE = 13; // jenis dasar (tampil langsung); sisanya jenis lanjutan
 /* tulisan akhiran chord -> jenis (dipakai pencarian chord & pembaca chart) */
@@ -34,7 +35,8 @@ var SUFK = { '': 'maj', maj: 'maj', M: 'maj', m: 'm', min: 'm', '-': 'm', '7': '
     maj9: 'maj9', M9: 'maj9', 'Δ9': 'maj9', m9: 'm9', min9: 'm9', '-9': 'm9', m6: 'm6', min6: 'm6', '69': '69', '6/9': '69', '6add9': '69', madd9: 'madd9', 'm(add9)': 'madd9', madd2: 'madd9',
     mmaj7: 'mmaj7', mMaj7: 'mmaj7', mM7: 'mmaj7', 'm(maj7)': 'mmaj7', '7b9': '7b9', '7(b9)': '7b9', '7#9': '7#9', '7(#9)': '7#9', '7b5': '7b5', '7-5': '7b5', '7(b5)': '7b5',
     '7#5': '7#5', '7+5': '7#5', '7(#5)': '7#5', aug7: '7#5', '+7': '7#5', '11': '11', '9sus4add11': '11', '13': '13',
-    m11: 'm11', min11: 'm11', '-11': 'm11', 'm7(11)': 'm11', 'm7(add11)': 'm11', m7add11: 'm11', 'm7-11': 'm11', 'm(11)': 'm11' };
+    m11: 'm11', min11: 'm11', '-11': 'm11', 'm7(11)': 'm11', 'm7(add11)': 'm11', m7add11: 'm11', 'm7-11': 'm11', 'm(11)': 'm11',
+    '7b13': '7b13', '7(b13)': '7b13', '7(-13)': '7b13', '7-13': '7b13', '7(13b)': '7b13', '7(b6)': '7b13', '7addb13': '7b13' };
 // bentuk bergeser: r = senar akar (6/5/4), f = fret relatif (-1 = mati), g = jari
 var TPL = {
     maj: [{ r: 6, f: [0, 2, 2, 1, 0, 0], g: [1, 3, 4, 2, 1, 1] }, { r: 5, f: [-9, 0, 2, 2, 2, 0], g: [0, 1, 2, 3, 4, 1] }, { r: 4, f: [-9, -9, 0, 2, 3, 2], g: [0, 0, 1, 3, 4, 2] }],

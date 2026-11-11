@@ -37,7 +37,7 @@ test('pembaca chart: nama chord umum dibaca benar, bukan-chord ditolak', () => {
     const nama = (c) => (c ? NM[c.r] + ':' + TYPES[c.ti].k + (c.bass >= 0 ? '/' + NM[c.bass] : '') : null);
     const kasus = [['C', 'C:maj'], ['Cm', 'C:m'], ['Bb', 'Bb:maj'], ['Bbm7', 'Bb:m7'], ['F#m', 'F#:m'], ['F♯m', 'F#:m'], ['E♭', 'Eb:maj'], ['G/B', 'G:maj/B'], ['Dsus4', 'D:sus4'],
         ['A7', 'A:7'], ['Cmaj7', 'C:maj7'], ['Cadd9', 'C:add9'], ['Am7/G', 'A:m7/G'], ['Bdim', 'B:dim'], ['Bm7b5', 'B:m7b5'], ['E7#9', 'E:7#9'], ['Gaug', 'G:aug'],
-        ['Em7', 'E:m7'], ['Asus', 'A:sus4'], ['B', 'B:maj'], ['Fm6', 'F:m6'], ['C69', 'C:69'], ['Am(add9)', 'A:madd9'], ['Dsus2', 'D:sus2'], ['E7sus4', 'E:7sus4'], ['Bm7(11)', 'B:m11'], ['Bm11', 'B:m11'], ['Am7add11', 'A:m11']];
+        ['Em7', 'E:m7'], ['Asus', 'A:sus4'], ['B', 'B:maj'], ['Fm6', 'F:m6'], ['C69', 'C:69'], ['Am(add9)', 'A:madd9'], ['Dsus2', 'D:sus2'], ['E7sus4', 'E:7sus4'], ['Bm7(11)', 'B:m11'], ['Bm11', 'B:m11'], ['Am7add11', 'A:m11'], ['B7(-13)', 'B:7b13'], ['B7(b13)', 'B:7b13'], ['B7b13', 'B:7b13']];
     for (const [tok, harap] of kasus) assert.equal(nama(chordFromToken(tok)), harap, tok);
     for (const bukan of ['H', 'Hello', 'Bus', 'Gss', 'Cuu', 'Asus44x']) assert.equal(chordFromToken(bukan), null, '"' + bukan + '" bukan chord');
 });
