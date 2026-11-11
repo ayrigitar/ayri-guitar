@@ -813,6 +813,9 @@ canvas.ctab.seret { cursor: grabbing; }
   /* daftar disembunyikan: chord yang dimainkan memenuhi lebar kartu */
   .trans-app .tapp[data-daftar="tutup"] .tr-stage { grid-template-columns: minmax(0, 1fr); grid-template-areas: "now" "adj" "next" "tab" "bawah"; }
   .trans-app .tapp[data-daftar="tutup"] .tr-stage > .tr-lagu { display: none; }
+  /* tampilan awal seperti rilis pertama: blok padat, chord, waktu, berikutnya, dan garis waktu berdekatan */
+  .trans-app .tapp[data-daftar="tutup"] .tr-stage { grid-template-rows: auto auto auto auto auto; align-content: center; row-gap: 14px; }
+  .trans-app .tapp[data-daftar="tutup"] .tr-stage > .tr-now { height: clamp(170px, 30dvh, 250px); }
   /* tombol pemutar minimalis: tanpa bingkai dan bayangan, hanya Putar yang berwarna */
   .tr-bawah .tb:not(.tb-go) { border-color: transparent; background: transparent; box-shadow: none; color: var(--ink-2); }
   .tr-bawah .tb:not(.tb-go):hover { background: var(--surface-2); color: var(--ink); }

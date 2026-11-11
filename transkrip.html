@@ -1099,10 +1099,10 @@
         function pasang(x) { v = x; app.setAttribute('data-tampil', x); [].forEach.call(tb, function (b) { b.setAttribute('aria-pressed', b.getAttribute('data-tampil') === x); }); try { localStorage.setItem('ayri-tr-tampil', x); } catch (e) {} }
         [].forEach.call(tb, function (b) { b.addEventListener('click', function () { pasang(b.getAttribute('data-tampil')); }); });
         pasang(v);
-        /* layar lebar: daftar chord di kanan bisa disembunyikan supaya chord yang dimainkan memenuhi layar */
+        /* layar lebar: tampilan awal seperti rilis pertama (tanpa daftar); tombol daftar membuka panel daftar chord di kanan */
         var lb = $('lstbtn'), tutup = false;
-        try { tutup = localStorage.getItem('ayri-tr-daftar') === 'tutup'; } catch (e) {}
-        function daftar(t) { tutup = t; app.setAttribute('data-daftar', t ? 'tutup' : 'buka'); lb.setAttribute('aria-pressed', !t); lb.setAttribute('aria-label', t ? 'Tampilkan daftar chord di samping' : 'Sembunyikan daftar chord di samping'); try { localStorage.setItem('ayri-tr-daftar', t ? 'tutup' : 'buka'); } catch (e) {} }
+        try { tutup = localStorage.getItem('ayri-tr-daftar2') !== 'buka'; } catch (e) {}
+        function daftar(t) { tutup = t; app.setAttribute('data-daftar', t ? 'tutup' : 'buka'); lb.setAttribute('aria-pressed', !t); lb.setAttribute('aria-label', t ? 'Tampilkan daftar chord di samping' : 'Sembunyikan daftar chord di samping'); try { localStorage.setItem('ayri-tr-daftar2', t ? 'tutup' : 'buka'); } catch (e) {} }
         lb.addEventListener('click', function () { daftar(!tutup); });
         daftar(tutup);
     })();
