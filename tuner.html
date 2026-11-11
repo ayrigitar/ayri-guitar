@@ -151,6 +151,7 @@
             <label class="lb">Alat musik<select id="inst" class="sel"></select></label>
             <label class="lb">Setelan<select id="tuning" class="sel"></select></label>
             <label class="lb" id="tonicwrap" hidden>Nada dasar (da)<select id="tonic" class="sel"></select></label>
+            <label class="lb lb-cek"><span>Mode presisi</span><input type="checkbox" id="presisi" aria-label="Mode presisi: sen tepat satu desimal dan jarum lebih halus (+-25 sen)"></label>
             <label class="lb">Mikrofon<select id="sens" class="sel"><option value="r">Rendah (ramai)</option><option value="s" selected>Sedang</option><option value="t">Tinggi (sepi)</option></select></label>
         </div>
         <div class="t-card tm idle" id="tm">
@@ -241,22 +242,42 @@
         kcFill();
 
         /* ---------- penunjuk ---------- */
-        var tr = [];
-        function pos(c) { return 10 + (Math.max(-50, Math.min(50, c)) + 50) * 0.8; }
+        /* gelembung: pegas teredam kritis seperti aplikasi (cepat di luar, lebih lambat dalam +-10 sen dari tengah), angkanya dibaca dari posisi gelembung
+           yang sudah halus sehingga turun satu per satu (+5, +4, +3 ...), warna cincin dan jejak bertahap hijau sampai merah */
+        var presisi = false, nd = { x: 50, v: 0, target: 50, live: false, good: false, cs: 0, last: 0, trail: [], raf: 0 };
+        try { presisi = localStorage.getItem('ayri-tuner-presisi') === '1'; } catch (e) {}
+        function pegas(ts) {
+            var dt = nd.last ? Math.max(0, Math.min(0.1, (ts - nd.last) / 1000)) : 0, w = Math.abs(nd.target - 50) < 100 * 0.4 * FINE_HALF * 10 / 50 ? 14 : 24, d, k, e, bub = $('bub'), cv = $('trail'), g = cv.getContext('2d'), i, st, col;
+            if (!isFinite(nd.x) || !isFinite(nd.v)) { nd.x = nd.target; nd.v = 0; }
+            nd.last = ts; d = nd.x - nd.target; k = nd.v + w * d; e = Math.exp(-w * dt);
+            nd.x = nd.target + (d + k * dt) * e; nd.v = (nd.v - w * k * dt) * e;
+            bub.style.left = nd.x + '%';
+            if (nd.live) {
+                st = Math.abs(10 * Math.tanh(senDi(nd.x, presisi) / 65)); col = warnaTingkat(st);
+                $('cts').textContent = presisi ? (nd.cs > 0 ? '+' : '') + nd.cs.toFixed(1) : (function (n) { return n > 0 ? '+' + n : String(n); })(langkah(senDi(nd.x, presisi)));
+                bub.style.borderColor = nd.good ? '' : col;
+                nd.trail.push([ts, nd.x]); while (nd.trail.length && ts - nd.trail[0][0] > 750) nd.trail.shift();
+                g.clearRect(0, 0, cv.width, cv.height); g.lineWidth = 5; g.lineCap = 'round'; g.strokeStyle = nd.good ? '#16a34a' : col;
+                for (i = nd.trail.length - 2; i >= 0; i--) {
+                    g.globalAlpha = 1 - (ts - nd.trail[i][0]) / 750; g.beginPath();
+                    g.moveTo(cv.width * nd.trail[i + 1][1] / 100, 125 + (ts - nd.trail[i + 1][0]) / 750 * 150); g.lineTo(cv.width * nd.trail[i][1] / 100, 125 + (ts - nd.trail[i][0]) / 750 * 150); g.stroke();
+                }
+            }
+            if (nd.live || Math.abs(nd.x - nd.target) > 0.02 || Math.abs(nd.v) > 0.05) nd.raf = requestAnimationFrame(pegas);
+            else { nd.raf = 0; nd.last = 0; }
+        }
         function aim(c) {
             var bub = $('bub'), g = $('trail').getContext('2d'), cv = $('trail');
-            g.clearRect(0, 0, cv.width, cv.height);
-            if (c < -55) { bub.className = 'bf-bub'; bub.style.left = '50%'; $('cts').textContent = ''; $('hint').textContent = ''; tr = []; return; }
-            var good = tuned, side = c < 0 ? 'l' : 'r';
-            bub.className = 'bf-bub on ' + (good ? 'good' : 'warn') + ' ' + side; bub.style.left = pos(c) + '%';
-            $('cts').textContent = (c > 0 ? '+' : '') + Math.round(c);
-            $('hint').textContent = good ? 'Pas!' : (c < 0 ? 'Kencangkan' : 'Kendurkan');
-            tr.unshift(c); if (tr.length > 30) tr.pop();
-            g.lineWidth = 5; g.lineCap = 'round'; g.strokeStyle = good ? '#16a34a' : '#d97706';
-            for (var i = 1; i < tr.length; i++) {
-                g.globalAlpha = 1 - i / tr.length; g.beginPath();
-                g.moveTo(cv.width * pos(tr[i - 1]) / 100, 125 + (i - 1) * 5); g.lineTo(cv.width * pos(tr[i]) / 100, 125 + i * 5); g.stroke();
+            if (c === null) {
+                nd.live = false; nd.target = 50; nd.trail = []; g.clearRect(0, 0, cv.width, cv.height);
+                bub.className = 'bf-bub'; bub.style.borderColor = ''; $('cts').textContent = ''; $('hint').textContent = '';
+                if (!nd.raf) nd.raf = requestAnimationFrame(pegas);
+                return;
             }
+            nd.live = true; nd.cs = c; nd.good = tuned; nd.target = posisi(c, presisi); if (reduce) { nd.x = nd.target; nd.v = 0; }
+            bub.className = 'bf-bub on ' + (tuned ? 'good' : 'warn') + ' ' + (c < 0 ? 'l' : 'r');
+            $('hint').textContent = tuned ? 'Pas!' : (c < 0 ? 'Kencangkan' : 'Kendurkan');
+            if (!nd.raf) nd.raf = requestAnimationFrame(pegas);
         }
         function lamp(on) { $('tm').className = 't-card tm' + (on === null ? ' idle' : (on ? ' ok' : '')); }
 
@@ -296,6 +317,8 @@
         }
         function saveCust() { try { localStorage.setItem('ayri-tuner-custom', JSON.stringify(cust)); } catch (e) {} }
         function reset() { target = (inst === 'pn' && pT !== null) ? 0 : null; baca.lepas(); drawStrings(); }
+        $('presisi').checked = presisi;
+        $('presisi').addEventListener('change', function () { presisi = this.checked; try { localStorage.setItem('ayri-tuner-presisi', presisi ? '1' : '0'); } catch (e) {} if (nd.live) aim(nd.cs); });
         $('inst').addEventListener('change', function () { inst = this.value; tun = 's'; fillTun(); reset(); });
         $('tuning').addEventListener('change', function () { tun = this.value; reset(); });
         $('auto').addEventListener('click', function () { target = null; baca.pick(); drawStrings(); });
@@ -537,7 +560,7 @@
         function makeBaca() {
             var HARM = [0.5, 2, 1 / 3, 3, 0.25, 4];
             var lockIdx, heardMs, heardFrom, heardIdx, pending, pendingSince = 0, pendingSlid = false, lastHz, skipped, lock, cs, tuned, act, shownMidi = NaN;
-            var onsetMs = -1e9, levels = [];
+            var onsetMs = -1e9, levels = [], peak = 0, lastLv = 0;
             var cents = function (hz, ref) { return 1200 * Math.log(hz / ref) / Math.LN2; };
             function lepas() { lock = null; lockIdx = -1; pending = null; cs = null; lastHz = 0; skipped = false; }
             function clear() { lepas(); heardFrom = NaN; heardIdx = -1; heardMs = -1e9; tuned = false; act = -1; }
@@ -549,8 +572,14 @@
                 level: function (rms, t) {
                     while (levels.length && t - levels[0][0] > 150) levels.shift();
                     var q = Infinity, i; for (i = 0; i < levels.length; i++) if (levels[i][1] < q) q = levels[i][1];
-                    if (levels.length && rms > 1.8 * q && rms > 0.002 && t - onsetMs > 200) { onsetMs = t; heardFrom = NaN; }
+                    if (levels.length && rms > 1.8 * q && rms > 0.002 && t - onsetMs > 200) { onsetMs = t; heardFrom = NaN; peak = rms; }
+                    peak = Math.max(rms, peak * Math.pow(0.5, lastLv ? (t - lastLv) / 1500 : 0)); lastLv = t;
                     levels.push([t, rms]);
+                },
+                /* 0,2 detik pertama setelah petikan (serangan) belum ditampilkan; setelah nada meluruh jauh di bawah yang terkeras, tampilan ditahan
+                   (sama dengan aplikasi: ukuran di GuitarTuna, nilai pertama muncul ±0,2 detik setelah petikan lalu ditahan) */
+                tahan: function (t, rms) {
+                    return { attack: rms > 0 && t - onsetMs < 200, fading: rms > 0 && peak > 0 && rms < 0.2 * peak && t - onsetMs > 400 };
                 },
                 /* hz: bacaan tersaring; s: nada senar (MIDI, terendah dulu); target: senar dipilih atau null.
                    Hasil: { idx, midi, hz, cs, tuned } atau null (tampilan tetap) */
@@ -620,6 +649,34 @@
             };
         }
         /* ENGINE-END */
+        /* GAUGE-START */
+        /* Penunjuk, sama dengan aplikasi: posisi gelembung dalam persen lebar (10..90), +-50 sen hanya mengisi 22 % dari setengah medan (gelembung
+           GuitarTuna bergeser ±1,3 px per sen); lebih jauh skalanya menyempit sampai +-300 sen. Mode presisi: +-25 sen merata. */
+        var FINE_HALF = 0.22, PRESISI_SEN = 25;
+        function posisi(c, presisi) {
+            if (presisi) return 50 + 40 * Math.max(-1, Math.min(1, c / PRESISI_SEN));
+            var a = Math.abs(c), h = a <= 50 ? FINE_HALF * a / 50 : Math.min(1, FINE_HALF + (1 - FINE_HALF) * Math.log(a / 50) / Math.log(6));
+            return 50 + 40 * (c < 0 ? -h : h);
+        }
+        function senDi(p, presisi) {
+            var h = Math.max(0, Math.min(1, Math.abs(p - 50) / 40)), a;
+            if (presisi) return (p < 50 ? -1 : 1) * h * PRESISI_SEN;
+            a = h <= FINE_HALF ? 50 * h / FINE_HALF : 50 * Math.exp((h - FINE_HALF) / (1 - FINE_HALF) * Math.log(6));
+            return p < 50 ? -a : a;
+        }
+        /* angka di gelembung dalam "langkah" penyetelan seperti GuitarTuna (diukur: -8 sen = -1, -30 = -4, +15 = +2, -50 = -6, -80 = -8) */
+        function langkah(c) { return Math.round(10 * Math.tanh(c / 65)); }
+        var TINGKAT = [[1, [76, 191, 106]], [2, [180, 200, 74]], [3.5, [229, 165, 58]], [5.5, [230, 122, 56]], [8, [229, 83, 75]]];
+        function warnaTingkat(st) {
+            var i, a, b, k;
+            if (st <= TINGKAT[0][0]) return 'rgb(' + TINGKAT[0][1].join(',') + ')';
+            for (i = 1; i < TINGKAT.length; i++) if (st <= TINGKAT[i][0]) {
+                a = TINGKAT[i - 1]; b = TINGKAT[i]; k = (st - a[0]) / (b[0] - a[0]);
+                return 'rgb(' + [0, 1, 2].map(function (j) { return Math.round(a[1][j] + (b[1][j] - a[1][j]) * k); }).join(',') + ')';
+            }
+            return 'rgb(' + TINGKAT[TINGKAT.length - 1][1].join(',') + ')';
+        }
+        /* GAUGE-END */
         var cents = function (hz, ref) { return 1200 * Math.log(hz / ref) / Math.LN2; };
         var baca = makeBaca(), lacak = makeLacak(), cs = null;
         function show(b) {
@@ -629,7 +686,7 @@
             if (tuned && idx >= 0 && !done[idx]) { done[idx] = true; mark(); }
             var LB = labs(); if (LB && idx >= 0) { $('note').textContent = LB[idx].n; $('oct').textContent = LB[idx].o; } else { $('note').textContent = NAMES[((Math.round(midi) % 12) + 12) % 12]; $('oct').textContent = Math.floor(Math.round(midi) / 12) - 1; }
             $('hz').textContent = (idx >= 0 && inst !== 'pn' ? (LB ? LB[idx].n + ' ' + LB[idx].o : 'Senar ' + (n - idx)) + ' \u00b7 ' : '') + hz.toFixed(1) + ' Hz  (' + (cs > 0 ? '+' : '') + Math.round(cs) + ' sen)';
-            aim(Math.max(-52, Math.min(52, cs))); lamp(tuned);
+            aim(cs); lamp(tuned);
             var st = $('status'); st.className = 't-status ' + (tuned ? 'ok' : 'bad');
             st.textContent = tuned ? 'Pas! Nada sudah tepat' : (cs < 0 ? 'Terlalu rendah, kencangkan senar' : 'Terlalu tinggi, kendurkan senar');
         }
@@ -655,9 +712,10 @@
             baca.level(r[2], now);
             var mantap = pn || gerbang.feed(ok ? r[0] : -1, tickMs);
             var sm = filt.feed(ok ? r[0] : -1, now);
-            if (sm !== null && mantap) { var b = baca.baca(440 * Math.pow(2, sm / 1200), now, cur(), target, A4); if (b) show(b); }
+            var th = baca.tahan(now, r[2]);
+            if (sm !== null && mantap) { if (!th.fading) { var b = baca.baca(440 * Math.pow(2, sm / 1200), now, cur(), target, A4); if (b && !th.attack) show(b); } }
             else if (!ok && now - lastHeard > 900) {
-                filt.reset(); gerbang.reset(); baca.clear(); cs = null; tuned = false; aim(-58); lamp(null); act = -1; mark();
+                filt.reset(); gerbang.reset(); baca.clear(); cs = null; tuned = false; aim(null); lamp(null); act = -1; mark();
                 $('status').className = 't-status'; $('status').textContent = 'Petik satu senar...';
             }
         }
@@ -667,7 +725,7 @@
         document.addEventListener('visibilitychange', function () { if (document.hidden && timer) $('start').click(); });
         $('start').addEventListener('click', function () {
             var btn = this;
-            if (timer) { clearTimeout(timer); timer = null; if (stream) stream.getTracks().forEach(function (t) { t.stop(); }); btn.textContent = 'Mulai Tuner'; releaseWake(); aim(-58); lamp(null); act = -1; mark(); $('status').className = 't-status'; $('status').textContent = 'Tuner berhenti'; return; }
+            if (timer) { clearTimeout(timer); timer = null; if (stream) stream.getTracks().forEach(function (t) { t.stop(); }); btn.textContent = 'Mulai Tuner'; releaseWake(); aim(null); lamp(null); act = -1; mark(); $('status').className = 't-status'; $('status').textContent = 'Tuner berhenti'; return; }
             if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) { $('status').textContent = 'Browser ini belum mendukung mikrofon. Coba Chrome atau Safari terbaru.'; return; }
             navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false } }).then(function (s) {
                 stream = s; var c = audio(); analyser = c.createAnalyser(); analyser.fftSize = 16384;

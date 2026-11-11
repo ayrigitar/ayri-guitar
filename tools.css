@@ -65,7 +65,7 @@
   border: 3px solid rgba(239, 232, 221, .22); border-radius: 50%;
   background: #231D18;
   box-shadow: 0 8px 18px -6px rgba(0, 0, 0, .6);
-  transition: left .15s ease-out, border-color .2s, background-color .2s, box-shadow .2s;
+  transition: border-color .2s, background-color .2s, box-shadow .2s;
 }
 .bf-bub::after {
   content: ""; position: absolute; bottom: -9px; left: 50%;
@@ -899,3 +899,5 @@ main.app.fit3 .t-string { min-height: 38px; }
   .t-string small { display: block; }
   .tuner-app .t-string { min-height: 60px; }
 }
+.lb-cek { flex-direction: row; align-items: center; gap: 8px; }
+.lb-cek input { width: 20px; height: 20px; accent-color: var(--accent); }
