@@ -623,7 +623,6 @@ main.app.fit2 .mt-num span { display: none; }
 .tr-next b { font-family: var(--font-display); font-size: 1.25rem; font-weight: 600; color: var(--ink); }
 .tr-next small { margin-left: auto; font-size: .75rem; font-variant-numeric: tabular-nums; }
 .tr-nd { width: 54px; }
-.tr-prog { display: none; }
 canvas.ctab {
   display: block; flex: 0 0 auto; width: 100%; height: 68px;
   border: 1px solid var(--line); border-radius: var(--r-md);
@@ -811,30 +810,12 @@ canvas.ctab.seret { cursor: grabbing; }
   .tr-bawah .tr-set { grid-column: 3; grid-row: 1; display: flex; flex-wrap: nowrap; align-items: center; gap: 6px; }
   .tr-bawah #lstbtn { display: inline-flex; grid-column: 4; grid-row: 1; }
   .tr-bawah .tr-more-btn { grid-column: 5; grid-row: 1; }
-  /* daftar disembunyikan: satu baris fokus, dibaca kiri ke kanan: chord sekarang, bar menuju pergantian, chord berikutnya */
-  .trans-app .tapp[data-daftar="tutup"] .tr-stage {
-    grid-template-columns: minmax(0, 1.35fr) minmax(90px, .3fr) minmax(0, 1fr); grid-template-rows: minmax(0, 1fr) auto auto auto; column-gap: 10px;
-    grid-template-areas: "now prog next" "adj adj adj" "tab tab tab" "bawah bawah bawah";
-  }
+  /* daftar disembunyikan: chord yang dimainkan memenuhi lebar kartu */
+  .trans-app .tapp[data-daftar="tutup"] .tr-stage { grid-template-columns: minmax(0, 1fr); grid-template-areas: "now" "adj" "next" "tab" "bawah"; }
   .trans-app .tapp[data-daftar="tutup"] .tr-stage > .tr-lagu { display: none; }
-  .trans-app .tapp[data-daftar="tutup"] .tr-cn { font-size: clamp(2.4rem, 8dvh, 3.8rem); }
-  .trans-app .tapp[data-daftar="tutup"] .tr-cd { flex-basis: 40%; }
-  .trans-app .tapp[data-daftar="tutup"] .tr-prog { grid-area: prog; display: grid; align-content: center; gap: 6px; }
-  .trans-app .tapp[data-daftar="tutup"] .tr-prog span { display: block; height: 8px; border-radius: 4px; background: var(--line-strong); overflow: hidden; }
-  .trans-app .tapp[data-daftar="tutup"] .tr-prog i { display: block; height: 100%; border-radius: 4px; background: var(--accent); transform-origin: left; transform: scaleX(0); }
-  .trans-app .tapp[data-daftar="tutup"] .tr-prog::after { content: "ganti \203A"; justify-self: end; font-size: .75rem; font-weight: 700; color: var(--ink-3); }
-  .trans-app .tapp[data-daftar="tutup"] .tr-stage > .tr-next {
-    grid-area: next; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; min-height: 0; padding: 8px 10px;
-    border-radius: var(--r-lg); background: var(--surface-2); text-align: center;
-  }
-  .trans-app .tapp[data-daftar="tutup"] .tr-next span { order: 1; font-size: .6875rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
-  .trans-app .tapp[data-daftar="tutup"] .tr-next small { order: 2; margin: 0; }
-  .trans-app .tapp[data-daftar="tutup"] .tr-next b { order: 3; font-size: clamp(1.6rem, 5dvh, 2.4rem); line-height: 1.1; color: var(--ink-2); }
-  .trans-app .tapp[data-daftar="tutup"] .tr-next .tr-nd { order: 4; display: flex; justify-content: center; flex: 0 1 50%; width: 100%; min-height: 0; margin-top: 4px; }
-  .trans-app .tapp[data-daftar="tutup"] .tr-next .tr-nd svg { width: auto; max-width: 100%; height: 100%; max-height: 100%; }
-  @keyframes tr-gantikan { from { opacity: .35; transform: translateX(28px); } to { opacity: 1; transform: none; } }
-  .trans-app .tapp[data-daftar="tutup"].gantikan .tr-stage > :is(.tr-now, .tr-next) { animation: tr-gantikan .28s var(--ease-out); }
-  @media (prefers-reduced-motion: reduce) {   .trans-app .tapp[data-daftar="tutup"].gantikan .tr-stage > :is(.tr-now, .tr-next) { animation: none; } }
+  /* daftar disembunyikan: diagram chord sekarang di kanan, jadi chord berikutnya ikut ke kanan, dekat di mata */
+  .trans-app .tapp[data-daftar="tutup"] .tr-next { justify-content: flex-end; gap: 6px 12px; }
+  .trans-app .tapp[data-daftar="tutup"] .tr-next small { margin-left: 0; }
   /* tombol pemutar minimalis: tanpa bingkai dan bayangan, hanya Putar yang berwarna */
   .tr-bawah .tb:not(.tb-go) { border-color: transparent; background: transparent; box-shadow: none; color: var(--ink-2); }
   .tr-bawah .tb:not(.tb-go):hover { background: var(--surface-2); color: var(--ink); }
