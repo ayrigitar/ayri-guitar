@@ -135,10 +135,10 @@ var VMAX = 8;
 /* Generator bentuk jari: telusuri jendela 4 fret di sepanjang leher, pilih kombinasi senar yang memuat nada wajib chord,
    bass = nada dasar (kecuali ukulele), maks. 4 jari (atau barre), lalu ambil yang paling enak dimainkan dan beragam posisinya.
    Nada wajib: semua nada chord, kecuali kuin murni (dan 9 pada chord 11/13) boleh dibuang bila chord punya >= 4 nada. */
-function genAuto(inst, root, t, limit, pre) {
+function genAuto(inst, root, t, limit, pre, relax) {
     if (limit <= 0) return [];
     var n = inst.n, pcs = {}, req = [], opt = [], big = t.iv.length >= 4, found = [], seen = {}, b, s;
-    t.iv.forEach(function (x) { var p = (root + x) % 12; pcs[p] = 1; if ((x === 7 && big) || (x === 2 && (t.k === '13' || t.k === '11'))) opt.push(p); else req.push(p); });
+    t.iv.forEach(function (x) { var p = (root + x) % 12; pcs[p] = 1; if ((x === 7 && big) || (x === 2 && (t.k === '13' || t.k === '11')) || (x === 0 && relax)) opt.push(p); else req.push(p); });
     var minS = n >= 6 ? 4 : 3, cand = [], cur = [];
     function test(b0) {
         var f = cur, i, first = -1, last = -1, inner = 0, ns = 0, have = {}, fr = [];
@@ -168,6 +168,8 @@ function genAuto(inst, root, t, limit, pre) {
         for (s = 0; s < n; s++) { var o = [-1], f0; if (pcs[inst.pc[s]] && b <= 3) o.push(0); for (f0 = Math.max(1, b); f0 <= b + 3; f0++) if (pcs[(inst.pc[s] + f0) % 12]) o.push(f0); cand.push(o); }
         rec(0, b);
     }
+    /* chord 5 nada (m9, maj9) di 4 senar kadang tidak muat dengan akar: ulangi dengan akar boleh dibuang (pemain ukulele memang sering melakukannya) */
+    if (!found.length && !relax && inst.reentrant && t.iv.length >= 5) return genAuto(inst, root, t, limit, pre, true);
     found.sort(function (a, c) { return c.sc - a.sc; });
     /* beragam: lewati bentuk yang posisinya (fret terendah +-1) dan senar bass-nya sama dengan yang sudah dipilih */
     var picked = (pre || []).map(function (v) { var fs = -1; for (var i = 0; i < n; i++) if (v.f[i] >= 0) { fs = i; break; } return { mn: minF(v), bs: fs }; }), out = [];
