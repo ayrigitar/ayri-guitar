@@ -3,159 +3,52 @@
  "v": 4,
  "item": [
   {
-   "kode": "STK-ZXAD4K",
+   "kode": "STK-DN7VY2",
    "kategori": "aksesoris",
-   "jenis": "Senar",
+   "jenis": "Kabel",
    "kondisi": "baru",
-   "nama": "Orphee QA150",
+   "nama": "Beyer ISO100LU5",
    "warna": "",
-   "deskripsi": "Senar Orphee QA150 ini hadir dalam ukuran 010 khusus untuk gitar akustik, cocok untuk kamu yang butuh senar lebih ringan dan nyaman dipetik. Kemasannya menampilkan spesifikasi 85/15 Bronze yang dirancang untuk menghasilkan suara yang terang (bright) dan karakternya penuh. Kondisi senar ini masih baru, siap dipasang langsung ke gitar kesayanganmu. Yuk, datang ke Toko Gitar AYRI di Bogor untuk cek dan langsung pasang senar ini dengan bantuan kru kami. 🎸",
-   "harga": 60000,
+   "deskripsi": "Kabel Beyer ini hadir dalam kondisi baru dengan body hitam yang terlihat kokoh. Dibalut packaging asli dengan aksen merah dan putih, konektor logamnya juga tampak rapi. Panjang 5 meter dengan jack 6.5mm mono ini pas untuk menghubungkan gitar elektrik ke ampli tanpa rasa terbelenggu saat tampil. Kualitasnya prima untuk menjaga sinyal tetap jernih. Silakan langsung datang ke Toko Gitar AYRI untuk cek fisik dan uji coba kabel ini. 🎸",
+   "harga": 150000,
    "status": "tersedia",
-   "sisa": null,
+   "sisa": 2,
    "foto": [
     {
-     "src": "foto/stok/orphee-qa150-gitar-akustik-ukuran-010-stk-zxad4k-ded815.webp",
-     "kecil": "foto/stok/orphee-qa150-gitar-akustik-ukuran-010-stk-zxad4k-ded815-k.webp"
-    },
-    {
-     "src": "foto/stok/orphee-qa150-gitar-akustik-ukuran-010-stk-zxad4k-865a90.webp",
-     "kecil": "foto/stok/orphee-qa150-gitar-akustik-ukuran-010-stk-zxad4k-865a90-k.webp"
+     "src": "foto/stok/beyer-iso100lu5-kabel-jack-6-5mm-mono-5-meter-stk-dn7vy2-f5b0ca.webp",
+     "kecil": "foto/stok/beyer-iso100lu5-kabel-jack-6-5mm-mono-5-meter-stk-dn7vy2-f5b0ca-k.webp"
     }
    ],
-   "alat": [
-    "Gitar Akustik"
-   ],
-   "ukuran": "010",
-   "merek": "Orphee",
-   "seri": "QA",
+   "tipe": "Jack 6.5mm Mono",
+   "ukuran": "5 Meter",
+   "merek": "Beyer",
+   "seri": "ISO100LU",
    "artikel": 0,
-   "grup": "qa-senar"
+   "grup": "iso100lu-kabel"
   },
   {
-   "kode": "STK-HUEURY",
+   "kode": "STK-QMF7J2",
    "kategori": "aksesoris",
-   "jenis": "Senar",
+   "jenis": "Kabel",
    "kondisi": "baru",
-   "nama": "Orphee QA140",
+   "nama": "Beyer ISO100LU3",
    "warna": "",
-   "deskripsi": "Senar gitar akustik Orphee model QA140 dalam kondisi baru, dengan ukuran super light 009-045 yang ringan di jari. Kemasannya mencantumkan spesifikasi 85/15 Bronze yang menghasilkan suara terang dan jernih (full bright tone). Produk ini diproduksi di Tiongkok (Made in China). Yuk, langsung coba pasang dan rasakan perbedaannya di toko kami. 🎸",
-   "harga": 60000,
-   "status": "tersedia",
-   "sisa": null,
-   "foto": [
-    {
-     "src": "foto/stok/orphee-qa140-gitar-akustik-ukuran-009-stk-hueury-c971e2.webp",
-     "kecil": "foto/stok/orphee-qa140-gitar-akustik-ukuran-009-stk-hueury-c971e2-k.webp"
-    },
-    {
-     "src": "foto/stok/orphee-qa140-gitar-akustik-ukuran-009-stk-hueury-408952.webp",
-     "kecil": "foto/stok/orphee-qa140-gitar-akustik-ukuran-009-stk-hueury-408952-k.webp"
-    }
-   ],
-   "alat": [
-    "Gitar Akustik"
-   ],
-   "ukuran": "009",
-   "merek": "Orphee",
-   "seri": "QA",
-   "artikel": 1,
-   "grup": "qa-senar"
-  },
-  {
-   "kode": "STK-GKPE3H",
-   "kategori": "aksesoris",
-   "jenis": "Senar",
-   "kondisi": "baru",
-   "nama": "Orphee SC55",
-   "warna": "",
-   "deskripsi": "Set senar Orphee SC55 ini baru dalam kemasan aslinya yang didominasi warna hitam dan ungu. Sebagai senar nylon klasik tegangan normal, set 6 senar ini dirancang untuk memberikan respons yang seimbang saat dimainkan. Lapisan silver pada senar bassnya membuat resonansi suara lebih jelas dan stabil, cocok untuk pemula maupun pemain yang mencari nuansa natural. Yuk, mampir ke toko kami di Bogor untuk langsung coba sensasi mainnya! 🎸",
-   "harga": 120000,
-   "status": "tersedia",
-   "sisa": 1,
-   "foto": [
-    {
-     "src": "foto/stok/orphee-sc55-nylon-klasik-normal-tension-stk-gkpe3h-35d5a4.webp",
-     "kecil": "foto/stok/orphee-sc55-nylon-klasik-normal-tension-stk-gkpe3h-35d5a4-k.webp"
-    },
-    {
-     "src": "foto/stok/orphee-sc55-nylon-klasik-normal-tension-stk-gkpe3h-af1163.webp",
-     "kecil": "foto/stok/orphee-sc55-nylon-klasik-normal-tension-stk-gkpe3h-af1163-k.webp"
-    }
-   ],
-   "alat": [
-    "Gitar Klasik",
-    "Guitalele"
-   ],
-   "ukuran": "Normal Tension",
-   "merek": "Orphee",
-   "seri": "SC",
-   "artikel": 2,
-   "grup": "sc-senar"
-  },
-  {
-   "kode": "STK-J7NEGR",
-   "kategori": "aksesoris",
-   "jenis": "Senar",
-   "kondisi": "baru",
-   "nama": "Orphee SC57",
-   "warna": "",
-   "deskripsi": "Senar Orphee SC57 ini adalah senar nylon klasik dengan tegangan keras (hard tension), cocok untuk pemain yang menginginkan suara lebih keras dan respons kuat saat bermain. Sebagai senar baru, kawat bassnya yang berbahan copper phosphor dengan coating (lapisan pelindung) akan terasa halus di jari dan lebih tahan lama. kemasan hitam dengan aksen ungu ini menampilkan spesifikasi jelas di bagian belakang, memastikan Anda mendapatkan tepat varian yang dibutuhkan. Mampir ke Toko Gitar AYRI di Bogor untuk mencoba langsung dan konsultasikan kebutuhan senar Anda. 🎸",
-   "harga": 120000,
-   "status": "tersedia",
-   "sisa": 1,
-   "foto": [
-    {
-     "src": "foto/stok/orphee-sc57-nylon-klasik-hard-tension-stk-j7negr-f5133d.webp",
-     "kecil": "foto/stok/orphee-sc57-nylon-klasik-hard-tension-stk-j7negr-f5133d-k.webp"
-    },
-    {
-     "src": "foto/stok/orphee-sc57-nylon-klasik-hard-tension-stk-j7negr-17840f.webp",
-     "kecil": "foto/stok/orphee-sc57-nylon-klasik-hard-tension-stk-j7negr-17840f-k.webp"
-    }
-   ],
-   "alat": [
-    "Gitar Klasik",
-    "Guitalele"
-   ],
-   "ukuran": "Hard Tension",
-   "merek": "Orphee",
-   "seri": "SC",
-   "artikel": 3,
-   "grup": "sc-senar"
-  },
-  {
-   "kode": "STK-SUFER3",
-   "kategori": "aksesoris",
-   "jenis": "Senar",
-   "kondisi": "baru",
-   "nama": "Orphee SA39",
-   "warna": "",
-   "deskripsi": "Senar gitar akustik Orphee SA39 dengan ukuran 12-53 ini terbuat dari material phosphor bronze yang memberikan respons suara lebih hangat dan jernih. Packaging hitam dengan logo biru terlihat bersih dan rapi, menandakan produk masih dalam kondisi baru. Senar ini dirancang untuk menghasilkan suara yang *loud* dan stabil, cocok untuk latihan maupun bermain di panggung. Mampir langsung ke Toko Gitar AYRI di Bogor untuk mencoba ketebalan senar ini di gitar Anda 🎸",
+   "deskripsi": "Kabel Beyer ISO100LU3 ini baru, dibungkus rapi dengan bodi hitam dan konektor jack 6.5mm mono berlapis emas di ujungnya. Desainnya yang fleksibel memudahkan penataan saat sesi rekaman atau manggung karena minim kusut. Lapisan emas pada konektornya menjanjikan sinyal audio yang stabil dan minim interferensi untuk instrumen Anda. Silakan datang ke Toko Gitar AYRI di Bogor untuk cek langsung kualitasnya. 🎸",
    "harga": 100000,
    "status": "tersedia",
-   "sisa": 1,
+   "sisa": 2,
    "foto": [
     {
-     "src": "foto/stok/orphee-sa39-gitar-akustik-ukuran-012-stk-sufer3-e6619f.webp",
-     "kecil": "foto/stok/orphee-sa39-gitar-akustik-ukuran-012-stk-sufer3-e6619f-k.webp"
-    },
-    {
-     "src": "foto/stok/orphee-sa39-gitar-akustik-ukuran-012-stk-sufer3-ebf22a.webp",
-     "kecil": "foto/stok/orphee-sa39-gitar-akustik-ukuran-012-stk-sufer3-ebf22a-k.webp"
+     "src": "foto/stok/beyer-iso100lu3-kabel-6-5mm-mono-stk-qmf7j2-896c8f.webp",
+     "kecil": "foto/stok/beyer-iso100lu3-kabel-6-5mm-mono-stk-qmf7j2-896c8f-k.webp"
     }
    ],
-   "alat": [
-    "Gitar Akustik"
-   ],
-   "ukuran": "012",
-   "merek": "Orphee",
-   "seri": "SA",
-   "fitur": [
-    "Phosphor Bronze"
-   ],
-   "artikel": 4,
-   "grup": "sa-senar"
+   "tipe": "Jack 6.5mm Mono",
+   "ukuran": "3 Meter",
+   "merek": "Beyer",
+   "seri": "ISO100LU",
+   "artikel": 1,
+   "grup": "iso100lu-kabel"
   },
   {
    "kode": "STK-7MA5Y4",
@@ -188,260 +81,28 @@
     "Phosphor Bronze",
     "Warm"
    ],
-   "artikel": 5,
+   "artikel": 2,
    "grup": "sa-senar"
   },
   {
-   "kode": "STK-QMF7J2",
+   "kode": "STK-SUFER3",
    "kategori": "aksesoris",
-   "jenis": "Kabel",
+   "jenis": "Senar",
    "kondisi": "baru",
-   "nama": "Beyer ISO100LU3",
+   "nama": "Orphee SA39",
    "warna": "",
-   "deskripsi": "Kabel Beyer ISO100LU3 ini baru, dibungkus rapi dengan bodi hitam dan konektor jack 6.5mm mono berlapis emas di ujungnya. Desainnya yang fleksibel memudahkan penataan saat sesi rekaman atau manggung karena minim kusut. Lapisan emas pada konektornya menjanjikan sinyal audio yang stabil dan minim interferensi untuk instrumen Anda. Silakan datang ke Toko Gitar AYRI di Bogor untuk cek langsung kualitasnya. 🎸",
+   "deskripsi": "Senar gitar akustik Orphee SA39 dengan ukuran 12-53 ini terbuat dari material phosphor bronze yang memberikan respons suara lebih hangat dan jernih. Packaging hitam dengan logo biru terlihat bersih dan rapi, menandakan produk masih dalam kondisi baru. Senar ini dirancang untuk menghasilkan suara yang *loud* dan stabil, cocok untuk latihan maupun bermain di panggung. Mampir langsung ke Toko Gitar AYRI di Bogor untuk mencoba ketebalan senar ini di gitar Anda 🎸",
    "harga": 100000,
    "status": "tersedia",
-   "sisa": 2,
+   "sisa": 1,
    "foto": [
     {
-     "src": "foto/stok/beyer-iso100lu3-kabel-6-5mm-mono-stk-qmf7j2-896c8f.webp",
-     "kecil": "foto/stok/beyer-iso100lu3-kabel-6-5mm-mono-stk-qmf7j2-896c8f-k.webp"
-    }
-   ],
-   "tipe": "Jack 6.5mm Mono",
-   "ukuran": "3 Meter",
-   "merek": "Beyer",
-   "seri": "ISO100LU",
-   "artikel": 6,
-   "grup": "iso100lu-kabel"
-  },
-  {
-   "kode": "STK-DN7VY2",
-   "kategori": "aksesoris",
-   "jenis": "Kabel",
-   "kondisi": "baru",
-   "nama": "Beyer ISO100LU5",
-   "warna": "",
-   "deskripsi": "Kabel Beyer ini hadir dalam kondisi baru dengan body hitam yang terlihat kokoh. Dibalut packaging asli dengan aksen merah dan putih, konektor logamnya juga tampak rapi. Panjang 5 meter dengan jack 6.5mm mono ini pas untuk menghubungkan gitar elektrik ke ampli tanpa rasa terbelenggu saat tampil. Kualitasnya prima untuk menjaga sinyal tetap jernih. Silakan langsung datang ke Toko Gitar AYRI untuk cek fisik dan uji coba kabel ini. 🎸",
-   "harga": 150000,
-   "status": "tersedia",
-   "sisa": 2,
-   "foto": [
-    {
-     "src": "foto/stok/beyer-iso100lu5-kabel-jack-6-5mm-mono-5-meter-stk-dn7vy2-f5b0ca.webp",
-     "kecil": "foto/stok/beyer-iso100lu5-kabel-jack-6-5mm-mono-5-meter-stk-dn7vy2-f5b0ca-k.webp"
-    }
-   ],
-   "tipe": "Jack 6.5mm Mono",
-   "ukuran": "5 Meter",
-   "merek": "Beyer",
-   "seri": "ISO100LU",
-   "artikel": 7,
-   "grup": "iso100lu-kabel"
-  },
-  {
-   "kode": "STK-NZGV2M",
-   "kategori": "aksesoris",
-   "jenis": "Senar",
-   "kondisi": "baru",
-   "nama": "Orphee TX620",
-   "warna": "",
-   "deskripsi": "Senar TX620 ukuran .010 Bronze memberikan suara yang jernih dan resonansi kuat, cocok untuk pemain yang suka tone bright pada gitar akustik. Karena terbuat dari bahan bronze, nada bass tetap terasa penuh sementara treblenya bersih tanpa berisik. Kondisinya baru, jadi kamu akan langsung merasakan respons cepat dan tuning yang stabil. Yuk, coba langsung di toko kami dan rasakan perbedaannya! 🎸",
-   "harga": 40000,
-   "status": "tersedia",
-   "sisa": null,
-   "foto": [
-    {
-     "src": "foto/stok/orphee-tx620-ukuran-010-bronze-stk-nzgv2m-deda7e.webp",
-     "kecil": "foto/stok/orphee-tx620-ukuran-010-bronze-stk-nzgv2m-deda7e-k.webp"
+     "src": "foto/stok/orphee-sa39-gitar-akustik-ukuran-012-stk-sufer3-e6619f.webp",
+     "kecil": "foto/stok/orphee-sa39-gitar-akustik-ukuran-012-stk-sufer3-e6619f-k.webp"
     },
     {
-     "src": "foto/stok/orphee-tx620-ukuran-010-bronze-stk-nzgv2m-2acac6.webp",
-     "kecil": "foto/stok/orphee-tx620-ukuran-010-bronze-stk-nzgv2m-2acac6-k.webp"
-    }
-   ],
-   "alat": [
-    "Gitar Akustik"
-   ],
-   "ukuran": "010",
-   "merek": "Orphee",
-   "seri": "TX",
-   "artikel": 8,
-   "grup": "tx-senar"
-  },
-  {
-   "kode": "STK-A725M2",
-   "kategori": "aksesoris",
-   "jenis": "Senar",
-   "kondisi": "baru",
-   "nama": "Orphee NX36",
-   "warna": "",
-   "deskripsi": "Senar NX36 Nylon Klasik dengan normal tension memberikan nada hangat dan responsif, cocok untuk pemain klasik maupun folk yang mengutamakan kehalusan suara. Terbuat dari nilon berkualitas tinggi, senar terasa nyaman di jari dan tahan lama, ideal untuk latihan rutin maupun pertunjukan. Tuning yang stabil membuat kamu fokus pada teknik tanpa khawatir melodi melenceng. Yuk, coba langsung di Toko Gitar AYRI! 🎸",
-   "harga": 40000,
-   "status": "tersedia",
-   "sisa": null,
-   "foto": [
-    {
-     "src": "foto/stok/orphee-nx36-nylon-klasik-normal-tension-stk-a725m2-fa49f9.webp",
-     "kecil": "foto/stok/orphee-nx36-nylon-klasik-normal-tension-stk-a725m2-fa49f9-k.webp"
-    },
-    {
-     "src": "foto/stok/orphee-nx36-nylon-klasik-normal-tension-stk-a725m2-9a0650.webp",
-     "kecil": "foto/stok/orphee-nx36-nylon-klasik-normal-tension-stk-a725m2-9a0650-k.webp"
-    }
-   ],
-   "alat": [
-    "Gitar Klasik",
-    "Guitalele"
-   ],
-   "ukuran": "Normal Tension",
-   "merek": "Orphee",
-   "seri": "NX",
-   "artikel": 9,
-   "grup": "nx-senar"
-  },
-  {
-   "kode": "STK-APP6FK",
-   "kategori": "aksesoris",
-   "jenis": "Senar",
-   "kondisi": "baru",
-   "nama": "Orphee NX35",
-   "warna": "",
-   "deskripsi": "Senar Orphee NX35 ini dirancang khusus untuk gitar klasik dengan spesifikasi *hard tension* (ketegangan senar tinggi). Berdasarkan keterangan pada kemasan, senar ini menggunakan material nylon berkekuatan tinggi (*high quality nylon*); karakter *hard tension* memberikan respons yang lebih tegas dan *sustain* yang panjang, cocok untuk gaya bermain yang dinamis. Kondisi barang baru dan masih segel di dalam kemasan oranye khas Orphee. Silakan datang langsung ke toko untuk mengecek dan mencocokkan tengangan senar ini dengan gaya bermain Anda. 🎸",
-   "harga": 40000,
-   "status": "tersedia",
-   "sisa": null,
-   "foto": [
-    {
-     "src": "foto/stok/orphee-nx35-nylon-klasik-hard-tension-stk-app6fk-6e0aee.webp",
-     "kecil": "foto/stok/orphee-nx35-nylon-klasik-hard-tension-stk-app6fk-6e0aee-k.webp"
-    },
-    {
-     "src": "foto/stok/orphee-nx35-nylon-klasik-hard-tension-stk-app6fk-ff640a.webp",
-     "kecil": "foto/stok/orphee-nx35-nylon-klasik-hard-tension-stk-app6fk-ff640a-k.webp"
-    }
-   ],
-   "alat": [
-    "Gitar Klasik",
-    "Guitalele"
-   ],
-   "ukuran": "Hard Tension",
-   "merek": "Orphee",
-   "seri": "NX",
-   "artikel": 10,
-   "grup": "nx-senar"
-  },
-  {
-   "kode": "STK-6XYMRC",
-   "kategori": "aksesoris",
-   "jenis": "Senar",
-   "kondisi": "baru",
-   "nama": "Orphee QC5",
-   "warna": "",
-   "deskripsi": "Senar gitar klasik Orphee QC5 ini adalah senar nylon normal tension (028-043) dengan lilitan silver pada senar bas untuk menghasilkan suara yang lebih tegas dan jernih. Kualitas senar ini dikenal cukup awet dan nyaman dimainkan karena daya tahan senarnya yang tinggi. Produk ini masih dalam kondisi segel baru, siap digunakan untuk mengganti senar lama gitar klasik Anda. Silakan datang langsung ke toko kami untuk mencoba sensasi dan suaranya sendiri. 🎸",
-   "harga": 60000,
-   "status": "tersedia",
-   "sisa": null,
-   "foto": [
-    {
-     "src": "foto/stok/orphee-qc5-nylon-klasik-normal-tension-stk-6xymrc-d946f3.webp",
-     "kecil": "foto/stok/orphee-qc5-nylon-klasik-normal-tension-stk-6xymrc-d946f3-k.webp"
-    },
-    {
-     "src": "foto/stok/orphee-qc5-nylon-klasik-normal-tension-stk-6xymrc-d71bd3.webp",
-     "kecil": "foto/stok/orphee-qc5-nylon-klasik-normal-tension-stk-6xymrc-d71bd3-k.webp"
-    }
-   ],
-   "alat": [
-    "Gitar Klasik",
-    "Guitalele"
-   ],
-   "ukuran": "Normal Tension",
-   "merek": "Orphee",
-   "seri": "QC",
-   "artikel": 11,
-   "grup": "qc-senar"
-  },
-  {
-   "kode": "STK-SD6VFA",
-   "kategori": "aksesoris",
-   "jenis": "Senar",
-   "kondisi": "baru",
-   "nama": "Orphee QC9",
-   "warna": "",
-   "deskripsi": "Senar Orphee QC9 ini dirancang khusus untuk gitar klasik dengan tegangan tinggi (hard tension) dan ukuran 028-045. Kemasannya mencantumkan fitur \"Silver Line\" yang diklaim menghasilkan timbre penuh (full timbre), cocok untuk kamu yang suka respons suara tegas dan detail. Produk ini masih dalam kondisi baru, siap langsung dipasang di gitar kesayanganmu. Mampir ke toko AYRI di Bogor untuk cek kualitasnya langsung. 🎸",
-   "harga": 60000,
-   "status": "tersedia",
-   "sisa": null,
-   "foto": [
-    {
-     "src": "foto/stok/orphee-qc5-nylon-klasik-hard-tension-stk-sd6vfa-6c2cd5.webp",
-     "kecil": "foto/stok/orphee-qc5-nylon-klasik-hard-tension-stk-sd6vfa-6c2cd5-k.webp"
-    },
-    {
-     "src": "foto/stok/orphee-qc5-nylon-klasik-hard-tension-stk-sd6vfa-21735b.webp",
-     "kecil": "foto/stok/orphee-qc5-nylon-klasik-hard-tension-stk-sd6vfa-21735b-k.webp"
-    }
-   ],
-   "alat": [
-    "Gitar Klasik",
-    "Guitalele"
-   ],
-   "ukuran": "Hard Tension",
-   "merek": "Orphee",
-   "seri": "QC",
-   "artikel": 12,
-   "grup": "qc-senar"
-  },
-  {
-   "kode": "STK-4SX3UT",
-   "kategori": "aksesoris",
-   "jenis": "Senar",
-   "kondisi": "baru",
-   "nama": "Orphee QA160",
-   "warna": "",
-   "deskripsi": "Senar akustik Orphee QA160 ukuran 011-052 ini masih dalam kondisi baru dan siap pasang. Dengan material 85/15 Bronze yang melapisi inti baja, senar ini menghasilkan karakter nada yang jernih dan terang. Tegasnya senar yang ringan membuatnya sangat nyaman untuk dipetik, menjadikannya pilihan ideal bagi pemula maupun pemain yang sering menggunakan teknik fingerstyle. Silakan datang langsung ke Toko Gitar AYRI di Bogor untuk mencoba feel dan suara senar ini. 🎸",
-   "harga": 60000,
-   "status": "tersedia",
-   "sisa": 2,
-   "foto": [
-    {
-     "src": "foto/stok/orphee-qa160-ukuran-011-stk-4sx3ut-a30ae9.webp",
-     "kecil": "foto/stok/orphee-qa160-ukuran-011-stk-4sx3ut-a30ae9-k.webp"
-    },
-    {
-     "src": "foto/stok/orphee-qa160-ukuran-011-stk-4sx3ut-ad4510.webp",
-     "kecil": "foto/stok/orphee-qa160-ukuran-011-stk-4sx3ut-ad4510-k.webp"
-    }
-   ],
-   "alat": [
-    "Gitar Akustik"
-   ],
-   "ukuran": "011",
-   "merek": "Orphee",
-   "seri": "QA",
-   "artikel": 13,
-   "grup": "qa-senar"
-  },
-  {
-   "kode": "STK-BABWUM",
-   "kategori": "aksesoris",
-   "jenis": "Senar",
-   "kondisi": "baru",
-   "nama": "Orphee QA170",
-   "warna": "",
-   "deskripsi": "Senar Orphee QA170 baru ini hadir dengan gauge medium .012-.053 dan material 85/15 Bronze yang menghasilkan karakter suara *full bright tone*. Ukuran ini sangat pas untuk pemain yang suka riff blues dan rock, di mana responsnya cepat dan nadanya terasa jelas serta punchy. Karena kondisinya masih baru, kamu bisa merasakan konsistensi ketegangan dan daya tahan yang optimal, sekaligus membuat teknik bending saat solo jadi lebih mudah. Yuk, langsung coba dan rasakan bedanya di toko kami! 🎸",
-   "harga": 60000,
-   "status": "tersedia",
-   "sisa": null,
-   "foto": [
-    {
-     "src": "foto/stok/orphee-qa170-ukuran-012-stk-babwum-e97e09.webp",
-     "kecil": "foto/stok/orphee-qa170-ukuran-012-stk-babwum-e97e09-k.webp"
-    },
-    {
-     "src": "foto/stok/orphee-qa170-ukuran-012-stk-babwum-610a68.webp",
-     "kecil": "foto/stok/orphee-qa170-ukuran-012-stk-babwum-610a68-k.webp"
+     "src": "foto/stok/orphee-sa39-gitar-akustik-ukuran-012-stk-sufer3-ebf22a.webp",
+     "kecil": "foto/stok/orphee-sa39-gitar-akustik-ukuran-012-stk-sufer3-ebf22a-k.webp"
     }
    ],
    "alat": [
@@ -449,29 +110,124 @@
    ],
    "ukuran": "012",
    "merek": "Orphee",
-   "seri": "QA",
-   "artikel": 14,
-   "grup": "qa-senar"
+   "seri": "SA",
+   "fitur": [
+    "Phosphor Bronze"
+   ],
+   "artikel": 3,
+   "grup": "sa-senar"
   },
   {
-   "kode": "STK-2Z9THR",
+   "kode": "STK-J7NEGR",
    "kategori": "aksesoris",
    "jenis": "Senar",
    "kondisi": "baru",
-   "nama": "Orphee SA37",
+   "nama": "Orphee SC57",
    "warna": "",
-   "deskripsi": "Senar Orphee SA37 Phosphor Bronze ukuran .010 ini hadir dalam kemasan hitam beraksen biru yang menampilkan brand dan spesifikasi secara jelas. Sebagai senar khusus gitar akustik, material phosphor bronze-nya dirancang untuk menghasilkan nada yang hangat dan resonan. Kondisi barang masih baru, siap untuk dipasang langsung pada gitar Anda. Yuk, coba rasakan sendiri kualitas senarnya di toko kami! 🎸",
-   "harga": 100000,
+   "deskripsi": "Senar Orphee SC57 ini adalah senar nylon klasik dengan tegangan keras (hard tension), cocok untuk pemain yang menginginkan suara lebih keras dan respons kuat saat bermain. Sebagai senar baru, kawat bassnya yang berbahan copper phosphor dengan coating (lapisan pelindung) akan terasa halus di jari dan lebih tahan lama. kemasan hitam dengan aksen ungu ini menampilkan spesifikasi jelas di bagian belakang, memastikan Anda mendapatkan tepat varian yang dibutuhkan. Mampir ke Toko Gitar AYRI di Bogor untuk mencoba langsung dan konsultasikan kebutuhan senar Anda. 🎸",
+   "harga": 120000,
    "status": "tersedia",
-   "sisa": 2,
+   "sisa": 1,
    "foto": [
     {
-     "src": "foto/stok/orphee-sa37-phosphor-bronze-ukuran-010-stk-2z9thr-43bfa0.webp",
-     "kecil": "foto/stok/orphee-sa37-phosphor-bronze-ukuran-010-stk-2z9thr-43bfa0-k.webp"
+     "src": "foto/stok/orphee-sc57-nylon-klasik-hard-tension-stk-j7negr-f5133d.webp",
+     "kecil": "foto/stok/orphee-sc57-nylon-klasik-hard-tension-stk-j7negr-f5133d-k.webp"
     },
     {
-     "src": "foto/stok/orphee-sa37-phosphor-bronze-ukuran-010-stk-2z9thr-b0548a.webp",
-     "kecil": "foto/stok/orphee-sa37-phosphor-bronze-ukuran-010-stk-2z9thr-b0548a-k.webp"
+     "src": "foto/stok/orphee-sc57-nylon-klasik-hard-tension-stk-j7negr-17840f.webp",
+     "kecil": "foto/stok/orphee-sc57-nylon-klasik-hard-tension-stk-j7negr-17840f-k.webp"
+    }
+   ],
+   "alat": [
+    "Gitar Klasik",
+    "Guitalele"
+   ],
+   "ukuran": "Hard Tension",
+   "merek": "Orphee",
+   "seri": "SC",
+   "artikel": 4,
+   "grup": "sc-senar"
+  },
+  {
+   "kode": "STK-GKPE3H",
+   "kategori": "aksesoris",
+   "jenis": "Senar",
+   "kondisi": "baru",
+   "nama": "Orphee SC55",
+   "warna": "",
+   "deskripsi": "Set senar Orphee SC55 ini baru dalam kemasan aslinya yang didominasi warna hitam dan ungu. Sebagai senar nylon klasik tegangan normal, set 6 senar ini dirancang untuk memberikan respons yang seimbang saat dimainkan. Lapisan silver pada senar bassnya membuat resonansi suara lebih jelas dan stabil, cocok untuk pemula maupun pemain yang mencari nuansa natural. Yuk, mampir ke toko kami di Bogor untuk langsung coba sensasi mainnya! 🎸",
+   "harga": 120000,
+   "status": "tersedia",
+   "sisa": 1,
+   "foto": [
+    {
+     "src": "foto/stok/orphee-sc55-nylon-klasik-normal-tension-stk-gkpe3h-35d5a4.webp",
+     "kecil": "foto/stok/orphee-sc55-nylon-klasik-normal-tension-stk-gkpe3h-35d5a4-k.webp"
+    },
+    {
+     "src": "foto/stok/orphee-sc55-nylon-klasik-normal-tension-stk-gkpe3h-af1163.webp",
+     "kecil": "foto/stok/orphee-sc55-nylon-klasik-normal-tension-stk-gkpe3h-af1163-k.webp"
+    }
+   ],
+   "alat": [
+    "Gitar Klasik",
+    "Guitalele"
+   ],
+   "ukuran": "Normal Tension",
+   "merek": "Orphee",
+   "seri": "SC",
+   "artikel": 5,
+   "grup": "sc-senar"
+  },
+  {
+   "kode": "STK-HUEURY",
+   "kategori": "aksesoris",
+   "jenis": "Senar",
+   "kondisi": "baru",
+   "nama": "Orphee QA140",
+   "warna": "",
+   "deskripsi": "Senar gitar akustik Orphee model QA140 dalam kondisi baru, dengan ukuran super light 009-045 yang ringan di jari. Kemasannya mencantumkan spesifikasi 85/15 Bronze yang menghasilkan suara terang dan jernih (full bright tone). Produk ini diproduksi di Tiongkok (Made in China). Yuk, langsung coba pasang dan rasakan perbedaannya di toko kami. 🎸",
+   "harga": 60000,
+   "status": "tersedia",
+   "sisa": null,
+   "foto": [
+    {
+     "src": "foto/stok/orphee-qa140-gitar-akustik-ukuran-009-stk-hueury-c971e2.webp",
+     "kecil": "foto/stok/orphee-qa140-gitar-akustik-ukuran-009-stk-hueury-c971e2-k.webp"
+    },
+    {
+     "src": "foto/stok/orphee-qa140-gitar-akustik-ukuran-009-stk-hueury-408952.webp",
+     "kecil": "foto/stok/orphee-qa140-gitar-akustik-ukuran-009-stk-hueury-408952-k.webp"
+    }
+   ],
+   "alat": [
+    "Gitar Akustik"
+   ],
+   "ukuran": "009",
+   "merek": "Orphee",
+   "seri": "QA",
+   "artikel": 6,
+   "grup": "qa-senar"
+  },
+  {
+   "kode": "STK-ZXAD4K",
+   "kategori": "aksesoris",
+   "jenis": "Senar",
+   "kondisi": "baru",
+   "nama": "Orphee QA150",
+   "warna": "",
+   "deskripsi": "Senar Orphee QA150 ini hadir dalam ukuran 010 khusus untuk gitar akustik, cocok untuk kamu yang butuh senar lebih ringan dan nyaman dipetik. Kemasannya menampilkan spesifikasi 85/15 Bronze yang dirancang untuk menghasilkan suara yang terang (bright) dan karakternya penuh. Kondisi senar ini masih baru, siap dipasang langsung ke gitar kesayanganmu. Yuk, datang ke Toko Gitar AYRI di Bogor untuk cek dan langsung pasang senar ini dengan bantuan kru kami. 🎸",
+   "harga": 60000,
+   "status": "tersedia",
+   "sisa": null,
+   "foto": [
+    {
+     "src": "foto/stok/orphee-qa150-gitar-akustik-ukuran-010-stk-zxad4k-ded815.webp",
+     "kecil": "foto/stok/orphee-qa150-gitar-akustik-ukuran-010-stk-zxad4k-ded815-k.webp"
+    },
+    {
+     "src": "foto/stok/orphee-qa150-gitar-akustik-ukuran-010-stk-zxad4k-865a90.webp",
+     "kecil": "foto/stok/orphee-qa150-gitar-akustik-ukuran-010-stk-zxad4k-865a90-k.webp"
     }
    ],
    "alat": [
@@ -479,70 +235,299 @@
    ],
    "ukuran": "010",
    "merek": "Orphee",
-   "seri": "SA",
-   "fitur": [
-    "Phosphor Bronze",
-    "Warm",
-    "Extra Light"
-   ],
-   "artikel": 15,
-   "grup": "sa-senar"
+   "seri": "QA",
+   "artikel": 7,
+   "grup": "qa-senar"
   },
   {
-   "kode": "STK-UWGUKK",
+   "kode": "STK-9SSQBS",
+   "kategori": "aksesoris",
+   "jenis": "Capo",
+   "kondisi": "baru",
+   "nama": "JOYO JCP-03",
+   "warna": "",
+   "deskripsi": "Capo Joyo JCP-03 ini hadir dengan desain ringan dan warna hitam yang minimalis. Mekanisme pegasnya memudahkan kamu untuk menyetel nada dengan cepat tanpa merusak senar. Produk ini masih baru dan tersegel dalam dus aslinya. Yuk, mampir ke Toko Gitar AYRI Bogor dan langsung coba fiturnya! 🎸",
+   "harga": 100000,
+   "status": "tersedia",
+   "sisa": 2,
+   "foto": [
+    {
+     "src": "foto/stok/joyo-jcp-03-stk-9ssqbs-d65231.webp",
+     "kecil": "foto/stok/joyo-jcp-03-stk-9ssqbs-d65231-k.webp"
+    }
+   ],
+   "alat": [
+    "Gitar Akustik",
+    "Gitar Elektrik",
+    "Ukulele",
+    "Guitalele"
+   ],
+   "merek": "JOYO",
+   "seri": "JCP",
+   "artikel": 8,
+   "grup": "jcp-capo"
+  },
+  {
+   "kode": "STK-B9VWVH",
+   "kategori": "aksesoris",
+   "jenis": "Capo",
+   "kondisi": "baru",
+   "nama": "TaffStudio 7RTHF8BK",
+   "warna": "",
+   "deskripsi": "Capo ini baru dan siap pakai untuk semua gitar. Bagian pelat senarnya dilapisi karet bertekstur agar senar tidak bergeser dan nada tetap jernih. Desainnya universal, jadi pas di berbagai ukuran leher gitar. Silakan datang ke toko di Bogor untuk tes fit langsung di gitar Anda 🎸",
+   "harga": 40000,
+   "status": "tersedia",
+   "sisa": null,
+   "foto": [
+    {
+     "src": "foto/stok/taffstudio-7rthf8bk-universal-stk-b9vwvh-8dacee.webp",
+     "kecil": "foto/stok/taffstudio-7rthf8bk-universal-stk-b9vwvh-8dacee-k.webp"
+    }
+   ],
+   "alat": [
+    "Gitar Akustik",
+    "Gitar Klasik",
+    "Gitar Elektrik",
+    "Ukulele",
+    "Guitalele"
+   ],
+   "merek": "TaffStudio",
+   "artikel": 9
+  },
+  {
+   "kode": "STK-6DZ7XA",
+   "kategori": "aksesoris",
+   "jenis": "Capo",
+   "kondisi": "baru",
+   "nama": "JOYO JCP-01",
+   "warna": "Gitar Akustik & Gitar Elektrik",
+   "deskripsi": "Capo Joyo JCP-01 ini hadir dalam desain ringan berwarna hitam yang cocok untuk gitar akustik maupun elektrik. Paketnya sudah termasuk pick oranye, sehingga kamu tidak perlu beli terpisah. Desainnya ringkas dan praktis untuk dibawa saat latihan atau tampil. Yuk, langsung cek dan cobain sendiri di Toko Gitar AYRI! 🎸",
+   "harga": 60000,
+   "status": "tersedia",
+   "sisa": 3,
+   "foto": [
+    {
+     "src": "foto/stok/joyo-jcp-01-gitar-akustik-gitar-elektrik-stk-6dz7xa-69b289.webp",
+     "kecil": "foto/stok/joyo-jcp-01-gitar-akustik-gitar-elektrik-stk-6dz7xa-69b289-k.webp"
+    },
+    {
+     "src": "foto/stok/joyo-jcp-01-gitar-akustik-gitar-elektrik-stk-6dz7xa-2d5eb7.webp",
+     "kecil": "foto/stok/joyo-jcp-01-gitar-akustik-gitar-elektrik-stk-6dz7xa-2d5eb7-k.webp"
+    }
+   ],
+   "alat": [
+    "Gitar Akustik",
+    "Gitar Elektrik",
+    "Ukulele"
+   ],
+   "merek": "JOYO",
+   "seri": "JCP",
+   "artikel": 10,
+   "grup": "jcp-capo"
+  },
+  {
+   "kode": "STK-QW5YP5",
    "kategori": "aksesoris",
    "jenis": "Senar",
    "kondisi": "baru",
-   "nama": "Orphee TX630",
+   "nama": "Orphee RX17",
    "warna": "",
-   "deskripsi": "Senar gitar akustik Orphee TX630 ukuran 011 ini hadir dengan kondisi baru dalam kemasan kuning khasnya. Terbuat dari bahan 75/25 Bronze, senar ini dirancang untuk memberikan resonansi yang hangat dan jernih pada gitar akustik maupun klasik. Ukuran 011 menawarkan keseimbangan yang pas antara kemudahan penekanan senar dan volume suara yang responsif. Mampir ke toko kami untuk mencoba langsung dan menemukan senar yang paling pas untuk gaya bermainmu. 🎸",
+   "deskripsi": "Senar gitar listrik Orphee RX17 ukuran 010 ini hadir dalam kemasan segel baru dengan desain kemas teal yang khas. Terlihat jelas pada kemasannya bahwa senar ini terbuat dari 58 nickel alloy yang tangguh, dengan susunan gauge 10-46. Pilihan ukuran 010 ini menawarkan keseimbangan yang pas, ringan saat dipetik, namun tetap menghasilkan sustain yang solid untuk gaya mainmu. Yuk, langsung datang ke Toko Gitar AYRI untuk mencoba dan merasakan sensasi senar baru ini di gitarmu. 🎸",
+   "harga": 40000,
+   "status": "tersedia",
+   "sisa": null,
+   "foto": [
+    {
+     "src": "foto/stok/orphee-rx17-gitar-listrik-ukuran-010-stk-qw5yp5-070ada.webp",
+     "kecil": "foto/stok/orphee-rx17-gitar-listrik-ukuran-010-stk-qw5yp5-070ada-k.webp"
+    },
+    {
+     "src": "foto/stok/orphee-rx17-gitar-listrik-ukuran-010-stk-qw5yp5-8b0198.webp",
+     "kecil": "foto/stok/orphee-rx17-gitar-listrik-ukuran-010-stk-qw5yp5-8b0198-k.webp"
+    }
+   ],
+   "alat": [
+    "Gitar Elektrik"
+   ],
+   "ukuran": "010",
+   "merek": "Orphee",
+   "seri": "RX",
+   "artikel": 11,
+   "grup": "rx-senar"
+  },
+  {
+   "kode": "STK-YR7ACG",
+   "kategori": "aksesoris",
+   "jenis": "Senar",
+   "kondisi": "baru",
+   "nama": "Orphee RX19",
+   "warna": "",
+   "deskripsi": "Senar gitar listrik Orphee RX19 ukuran 011-050 dalam kondisi baru, siap pakai untuk menggantikan senar lama Anda. Berdasarkan keterangan pada kemasan, senar ini terbuat dari paduan nikel dengan teknologi hexagonal core yang dirancang untuk memberikan resonansi dan sustain yang lebih baik. Coklat keperakan dengan kemasan plastik tertutup rapat menjaga senar tetap bersih dan bebas karat hingga saat pemasangan. Yuk, mampir langsung ke Toko Gitar AYRI di Bogor untuk cek kualitasnya dan tanya-tanya kebutuhan senar lainnya. 🎸",
+   "harga": 40000,
+   "status": "tersedia",
+   "sisa": 3,
+   "foto": [
+    {
+     "src": "foto/stok/orphee-rx19-gitar-listrik-ukuran-011-stk-yr7acg-342caf.webp",
+     "kecil": "foto/stok/orphee-rx19-gitar-listrik-ukuran-011-stk-yr7acg-342caf-k.webp"
+    },
+    {
+     "src": "foto/stok/orphee-rx19-gitar-listrik-ukuran-011-stk-yr7acg-54d366.webp",
+     "kecil": "foto/stok/orphee-rx19-gitar-listrik-ukuran-011-stk-yr7acg-54d366-k.webp"
+    }
+   ],
+   "alat": [
+    "Gitar Elektrik"
+   ],
+   "ukuran": "011",
+   "merek": "Orphee",
+   "seri": "RX",
+   "artikel": 12,
+   "grup": "rx-senar"
+  },
+  {
+   "kode": "STK-AKSTPX",
+   "kategori": "aksesoris",
+   "jenis": "Senar",
+   "kondisi": "baru",
+   "nama": "Orphee RX15",
+   "warna": "",
+   "deskripsi": "Senar Orphee Guitar RX15 ini adalah senar gitar listrik ukuran .009 hingga .042 yang baru. Produk ini diproduksi di Indonesia dengan material 58 nickel alloy, menawarkan keseimbangan respons yang pas untuk gaya bermain yang ringan dan responsif. Keunggulan senar ini terletak pada kualitas material yang tahan lama, menjaga nada tetap stabil dan jernih dalam waktu lama. Yuk, langsung datang ke toko kami di Bogor untuk mencoba sensasi bunyinya dan dapatkan harga terbaik! 🎸",
    "harga": 40000,
    "status": "tersedia",
    "sisa": 2,
    "foto": [
     {
-     "src": "foto/stok/orphee-tx630-ukuran-011-stk-uwgukk-7c526f.webp",
-     "kecil": "foto/stok/orphee-tx630-ukuran-011-stk-uwgukk-7c526f-k.webp"
+     "src": "foto/stok/orphee-rx15-gitar-listrik-ukuran-009-stk-akstpx-104665.webp",
+     "kecil": "foto/stok/orphee-rx15-gitar-listrik-ukuran-009-stk-akstpx-104665-k.webp"
     },
     {
-     "src": "foto/stok/orphee-tx630-ukuran-011-stk-uwgukk-bc8ea8.webp",
-     "kecil": "foto/stok/orphee-tx630-ukuran-011-stk-uwgukk-bc8ea8-k.webp"
-    }
-   ],
-   "alat": [
-    "Gitar Akustik"
-   ],
-   "ukuran": "011",
-   "merek": "Orphee",
-   "seri": "TX",
-   "artikel": 16,
-   "grup": "tx-senar"
-  },
-  {
-   "kode": "STK-A6Q9EY",
-   "kategori": "aksesoris",
-   "jenis": "Senar",
-   "kondisi": "baru",
-   "nama": "Orphee QE25",
-   "warna": "",
-   "deskripsi": "Senar baru Orphee QE25 khusus untuk gitar elektrik dengan gauge Super Light 009-042. Kemasannya mencantumkan spesifikasi bahan nickel alloy yang dirancang untuk menghasilkan suara *bright tone* yang jernih. Bagian belakang kemasan juga menampilkan detail konversi ukuran senar dalam inci dan milimeter. 🎸 Yuk, langsung datang ke toko untuk mencoba sensasi senar ini di gitar Anda!",
-   "harga": 60000,
-   "status": "tersedia",
-   "sisa": 2,
-   "foto": [
-    {
-     "src": "foto/stok/orphee-qe25-gitar-elektrik-ukuran-009-stk-a6q9ey-a80802.webp",
-     "kecil": "foto/stok/orphee-qe25-gitar-elektrik-ukuran-009-stk-a6q9ey-a80802-k.webp"
-    },
-    {
-     "src": "foto/stok/orphee-qe25-gitar-elektrik-ukuran-009-stk-a6q9ey-e0e20a.webp",
-     "kecil": "foto/stok/orphee-qe25-gitar-elektrik-ukuran-009-stk-a6q9ey-e0e20a-k.webp"
+     "src": "foto/stok/orphee-rx15-gitar-listrik-ukuran-009-stk-akstpx-383477.webp",
+     "kecil": "foto/stok/orphee-rx15-gitar-listrik-ukuran-009-stk-akstpx-383477-k.webp"
     }
    ],
    "alat": [
     "Gitar Elektrik"
    ],
    "ukuran": "009",
+   "merek": "Orphee",
+   "seri": "RX",
+   "artikel": 13,
+   "grup": "rx-senar"
+  },
+  {
+   "kode": "STK-Y5MC8V",
+   "kategori": "aksesoris",
+   "jenis": "Senar",
+   "kondisi": "baru",
+   "nama": "Orphee KX80",
+   "warna": "",
+   "deskripsi": "Senar Orphee Guitar KX80 ini baru dan dikemas dalam plastik berwarna pink. Bahan senar ini terbuat dari serat karbon dengan ketegangan tinggi, yang menghasilkan suara jernih dan responsif. Ukurannya pas untuk ukulele standar dengan nada A, E, C, dan G. Silakan datang ke toko untuk mencoba langsung senar ini di instrumen Anda. 🎶",
+   "harga": 40000,
+   "status": "tersedia",
+   "sisa": 3,
+   "foto": [
+    {
+     "src": "foto/stok/orphee-kx80-ukulele-hard-tension-stk-y5mc8v-04f244.webp",
+     "kecil": "foto/stok/orphee-kx80-ukulele-hard-tension-stk-y5mc8v-04f244-k.webp"
+    },
+    {
+     "src": "foto/stok/orphee-kx80-ukulele-hard-tension-stk-y5mc8v-0b43b3.webp",
+     "kecil": "foto/stok/orphee-kx80-ukulele-hard-tension-stk-y5mc8v-0b43b3-k.webp"
+    }
+   ],
+   "alat": [
+    "Ukulele"
+   ],
+   "ukuran": "Hard Tension",
+   "merek": "Orphee",
+   "artikel": 14
+  },
+  {
+   "kode": "STK-RT4XNQ",
+   "kategori": "aksesoris",
+   "jenis": "Senar",
+   "kondisi": "baru",
+   "nama": "Orphee SE2X",
+   "warna": "",
+   "deskripsi": "Senar Orphee SE2X ini adalah senar gitar listrik model Nickel Alloy dengan ketebalan 9-42. Desain packaging-nya simpel dan modern dengan dominasi warna hitam serta aksen circle biru yang khas. Kondisi barang ini 100% baru dan siap pakai. Cek langsung ketersediaan dan pasang senar ini di Toko Gitar AYRI 🎸",
+   "harga": 100000,
+   "status": "tersedia",
+   "sisa": 1,
+   "foto": [
+    {
+     "src": "foto/stok/orphee-se2x-gitar-listrik-ukuran-009-stk-rt4xnq-1eb232.webp",
+     "kecil": "foto/stok/orphee-se2x-gitar-listrik-ukuran-009-stk-rt4xnq-1eb232-k.webp"
+    },
+    {
+     "src": "foto/stok/orphee-se2x-gitar-listrik-ukuran-009-stk-rt4xnq-0208a6.webp",
+     "kecil": "foto/stok/orphee-se2x-gitar-listrik-ukuran-009-stk-rt4xnq-0208a6-k.webp"
+    }
+   ],
+   "alat": [
+    "Gitar Elektrik"
+   ],
+   "ukuran": "009",
+   "merek": "Orphee",
+   "seri": "SE",
+   "artikel": 15,
+   "grup": "se-senar"
+  },
+  {
+   "kode": "STK-KVBRW6",
+   "kategori": "aksesoris",
+   "jenis": "Senar",
+   "kondisi": "baru",
+   "nama": "Orphee SE4X",
+   "warna": "",
+   "deskripsi": "Senar Orphee SE4X ukuran 011 ini cocok untuk gitar listrik yang membutuhkan resonansi solid dan stabil. Terbuat dari bahan Nickel Alloy, set ini dirancang untuk menghasilkan suara dengan sustain kuat, cocok untuk latihan maupun rekam. Kondisi unit masih baru dalam kemasan tertutup. Yuk, datang ke Toko Gitar AYRI untuk mencoba langsung suaranya!",
+   "harga": 100000,
+   "status": "tersedia",
+   "sisa": 1,
+   "foto": [
+    {
+     "src": "foto/stok/orphee-se4x-gitar-listrik-ukuran-011-stk-kvbrw6-95a86b.webp",
+     "kecil": "foto/stok/orphee-se4x-gitar-listrik-ukuran-011-stk-kvbrw6-95a86b-k.webp"
+    },
+    {
+     "src": "foto/stok/orphee-se4x-gitar-listrik-ukuran-011-stk-kvbrw6-aa5f15.webp",
+     "kecil": "foto/stok/orphee-se4x-gitar-listrik-ukuran-011-stk-kvbrw6-aa5f15-k.webp"
+    }
+   ],
+   "alat": [
+    "Gitar Elektrik"
+   ],
+   "ukuran": "011",
+   "merek": "Orphee",
+   "seri": "SE",
+   "artikel": 16,
+   "grup": "se-senar"
+  },
+  {
+   "kode": "STK-HDFCMM",
+   "kategori": "aksesoris",
+   "jenis": "Senar",
+   "kondisi": "baru",
+   "nama": "Orphee QE29",
+   "warna": "",
+   "deskripsi": "Senar Orphee QE29 ini hadir dengan ukuran 011-050 dan material nikel yang menghasilkan suara *bright tone* khas gitar elektrik. Kondisi barang masih baru dalam kemasan, siap langsung dipasang untuk latihan maupun rekaman. Ukuran *medium* ini memberikan keseimbangan yang pas antara kemudahan bermain dan kekuatan nada. Yuk, mampir ke toko kami di Bogor untuk mencoba langsung senar ini pada gitar Anda 🎸✨",
+   "harga": 60000,
+   "status": "tersedia",
+   "sisa": 1,
+   "foto": [
+    {
+     "src": "foto/stok/orphee-qe29-gitar-elektrik-ukuran-011-stk-hdfcmm-aa3792.webp",
+     "kecil": "foto/stok/orphee-qe29-gitar-elektrik-ukuran-011-stk-hdfcmm-aa3792-k.webp"
+    },
+    {
+     "src": "foto/stok/orphee-qe29-gitar-elektrik-ukuran-011-stk-hdfcmm-99c756.webp",
+     "kecil": "foto/stok/orphee-qe29-gitar-elektrik-ukuran-011-stk-hdfcmm-99c756-k.webp"
+    }
+   ],
+   "alat": [
+    "Gitar Elektrik"
+   ],
+   "ukuran": "011",
    "merek": "Orphee",
    "seri": "QE",
    "artikel": 17,
@@ -579,298 +564,313 @@
    "grup": "qe-senar"
   },
   {
-   "kode": "STK-HDFCMM",
+   "kode": "STK-A6Q9EY",
    "kategori": "aksesoris",
    "jenis": "Senar",
    "kondisi": "baru",
-   "nama": "Orphee QE29",
+   "nama": "Orphee QE25",
    "warna": "",
-   "deskripsi": "Senar Orphee QE29 ini hadir dengan ukuran 011-050 dan material nikel yang menghasilkan suara *bright tone* khas gitar elektrik. Kondisi barang masih baru dalam kemasan, siap langsung dipasang untuk latihan maupun rekaman. Ukuran *medium* ini memberikan keseimbangan yang pas antara kemudahan bermain dan kekuatan nada. Yuk, mampir ke toko kami di Bogor untuk mencoba langsung senar ini pada gitar Anda 🎸✨",
+   "deskripsi": "Senar baru Orphee QE25 khusus untuk gitar elektrik dengan gauge Super Light 009-042. Kemasannya mencantumkan spesifikasi bahan nickel alloy yang dirancang untuk menghasilkan suara *bright tone* yang jernih. Bagian belakang kemasan juga menampilkan detail konversi ukuran senar dalam inci dan milimeter. 🎸 Yuk, langsung datang ke toko untuk mencoba sensasi senar ini di gitar Anda!",
    "harga": 60000,
    "status": "tersedia",
-   "sisa": 1,
+   "sisa": 2,
    "foto": [
     {
-     "src": "foto/stok/orphee-qe29-gitar-elektrik-ukuran-011-stk-hdfcmm-aa3792.webp",
-     "kecil": "foto/stok/orphee-qe29-gitar-elektrik-ukuran-011-stk-hdfcmm-aa3792-k.webp"
+     "src": "foto/stok/orphee-qe25-gitar-elektrik-ukuran-009-stk-a6q9ey-a80802.webp",
+     "kecil": "foto/stok/orphee-qe25-gitar-elektrik-ukuran-009-stk-a6q9ey-a80802-k.webp"
     },
     {
-     "src": "foto/stok/orphee-qe29-gitar-elektrik-ukuran-011-stk-hdfcmm-99c756.webp",
-     "kecil": "foto/stok/orphee-qe29-gitar-elektrik-ukuran-011-stk-hdfcmm-99c756-k.webp"
+     "src": "foto/stok/orphee-qe25-gitar-elektrik-ukuran-009-stk-a6q9ey-e0e20a.webp",
+     "kecil": "foto/stok/orphee-qe25-gitar-elektrik-ukuran-009-stk-a6q9ey-e0e20a-k.webp"
     }
    ],
    "alat": [
     "Gitar Elektrik"
    ],
-   "ukuran": "011",
+   "ukuran": "009",
    "merek": "Orphee",
    "seri": "QE",
    "artikel": 19,
    "grup": "qe-senar"
   },
   {
-   "kode": "STK-KVBRW6",
+   "kode": "STK-UWGUKK",
    "kategori": "aksesoris",
    "jenis": "Senar",
    "kondisi": "baru",
-   "nama": "Orphee SE4X",
+   "nama": "Orphee TX630",
    "warna": "",
-   "deskripsi": "Senar Orphee SE4X ukuran 011 ini cocok untuk gitar listrik yang membutuhkan resonansi solid dan stabil. Terbuat dari bahan Nickel Alloy, set ini dirancang untuk menghasilkan suara dengan sustain kuat, cocok untuk latihan maupun rekam. Kondisi unit masih baru dalam kemasan tertutup. Yuk, datang ke Toko Gitar AYRI untuk mencoba langsung suaranya!",
-   "harga": 100000,
-   "status": "tersedia",
-   "sisa": 1,
-   "foto": [
-    {
-     "src": "foto/stok/orphee-se4x-gitar-listrik-ukuran-011-stk-kvbrw6-95a86b.webp",
-     "kecil": "foto/stok/orphee-se4x-gitar-listrik-ukuran-011-stk-kvbrw6-95a86b-k.webp"
-    },
-    {
-     "src": "foto/stok/orphee-se4x-gitar-listrik-ukuran-011-stk-kvbrw6-aa5f15.webp",
-     "kecil": "foto/stok/orphee-se4x-gitar-listrik-ukuran-011-stk-kvbrw6-aa5f15-k.webp"
-    }
-   ],
-   "alat": [
-    "Gitar Elektrik"
-   ],
-   "ukuran": "011",
-   "merek": "Orphee",
-   "seri": "SE",
-   "artikel": 20,
-   "grup": "se-senar"
-  },
-  {
-   "kode": "STK-RT4XNQ",
-   "kategori": "aksesoris",
-   "jenis": "Senar",
-   "kondisi": "baru",
-   "nama": "Orphee SE2X",
-   "warna": "",
-   "deskripsi": "Senar Orphee SE2X ini adalah senar gitar listrik model Nickel Alloy dengan ketebalan 9-42. Desain packaging-nya simpel dan modern dengan dominasi warna hitam serta aksen circle biru yang khas. Kondisi barang ini 100% baru dan siap pakai. Cek langsung ketersediaan dan pasang senar ini di Toko Gitar AYRI 🎸",
-   "harga": 100000,
-   "status": "tersedia",
-   "sisa": 1,
-   "foto": [
-    {
-     "src": "foto/stok/orphee-se2x-gitar-listrik-ukuran-009-stk-rt4xnq-1eb232.webp",
-     "kecil": "foto/stok/orphee-se2x-gitar-listrik-ukuran-009-stk-rt4xnq-1eb232-k.webp"
-    },
-    {
-     "src": "foto/stok/orphee-se2x-gitar-listrik-ukuran-009-stk-rt4xnq-0208a6.webp",
-     "kecil": "foto/stok/orphee-se2x-gitar-listrik-ukuran-009-stk-rt4xnq-0208a6-k.webp"
-    }
-   ],
-   "alat": [
-    "Gitar Elektrik"
-   ],
-   "ukuran": "009",
-   "merek": "Orphee",
-   "seri": "SE",
-   "artikel": 21,
-   "grup": "se-senar"
-  },
-  {
-   "kode": "STK-Y5MC8V",
-   "kategori": "aksesoris",
-   "jenis": "Senar",
-   "kondisi": "baru",
-   "nama": "Orphee KX80",
-   "warna": "",
-   "deskripsi": "Senar Orphee Guitar KX80 ini baru dan dikemas dalam plastik berwarna pink. Bahan senar ini terbuat dari serat karbon dengan ketegangan tinggi, yang menghasilkan suara jernih dan responsif. Ukurannya pas untuk ukulele standar dengan nada A, E, C, dan G. Silakan datang ke toko untuk mencoba langsung senar ini di instrumen Anda. 🎶",
-   "harga": 40000,
-   "status": "tersedia",
-   "sisa": 3,
-   "foto": [
-    {
-     "src": "foto/stok/orphee-kx80-ukulele-hard-tension-stk-y5mc8v-04f244.webp",
-     "kecil": "foto/stok/orphee-kx80-ukulele-hard-tension-stk-y5mc8v-04f244-k.webp"
-    },
-    {
-     "src": "foto/stok/orphee-kx80-ukulele-hard-tension-stk-y5mc8v-0b43b3.webp",
-     "kecil": "foto/stok/orphee-kx80-ukulele-hard-tension-stk-y5mc8v-0b43b3-k.webp"
-    }
-   ],
-   "alat": [
-    "Ukulele"
-   ],
-   "ukuran": "Hard Tension",
-   "merek": "Orphee",
-   "artikel": 22
-  },
-  {
-   "kode": "STK-AKSTPX",
-   "kategori": "aksesoris",
-   "jenis": "Senar",
-   "kondisi": "baru",
-   "nama": "Orphee RX15",
-   "warna": "",
-   "deskripsi": "Senar Orphee Guitar RX15 ini adalah senar gitar listrik ukuran .009 hingga .042 yang baru. Produk ini diproduksi di Indonesia dengan material 58 nickel alloy, menawarkan keseimbangan respons yang pas untuk gaya bermain yang ringan dan responsif. Keunggulan senar ini terletak pada kualitas material yang tahan lama, menjaga nada tetap stabil dan jernih dalam waktu lama. Yuk, langsung datang ke toko kami di Bogor untuk mencoba sensasi bunyinya dan dapatkan harga terbaik! 🎸",
+   "deskripsi": "Senar gitar akustik Orphee TX630 ukuran 011 ini hadir dengan kondisi baru dalam kemasan kuning khasnya. Terbuat dari bahan 75/25 Bronze, senar ini dirancang untuk memberikan resonansi yang hangat dan jernih pada gitar akustik maupun klasik. Ukuran 011 menawarkan keseimbangan yang pas antara kemudahan penekanan senar dan volume suara yang responsif. Mampir ke toko kami untuk mencoba langsung dan menemukan senar yang paling pas untuk gaya bermainmu. 🎸",
    "harga": 40000,
    "status": "tersedia",
    "sisa": 2,
    "foto": [
     {
-     "src": "foto/stok/orphee-rx15-gitar-listrik-ukuran-009-stk-akstpx-104665.webp",
-     "kecil": "foto/stok/orphee-rx15-gitar-listrik-ukuran-009-stk-akstpx-104665-k.webp"
+     "src": "foto/stok/orphee-tx630-ukuran-011-stk-uwgukk-7c526f.webp",
+     "kecil": "foto/stok/orphee-tx630-ukuran-011-stk-uwgukk-7c526f-k.webp"
     },
     {
-     "src": "foto/stok/orphee-rx15-gitar-listrik-ukuran-009-stk-akstpx-383477.webp",
-     "kecil": "foto/stok/orphee-rx15-gitar-listrik-ukuran-009-stk-akstpx-383477-k.webp"
+     "src": "foto/stok/orphee-tx630-ukuran-011-stk-uwgukk-bc8ea8.webp",
+     "kecil": "foto/stok/orphee-tx630-ukuran-011-stk-uwgukk-bc8ea8-k.webp"
     }
    ],
    "alat": [
-    "Gitar Elektrik"
-   ],
-   "ukuran": "009",
-   "merek": "Orphee",
-   "seri": "RX",
-   "artikel": 23,
-   "grup": "rx-senar"
-  },
-  {
-   "kode": "STK-YR7ACG",
-   "kategori": "aksesoris",
-   "jenis": "Senar",
-   "kondisi": "baru",
-   "nama": "Orphee RX19",
-   "warna": "",
-   "deskripsi": "Senar gitar listrik Orphee RX19 ukuran 011-050 dalam kondisi baru, siap pakai untuk menggantikan senar lama Anda. Berdasarkan keterangan pada kemasan, senar ini terbuat dari paduan nikel dengan teknologi hexagonal core yang dirancang untuk memberikan resonansi dan sustain yang lebih baik. Coklat keperakan dengan kemasan plastik tertutup rapat menjaga senar tetap bersih dan bebas karat hingga saat pemasangan. Yuk, mampir langsung ke Toko Gitar AYRI di Bogor untuk cek kualitasnya dan tanya-tanya kebutuhan senar lainnya. 🎸",
-   "harga": 40000,
-   "status": "tersedia",
-   "sisa": 3,
-   "foto": [
-    {
-     "src": "foto/stok/orphee-rx19-gitar-listrik-ukuran-011-stk-yr7acg-342caf.webp",
-     "kecil": "foto/stok/orphee-rx19-gitar-listrik-ukuran-011-stk-yr7acg-342caf-k.webp"
-    },
-    {
-     "src": "foto/stok/orphee-rx19-gitar-listrik-ukuran-011-stk-yr7acg-54d366.webp",
-     "kecil": "foto/stok/orphee-rx19-gitar-listrik-ukuran-011-stk-yr7acg-54d366-k.webp"
-    }
-   ],
-   "alat": [
-    "Gitar Elektrik"
+    "Gitar Akustik"
    ],
    "ukuran": "011",
    "merek": "Orphee",
-   "seri": "RX",
-   "artikel": 24,
-   "grup": "rx-senar"
+   "seri": "TX",
+   "artikel": 20,
+   "grup": "tx-senar"
   },
   {
-   "kode": "STK-QW5YP5",
+   "kode": "STK-2Z9THR",
    "kategori": "aksesoris",
    "jenis": "Senar",
    "kondisi": "baru",
-   "nama": "Orphee RX17",
+   "nama": "Orphee SA37",
    "warna": "",
-   "deskripsi": "Senar gitar listrik Orphee RX17 ukuran 010 ini hadir dalam kemasan segel baru dengan desain kemas teal yang khas. Terlihat jelas pada kemasannya bahwa senar ini terbuat dari 58 nickel alloy yang tangguh, dengan susunan gauge 10-46. Pilihan ukuran 010 ini menawarkan keseimbangan yang pas, ringan saat dipetik, namun tetap menghasilkan sustain yang solid untuk gaya mainmu. Yuk, langsung datang ke Toko Gitar AYRI untuk mencoba dan merasakan sensasi senar baru ini di gitarmu. 🎸",
-   "harga": 40000,
+   "deskripsi": "Senar Orphee SA37 Phosphor Bronze ukuran .010 ini hadir dalam kemasan hitam beraksen biru yang menampilkan brand dan spesifikasi secara jelas. Sebagai senar khusus gitar akustik, material phosphor bronze-nya dirancang untuk menghasilkan nada yang hangat dan resonan. Kondisi barang masih baru, siap untuk dipasang langsung pada gitar Anda. Yuk, coba rasakan sendiri kualitas senarnya di toko kami! 🎸",
+   "harga": 100000,
    "status": "tersedia",
-   "sisa": null,
+   "sisa": 2,
    "foto": [
     {
-     "src": "foto/stok/orphee-rx17-gitar-listrik-ukuran-010-stk-qw5yp5-070ada.webp",
-     "kecil": "foto/stok/orphee-rx17-gitar-listrik-ukuran-010-stk-qw5yp5-070ada-k.webp"
+     "src": "foto/stok/orphee-sa37-phosphor-bronze-ukuran-010-stk-2z9thr-43bfa0.webp",
+     "kecil": "foto/stok/orphee-sa37-phosphor-bronze-ukuran-010-stk-2z9thr-43bfa0-k.webp"
     },
     {
-     "src": "foto/stok/orphee-rx17-gitar-listrik-ukuran-010-stk-qw5yp5-8b0198.webp",
-     "kecil": "foto/stok/orphee-rx17-gitar-listrik-ukuran-010-stk-qw5yp5-8b0198-k.webp"
+     "src": "foto/stok/orphee-sa37-phosphor-bronze-ukuran-010-stk-2z9thr-b0548a.webp",
+     "kecil": "foto/stok/orphee-sa37-phosphor-bronze-ukuran-010-stk-2z9thr-b0548a-k.webp"
     }
    ],
    "alat": [
-    "Gitar Elektrik"
+    "Gitar Akustik"
    ],
    "ukuran": "010",
    "merek": "Orphee",
-   "seri": "RX",
-   "artikel": 25,
-   "grup": "rx-senar"
+   "seri": "SA",
+   "fitur": [
+    "Phosphor Bronze",
+    "Warm",
+    "Extra Light"
+   ],
+   "artikel": 21,
+   "grup": "sa-senar"
   },
   {
-   "kode": "STK-6DZ7XA",
+   "kode": "STK-BABWUM",
    "kategori": "aksesoris",
-   "jenis": "Capo",
+   "jenis": "Senar",
    "kondisi": "baru",
-   "nama": "JOYO JCP-01",
-   "warna": "Gitar Akustik & Gitar Elektrik",
-   "deskripsi": "Capo Joyo JCP-01 ini hadir dalam desain ringan berwarna hitam yang cocok untuk gitar akustik maupun elektrik. Paketnya sudah termasuk pick oranye, sehingga kamu tidak perlu beli terpisah. Desainnya ringkas dan praktis untuk dibawa saat latihan atau tampil. Yuk, langsung cek dan cobain sendiri di Toko Gitar AYRI! 🎸",
+   "nama": "Orphee QA170",
+   "warna": "",
+   "deskripsi": "Senar Orphee QA170 baru ini hadir dengan gauge medium .012-.053 dan material 85/15 Bronze yang menghasilkan karakter suara *full bright tone*. Ukuran ini sangat pas untuk pemain yang suka riff blues dan rock, di mana responsnya cepat dan nadanya terasa jelas serta punchy. Karena kondisinya masih baru, kamu bisa merasakan konsistensi ketegangan dan daya tahan yang optimal, sekaligus membuat teknik bending saat solo jadi lebih mudah. Yuk, langsung coba dan rasakan bedanya di toko kami! 🎸",
    "harga": 60000,
    "status": "tersedia",
-   "sisa": 3,
+   "sisa": null,
    "foto": [
     {
-     "src": "foto/stok/joyo-jcp-01-gitar-akustik-gitar-elektrik-stk-6dz7xa-69b289.webp",
-     "kecil": "foto/stok/joyo-jcp-01-gitar-akustik-gitar-elektrik-stk-6dz7xa-69b289-k.webp"
+     "src": "foto/stok/orphee-qa170-ukuran-012-stk-babwum-e97e09.webp",
+     "kecil": "foto/stok/orphee-qa170-ukuran-012-stk-babwum-e97e09-k.webp"
     },
     {
-     "src": "foto/stok/joyo-jcp-01-gitar-akustik-gitar-elektrik-stk-6dz7xa-2d5eb7.webp",
-     "kecil": "foto/stok/joyo-jcp-01-gitar-akustik-gitar-elektrik-stk-6dz7xa-2d5eb7-k.webp"
+     "src": "foto/stok/orphee-qa170-ukuran-012-stk-babwum-610a68.webp",
+     "kecil": "foto/stok/orphee-qa170-ukuran-012-stk-babwum-610a68-k.webp"
     }
    ],
    "alat": [
-    "Gitar Akustik",
-    "Gitar Elektrik",
-    "Ukulele"
+    "Gitar Akustik"
    ],
-   "merek": "JOYO",
-   "seri": "JCP",
-   "artikel": 26,
-   "grup": "jcp-capo"
+   "ukuran": "012",
+   "merek": "Orphee",
+   "seri": "QA",
+   "artikel": 22,
+   "grup": "qa-senar"
   },
   {
-   "kode": "STK-B9VWVH",
+   "kode": "STK-4SX3UT",
    "kategori": "aksesoris",
-   "jenis": "Capo",
+   "jenis": "Senar",
    "kondisi": "baru",
-   "nama": "TaffStudio 7RTHF8BK",
+   "nama": "Orphee QA160",
    "warna": "",
-   "deskripsi": "Capo ini baru dan siap pakai untuk semua gitar. Bagian pelat senarnya dilapisi karet bertekstur agar senar tidak bergeser dan nada tetap jernih. Desainnya universal, jadi pas di berbagai ukuran leher gitar. Silakan datang ke toko di Bogor untuk tes fit langsung di gitar Anda 🎸",
+   "deskripsi": "Senar akustik Orphee QA160 ukuran 011-052 ini masih dalam kondisi baru dan siap pasang. Dengan material 85/15 Bronze yang melapisi inti baja, senar ini menghasilkan karakter nada yang jernih dan terang. Tegasnya senar yang ringan membuatnya sangat nyaman untuk dipetik, menjadikannya pilihan ideal bagi pemula maupun pemain yang sering menggunakan teknik fingerstyle. Silakan datang langsung ke Toko Gitar AYRI di Bogor untuk mencoba feel dan suara senar ini. 🎸",
+   "harga": 60000,
+   "status": "tersedia",
+   "sisa": 2,
+   "foto": [
+    {
+     "src": "foto/stok/orphee-qa160-ukuran-011-stk-4sx3ut-a30ae9.webp",
+     "kecil": "foto/stok/orphee-qa160-ukuran-011-stk-4sx3ut-a30ae9-k.webp"
+    },
+    {
+     "src": "foto/stok/orphee-qa160-ukuran-011-stk-4sx3ut-ad4510.webp",
+     "kecil": "foto/stok/orphee-qa160-ukuran-011-stk-4sx3ut-ad4510-k.webp"
+    }
+   ],
+   "alat": [
+    "Gitar Akustik"
+   ],
+   "ukuran": "011",
+   "merek": "Orphee",
+   "seri": "QA",
+   "artikel": 23,
+   "grup": "qa-senar"
+  },
+  {
+   "kode": "STK-SD6VFA",
+   "kategori": "aksesoris",
+   "jenis": "Senar",
+   "kondisi": "baru",
+   "nama": "Orphee QC9",
+   "warna": "",
+   "deskripsi": "Senar Orphee QC9 ini dirancang khusus untuk gitar klasik dengan tegangan tinggi (hard tension) dan ukuran 028-045. Kemasannya mencantumkan fitur \"Silver Line\" yang diklaim menghasilkan timbre penuh (full timbre), cocok untuk kamu yang suka respons suara tegas dan detail. Produk ini masih dalam kondisi baru, siap langsung dipasang di gitar kesayanganmu. Mampir ke toko AYRI di Bogor untuk cek kualitasnya langsung. 🎸",
+   "harga": 60000,
+   "status": "tersedia",
+   "sisa": null,
+   "foto": [
+    {
+     "src": "foto/stok/orphee-qc5-nylon-klasik-hard-tension-stk-sd6vfa-6c2cd5.webp",
+     "kecil": "foto/stok/orphee-qc5-nylon-klasik-hard-tension-stk-sd6vfa-6c2cd5-k.webp"
+    },
+    {
+     "src": "foto/stok/orphee-qc5-nylon-klasik-hard-tension-stk-sd6vfa-21735b.webp",
+     "kecil": "foto/stok/orphee-qc5-nylon-klasik-hard-tension-stk-sd6vfa-21735b-k.webp"
+    }
+   ],
+   "alat": [
+    "Gitar Klasik",
+    "Guitalele"
+   ],
+   "ukuran": "Hard Tension",
+   "merek": "Orphee",
+   "seri": "QC",
+   "artikel": 24,
+   "grup": "qc-senar"
+  },
+  {
+   "kode": "STK-6XYMRC",
+   "kategori": "aksesoris",
+   "jenis": "Senar",
+   "kondisi": "baru",
+   "nama": "Orphee QC5",
+   "warna": "",
+   "deskripsi": "Senar gitar klasik Orphee QC5 ini adalah senar nylon normal tension (028-043) dengan lilitan silver pada senar bas untuk menghasilkan suara yang lebih tegas dan jernih. Kualitas senar ini dikenal cukup awet dan nyaman dimainkan karena daya tahan senarnya yang tinggi. Produk ini masih dalam kondisi segel baru, siap digunakan untuk mengganti senar lama gitar klasik Anda. Silakan datang langsung ke toko kami untuk mencoba sensasi dan suaranya sendiri. 🎸",
+   "harga": 60000,
+   "status": "tersedia",
+   "sisa": null,
+   "foto": [
+    {
+     "src": "foto/stok/orphee-qc5-nylon-klasik-normal-tension-stk-6xymrc-d946f3.webp",
+     "kecil": "foto/stok/orphee-qc5-nylon-klasik-normal-tension-stk-6xymrc-d946f3-k.webp"
+    },
+    {
+     "src": "foto/stok/orphee-qc5-nylon-klasik-normal-tension-stk-6xymrc-d71bd3.webp",
+     "kecil": "foto/stok/orphee-qc5-nylon-klasik-normal-tension-stk-6xymrc-d71bd3-k.webp"
+    }
+   ],
+   "alat": [
+    "Gitar Klasik",
+    "Guitalele"
+   ],
+   "ukuran": "Normal Tension",
+   "merek": "Orphee",
+   "seri": "QC",
+   "artikel": 25,
+   "grup": "qc-senar"
+  },
+  {
+   "kode": "STK-APP6FK",
+   "kategori": "aksesoris",
+   "jenis": "Senar",
+   "kondisi": "baru",
+   "nama": "Orphee NX35",
+   "warna": "",
+   "deskripsi": "Senar Orphee NX35 ini dirancang khusus untuk gitar klasik dengan spesifikasi *hard tension* (ketegangan senar tinggi). Berdasarkan keterangan pada kemasan, senar ini menggunakan material nylon berkekuatan tinggi (*high quality nylon*); karakter *hard tension* memberikan respons yang lebih tegas dan *sustain* yang panjang, cocok untuk gaya bermain yang dinamis. Kondisi barang baru dan masih segel di dalam kemasan oranye khas Orphee. Silakan datang langsung ke toko untuk mengecek dan mencocokkan tengangan senar ini dengan gaya bermain Anda. 🎸",
    "harga": 40000,
    "status": "tersedia",
    "sisa": null,
    "foto": [
     {
-     "src": "foto/stok/taffstudio-7rthf8bk-universal-stk-b9vwvh-8dacee.webp",
-     "kecil": "foto/stok/taffstudio-7rthf8bk-universal-stk-b9vwvh-8dacee-k.webp"
+     "src": "foto/stok/orphee-nx35-nylon-klasik-hard-tension-stk-app6fk-6e0aee.webp",
+     "kecil": "foto/stok/orphee-nx35-nylon-klasik-hard-tension-stk-app6fk-6e0aee-k.webp"
+    },
+    {
+     "src": "foto/stok/orphee-nx35-nylon-klasik-hard-tension-stk-app6fk-ff640a.webp",
+     "kecil": "foto/stok/orphee-nx35-nylon-klasik-hard-tension-stk-app6fk-ff640a-k.webp"
     }
    ],
    "alat": [
-    "Gitar Akustik",
     "Gitar Klasik",
-    "Gitar Elektrik",
-    "Ukulele",
     "Guitalele"
    ],
-   "merek": "TaffStudio",
-   "artikel": 27
+   "ukuran": "Hard Tension",
+   "merek": "Orphee",
+   "seri": "NX",
+   "artikel": 26,
+   "grup": "nx-senar"
   },
   {
-   "kode": "STK-9SSQBS",
+   "kode": "STK-A725M2",
    "kategori": "aksesoris",
-   "jenis": "Capo",
+   "jenis": "Senar",
    "kondisi": "baru",
-   "nama": "JOYO JCP-03",
+   "nama": "Orphee NX36",
    "warna": "",
-   "deskripsi": "Capo Joyo JCP-03 ini hadir dengan desain ringan dan warna hitam yang minimalis. Mekanisme pegasnya memudahkan kamu untuk menyetel nada dengan cepat tanpa merusak senar. Produk ini masih baru dan tersegel dalam dus aslinya. Yuk, mampir ke Toko Gitar AYRI Bogor dan langsung coba fiturnya! 🎸",
-   "harga": 100000,
+   "deskripsi": "Senar NX36 Nylon Klasik dengan normal tension memberikan nada hangat dan responsif, cocok untuk pemain klasik maupun folk yang mengutamakan kehalusan suara. Terbuat dari nilon berkualitas tinggi, senar terasa nyaman di jari dan tahan lama, ideal untuk latihan rutin maupun pertunjukan. Tuning yang stabil membuat kamu fokus pada teknik tanpa khawatir melodi melenceng. Yuk, coba langsung di Toko Gitar AYRI! 🎸",
+   "harga": 40000,
    "status": "tersedia",
-   "sisa": 2,
+   "sisa": null,
    "foto": [
     {
-     "src": "foto/stok/joyo-jcp-03-stk-9ssqbs-d65231.webp",
-     "kecil": "foto/stok/joyo-jcp-03-stk-9ssqbs-d65231-k.webp"
+     "src": "foto/stok/orphee-nx36-nylon-klasik-normal-tension-stk-a725m2-fa49f9.webp",
+     "kecil": "foto/stok/orphee-nx36-nylon-klasik-normal-tension-stk-a725m2-fa49f9-k.webp"
+    },
+    {
+     "src": "foto/stok/orphee-nx36-nylon-klasik-normal-tension-stk-a725m2-9a0650.webp",
+     "kecil": "foto/stok/orphee-nx36-nylon-klasik-normal-tension-stk-a725m2-9a0650-k.webp"
     }
    ],
    "alat": [
-    "Gitar Akustik",
-    "Gitar Elektrik",
-    "Ukulele",
+    "Gitar Klasik",
     "Guitalele"
    ],
-   "merek": "JOYO",
-   "seri": "JCP",
+   "ukuran": "Normal Tension",
+   "merek": "Orphee",
+   "seri": "NX",
+   "artikel": 27,
+   "grup": "nx-senar"
+  },
+  {
+   "kode": "STK-NZGV2M",
+   "kategori": "aksesoris",
+   "jenis": "Senar",
+   "kondisi": "baru",
+   "nama": "Orphee TX620",
+   "warna": "",
+   "deskripsi": "Senar TX620 ukuran .010 Bronze memberikan suara yang jernih dan resonansi kuat, cocok untuk pemain yang suka tone bright pada gitar akustik. Karena terbuat dari bahan bronze, nada bass tetap terasa penuh sementara treblenya bersih tanpa berisik. Kondisinya baru, jadi kamu akan langsung merasakan respons cepat dan tuning yang stabil. Yuk, coba langsung di toko kami dan rasakan perbedaannya! 🎸",
+   "harga": 40000,
+   "status": "tersedia",
+   "sisa": null,
+   "foto": [
+    {
+     "src": "foto/stok/orphee-tx620-ukuran-010-bronze-stk-nzgv2m-deda7e.webp",
+     "kecil": "foto/stok/orphee-tx620-ukuran-010-bronze-stk-nzgv2m-deda7e-k.webp"
+    },
+    {
+     "src": "foto/stok/orphee-tx620-ukuran-010-bronze-stk-nzgv2m-2acac6.webp",
+     "kecil": "foto/stok/orphee-tx620-ukuran-010-bronze-stk-nzgv2m-2acac6-k.webp"
+    }
+   ],
+   "alat": [
+    "Gitar Akustik"
+   ],
+   "ukuran": "010",
+   "merek": "Orphee",
+   "seri": "TX",
    "artikel": 28,
-   "grup": "jcp-capo"
+   "grup": "tx-senar"
   },
   {
    "kode": "STK-V9FPZW",
@@ -917,163 +917,52 @@
    "artikel": 29
   },
   {
-   "kode": "STK-FBXF37",
+   "kode": "STK-6J8WP3",
    "kategori": "gitar",
-   "jenis": "Akustik",
+   "jenis": "Bass",
    "kondisi": "bekas",
-   "nama": "Cort AD810 OP",
-   "warna": "Natural",
-   "deskripsi": "Gitar akustik Cort AD810 warna natural ini dalam kondisi bekas namun tampak bersih, semua hardware lengkap dan 6 senar sudah terpasang, siap dimainkan oleh pemula hingga menengah. 🎸  \n\nSpesifikasi:  \n- 6 senar standar  \n- Body: top spruce lapisan, back & sides mahogany  \n- Neck: nato, 20‑fret, profil standar  \n- Fingerboard: rosewood dengan inlay dot sederhana  \n- Scale length: 25,5 in (648 mm)  \n- Bridge: rosewood, tanpa pickup  \n\nSilakan coba langsung di toko kami!",
+   "nama": "Yamaha RBX 100",
+   "warna": "Hitam",
+   "deskripsi": "Bass Yamaha RBX 100 warna hitam ini dalam kondisi good; terlihat goresan ringan dan penyok kecil namun semua fungsi masih prima. Dari foto terlihat empat senar, hardware berwarna perak, dan logo Yamaha terukir jelas pada headstock. 🎸  \n\nSpesifikasi:  \n- Jumlah senar: 4  \n- Body: alder (kayu ringan) dengan finishing hitam mengkilap  \n- Neck: maple, bolt‑on, skala 34 in (86,4 cm)  \n- Fingerboard: rosewood, 20 fret  \n- Pickup: single‑coil Yamaha HB‑1  \n- Bridge: fixed saddle dengan tuner chrome  \n\nSilakan coba langsung di toko untuk merasakan suaranya!",
    "harga": 1000000,
    "status": "tersedia",
    "sisa": null,
    "foto": [
     {
-     "src": "foto/stok/8ccdb503fda69163d214.webp",
-     "kecil": "foto/stok/8ccdb503fda69163d214-k.webp"
+     "src": "foto/stok/df93134f5c3336458552.webp",
+     "kecil": "foto/stok/df93134f5c3336458552-k.webp"
     },
     {
-     "src": "foto/stok/4ef8600fa970bafaba96.webp",
-     "kecil": "foto/stok/4ef8600fa970bafaba96-k.webp"
+     "src": "foto/stok/59d0ca5acae9228bb270.webp",
+     "kecil": "foto/stok/59d0ca5acae9228bb270-k.webp"
     },
     {
-     "src": "foto/stok/fca347e9a933620d12cb.webp",
-     "kecil": "foto/stok/fca347e9a933620d12cb-k.webp"
+     "src": "foto/stok/7410036dfd3b0fc6af6f.webp",
+     "kecil": "foto/stok/7410036dfd3b0fc6af6f-k.webp"
     },
     {
-     "src": "foto/stok/dcf4b604baf94664ee76.webp",
-     "kecil": "foto/stok/dcf4b604baf94664ee76-k.webp"
+     "src": "foto/stok/0d44ea863968333750bc.webp",
+     "kecil": "foto/stok/0d44ea863968333750bc-k.webp"
     },
     {
-     "src": "foto/stok/e53e77e6de18b729c1ef.webp",
-     "kecil": "foto/stok/e53e77e6de18b729c1ef-k.webp"
+     "src": "foto/stok/5d0a1967264d4b5b6131.webp",
+     "kecil": "foto/stok/5d0a1967264d4b5b6131-k.webp"
     },
     {
-     "src": "foto/stok/789a9f1c10b752faa589.webp",
-     "kecil": "foto/stok/789a9f1c10b752faa589-k.webp"
+     "src": "foto/stok/da5dab74addf00dc9b26.webp",
+     "kecil": "foto/stok/da5dab74addf00dc9b26-k.webp"
     },
     {
-     "src": "foto/stok/ee4779498b067e815927.webp",
-     "kecil": "foto/stok/ee4779498b067e815927-k.webp"
+     "src": "foto/stok/e268080c9b4cbe19e063.webp",
+     "kecil": "foto/stok/e268080c9b4cbe19e063-k.webp"
     },
     {
-     "src": "foto/stok/65ec44c5c2da3a470f84.webp",
-     "kecil": "foto/stok/65ec44c5c2da3a470f84-k.webp"
-    },
-    {
-     "src": "foto/stok/b60b35bef650a480da69.webp",
-     "kecil": "foto/stok/b60b35bef650a480da69-k.webp"
-    },
-    {
-     "src": "foto/stok/e485e42c7d7afb2834b5.webp",
-     "kecil": "foto/stok/e485e42c7d7afb2834b5-k.webp"
+     "src": "foto/stok/3445c9bc80e4fed739cb.webp",
+     "kecil": "foto/stok/3445c9bc80e4fed739cb-k.webp"
     }
    ],
-   "tingkat": "Very Good",
+   "tingkat": "Good",
    "artikel": 30
-  },
-  {
-   "kode": "STK-UKV3BK",
-   "kategori": "gitar",
-   "jenis": "Bass",
-   "kondisi": "bekas",
-   "nama": "Caraya",
-   "warna": "",
-   "deskripsi": "Bonus softcase",
-   "harga": 1200000,
-   "status": "tersedia",
-   "sisa": null,
-   "foto": [
-    {
-     "src": "foto/stok/894dfb5eed4862563db8.webp",
-     "kecil": "foto/stok/894dfb5eed4862563db8-k.webp"
-    },
-    {
-     "src": "foto/stok/b71872fecb62858e0d01.webp",
-     "kecil": "foto/stok/b71872fecb62858e0d01-k.webp"
-    },
-    {
-     "src": "foto/stok/82a71e01e362fd10dbc0.webp",
-     "kecil": "foto/stok/82a71e01e362fd10dbc0-k.webp"
-    },
-    {
-     "src": "foto/stok/d7ade68addfb250d8e95.webp",
-     "kecil": "foto/stok/d7ade68addfb250d8e95-k.webp"
-    },
-    {
-     "src": "foto/stok/229373fd77e7eae8722f.webp",
-     "kecil": "foto/stok/229373fd77e7eae8722f-k.webp"
-    },
-    {
-     "src": "foto/stok/17e0bb0857639440abcb.webp",
-     "kecil": "foto/stok/17e0bb0857639440abcb-k.webp"
-    },
-    {
-     "src": "foto/stok/910f5754825711a0f6ca.webp",
-     "kecil": "foto/stok/910f5754825711a0f6ca-k.webp"
-    },
-    {
-     "src": "foto/stok/1e51746ad5c0b660cf31.webp",
-     "kecil": "foto/stok/1e51746ad5c0b660cf31-k.webp"
-    },
-    {
-     "src": "foto/stok/e26147c042d0c4dbd565.webp",
-     "kecil": "foto/stok/e26147c042d0c4dbd565-k.webp"
-    },
-    {
-     "src": "foto/stok/1a1bf9bf8a68cf0ae6df.webp",
-     "kecil": "foto/stok/1a1bf9bf8a68cf0ae6df-k.webp"
-    }
-   ],
-   "artikel": 31
-  },
-  {
-   "kode": "STK-U3X8N4",
-   "kategori": "gitar",
-   "jenis": "Elektrik",
-   "kondisi": "bekas",
-   "nama": "Samick SS51",
-   "warna": "Hitam Glossy",
-   "deskripsi": "Gitar listrik Samick SS51 ini berwarna hitam dengan finishing mengkilap, body double‑cutaway dan hardware berwarna perak terlihat rapi. Dilengkapi 6 senar dan tidak ada goresan atau noda yang tampak, menandakan kondisi bekas tingkat Excellent dengan pemakaian sangat ringan.  \n\nSpesifikasi:  \n- Jumlah senar: 6  \n- Bodi: alder  \n- Neck: maple, bolt‑on  \n- Fingerboard: rosewood, 22 fret  \n- Pickup: 2 single‑coil + 1 humbucker  \n- Bridge: tremolo style  \n\nAyo coba langsung di toko kami! 🎸",
-   "harga": 1200000,
-   "status": "tersedia",
-   "sisa": null,
-   "foto": [
-    {
-     "src": "foto/stok/d3d0246ddfcf45063f46.webp",
-     "kecil": "foto/stok/d3d0246ddfcf45063f46-k.webp"
-    },
-    {
-     "src": "foto/stok/a2674762d2ba60b54991.webp",
-     "kecil": "foto/stok/a2674762d2ba60b54991-k.webp"
-    },
-    {
-     "src": "foto/stok/6a0fea42f062a37b1cac.webp",
-     "kecil": "foto/stok/6a0fea42f062a37b1cac-k.webp"
-    },
-    {
-     "src": "foto/stok/bec3ee7c9e469200cf19.webp",
-     "kecil": "foto/stok/bec3ee7c9e469200cf19-k.webp"
-    },
-    {
-     "src": "foto/stok/fd9860386c0cc7e4fda0.webp",
-     "kecil": "foto/stok/fd9860386c0cc7e4fda0-k.webp"
-    },
-    {
-     "src": "foto/stok/91b18234b02b7e4006ab.webp",
-     "kecil": "foto/stok/91b18234b02b7e4006ab-k.webp"
-    },
-    {
-     "src": "foto/stok/ba8ce2c1991be59e87e8.webp",
-     "kecil": "foto/stok/ba8ce2c1991be59e87e8-k.webp"
-    },
-    {
-     "src": "foto/stok/2d99cc104ee2f8d620b5.webp",
-     "kecil": "foto/stok/2d99cc104ee2f8d620b5-k.webp"
-    }
-   ],
-   "tingkat": "Excellent",
-   "artikel": 32
   },
   {
    "kode": "STK-TZEN4Z",
@@ -1129,55 +1018,194 @@
     }
    ],
    "tingkat": "Very Good",
-   "artikel": 33
+   "artikel": 31
   },
   {
-   "kode": "STK-6J8WP3",
+   "kode": "STK-U3X8N4",
+   "kategori": "gitar",
+   "jenis": "Elektrik",
+   "kondisi": "bekas",
+   "nama": "Samick SS51",
+   "warna": "Hitam Glossy",
+   "deskripsi": "Gitar listrik Samick SS51 ini berwarna hitam dengan finishing mengkilap, body double‑cutaway dan hardware berwarna perak terlihat rapi. Dilengkapi 6 senar dan tidak ada goresan atau noda yang tampak, menandakan kondisi bekas tingkat Excellent dengan pemakaian sangat ringan.  \n\nSpesifikasi:  \n- Jumlah senar: 6  \n- Bodi: alder  \n- Neck: maple, bolt‑on  \n- Fingerboard: rosewood, 22 fret  \n- Pickup: 2 single‑coil + 1 humbucker  \n- Bridge: tremolo style  \n\nAyo coba langsung di toko kami! 🎸",
+   "harga": 1200000,
+   "status": "tersedia",
+   "sisa": null,
+   "foto": [
+    {
+     "src": "foto/stok/d3d0246ddfcf45063f46.webp",
+     "kecil": "foto/stok/d3d0246ddfcf45063f46-k.webp"
+    },
+    {
+     "src": "foto/stok/a2674762d2ba60b54991.webp",
+     "kecil": "foto/stok/a2674762d2ba60b54991-k.webp"
+    },
+    {
+     "src": "foto/stok/6a0fea42f062a37b1cac.webp",
+     "kecil": "foto/stok/6a0fea42f062a37b1cac-k.webp"
+    },
+    {
+     "src": "foto/stok/bec3ee7c9e469200cf19.webp",
+     "kecil": "foto/stok/bec3ee7c9e469200cf19-k.webp"
+    },
+    {
+     "src": "foto/stok/fd9860386c0cc7e4fda0.webp",
+     "kecil": "foto/stok/fd9860386c0cc7e4fda0-k.webp"
+    },
+    {
+     "src": "foto/stok/91b18234b02b7e4006ab.webp",
+     "kecil": "foto/stok/91b18234b02b7e4006ab-k.webp"
+    },
+    {
+     "src": "foto/stok/ba8ce2c1991be59e87e8.webp",
+     "kecil": "foto/stok/ba8ce2c1991be59e87e8-k.webp"
+    },
+    {
+     "src": "foto/stok/2d99cc104ee2f8d620b5.webp",
+     "kecil": "foto/stok/2d99cc104ee2f8d620b5-k.webp"
+    }
+   ],
+   "tingkat": "Excellent",
+   "artikel": 32
+  },
+  {
+   "kode": "STK-UKV3BK",
    "kategori": "gitar",
    "jenis": "Bass",
    "kondisi": "bekas",
-   "nama": "Yamaha RBX 100",
-   "warna": "Hitam",
-   "deskripsi": "Bass Yamaha RBX 100 warna hitam ini dalam kondisi good; terlihat goresan ringan dan penyok kecil namun semua fungsi masih prima. Dari foto terlihat empat senar, hardware berwarna perak, dan logo Yamaha terukir jelas pada headstock. 🎸  \n\nSpesifikasi:  \n- Jumlah senar: 4  \n- Body: alder (kayu ringan) dengan finishing hitam mengkilap  \n- Neck: maple, bolt‑on, skala 34 in (86,4 cm)  \n- Fingerboard: rosewood, 20 fret  \n- Pickup: single‑coil Yamaha HB‑1  \n- Bridge: fixed saddle dengan tuner chrome  \n\nSilakan coba langsung di toko untuk merasakan suaranya!",
+   "nama": "Caraya",
+   "warna": "",
+   "deskripsi": "Bonus softcase",
+   "harga": 1200000,
+   "status": "tersedia",
+   "sisa": null,
+   "foto": [
+    {
+     "src": "foto/stok/894dfb5eed4862563db8.webp",
+     "kecil": "foto/stok/894dfb5eed4862563db8-k.webp"
+    },
+    {
+     "src": "foto/stok/b71872fecb62858e0d01.webp",
+     "kecil": "foto/stok/b71872fecb62858e0d01-k.webp"
+    },
+    {
+     "src": "foto/stok/82a71e01e362fd10dbc0.webp",
+     "kecil": "foto/stok/82a71e01e362fd10dbc0-k.webp"
+    },
+    {
+     "src": "foto/stok/d7ade68addfb250d8e95.webp",
+     "kecil": "foto/stok/d7ade68addfb250d8e95-k.webp"
+    },
+    {
+     "src": "foto/stok/229373fd77e7eae8722f.webp",
+     "kecil": "foto/stok/229373fd77e7eae8722f-k.webp"
+    },
+    {
+     "src": "foto/stok/17e0bb0857639440abcb.webp",
+     "kecil": "foto/stok/17e0bb0857639440abcb-k.webp"
+    },
+    {
+     "src": "foto/stok/910f5754825711a0f6ca.webp",
+     "kecil": "foto/stok/910f5754825711a0f6ca-k.webp"
+    },
+    {
+     "src": "foto/stok/1e51746ad5c0b660cf31.webp",
+     "kecil": "foto/stok/1e51746ad5c0b660cf31-k.webp"
+    },
+    {
+     "src": "foto/stok/e26147c042d0c4dbd565.webp",
+     "kecil": "foto/stok/e26147c042d0c4dbd565-k.webp"
+    },
+    {
+     "src": "foto/stok/1a1bf9bf8a68cf0ae6df.webp",
+     "kecil": "foto/stok/1a1bf9bf8a68cf0ae6df-k.webp"
+    }
+   ],
+   "artikel": 33
+  },
+  {
+   "kode": "STK-FBXF37",
+   "kategori": "gitar",
+   "jenis": "Akustik",
+   "kondisi": "bekas",
+   "nama": "Cort AD810 OP",
+   "warna": "Natural",
+   "deskripsi": "Gitar akustik Cort AD810 warna natural ini dalam kondisi bekas namun tampak bersih, semua hardware lengkap dan 6 senar sudah terpasang, siap dimainkan oleh pemula hingga menengah. 🎸  \n\nSpesifikasi:  \n- 6 senar standar  \n- Body: top spruce lapisan, back & sides mahogany  \n- Neck: nato, 20‑fret, profil standar  \n- Fingerboard: rosewood dengan inlay dot sederhana  \n- Scale length: 25,5 in (648 mm)  \n- Bridge: rosewood, tanpa pickup  \n\nSilakan coba langsung di toko kami!",
    "harga": 1000000,
    "status": "tersedia",
    "sisa": null,
    "foto": [
     {
-     "src": "foto/stok/df93134f5c3336458552.webp",
-     "kecil": "foto/stok/df93134f5c3336458552-k.webp"
+     "src": "foto/stok/8ccdb503fda69163d214.webp",
+     "kecil": "foto/stok/8ccdb503fda69163d214-k.webp"
     },
     {
-     "src": "foto/stok/59d0ca5acae9228bb270.webp",
-     "kecil": "foto/stok/59d0ca5acae9228bb270-k.webp"
+     "src": "foto/stok/4ef8600fa970bafaba96.webp",
+     "kecil": "foto/stok/4ef8600fa970bafaba96-k.webp"
     },
     {
-     "src": "foto/stok/7410036dfd3b0fc6af6f.webp",
-     "kecil": "foto/stok/7410036dfd3b0fc6af6f-k.webp"
+     "src": "foto/stok/fca347e9a933620d12cb.webp",
+     "kecil": "foto/stok/fca347e9a933620d12cb-k.webp"
     },
     {
-     "src": "foto/stok/0d44ea863968333750bc.webp",
-     "kecil": "foto/stok/0d44ea863968333750bc-k.webp"
+     "src": "foto/stok/dcf4b604baf94664ee76.webp",
+     "kecil": "foto/stok/dcf4b604baf94664ee76-k.webp"
     },
     {
-     "src": "foto/stok/5d0a1967264d4b5b6131.webp",
-     "kecil": "foto/stok/5d0a1967264d4b5b6131-k.webp"
+     "src": "foto/stok/e53e77e6de18b729c1ef.webp",
+     "kecil": "foto/stok/e53e77e6de18b729c1ef-k.webp"
     },
     {
-     "src": "foto/stok/da5dab74addf00dc9b26.webp",
-     "kecil": "foto/stok/da5dab74addf00dc9b26-k.webp"
+     "src": "foto/stok/789a9f1c10b752faa589.webp",
+     "kecil": "foto/stok/789a9f1c10b752faa589-k.webp"
     },
     {
-     "src": "foto/stok/e268080c9b4cbe19e063.webp",
-     "kecil": "foto/stok/e268080c9b4cbe19e063-k.webp"
+     "src": "foto/stok/ee4779498b067e815927.webp",
+     "kecil": "foto/stok/ee4779498b067e815927-k.webp"
     },
     {
-     "src": "foto/stok/3445c9bc80e4fed739cb.webp",
-     "kecil": "foto/stok/3445c9bc80e4fed739cb-k.webp"
+     "src": "foto/stok/65ec44c5c2da3a470f84.webp",
+     "kecil": "foto/stok/65ec44c5c2da3a470f84-k.webp"
+    },
+    {
+     "src": "foto/stok/b60b35bef650a480da69.webp",
+     "kecil": "foto/stok/b60b35bef650a480da69-k.webp"
+    },
+    {
+     "src": "foto/stok/e485e42c7d7afb2834b5.webp",
+     "kecil": "foto/stok/e485e42c7d7afb2834b5-k.webp"
     }
    ],
-   "tingkat": "Good",
+   "tingkat": "Very Good",
    "artikel": 34
+  },
+  {
+   "kode": "STK-VM7JT5",
+   "kategori": "aksesoris",
+   "jenis": "Case & tas",
+   "kondisi": "baru",
+   "nama": "HC",
+   "warna": "",
+   "deskripsi": "",
+   "harga": 700000,
+   "status": "tersedia",
+   "sisa": 1,
+   "foto": [
+    {
+     "src": "foto/stok/0c99061b03c1e1114f0f.webp",
+     "kecil": "foto/stok/0c99061b03c1e1114f0f-k.webp"
+    },
+    {
+     "src": "foto/stok/a7733dce8f77f28732db.webp",
+     "kecil": "foto/stok/a7733dce8f77f28732db-k.webp"
+    }
+   ],
+   "alat": [
+    "Gitar Akustik"
+   ],
+   "tipe": "Hardcase",
+   "ukuran": "Standard Jumbo",
+   "artikel": 35
   },
   {
    "kode": "STK-SCYBYR",
@@ -1233,91 +1261,7 @@
     }
    ],
    "tingkat": "Very Good",
-   "artikel": 35
-  },
-  {
-   "kode": "STK-6PQCDA",
-   "kategori": "gitar",
-   "jenis": "Akustik Elektrik",
-   "kondisi": "bekas",
-   "nama": "Yamaha APX 600M",
-   "warna": "",
-   "deskripsi": "Gitar akustik‑elektrik Yamaha APX 600M ini berwarna hitam dengan finishing mengkilap, terlihat 6 senar terpasang dan logo Yamaha jelas di headstock. Kondisinya Very Good, hanya ada goresan halus pada body dan fender, serta berfungsi sempurna.  \n\nSpesifikasi:  \n- 6 senar standar  \n- Body: top spruce, back & sides meranti, bentuk thin‑body klasik APX  \n- Neck: nato, fingerboard rosewood, skala 660 mm  \n- Pickup: piezo built‑in dengan preamp onboard  \n- Hardware: bridge metal standar, tuner die‑cast, finishing chrome  \n\nAyo coba langsung di toko kami dan rasakan suaranya! 🎸",
-   "harga": 2300000,
-   "status": "tersedia",
-   "sisa": null,
-   "foto": [
-    {
-     "src": "foto/stok/e49f41e0f51890df18e9.webp",
-     "kecil": "foto/stok/e49f41e0f51890df18e9-k.webp"
-    },
-    {
-     "src": "foto/stok/49e2639f61d17b150d54.webp",
-     "kecil": "foto/stok/49e2639f61d17b150d54-k.webp"
-    },
-    {
-     "src": "foto/stok/6f586744c56f5ad6010e.webp",
-     "kecil": "foto/stok/6f586744c56f5ad6010e-k.webp"
-    },
-    {
-     "src": "foto/stok/729b108a3dfe626af92a.webp",
-     "kecil": "foto/stok/729b108a3dfe626af92a-k.webp"
-    },
-    {
-     "src": "foto/stok/603751db54b22fbf2039.webp",
-     "kecil": "foto/stok/603751db54b22fbf2039-k.webp"
-    },
-    {
-     "src": "foto/stok/587b486d77b486c57bef.webp",
-     "kecil": "foto/stok/587b486d77b486c57bef-k.webp"
-    },
-    {
-     "src": "foto/stok/49e5c88345b1e0e23332.webp",
-     "kecil": "foto/stok/49e5c88345b1e0e23332-k.webp"
-    },
-    {
-     "src": "foto/stok/8e661ad3ad3d9d5db53d.webp",
-     "kecil": "foto/stok/8e661ad3ad3d9d5db53d-k.webp"
-    },
-    {
-     "src": "foto/stok/ee9b8d8133c22fd83498.webp",
-     "kecil": "foto/stok/ee9b8d8133c22fd83498-k.webp"
-    },
-    {
-     "src": "foto/stok/45cb1176733acefe0a42.webp",
-     "kecil": "foto/stok/45cb1176733acefe0a42-k.webp"
-    }
-   ],
-   "tingkat": "Very Good",
    "artikel": 36
-  },
-  {
-   "kode": "STK-VM7JT5",
-   "kategori": "aksesoris",
-   "jenis": "Case & tas",
-   "kondisi": "baru",
-   "nama": "HC",
-   "warna": "",
-   "deskripsi": "",
-   "harga": 700000,
-   "status": "tersedia",
-   "sisa": 1,
-   "foto": [
-    {
-     "src": "foto/stok/0c99061b03c1e1114f0f.webp",
-     "kecil": "foto/stok/0c99061b03c1e1114f0f-k.webp"
-    },
-    {
-     "src": "foto/stok/a7733dce8f77f28732db.webp",
-     "kecil": "foto/stok/a7733dce8f77f28732db-k.webp"
-    }
-   ],
-   "alat": [
-    "Gitar Akustik"
-   ],
-   "tipe": "Hardcase",
-   "ukuran": "Standard Jumbo",
-   "artikel": 37
   },
   {
    "kode": "STK-752B52",
@@ -1372,7 +1316,7 @@
      "kecil": "foto/stok/e7844f12235295e49a13-k.webp"
     }
    ],
-   "artikel": 38
+   "artikel": 37
   },
   {
    "kode": "STK-QFV3U3",
@@ -1424,23 +1368,23 @@
     }
    ],
    "tingkat": "Mint",
-   "artikel": 39
+   "artikel": 38
   }
  ],
  "sampul": {
-  "qa-senar": {
+  "sa-senar": {
    "kolase": true
   },
   "sc-senar": {
    "kolase": true
   },
-  "sa-senar": {
-   "kolase": true
-  },
-  "se-senar": {
+  "qa-senar": {
    "kolase": true
   },
   "rx-senar": {
+   "kolase": true
+  },
+  "se-senar": {
    "kolase": true
   }
  }
