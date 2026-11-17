@@ -34,6 +34,37 @@
    "grup": "aw436p-senar"
   },
   {
+   "kode": "STK-E3K9RM",
+   "kategori": "aksesoris",
+   "jenis": "Senar",
+   "kondisi": "baru",
+   "nama": "Alice AW436P XL",
+   "warna": "",
+   "deskripsi": "Senar akustik Alice AW436P ukuran 010 ini menawarkan karakter suara yang hangat dan *bright* dengan *timbre* yang *slim*. Diproduksi dengan material *phosphor bronze* yang anti karat, senar tipe *plain* ini dirancang untuk memberikan kenyamanan bermain maksimal bagi gitar akustik Anda. Produk ini masih dalam kondisi baru dengan kemasan utuh bergambar gitar akustik, sehingga siap langsung dipasang untuk memaksimalkan performa instrumen. Silakan datang langsung ke Toko Gitar AYRI untuk mencoba dan merasakan kualitasnya. 🎸",
+   "harga": 150000,
+   "status": "tersedia",
+   "sisa": null,
+   "foto": [
+    {
+     "src": "foto/stok/senar-gitar-akustik-alice-aw436p-xl-ukuran-010-stk-e3k9rm-01c9a4.webp",
+     "kecil": "foto/stok/senar-gitar-akustik-alice-aw436p-xl-ukuran-010-stk-e3k9rm-01c9a4-k.webp"
+    }
+   ],
+   "alat": [
+    "Gitar Akustik"
+   ],
+   "ukuran": "010",
+   "merek": "Alice",
+   "seri": "AW436P",
+   "fitur": [
+    "Anti Rust",
+    "Extra Light",
+    "Phosphor Bronze"
+   ],
+   "artikel": 1,
+   "grup": "aw436p-senar"
+  },
+  {
    "kode": "STK-9CDQYF",
    "kategori": "aksesoris",
    "jenis": "Senar",
@@ -60,7 +91,7 @@
     "Phosphor Bronze",
     "Nano Coating"
    ],
-   "artikel": 1,
+   "artikel": 2,
    "grup": "awr486-senar"
   },
   {
@@ -90,7 +121,7 @@
     "Phosphor Bronze",
     "Nano Coating"
    ],
-   "artikel": 2,
+   "artikel": 3,
    "grup": "awr486-senar"
   },
   {
@@ -115,7 +146,7 @@
     "Nano Coating",
     "Phosphor Bronze"
    ],
-   "artikel": 3,
+   "artikel": 4,
    "grup": "awr486-senar"
   },
   {
@@ -126,7 +157,7 @@
    "nama": "Orphee SE3X",
    "warna": "",
    "deskripsi": "Senar SE3X 0.010 cocok untuk gitar listrik, memberikan respons cepat dan tone yang jernih untuk riff maupun solo. Dengan gauge tipis, senar ini memudahkan bending dan menghasilkan sustain yang stabil. Karena kondisi baru, kamu akan merasakan konsistensi tuning yang optimal sepanjang sesi bermain. 🎸 Ayo coba langsung di toko kami!",
-   "harga": 40100,
+   "harga": 100000,
    "status": "tersedia",
    "sisa": 2,
    "foto": [
@@ -145,39 +176,8 @@
    "ukuran": "010",
    "merek": "Orphee",
    "seri": "SE",
-   "artikel": 4,
-   "grup": "se-senar"
-  },
-  {
-   "kode": "STK-E3K9RM",
-   "kategori": "aksesoris",
-   "jenis": "Senar",
-   "kondisi": "baru",
-   "nama": "Alice AW436P XL",
-   "warna": "",
-   "deskripsi": "Senar akustik Alice AW436P ukuran 010 ini menawarkan karakter suara yang hangat dan *bright* dengan *timbre* yang *slim*. Diproduksi dengan material *phosphor bronze* yang anti karat, senar tipe *plain* ini dirancang untuk memberikan kenyamanan bermain maksimal bagi gitar akustik Anda. Produk ini masih dalam kondisi baru dengan kemasan utuh bergambar gitar akustik, sehingga siap langsung dipasang untuk memaksimalkan performa instrumen. Silakan datang langsung ke Toko Gitar AYRI untuk mencoba dan merasakan kualitasnya. 🎸",
-   "harga": 150000,
-   "status": "tersedia",
-   "sisa": null,
-   "foto": [
-    {
-     "src": "foto/stok/senar-gitar-akustik-alice-aw436p-xl-ukuran-010-stk-e3k9rm-01c9a4.webp",
-     "kecil": "foto/stok/senar-gitar-akustik-alice-aw436p-xl-ukuran-010-stk-e3k9rm-01c9a4-k.webp"
-    }
-   ],
-   "alat": [
-    "Gitar Akustik"
-   ],
-   "ukuran": "010",
-   "merek": "Alice",
-   "seri": "AW436P",
-   "fitur": [
-    "Anti Rust",
-    "Extra Light",
-    "Phosphor Bronze"
-   ],
    "artikel": 5,
-   "grup": "aw436p-senar"
+   "grup": "se-senar"
   },
   {
    "kode": "STK-DN7VY2",
