@@ -3,32 +3,32 @@
  "v": 4,
  "item": [
   {
-   "kode": "STK-E3K9RM",
+   "kode": "STK-CEPNFK",
    "kategori": "aksesoris",
    "jenis": "Senar",
    "kondisi": "baru",
-   "nama": "Alice AW436P XL",
+   "nama": "Alice AW436P SL",
    "warna": "",
-   "deskripsi": "Senar akustik Alice AW436P ukuran 010 ini menawarkan karakter suara yang hangat dan *bright* dengan *timbre* yang *slim*. Diproduksi dengan material *phosphor bronze* yang anti karat, senar tipe *plain* ini dirancang untuk memberikan kenyamanan bermain maksimal bagi gitar akustik Anda. Produk ini masih dalam kondisi baru dengan kemasan utuh bergambar gitar akustik, sehingga siap langsung dipasang untuk memaksimalkan performa instrumen. Silakan datang langsung ke Toko Gitar AYRI untuk mencoba dan merasakan kualitasnya. 🎸",
-   "harga": 65100,
+   "deskripsi": "Senar AW436P SL cocok untuk gitar akustik dengan nada hangat berkat bahan Phosphor Bronze yang memberikan resonansi kaya. Berat super‑light memudahkan permainan fingerstyle dan strumming tanpa terasa lelah. Lapisan anti‑rust menjaga keawetan meski sering dipakai atau disimpan lama. Yuk, coba langsung di toko dan rasakan perbedaannya! 🎸",
+   "harga": 150000,
    "status": "tersedia",
-   "sisa": null,
+   "sisa": 1,
    "foto": [
     {
-     "src": "foto/stok/senar-gitar-akustik-alice-aw436p-xl-ukuran-010-stk-e3k9rm-01c9a4.webp",
-     "kecil": "foto/stok/senar-gitar-akustik-alice-aw436p-xl-ukuran-010-stk-e3k9rm-01c9a4-k.webp"
+     "src": "foto/stok/senar-gitar-akustik-alice-aw436p-sl-ukuran-011-stk-cepnfk-2e3906.webp",
+     "kecil": "foto/stok/senar-gitar-akustik-alice-aw436p-sl-ukuran-011-stk-cepnfk-2e3906-k.webp"
     }
    ],
    "alat": [
     "Gitar Akustik"
    ],
-   "ukuran": "010",
+   "ukuran": "011",
    "merek": "Alice",
    "seri": "AW436P",
    "fitur": [
-    "Anti Rust",
-    "Extra Light",
-    "Phosphor Bronze"
+    "Phosphor Bronze",
+    "Super Light",
+    "Anti Rust"
    ],
    "artikel": 0,
    "grup": "aw436p-senar"
@@ -149,32 +149,32 @@
    "grup": "se-senar"
   },
   {
-   "kode": "STK-CEPNFK",
+   "kode": "STK-E3K9RM",
    "kategori": "aksesoris",
    "jenis": "Senar",
    "kondisi": "baru",
-   "nama": "Alice AW436P SL",
+   "nama": "Alice AW436P XL",
    "warna": "",
-   "deskripsi": "Senar AW436P SL cocok untuk gitar akustik dengan nada hangat berkat bahan Phosphor Bronze yang memberikan resonansi kaya. Berat super‑light memudahkan permainan fingerstyle dan strumming tanpa terasa lelah. Lapisan anti‑rust menjaga keawetan meski sering dipakai atau disimpan lama. Yuk, coba langsung di toko dan rasakan perbedaannya! 🎸",
+   "deskripsi": "Senar akustik Alice AW436P ukuran 010 ini menawarkan karakter suara yang hangat dan *bright* dengan *timbre* yang *slim*. Diproduksi dengan material *phosphor bronze* yang anti karat, senar tipe *plain* ini dirancang untuk memberikan kenyamanan bermain maksimal bagi gitar akustik Anda. Produk ini masih dalam kondisi baru dengan kemasan utuh bergambar gitar akustik, sehingga siap langsung dipasang untuk memaksimalkan performa instrumen. Silakan datang langsung ke Toko Gitar AYRI untuk mencoba dan merasakan kualitasnya. 🎸",
    "harga": 150000,
    "status": "tersedia",
-   "sisa": 1,
+   "sisa": null,
    "foto": [
     {
-     "src": "foto/stok/senar-gitar-akustik-alice-aw436p-sl-ukuran-011-stk-cepnfk-2e3906.webp",
-     "kecil": "foto/stok/senar-gitar-akustik-alice-aw436p-sl-ukuran-011-stk-cepnfk-2e3906-k.webp"
+     "src": "foto/stok/senar-gitar-akustik-alice-aw436p-xl-ukuran-010-stk-e3k9rm-01c9a4.webp",
+     "kecil": "foto/stok/senar-gitar-akustik-alice-aw436p-xl-ukuran-010-stk-e3k9rm-01c9a4-k.webp"
     }
    ],
    "alat": [
     "Gitar Akustik"
    ],
-   "ukuran": "011",
+   "ukuran": "010",
    "merek": "Alice",
    "seri": "AW436P",
    "fitur": [
-    "Phosphor Bronze",
-    "Super Light",
-    "Anti Rust"
+    "Anti Rust",
+    "Extra Light",
+    "Phosphor Bronze"
    ],
    "artikel": 5,
    "grup": "aw436p-senar"
