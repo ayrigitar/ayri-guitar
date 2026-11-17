@@ -3,6 +3,36 @@
  "v": 4,
  "item": [
   {
+   "kode": "STK-9CDQYF",
+   "kategori": "aksesoris",
+   "jenis": "Senar",
+   "kondisi": "baru",
+   "nama": "Alice AWR486 SL",
+   "warna": "",
+   "deskripsi": "Senar AWR486 SL berukuran 011 cocok untuk gitar akustik, memberi respons yang seimbang antara kehalusan dan kekuatan. Dengan bahan Phosphor Bronze, nada yang dihasilkan terasa hangat, jernih, dan penuh resonansi. Lapisan Nano Coating melindungi senar dari karat dan memperpanjang umur pakainya, sehingga kamu tidak perlu sering mengganti. Ayo coba langsung di toko kami! 🎸",
+   "harga": 200000,
+   "status": "tersedia",
+   "sisa": 1,
+   "foto": [
+    {
+     "src": "foto/stok/senar-gitar-akustik-alice-awr486-sl-ukuran-011-stk-9cdqyf-d3629c.webp",
+     "kecil": "foto/stok/senar-gitar-akustik-alice-awr486-sl-ukuran-011-stk-9cdqyf-d3629c-k.webp"
+    }
+   ],
+   "alat": [
+    "Gitar Akustik"
+   ],
+   "ukuran": "011",
+   "merek": "Alice",
+   "seri": "AWR486",
+   "fitur": [
+    "Phosphor Bronze",
+    "Nano Coating"
+   ],
+   "artikel": 0,
+   "grup": "awr486-senar"
+  },
+  {
    "kode": "STK-HF7XPC",
    "kategori": "aksesoris",
    "jenis": "Senar",
@@ -29,7 +59,7 @@
     "Phosphor Bronze",
     "Nano Coating"
    ],
-   "artikel": 0,
+   "artikel": 1,
    "grup": "awr486-senar"
   },
   {
@@ -54,7 +84,7 @@
     "Nano Coating",
     "Phosphor Bronze"
    ],
-   "artikel": 1,
+   "artikel": 2,
    "grup": "awr486-senar"
   },
   {
@@ -84,38 +114,8 @@
    "ukuran": "010",
    "merek": "Orphee",
    "seri": "SE",
-   "artikel": 2,
-   "grup": "se-senar"
-  },
-  {
-   "kode": "STK-9CDQYF",
-   "kategori": "aksesoris",
-   "jenis": "Senar",
-   "kondisi": "baru",
-   "nama": "Alice AWR486 SL",
-   "warna": "",
-   "deskripsi": "Senar AWR486 SL berukuran 011 cocok untuk gitar akustik, memberi respons yang seimbang antara kehalusan dan kekuatan. Dengan bahan Phosphor Bronze, nada yang dihasilkan terasa hangat, jernih, dan penuh resonansi. Lapisan Nano Coating melindungi senar dari karat dan memperpanjang umur pakainya, sehingga kamu tidak perlu sering mengganti. Ayo coba langsung di toko kami! 🎸",
-   "harga": 200000,
-   "status": "tersedia",
-   "sisa": 1,
-   "foto": [
-    {
-     "src": "foto/stok/senar-gitar-akustik-alice-awr486-sl-ukuran-011-stk-9cdqyf-d3629c.webp",
-     "kecil": "foto/stok/senar-gitar-akustik-alice-awr486-sl-ukuran-011-stk-9cdqyf-d3629c-k.webp"
-    }
-   ],
-   "alat": [
-    "Gitar Akustik"
-   ],
-   "ukuran": "011",
-   "merek": "Alice",
-   "seri": "AWR486",
-   "fitur": [
-    "Phosphor Bronze",
-    "Nano Coating"
-   ],
    "artikel": 3,
-   "grup": "awr486-senar"
+   "grup": "se-senar"
   },
   {
    "kode": "STK-DN7VY2",
