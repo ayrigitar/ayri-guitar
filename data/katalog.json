@@ -180,6 +180,68 @@
    "grup": "se-senar"
   },
   {
+   "kode": "STK-M4F5UA",
+   "kategori": "gitar",
+   "jenis": "Akustik Elektrik",
+   "kondisi": "bekas",
+   "nama": "Sqoe SMLT BK",
+   "warna": "Coklat Tua Glossy",
+   "deskripsi": "Gitar akustik‑elektrik Sqoe SMLT BK berwarna coklat tua glossy dengan top solid Mahogany, kondisi bekas tapi berada pada tingkat Excellent, pemakaian sangat ringan sehingga cacat hampir tak terlihat.  \n\nSpesifikasi:  \n- 6 senar standar  \n- Top solid Mahogany, body mahogany (laminated) dengan cutaway  \n- Neck maple, fingerboard rosewood  \n- Skala 25,5 in (≈648 mm)  \n- Pickup piezo built‑in dengan preamp Fishman Presys Blend  \n\nAyo coba langsung di toko untuk merasakan suaranya! 🎸",
+   "harga": 2200000,
+   "status": "tersedia",
+   "sisa": null,
+   "foto": [
+    {
+     "src": "foto/stok/gitar-akustik-elektrik-sqoe-smlt-bk-coklat-tua-glossy-stk-m4f5ua-b07cdc.webp",
+     "kecil": "foto/stok/gitar-akustik-elektrik-sqoe-smlt-bk-coklat-tua-glossy-stk-m4f5ua-b07cdc-k.webp"
+    },
+    {
+     "src": "foto/stok/gitar-akustik-elektrik-sqoe-smlt-bk-coklat-tua-glossy-stk-m4f5ua-ae7434.webp",
+     "kecil": "foto/stok/gitar-akustik-elektrik-sqoe-smlt-bk-coklat-tua-glossy-stk-m4f5ua-ae7434-k.webp"
+    },
+    {
+     "src": "foto/stok/gitar-akustik-elektrik-sqoe-smlt-bk-coklat-tua-glossy-stk-m4f5ua-37b885.webp",
+     "kecil": "foto/stok/gitar-akustik-elektrik-sqoe-smlt-bk-coklat-tua-glossy-stk-m4f5ua-37b885-k.webp"
+    },
+    {
+     "src": "foto/stok/gitar-akustik-elektrik-sqoe-smlt-bk-coklat-tua-glossy-stk-m4f5ua-34692b.webp",
+     "kecil": "foto/stok/gitar-akustik-elektrik-sqoe-smlt-bk-coklat-tua-glossy-stk-m4f5ua-34692b-k.webp"
+    },
+    {
+     "src": "foto/stok/gitar-akustik-elektrik-sqoe-smlt-bk-coklat-tua-glossy-stk-m4f5ua-f4be26.webp",
+     "kecil": "foto/stok/gitar-akustik-elektrik-sqoe-smlt-bk-coklat-tua-glossy-stk-m4f5ua-f4be26-k.webp"
+    },
+    {
+     "src": "foto/stok/gitar-akustik-elektrik-sqoe-smlt-bk-coklat-tua-glossy-stk-m4f5ua-d94ecc.webp",
+     "kecil": "foto/stok/gitar-akustik-elektrik-sqoe-smlt-bk-coklat-tua-glossy-stk-m4f5ua-d94ecc-k.webp"
+    },
+    {
+     "src": "foto/stok/gitar-akustik-elektrik-sqoe-smlt-bk-coklat-tua-glossy-stk-m4f5ua-0afd13.webp",
+     "kecil": "foto/stok/gitar-akustik-elektrik-sqoe-smlt-bk-coklat-tua-glossy-stk-m4f5ua-0afd13-k.webp"
+    },
+    {
+     "src": "foto/stok/gitar-akustik-elektrik-sqoe-smlt-bk-coklat-tua-glossy-stk-m4f5ua-65aa87.webp",
+     "kecil": "foto/stok/gitar-akustik-elektrik-sqoe-smlt-bk-coklat-tua-glossy-stk-m4f5ua-65aa87-k.webp"
+    },
+    {
+     "src": "foto/stok/gitar-akustik-elektrik-sqoe-smlt-bk-coklat-tua-glossy-stk-m4f5ua-1ad23f.webp",
+     "kecil": "foto/stok/gitar-akustik-elektrik-sqoe-smlt-bk-coklat-tua-glossy-stk-m4f5ua-1ad23f-k.webp"
+    },
+    {
+     "src": "foto/stok/gitar-akustik-elektrik-sqoe-smlt-bk-coklat-tua-glossy-stk-m4f5ua-200dcf.webp",
+     "kecil": "foto/stok/gitar-akustik-elektrik-sqoe-smlt-bk-coklat-tua-glossy-stk-m4f5ua-200dcf-k.webp"
+    }
+   ],
+   "tingkat": "Excellent",
+   "fitur": [
+    "Top Solid Mahogany",
+    "Cutaway",
+    "Glossy",
+    "EQ Fishman Presys Blend"
+   ],
+   "artikel": 6
+  },
+  {
    "kode": "STK-DN7VY2",
    "kategori": "aksesoris",
    "jenis": "Kabel",
@@ -200,7 +262,7 @@
    "ukuran": "5 Meter",
    "merek": "Beyer",
    "seri": "ISO100LU",
-   "artikel": 6,
+   "artikel": 7,
    "grup": "iso100lu-kabel"
   },
   {
@@ -224,7 +286,7 @@
    "ukuran": "3 Meter",
    "merek": "Beyer",
    "seri": "ISO100LU",
-   "artikel": 7,
+   "artikel": 8,
    "grup": "iso100lu-kabel"
   },
   {
@@ -258,7 +320,7 @@
     "Phosphor Bronze",
     "Warm"
    ],
-   "artikel": 8,
+   "artikel": 9,
    "grup": "sa-senar"
   },
   {
@@ -291,7 +353,7 @@
    "fitur": [
     "Phosphor Bronze"
    ],
-   "artikel": 9,
+   "artikel": 10,
    "grup": "sa-senar"
   },
   {
@@ -322,7 +384,7 @@
    "ukuran": "Hard Tension",
    "merek": "Orphee",
    "seri": "SC",
-   "artikel": 10,
+   "artikel": 11,
    "grup": "sc-senar"
   },
   {
@@ -353,7 +415,7 @@
    "ukuran": "Normal Tension",
    "merek": "Orphee",
    "seri": "SC",
-   "artikel": 11,
+   "artikel": 12,
    "grup": "sc-senar"
   },
   {
@@ -383,7 +445,7 @@
    "ukuran": "009",
    "merek": "Orphee",
    "seri": "QA",
-   "artikel": 12,
+   "artikel": 13,
    "grup": "qa-senar"
   },
   {
@@ -413,7 +475,7 @@
    "ukuran": "010",
    "merek": "Orphee",
    "seri": "QA",
-   "artikel": 13,
+   "artikel": 14,
    "grup": "qa-senar"
   },
   {
@@ -441,7 +503,7 @@
    ],
    "merek": "JOYO",
    "seri": "JCP",
-   "artikel": 14,
+   "artikel": 15,
    "grup": "jcp-capo"
   },
   {
@@ -469,7 +531,7 @@
     "Guitalele"
    ],
    "merek": "TaffStudio",
-   "artikel": 15
+   "artikel": 16
   },
   {
    "kode": "STK-6DZ7XA",
@@ -499,7 +561,7 @@
    ],
    "merek": "JOYO",
    "seri": "JCP",
-   "artikel": 16,
+   "artikel": 17,
    "grup": "jcp-capo"
   },
   {
@@ -529,7 +591,7 @@
    "ukuran": "010",
    "merek": "Orphee",
    "seri": "RX",
-   "artikel": 17,
+   "artikel": 18,
    "grup": "rx-senar"
   },
   {
@@ -559,7 +621,7 @@
    "ukuran": "011",
    "merek": "Orphee",
    "seri": "RX",
-   "artikel": 18,
+   "artikel": 19,
    "grup": "rx-senar"
   },
   {
@@ -589,7 +651,7 @@
    "ukuran": "009",
    "merek": "Orphee",
    "seri": "RX",
-   "artikel": 19,
+   "artikel": 20,
    "grup": "rx-senar"
   },
   {
@@ -618,7 +680,7 @@
    ],
    "ukuran": "Hard Tension",
    "merek": "Orphee",
-   "artikel": 20
+   "artikel": 21
   },
   {
    "kode": "STK-RT4XNQ",
@@ -647,7 +709,7 @@
    "ukuran": "009",
    "merek": "Orphee",
    "seri": "SE",
-   "artikel": 21,
+   "artikel": 22,
    "grup": "se-senar"
   },
   {
@@ -677,7 +739,7 @@
    "ukuran": "011",
    "merek": "Orphee",
    "seri": "SE",
-   "artikel": 22,
+   "artikel": 23,
    "grup": "se-senar"
   },
   {
@@ -707,7 +769,7 @@
    "ukuran": "011",
    "merek": "Orphee",
    "seri": "QE",
-   "artikel": 23,
+   "artikel": 24,
    "grup": "qe-senar"
   },
   {
@@ -737,7 +799,7 @@
    "ukuran": "010",
    "merek": "Orphee",
    "seri": "QE",
-   "artikel": 24,
+   "artikel": 25,
    "grup": "qe-senar"
   },
   {
@@ -767,7 +829,7 @@
    "ukuran": "009",
    "merek": "Orphee",
    "seri": "QE",
-   "artikel": 25,
+   "artikel": 26,
    "grup": "qe-senar"
   },
   {
@@ -797,7 +859,7 @@
    "ukuran": "011",
    "merek": "Orphee",
    "seri": "TX",
-   "artikel": 26,
+   "artikel": 27,
    "grup": "tx-senar"
   },
   {
@@ -832,7 +894,7 @@
     "Warm",
     "Extra Light"
    ],
-   "artikel": 27,
+   "artikel": 28,
    "grup": "sa-senar"
   },
   {
@@ -862,7 +924,7 @@
    "ukuran": "012",
    "merek": "Orphee",
    "seri": "QA",
-   "artikel": 28,
+   "artikel": 29,
    "grup": "qa-senar"
   },
   {
@@ -892,7 +954,7 @@
    "ukuran": "011",
    "merek": "Orphee",
    "seri": "QA",
-   "artikel": 29,
+   "artikel": 30,
    "grup": "qa-senar"
   },
   {
@@ -923,7 +985,7 @@
    "ukuran": "Hard Tension",
    "merek": "Orphee",
    "seri": "QC",
-   "artikel": 30,
+   "artikel": 31,
    "grup": "qc-senar"
   },
   {
@@ -954,7 +1016,7 @@
    "ukuran": "Normal Tension",
    "merek": "Orphee",
    "seri": "QC",
-   "artikel": 31,
+   "artikel": 32,
    "grup": "qc-senar"
   },
   {
@@ -985,7 +1047,7 @@
    "ukuran": "Hard Tension",
    "merek": "Orphee",
    "seri": "NX",
-   "artikel": 32,
+   "artikel": 33,
    "grup": "nx-senar"
   },
   {
@@ -1016,7 +1078,7 @@
    "ukuran": "Normal Tension",
    "merek": "Orphee",
    "seri": "NX",
-   "artikel": 33,
+   "artikel": 34,
    "grup": "nx-senar"
   },
   {
@@ -1046,7 +1108,7 @@
    "ukuran": "010",
    "merek": "Orphee",
    "seri": "TX",
-   "artikel": 34,
+   "artikel": 35,
    "grup": "tx-senar"
   },
   {
@@ -1091,7 +1153,7 @@
     }
    ],
    "tingkat": "Very Good",
-   "artikel": 35
+   "artikel": 36
   },
   {
    "kode": "STK-6J8WP3",
@@ -1139,7 +1201,7 @@
     }
    ],
    "tingkat": "Good",
-   "artikel": 36
+   "artikel": 37
   },
   {
    "kode": "STK-TZEN4Z",
@@ -1195,7 +1257,7 @@
     }
    ],
    "tingkat": "Very Good",
-   "artikel": 37
+   "artikel": 38
   },
   {
    "kode": "STK-U3X8N4",
@@ -1243,7 +1305,7 @@
     }
    ],
    "tingkat": "Excellent",
-   "artikel": 38
+   "artikel": 39
   },
   {
    "kode": "STK-UKV3BK",
@@ -1298,7 +1360,7 @@
      "kecil": "foto/stok/1a1bf9bf8a68cf0ae6df-k.webp"
     }
    ],
-   "artikel": 39
+   "artikel": 40
   },
   {
    "kode": "STK-FBXF37",
@@ -1354,7 +1416,7 @@
     }
    ],
    "tingkat": "Very Good",
-   "artikel": 40
+   "artikel": 41
   },
   {
    "kode": "STK-VM7JT5",
@@ -1382,7 +1444,7 @@
    ],
    "tipe": "Hardcase",
    "ukuran": "Standard Jumbo",
-   "artikel": 41
+   "artikel": 42
   },
   {
    "kode": "STK-SCYBYR",
@@ -1438,7 +1500,7 @@
     }
    ],
    "tingkat": "Very Good",
-   "artikel": 42
+   "artikel": 43
   },
   {
    "kode": "STK-752B52",
@@ -1493,7 +1555,7 @@
      "kecil": "foto/stok/e7844f12235295e49a13-k.webp"
     }
    ],
-   "artikel": 43
+   "artikel": 44
   },
   {
    "kode": "STK-QFV3U3",
@@ -1545,7 +1607,7 @@
     }
    ],
    "tingkat": "Mint",
-   "artikel": 44
+   "artikel": 45
   }
  ],
  "sampul": {
