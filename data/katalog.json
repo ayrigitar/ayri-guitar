@@ -118,6 +118,36 @@
    "grup": "se-senar"
   },
   {
+   "kode": "STK-E3K9RM",
+   "kategori": "aksesoris",
+   "jenis": "Senar",
+   "kondisi": "baru",
+   "nama": "Alice AW436P XL",
+   "warna": "",
+   "deskripsi": "Senar akustik Alice AW436P ukuran 010 ini menawarkan karakter suara yang hangat dan *bright* dengan *timbre* yang *slim*. Diproduksi dengan material *phosphor bronze* yang anti karat, senar tipe *plain* ini dirancang untuk memberikan kenyamanan bermain maksimal bagi gitar akustik Anda. Produk ini masih dalam kondisi baru dengan kemasan utuh bergambar gitar akustik, sehingga siap langsung dipasang untuk memaksimalkan performa instrumen. Silakan datang langsung ke Toko Gitar AYRI untuk mencoba dan merasakan kualitasnya. 🎸",
+   "harga": 65100,
+   "status": "tersedia",
+   "sisa": null,
+   "foto": [
+    {
+     "src": "foto/stok/senar-gitar-akustik-alice-aw436p-xl-ukuran-010-stk-e3k9rm-01c9a4.webp",
+     "kecil": "foto/stok/senar-gitar-akustik-alice-aw436p-xl-ukuran-010-stk-e3k9rm-01c9a4-k.webp"
+    }
+   ],
+   "alat": [
+    "Gitar Akustik"
+   ],
+   "ukuran": "010",
+   "merek": "Alice",
+   "seri": "AW436P",
+   "fitur": [
+    "Anti Rust",
+    "Extra Light",
+    "Phosphor Bronze"
+   ],
+   "artikel": 4
+  },
+  {
    "kode": "STK-DN7VY2",
    "kategori": "aksesoris",
    "jenis": "Kabel",
@@ -138,7 +168,7 @@
    "ukuran": "5 Meter",
    "merek": "Beyer",
    "seri": "ISO100LU",
-   "artikel": 4,
+   "artikel": 5,
    "grup": "iso100lu-kabel"
   },
   {
@@ -162,7 +192,7 @@
    "ukuran": "3 Meter",
    "merek": "Beyer",
    "seri": "ISO100LU",
-   "artikel": 5,
+   "artikel": 6,
    "grup": "iso100lu-kabel"
   },
   {
@@ -196,7 +226,7 @@
     "Phosphor Bronze",
     "Warm"
    ],
-   "artikel": 6,
+   "artikel": 7,
    "grup": "sa-senar"
   },
   {
@@ -229,7 +259,7 @@
    "fitur": [
     "Phosphor Bronze"
    ],
-   "artikel": 7,
+   "artikel": 8,
    "grup": "sa-senar"
   },
   {
@@ -260,7 +290,7 @@
    "ukuran": "Hard Tension",
    "merek": "Orphee",
    "seri": "SC",
-   "artikel": 8,
+   "artikel": 9,
    "grup": "sc-senar"
   },
   {
@@ -291,7 +321,7 @@
    "ukuran": "Normal Tension",
    "merek": "Orphee",
    "seri": "SC",
-   "artikel": 9,
+   "artikel": 10,
    "grup": "sc-senar"
   },
   {
@@ -321,7 +351,7 @@
    "ukuran": "009",
    "merek": "Orphee",
    "seri": "QA",
-   "artikel": 10,
+   "artikel": 11,
    "grup": "qa-senar"
   },
   {
@@ -351,7 +381,7 @@
    "ukuran": "010",
    "merek": "Orphee",
    "seri": "QA",
-   "artikel": 11,
+   "artikel": 12,
    "grup": "qa-senar"
   },
   {
@@ -379,7 +409,7 @@
    ],
    "merek": "JOYO",
    "seri": "JCP",
-   "artikel": 12,
+   "artikel": 13,
    "grup": "jcp-capo"
   },
   {
@@ -407,7 +437,7 @@
     "Guitalele"
    ],
    "merek": "TaffStudio",
-   "artikel": 13
+   "artikel": 14
   },
   {
    "kode": "STK-6DZ7XA",
@@ -437,7 +467,7 @@
    ],
    "merek": "JOYO",
    "seri": "JCP",
-   "artikel": 14,
+   "artikel": 15,
    "grup": "jcp-capo"
   },
   {
@@ -467,7 +497,7 @@
    "ukuran": "010",
    "merek": "Orphee",
    "seri": "RX",
-   "artikel": 15,
+   "artikel": 16,
    "grup": "rx-senar"
   },
   {
@@ -497,7 +527,7 @@
    "ukuran": "011",
    "merek": "Orphee",
    "seri": "RX",
-   "artikel": 16,
+   "artikel": 17,
    "grup": "rx-senar"
   },
   {
@@ -527,7 +557,7 @@
    "ukuran": "009",
    "merek": "Orphee",
    "seri": "RX",
-   "artikel": 17,
+   "artikel": 18,
    "grup": "rx-senar"
   },
   {
@@ -556,7 +586,7 @@
    ],
    "ukuran": "Hard Tension",
    "merek": "Orphee",
-   "artikel": 18
+   "artikel": 19
   },
   {
    "kode": "STK-RT4XNQ",
@@ -585,7 +615,7 @@
    "ukuran": "009",
    "merek": "Orphee",
    "seri": "SE",
-   "artikel": 19,
+   "artikel": 20,
    "grup": "se-senar"
   },
   {
@@ -615,7 +645,7 @@
    "ukuran": "011",
    "merek": "Orphee",
    "seri": "SE",
-   "artikel": 20,
+   "artikel": 21,
    "grup": "se-senar"
   },
   {
@@ -645,7 +675,7 @@
    "ukuran": "011",
    "merek": "Orphee",
    "seri": "QE",
-   "artikel": 21,
+   "artikel": 22,
    "grup": "qe-senar"
   },
   {
@@ -675,7 +705,7 @@
    "ukuran": "010",
    "merek": "Orphee",
    "seri": "QE",
-   "artikel": 22,
+   "artikel": 23,
    "grup": "qe-senar"
   },
   {
@@ -705,7 +735,7 @@
    "ukuran": "009",
    "merek": "Orphee",
    "seri": "QE",
-   "artikel": 23,
+   "artikel": 24,
    "grup": "qe-senar"
   },
   {
@@ -735,7 +765,7 @@
    "ukuran": "011",
    "merek": "Orphee",
    "seri": "TX",
-   "artikel": 24,
+   "artikel": 25,
    "grup": "tx-senar"
   },
   {
@@ -770,7 +800,7 @@
     "Warm",
     "Extra Light"
    ],
-   "artikel": 25,
+   "artikel": 26,
    "grup": "sa-senar"
   },
   {
@@ -800,7 +830,7 @@
    "ukuran": "012",
    "merek": "Orphee",
    "seri": "QA",
-   "artikel": 26,
+   "artikel": 27,
    "grup": "qa-senar"
   },
   {
@@ -830,7 +860,7 @@
    "ukuran": "011",
    "merek": "Orphee",
    "seri": "QA",
-   "artikel": 27,
+   "artikel": 28,
    "grup": "qa-senar"
   },
   {
@@ -861,7 +891,7 @@
    "ukuran": "Hard Tension",
    "merek": "Orphee",
    "seri": "QC",
-   "artikel": 28,
+   "artikel": 29,
    "grup": "qc-senar"
   },
   {
@@ -892,7 +922,7 @@
    "ukuran": "Normal Tension",
    "merek": "Orphee",
    "seri": "QC",
-   "artikel": 29,
+   "artikel": 30,
    "grup": "qc-senar"
   },
   {
@@ -923,7 +953,7 @@
    "ukuran": "Hard Tension",
    "merek": "Orphee",
    "seri": "NX",
-   "artikel": 30,
+   "artikel": 31,
    "grup": "nx-senar"
   },
   {
@@ -954,7 +984,7 @@
    "ukuran": "Normal Tension",
    "merek": "Orphee",
    "seri": "NX",
-   "artikel": 31,
+   "artikel": 32,
    "grup": "nx-senar"
   },
   {
@@ -984,7 +1014,7 @@
    "ukuran": "010",
    "merek": "Orphee",
    "seri": "TX",
-   "artikel": 32,
+   "artikel": 33,
    "grup": "tx-senar"
   },
   {
@@ -1029,7 +1059,7 @@
     }
    ],
    "tingkat": "Very Good",
-   "artikel": 33
+   "artikel": 34
   },
   {
    "kode": "STK-6J8WP3",
@@ -1077,7 +1107,7 @@
     }
    ],
    "tingkat": "Good",
-   "artikel": 34
+   "artikel": 35
   },
   {
    "kode": "STK-TZEN4Z",
@@ -1133,7 +1163,7 @@
     }
    ],
    "tingkat": "Very Good",
-   "artikel": 35
+   "artikel": 36
   },
   {
    "kode": "STK-U3X8N4",
@@ -1181,7 +1211,7 @@
     }
    ],
    "tingkat": "Excellent",
-   "artikel": 36
+   "artikel": 37
   },
   {
    "kode": "STK-UKV3BK",
@@ -1236,7 +1266,7 @@
      "kecil": "foto/stok/1a1bf9bf8a68cf0ae6df-k.webp"
     }
    ],
-   "artikel": 37
+   "artikel": 38
   },
   {
    "kode": "STK-FBXF37",
@@ -1292,7 +1322,7 @@
     }
    ],
    "tingkat": "Very Good",
-   "artikel": 38
+   "artikel": 39
   },
   {
    "kode": "STK-VM7JT5",
@@ -1320,7 +1350,7 @@
    ],
    "tipe": "Hardcase",
    "ukuran": "Standard Jumbo",
-   "artikel": 39
+   "artikel": 40
   },
   {
    "kode": "STK-SCYBYR",
@@ -1376,7 +1406,7 @@
     }
    ],
    "tingkat": "Very Good",
-   "artikel": 40
+   "artikel": 41
   },
   {
    "kode": "STK-752B52",
@@ -1431,7 +1461,7 @@
      "kecil": "foto/stok/e7844f12235295e49a13-k.webp"
     }
    ],
-   "artikel": 41
+   "artikel": 42
   },
   {
    "kode": "STK-QFV3U3",
@@ -1483,7 +1513,7 @@
     }
    ],
    "tingkat": "Mint",
-   "artikel": 42
+   "artikel": 43
   }
  ],
  "sampul": {
