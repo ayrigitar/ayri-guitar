@@ -3,6 +3,66 @@
  "v": 4,
  "item": [
   {
+   "kode": "STK-Z3UB5C",
+   "kategori": "gitar",
+   "jenis": "Akustik",
+   "kondisi": "bekas",
+   "nama": "Yamaha F370",
+   "warna": "Natural",
+   "deskripsi": "Gitar akustik Yamaha F370 warna natural ini dalam kondisi bekas dengan tingkat Excellent, artinya pemakaian sangat ringan dan hampir tak ada cacat yang terlihat. Penampilannya tetap bersih, cocok untuk pemain yang menginginkan gitar berkualitas tanpa bekas penggunaan yang mencolok.  \n\nSpesifikasi:  \n- 6 senar steel  \n- Body: top spruce (laminated), back & sides meranti  \n- Neck: nato, fingerboard rosewood  \n- Scale length 25,5 in (≈648 mm)  \n- Hardware: die‑cast tuning machines, bridge standar  \n\nAyo coba langsung di toko, rasakan suaranya! 🎸",
+   "harga": 1200000,
+   "status": "tersedia",
+   "sisa": null,
+   "foto": [
+    {
+     "src": "foto/stok/gitar-akustik-yamaha-f370-natural-stk-z3ub5c-7c8da9.webp",
+     "kecil": "foto/stok/gitar-akustik-yamaha-f370-natural-stk-z3ub5c-7c8da9-k.webp"
+    },
+    {
+     "src": "foto/stok/gitar-akustik-yamaha-f370-natural-stk-z3ub5c-676db3.webp",
+     "kecil": "foto/stok/gitar-akustik-yamaha-f370-natural-stk-z3ub5c-676db3-k.webp"
+    },
+    {
+     "src": "foto/stok/gitar-akustik-yamaha-f370-natural-stk-z3ub5c-8c47e7.webp",
+     "kecil": "foto/stok/gitar-akustik-yamaha-f370-natural-stk-z3ub5c-8c47e7-k.webp"
+    },
+    {
+     "src": "foto/stok/gitar-akustik-yamaha-f370-natural-stk-z3ub5c-fdf03f.webp",
+     "kecil": "foto/stok/gitar-akustik-yamaha-f370-natural-stk-z3ub5c-fdf03f-k.webp"
+    },
+    {
+     "src": "foto/stok/gitar-akustik-yamaha-f370-natural-stk-z3ub5c-aea941.webp",
+     "kecil": "foto/stok/gitar-akustik-yamaha-f370-natural-stk-z3ub5c-aea941-k.webp"
+    },
+    {
+     "src": "foto/stok/gitar-akustik-yamaha-f370-natural-stk-z3ub5c-f1f28f.webp",
+     "kecil": "foto/stok/gitar-akustik-yamaha-f370-natural-stk-z3ub5c-f1f28f-k.webp"
+    },
+    {
+     "src": "foto/stok/gitar-akustik-yamaha-f370-natural-stk-z3ub5c-c87c5d.webp",
+     "kecil": "foto/stok/gitar-akustik-yamaha-f370-natural-stk-z3ub5c-c87c5d-k.webp"
+    },
+    {
+     "src": "foto/stok/gitar-akustik-yamaha-f370-natural-stk-z3ub5c-7d5da3.webp",
+     "kecil": "foto/stok/gitar-akustik-yamaha-f370-natural-stk-z3ub5c-7d5da3-k.webp"
+    },
+    {
+     "src": "foto/stok/gitar-akustik-yamaha-f370-natural-stk-z3ub5c-2aa34e.webp",
+     "kecil": "foto/stok/gitar-akustik-yamaha-f370-natural-stk-z3ub5c-2aa34e-k.webp"
+    },
+    {
+     "src": "foto/stok/gitar-akustik-yamaha-f370-natural-stk-z3ub5c-2b28e2.webp",
+     "kecil": "foto/stok/gitar-akustik-yamaha-f370-natural-stk-z3ub5c-2b28e2-k.webp"
+    }
+   ],
+   "tingkat": "Excellent",
+   "fitur": [
+    "Dreadnought",
+    "Diecast Tuning Machine"
+   ],
+   "artikel": 0
+  },
+  {
    "kode": "STK-M4F5UA",
    "kategori": "gitar",
    "jenis": "Akustik Elektrik",
@@ -62,7 +122,7 @@
     "Glossy",
     "EQ Fishman Presys Blend"
    ],
-   "artikel": 0
+   "artikel": 1
   },
   {
    "kode": "STK-CEPNFK",
@@ -92,7 +152,7 @@
     "Super Light",
     "Anti Rust"
    ],
-   "artikel": 1,
+   "artikel": 2,
    "grup": "aw436p-senar"
   },
   {
@@ -123,7 +183,7 @@
     "Extra Light",
     "Phosphor Bronze"
    ],
-   "artikel": 2,
+   "artikel": 3,
    "grup": "aw436p-senar"
   },
   {
@@ -153,7 +213,7 @@
     "Phosphor Bronze",
     "Nano Coating"
    ],
-   "artikel": 3,
+   "artikel": 4,
    "grup": "awr486-senar"
   },
   {
@@ -183,7 +243,7 @@
     "Phosphor Bronze",
     "Nano Coating"
    ],
-   "artikel": 4,
+   "artikel": 5,
    "grup": "awr486-senar"
   },
   {
@@ -208,7 +268,7 @@
     "Nano Coating",
     "Phosphor Bronze"
    ],
-   "artikel": 5,
+   "artikel": 6,
    "grup": "awr486-senar"
   },
   {
@@ -238,68 +298,8 @@
    "ukuran": "010",
    "merek": "Orphee",
    "seri": "SE",
-   "artikel": 6,
+   "artikel": 7,
    "grup": "se-senar"
-  },
-  {
-   "kode": "STK-Z3UB5C",
-   "kategori": "gitar",
-   "jenis": "Akustik",
-   "kondisi": "bekas",
-   "nama": "Yamaha F370",
-   "warna": "Natural",
-   "deskripsi": "Gitar akustik Yamaha F370 warna natural ini dalam kondisi bekas dengan tingkat Excellent, artinya pemakaian sangat ringan dan hampir tak ada cacat yang terlihat. Penampilannya tetap bersih, cocok untuk pemain yang menginginkan gitar berkualitas tanpa bekas penggunaan yang mencolok.  \n\nSpesifikasi:  \n- 6 senar steel  \n- Body: top spruce (laminated), back & sides meranti  \n- Neck: nato, fingerboard rosewood  \n- Scale length 25,5 in (≈648 mm)  \n- Hardware: die‑cast tuning machines, bridge standar  \n\nAyo coba langsung di toko, rasakan suaranya! 🎸",
-   "harga": 1200000,
-   "status": "tersedia",
-   "sisa": null,
-   "foto": [
-    {
-     "src": "foto/stok/gitar-akustik-yamaha-f370-natural-stk-z3ub5c-7c8da9.webp",
-     "kecil": "foto/stok/gitar-akustik-yamaha-f370-natural-stk-z3ub5c-7c8da9-k.webp"
-    },
-    {
-     "src": "foto/stok/gitar-akustik-yamaha-f370-natural-stk-z3ub5c-676db3.webp",
-     "kecil": "foto/stok/gitar-akustik-yamaha-f370-natural-stk-z3ub5c-676db3-k.webp"
-    },
-    {
-     "src": "foto/stok/gitar-akustik-yamaha-f370-natural-stk-z3ub5c-8c47e7.webp",
-     "kecil": "foto/stok/gitar-akustik-yamaha-f370-natural-stk-z3ub5c-8c47e7-k.webp"
-    },
-    {
-     "src": "foto/stok/gitar-akustik-yamaha-f370-natural-stk-z3ub5c-fdf03f.webp",
-     "kecil": "foto/stok/gitar-akustik-yamaha-f370-natural-stk-z3ub5c-fdf03f-k.webp"
-    },
-    {
-     "src": "foto/stok/gitar-akustik-yamaha-f370-natural-stk-z3ub5c-aea941.webp",
-     "kecil": "foto/stok/gitar-akustik-yamaha-f370-natural-stk-z3ub5c-aea941-k.webp"
-    },
-    {
-     "src": "foto/stok/gitar-akustik-yamaha-f370-natural-stk-z3ub5c-f1f28f.webp",
-     "kecil": "foto/stok/gitar-akustik-yamaha-f370-natural-stk-z3ub5c-f1f28f-k.webp"
-    },
-    {
-     "src": "foto/stok/gitar-akustik-yamaha-f370-natural-stk-z3ub5c-c87c5d.webp",
-     "kecil": "foto/stok/gitar-akustik-yamaha-f370-natural-stk-z3ub5c-c87c5d-k.webp"
-    },
-    {
-     "src": "foto/stok/gitar-akustik-yamaha-f370-natural-stk-z3ub5c-7d5da3.webp",
-     "kecil": "foto/stok/gitar-akustik-yamaha-f370-natural-stk-z3ub5c-7d5da3-k.webp"
-    },
-    {
-     "src": "foto/stok/gitar-akustik-yamaha-f370-natural-stk-z3ub5c-2aa34e.webp",
-     "kecil": "foto/stok/gitar-akustik-yamaha-f370-natural-stk-z3ub5c-2aa34e-k.webp"
-    },
-    {
-     "src": "foto/stok/gitar-akustik-yamaha-f370-natural-stk-z3ub5c-2b28e2.webp",
-     "kecil": "foto/stok/gitar-akustik-yamaha-f370-natural-stk-z3ub5c-2b28e2-k.webp"
-    }
-   ],
-   "tingkat": "Excellent",
-   "fitur": [
-    "Dreadnought",
-    "Diecast Tuning Machine"
-   ],
-   "artikel": 7
   },
   {
    "kode": "STK-DN7VY2",
