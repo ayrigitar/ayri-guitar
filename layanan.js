@@ -341,6 +341,16 @@
             if (h.sisa) m += '\nSisa pembayaran servis: ' + L.rupiah(h.sisa) + '\n';
             return m + jamBuka() + '\nDetail & nota: ' + L.urlCek(s.kode);
         },
+        /* tanggal selesai berubah (servis ulang, mis. ada tambahan part): kabari pelanggan, tanggal lama tidak berlaku lagi */
+        tglBaru: function (s) {
+            var t = L.titip(s), m = 'Halo Kak ' + s.nama + ', kami perbarui info gitar ' + L.namaGitar(s, 'Kakak') + ' (kode *' + s.kode + '*): karena ada pengerjaan tambahan, servisnya selesai pada *' + L.tgl(s.tgl_selesai) + '* dan gitar bisa diambil di toko ✅\n\n';
+            m += 'Tanggal-tanggal sebelumnya tidak berlaku lagi. Yang berlaku sekarang:\n';
+            m += t.hariBiaya ? '• Masa gratis penitipan sudah lewat sejak ' + L.tgl(t.batasGratis) + '; biaya penitipan ' + L.biayaTitipTeks() + '.\n'
+                : '• Gratis dititipkan sampai *' + L.tgl(t.batasGratis) + '*; setelah itu biaya penitipan ' + L.biayaTitipTeks() + '.\n';
+            m += t.garansiHangus ? '• Garansi servis sudah hangus karena gitar belum diambil lebih dari ' + C.garansiHangusHari + ' hari.\n'
+                : '• Garansi servis berlaku bila gitar diambil paling lambat ' + L.tgl(t.batasGaransi) + '.\n';
+            return m + jamBuka() + '\nDetail & nota: ' + L.urlCek(s.kode);
+        },
         nota: function (s) {
             return 'Halo Kak ' + s.nama + ', berikut nota servis gitar ' + L.namaGitar(s, 'Kakak') + ' (kode *' + s.kode + '*):\n' + L.urlNota(s.kode) + '\n(masukkan 4 digit terakhir no. HP Kakak)\n\nTerima kasih sudah servis di ' + C.toko.nama + ' 🎸';
         }

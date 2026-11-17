@@ -1573,7 +1573,7 @@
     function waServis() {
         var k = L.kabarServis(ed.s);
         return barisWa([['tandaTerima', 'Tanda terima', 'Barang sudah kami terima'], ['kabar', k.judul, k.ket], ['nota', 'Kirim nota', 'Tautan nota & rincian biaya']]
-            .concat(ed.s.status === 'selesai' ? [['pengingat', 'Ingatkan ambil', 'Barang belum diambil']] : []), 'wa');
+            .concat(ed.s.status === 'selesai' ? [['pengingat', 'Ingatkan ambil', 'Barang belum diambil'], ['tglBaru', 'Kabari tanggal baru', 'Gratis titip dan garansi dihitung dari tanggal selesai yang baru']] : []), 'wa');
     }
     function gambarServis() {
         var s = ed.s, katalog = {}, kat = '';
@@ -1595,6 +1595,7 @@
             '<label>Merk / model<input data-f="gitar_merk" placeholder="mis. Yamaha F310"></label></div>' +
             '<label>Keluhan / kerusakan<textarea data-f="keluhan" rows="3" placeholder="mis. senar fret buzz di fret 3–5, bridge mulai terangkat"></textarea></label>' +
             '<div class="ly-row2"><label>Tanggal masuk<input type="date" data-f="tgl_masuk"></label><label>Estimasi selesai<input type="date" data-f="estimasi"></label></div>' +
+            (!ed.baru && owner() && L.beres(s) && s.tgl_selesai ? '<div class="ly-row2"><label>Tanggal selesai<input type="date" data-f="tgl_selesai"></label><p class="ly-hint">Dasar hitungan gratis titip dan garansi. Ubah bila gitar diservis ulang (mis. ada tambahan part): hitungan mulai lagi dari tanggal ini. Perubahan dicatat di Catatan internal.</p></div>' : '') +
             '<label class="ly-cek"><input type="checkbox" data-f="izin_publikasi"> Pelanggan setuju foto gitarnya dipakai untuk artikel (tanpa nama dan nomor HP)</label></fieldset>' +
 
             '<fieldset class="ly-card"><legend>Jasa &amp; part</legend><div class="ly-items" id="sv-items"></div>' +
@@ -1638,6 +1639,7 @@
             if (el.type === 'checkbox') el.checked = !!v; else el.value = v == null ? '' : v;
         });
         $('#by-tgl').value = L.hariIni();
+        var tsEl = $('[data-f="tgl_selesai"]', app); if (tsEl) { tsEl.max = L.hariIni(); tsEl.min = s.tgl_masuk || ''; }
         gambarItems(); gambarRingkas(); gambarBayar(); gambarStatus(); gambarFoto();
         setDirty(false);
 
@@ -1665,7 +1667,7 @@
         var t = e.target;
         if (t.dataset.f) {
             ed.s[t.dataset.f] = t.type === 'checkbox' ? t.checked : t.dataset.f === 'diskon' ? Math.max(0, Math.round(+t.value || 0)) : t.value;
-            setDirty(true); if (t.dataset.f === 'diskon') gambarRingkas();
+            setDirty(true); if (t.dataset.f === 'diskon') gambarRingkas(); if (t.dataset.f === 'tgl_selesai') gambarStatus();
         } else if (t.dataset.k) {
             var it = ed.s.items[+t.closest('[data-i]').dataset.i], k = t.dataset.k;
             if (k === 'jatuh') it.garansi_syarat = t.checked ? C.syaratJatuh : '';
@@ -1806,6 +1808,12 @@
         if (String(s.hp).replace(/\D/g, '').length < 8) return 'No. HP belum benar (minimal 8 angka).';
         if (ed.s.items.some(function (i) { return !String(i.nama).trim(); })) return 'Ada jasa/part yang namanya kosong.';
         if (ed.antri.some(function (q) { return !q.hasil; })) return 'Foto masih diproses, tunggu sebentar.';
+        if (!ed.baru && L.beres(s) && s.tgl_selesai !== undefined) {
+            if (!/^\d{4}-\d{2}-\d{2}$/.test(String(s.tgl_selesai || ''))) return 'Tanggal selesai belum diisi.';
+            if (s.tgl_selesai > L.hariIni()) return 'Tanggal selesai tidak boleh lebih dari hari ini.';
+            if (s.tgl_masuk && s.tgl_selesai < s.tgl_masuk) return 'Tanggal selesai tidak boleh sebelum tanggal masuk.';
+            if (s.tgl_diambil && s.tgl_selesai > s.tgl_diambil) return 'Tanggal selesai tidak boleh sesudah tanggal diambil.';
+        }
         return '';
     }
     function simpanServis() {
@@ -1814,11 +1822,18 @@
         var rec = Object.assign({}, ed.s, { nama: String(ed.s.nama).trim(), hp: String(ed.s.hp).trim(), bayar: ed.s.bayar.map(function (x) { var y = Object.assign({}, x); delete y.baru; return y; }) });
         var h = L.hitung(rec, rec.items, rec.bayar);
         if (rec.status === 'menunggu_dp' && h.total > 0 && h.kurangAwal === 0) rec.status = 'antri';
+        /* tanggal selesai: hanya pemilik yang mengubahnya; perubahan dicatat (hitungan gratis titip dan garansi ikut tanggal ini) */
+        var tersimpan = !baru && cariId('servis', ed.s.id), tglBerubah = false;
+        if (tersimpan && tersimpan.tgl_selesai && rec.tgl_selesai !== tersimpan.tgl_selesai) {
+            if (!owner()) rec.tgl_selesai = tersimpan.tgl_selesai;
+            else { tglBerubah = true; rec.catatan_admin = (rec.catatan_admin ? rec.catatan_admin + '\n' : '') + '[' + L.tgl(L.hariIni()) + '] Tanggal selesai diubah dari ' + L.tgl(tersimpan.tgl_selesai) + ' ke ' + L.tgl(rec.tgl_selesai) + ' (servis ulang / koreksi).'; }
+        }
         var fotoBaru = ed.antri.map(function (q) { return { hasil: q.hasil, tahap: q.tahap, tampil: q.tampil }; });
         prosesSimpan('servis', $('#sv-simpan'), teksUnggah(fotoBaru), function () { return A.simpanServis(rec, fotoBaru); }, function (row) {
             lepasAntri(ed.antri); ed = { baru: false, s: salin(row), antri: [] }; cache.stok = A.daftar('stok');
             var pesan = baru ? 'Tersimpan. Kode servis: ' + row.kode + '. Tanda terima bisa dicetak atau dikirim lewat WA.' : 'Tersimpan. Halaman pelanggan diperbarui ±1 menit lagi.';
             if (statusAwal === 'menunggu_dp' && row.status === 'antri') pesan += ' Status otomatis menjadi Antri.';
+            if (tglBerubah && row.status === 'selesai') pesan += ' Tanggal selesai berubah: kirim kabarnya ke pelanggan lewat tombol “Kabari tanggal baru”.';
             toast(pesan);
             if (baru) { pindah('#servis/' + row.id); setTimeout(function () { if (confirm('Kode servis ' + row.kode + '. Cetak tanda terima + label gitar sekarang?')) cetakTandaTerima(row); }, 300); }
             else gambarServis();
