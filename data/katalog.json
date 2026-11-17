@@ -3,6 +3,67 @@
  "v": 4,
  "item": [
   {
+   "kode": "STK-SUKWGW",
+   "kategori": "gitar",
+   "jenis": "Akustik Elektrik",
+   "kondisi": "bekas",
+   "nama": "Fina FRB-55EQ",
+   "warna": "",
+   "deskripsi": "",
+   "harga": 2000000,
+   "status": "tersedia",
+   "sisa": null,
+   "foto": [
+    {
+     "src": "foto/stok/gitar-akustik-elektrik-fina-frb-55eq-stk-sukwgw-05d25c.webp",
+     "kecil": "foto/stok/gitar-akustik-elektrik-fina-frb-55eq-stk-sukwgw-05d25c-k.webp"
+    },
+    {
+     "src": "foto/stok/gitar-akustik-elektrik-fina-frb-55eq-stk-sukwgw-b05cf4.webp",
+     "kecil": "foto/stok/gitar-akustik-elektrik-fina-frb-55eq-stk-sukwgw-b05cf4-k.webp"
+    },
+    {
+     "src": "foto/stok/gitar-akustik-elektrik-fina-frb-55eq-stk-sukwgw-78938e.webp",
+     "kecil": "foto/stok/gitar-akustik-elektrik-fina-frb-55eq-stk-sukwgw-78938e-k.webp"
+    },
+    {
+     "src": "foto/stok/gitar-akustik-elektrik-fina-frb-55eq-stk-sukwgw-010178.webp",
+     "kecil": "foto/stok/gitar-akustik-elektrik-fina-frb-55eq-stk-sukwgw-010178-k.webp"
+    },
+    {
+     "src": "foto/stok/gitar-akustik-elektrik-fina-frb-55eq-stk-sukwgw-aa2a53.webp",
+     "kecil": "foto/stok/gitar-akustik-elektrik-fina-frb-55eq-stk-sukwgw-aa2a53-k.webp"
+    },
+    {
+     "src": "foto/stok/gitar-akustik-elektrik-fina-frb-55eq-stk-sukwgw-a606ed.webp",
+     "kecil": "foto/stok/gitar-akustik-elektrik-fina-frb-55eq-stk-sukwgw-a606ed-k.webp"
+    },
+    {
+     "src": "foto/stok/gitar-akustik-elektrik-fina-frb-55eq-stk-sukwgw-fbecfd.webp",
+     "kecil": "foto/stok/gitar-akustik-elektrik-fina-frb-55eq-stk-sukwgw-fbecfd-k.webp"
+    },
+    {
+     "src": "foto/stok/gitar-akustik-elektrik-fina-frb-55eq-stk-sukwgw-5df7a6.webp",
+     "kecil": "foto/stok/gitar-akustik-elektrik-fina-frb-55eq-stk-sukwgw-5df7a6-k.webp"
+    },
+    {
+     "src": "foto/stok/gitar-akustik-elektrik-fina-frb-55eq-stk-sukwgw-89a733.webp",
+     "kecil": "foto/stok/gitar-akustik-elektrik-fina-frb-55eq-stk-sukwgw-89a733-k.webp"
+    },
+    {
+     "src": "foto/stok/gitar-akustik-elektrik-fina-frb-55eq-stk-sukwgw-64e1f5.webp",
+     "kecil": "foto/stok/gitar-akustik-elektrik-fina-frb-55eq-stk-sukwgw-64e1f5-k.webp"
+    }
+   ],
+   "tingkat": "Good",
+   "fitur": [
+    "Lyrachord",
+    "Ovation Style",
+    "Fiber Back"
+   ],
+   "artikel": 0
+  },
+  {
    "kode": "STK-MJM3ZN",
    "kategori": "gitar",
    "jenis": "Klasik",
@@ -59,7 +120,7 @@
    "fitur": [
     "Vintage"
    ],
-   "artikel": 0
+   "artikel": 1
   },
   {
    "kode": "STK-Z3UB5C",
@@ -118,68 +179,6 @@
    "fitur": [
     "Dreadnought",
     "Diecast Tuning Machine"
-   ],
-   "artikel": 1
-  },
-  {
-   "kode": "STK-M4F5UA",
-   "kategori": "gitar",
-   "jenis": "Akustik Elektrik",
-   "kondisi": "bekas",
-   "nama": "Sqoe SMLT BK",
-   "warna": "Coklat Tua Glossy",
-   "deskripsi": "Gitar akustik‑elektrik Sqoe SMLT BK berwarna coklat tua glossy dengan top solid Mahogany, kondisi bekas tapi berada pada tingkat Excellent, pemakaian sangat ringan sehingga cacat hampir tak terlihat.  \n\nSpesifikasi:  \n- 6 senar standar  \n- Top solid Mahogany, body mahogany (laminated) dengan cutaway  \n- Neck maple, fingerboard rosewood  \n- Skala 25,5 in (≈648 mm)  \n- Pickup piezo built‑in dengan preamp Fishman Presys Blend  \n\nAyo coba langsung di toko untuk merasakan suaranya! 🎸",
-   "harga": 2200000,
-   "status": "tersedia",
-   "sisa": null,
-   "foto": [
-    {
-     "src": "foto/stok/gitar-akustik-elektrik-sqoe-smlt-bk-coklat-tua-glossy-stk-m4f5ua-b07cdc.webp",
-     "kecil": "foto/stok/gitar-akustik-elektrik-sqoe-smlt-bk-coklat-tua-glossy-stk-m4f5ua-b07cdc-k.webp"
-    },
-    {
-     "src": "foto/stok/gitar-akustik-elektrik-sqoe-smlt-bk-coklat-tua-glossy-stk-m4f5ua-ae7434.webp",
-     "kecil": "foto/stok/gitar-akustik-elektrik-sqoe-smlt-bk-coklat-tua-glossy-stk-m4f5ua-ae7434-k.webp"
-    },
-    {
-     "src": "foto/stok/gitar-akustik-elektrik-sqoe-smlt-bk-coklat-tua-glossy-stk-m4f5ua-37b885.webp",
-     "kecil": "foto/stok/gitar-akustik-elektrik-sqoe-smlt-bk-coklat-tua-glossy-stk-m4f5ua-37b885-k.webp"
-    },
-    {
-     "src": "foto/stok/gitar-akustik-elektrik-sqoe-smlt-bk-coklat-tua-glossy-stk-m4f5ua-34692b.webp",
-     "kecil": "foto/stok/gitar-akustik-elektrik-sqoe-smlt-bk-coklat-tua-glossy-stk-m4f5ua-34692b-k.webp"
-    },
-    {
-     "src": "foto/stok/gitar-akustik-elektrik-sqoe-smlt-bk-coklat-tua-glossy-stk-m4f5ua-f4be26.webp",
-     "kecil": "foto/stok/gitar-akustik-elektrik-sqoe-smlt-bk-coklat-tua-glossy-stk-m4f5ua-f4be26-k.webp"
-    },
-    {
-     "src": "foto/stok/gitar-akustik-elektrik-sqoe-smlt-bk-coklat-tua-glossy-stk-m4f5ua-d94ecc.webp",
-     "kecil": "foto/stok/gitar-akustik-elektrik-sqoe-smlt-bk-coklat-tua-glossy-stk-m4f5ua-d94ecc-k.webp"
-    },
-    {
-     "src": "foto/stok/gitar-akustik-elektrik-sqoe-smlt-bk-coklat-tua-glossy-stk-m4f5ua-0afd13.webp",
-     "kecil": "foto/stok/gitar-akustik-elektrik-sqoe-smlt-bk-coklat-tua-glossy-stk-m4f5ua-0afd13-k.webp"
-    },
-    {
-     "src": "foto/stok/gitar-akustik-elektrik-sqoe-smlt-bk-coklat-tua-glossy-stk-m4f5ua-65aa87.webp",
-     "kecil": "foto/stok/gitar-akustik-elektrik-sqoe-smlt-bk-coklat-tua-glossy-stk-m4f5ua-65aa87-k.webp"
-    },
-    {
-     "src": "foto/stok/gitar-akustik-elektrik-sqoe-smlt-bk-coklat-tua-glossy-stk-m4f5ua-1ad23f.webp",
-     "kecil": "foto/stok/gitar-akustik-elektrik-sqoe-smlt-bk-coklat-tua-glossy-stk-m4f5ua-1ad23f-k.webp"
-    },
-    {
-     "src": "foto/stok/gitar-akustik-elektrik-sqoe-smlt-bk-coklat-tua-glossy-stk-m4f5ua-200dcf.webp",
-     "kecil": "foto/stok/gitar-akustik-elektrik-sqoe-smlt-bk-coklat-tua-glossy-stk-m4f5ua-200dcf-k.webp"
-    }
-   ],
-   "tingkat": "Excellent",
-   "fitur": [
-    "Top Solid Mahogany",
-    "Cutaway",
-    "Glossy",
-    "EQ Fishman Presys Blend"
    ],
    "artikel": 2
   },
@@ -361,67 +360,6 @@
    "grup": "se-senar"
   },
   {
-   "kode": "STK-SUKWGW",
-   "kategori": "gitar",
-   "jenis": "Akustik Elektrik",
-   "kondisi": "bekas",
-   "nama": "Fina FRB-55EQ",
-   "warna": "",
-   "deskripsi": "",
-   "harga": 2000000,
-   "status": "tersedia",
-   "sisa": null,
-   "foto": [
-    {
-     "src": "foto/stok/gitar-akustik-elektrik-fina-frb-55eq-stk-sukwgw-05d25c.webp",
-     "kecil": "foto/stok/gitar-akustik-elektrik-fina-frb-55eq-stk-sukwgw-05d25c-k.webp"
-    },
-    {
-     "src": "foto/stok/gitar-akustik-elektrik-fina-frb-55eq-stk-sukwgw-b05cf4.webp",
-     "kecil": "foto/stok/gitar-akustik-elektrik-fina-frb-55eq-stk-sukwgw-b05cf4-k.webp"
-    },
-    {
-     "src": "foto/stok/gitar-akustik-elektrik-fina-frb-55eq-stk-sukwgw-78938e.webp",
-     "kecil": "foto/stok/gitar-akustik-elektrik-fina-frb-55eq-stk-sukwgw-78938e-k.webp"
-    },
-    {
-     "src": "foto/stok/gitar-akustik-elektrik-fina-frb-55eq-stk-sukwgw-010178.webp",
-     "kecil": "foto/stok/gitar-akustik-elektrik-fina-frb-55eq-stk-sukwgw-010178-k.webp"
-    },
-    {
-     "src": "foto/stok/gitar-akustik-elektrik-fina-frb-55eq-stk-sukwgw-aa2a53.webp",
-     "kecil": "foto/stok/gitar-akustik-elektrik-fina-frb-55eq-stk-sukwgw-aa2a53-k.webp"
-    },
-    {
-     "src": "foto/stok/gitar-akustik-elektrik-fina-frb-55eq-stk-sukwgw-a606ed.webp",
-     "kecil": "foto/stok/gitar-akustik-elektrik-fina-frb-55eq-stk-sukwgw-a606ed-k.webp"
-    },
-    {
-     "src": "foto/stok/gitar-akustik-elektrik-fina-frb-55eq-stk-sukwgw-fbecfd.webp",
-     "kecil": "foto/stok/gitar-akustik-elektrik-fina-frb-55eq-stk-sukwgw-fbecfd-k.webp"
-    },
-    {
-     "src": "foto/stok/gitar-akustik-elektrik-fina-frb-55eq-stk-sukwgw-5df7a6.webp",
-     "kecil": "foto/stok/gitar-akustik-elektrik-fina-frb-55eq-stk-sukwgw-5df7a6-k.webp"
-    },
-    {
-     "src": "foto/stok/gitar-akustik-elektrik-fina-frb-55eq-stk-sukwgw-89a733.webp",
-     "kecil": "foto/stok/gitar-akustik-elektrik-fina-frb-55eq-stk-sukwgw-89a733-k.webp"
-    },
-    {
-     "src": "foto/stok/gitar-akustik-elektrik-fina-frb-55eq-stk-sukwgw-64e1f5.webp",
-     "kecil": "foto/stok/gitar-akustik-elektrik-fina-frb-55eq-stk-sukwgw-64e1f5-k.webp"
-    }
-   ],
-   "tingkat": "Good",
-   "fitur": [
-    "Lyrachord",
-    "Ovation Style",
-    "Fiber Back"
-   ],
-   "artikel": 9
-  },
-  {
    "kode": "STK-DN7VY2",
    "kategori": "aksesoris",
    "jenis": "Kabel",
@@ -442,7 +380,7 @@
    "ukuran": "5 Meter",
    "merek": "Beyer",
    "seri": "ISO100LU",
-   "artikel": 10,
+   "artikel": 9,
    "grup": "iso100lu-kabel"
   },
   {
@@ -466,7 +404,7 @@
    "ukuran": "3 Meter",
    "merek": "Beyer",
    "seri": "ISO100LU",
-   "artikel": 11,
+   "artikel": 10,
    "grup": "iso100lu-kabel"
   },
   {
@@ -500,7 +438,7 @@
     "Phosphor Bronze",
     "Warm"
    ],
-   "artikel": 12,
+   "artikel": 11,
    "grup": "sa-senar"
   },
   {
@@ -533,7 +471,7 @@
    "fitur": [
     "Phosphor Bronze"
    ],
-   "artikel": 13,
+   "artikel": 12,
    "grup": "sa-senar"
   },
   {
@@ -564,7 +502,7 @@
    "ukuran": "Hard Tension",
    "merek": "Orphee",
    "seri": "SC",
-   "artikel": 14,
+   "artikel": 13,
    "grup": "sc-senar"
   },
   {
@@ -595,7 +533,7 @@
    "ukuran": "Normal Tension",
    "merek": "Orphee",
    "seri": "SC",
-   "artikel": 15,
+   "artikel": 14,
    "grup": "sc-senar"
   },
   {
@@ -625,7 +563,7 @@
    "ukuran": "009",
    "merek": "Orphee",
    "seri": "QA",
-   "artikel": 16,
+   "artikel": 15,
    "grup": "qa-senar"
   },
   {
@@ -655,7 +593,7 @@
    "ukuran": "010",
    "merek": "Orphee",
    "seri": "QA",
-   "artikel": 17,
+   "artikel": 16,
    "grup": "qa-senar"
   },
   {
@@ -683,7 +621,7 @@
    ],
    "merek": "JOYO",
    "seri": "JCP",
-   "artikel": 18,
+   "artikel": 17,
    "grup": "jcp-capo"
   },
   {
@@ -711,7 +649,7 @@
     "Guitalele"
    ],
    "merek": "TaffStudio",
-   "artikel": 19
+   "artikel": 18
   },
   {
    "kode": "STK-6DZ7XA",
@@ -741,7 +679,7 @@
    ],
    "merek": "JOYO",
    "seri": "JCP",
-   "artikel": 20,
+   "artikel": 19,
    "grup": "jcp-capo"
   },
   {
@@ -771,7 +709,7 @@
    "ukuran": "010",
    "merek": "Orphee",
    "seri": "RX",
-   "artikel": 21,
+   "artikel": 20,
    "grup": "rx-senar"
   },
   {
@@ -801,7 +739,7 @@
    "ukuran": "011",
    "merek": "Orphee",
    "seri": "RX",
-   "artikel": 22,
+   "artikel": 21,
    "grup": "rx-senar"
   },
   {
@@ -831,7 +769,7 @@
    "ukuran": "009",
    "merek": "Orphee",
    "seri": "RX",
-   "artikel": 23,
+   "artikel": 22,
    "grup": "rx-senar"
   },
   {
@@ -860,7 +798,7 @@
    ],
    "ukuran": "Hard Tension",
    "merek": "Orphee",
-   "artikel": 24
+   "artikel": 23
   },
   {
    "kode": "STK-RT4XNQ",
@@ -889,7 +827,7 @@
    "ukuran": "009",
    "merek": "Orphee",
    "seri": "SE",
-   "artikel": 25,
+   "artikel": 24,
    "grup": "se-senar"
   },
   {
@@ -919,7 +857,7 @@
    "ukuran": "011",
    "merek": "Orphee",
    "seri": "SE",
-   "artikel": 26,
+   "artikel": 25,
    "grup": "se-senar"
   },
   {
@@ -949,7 +887,7 @@
    "ukuran": "011",
    "merek": "Orphee",
    "seri": "QE",
-   "artikel": 27,
+   "artikel": 26,
    "grup": "qe-senar"
   },
   {
@@ -979,7 +917,7 @@
    "ukuran": "010",
    "merek": "Orphee",
    "seri": "QE",
-   "artikel": 28,
+   "artikel": 27,
    "grup": "qe-senar"
   },
   {
@@ -1009,7 +947,7 @@
    "ukuran": "009",
    "merek": "Orphee",
    "seri": "QE",
-   "artikel": 29,
+   "artikel": 28,
    "grup": "qe-senar"
   },
   {
@@ -1039,7 +977,7 @@
    "ukuran": "011",
    "merek": "Orphee",
    "seri": "TX",
-   "artikel": 30,
+   "artikel": 29,
    "grup": "tx-senar"
   },
   {
@@ -1074,7 +1012,7 @@
     "Warm",
     "Extra Light"
    ],
-   "artikel": 31,
+   "artikel": 30,
    "grup": "sa-senar"
   },
   {
@@ -1104,7 +1042,7 @@
    "ukuran": "012",
    "merek": "Orphee",
    "seri": "QA",
-   "artikel": 32,
+   "artikel": 31,
    "grup": "qa-senar"
   },
   {
@@ -1134,7 +1072,7 @@
    "ukuran": "011",
    "merek": "Orphee",
    "seri": "QA",
-   "artikel": 33,
+   "artikel": 32,
    "grup": "qa-senar"
   },
   {
@@ -1165,7 +1103,7 @@
    "ukuran": "Hard Tension",
    "merek": "Orphee",
    "seri": "QC",
-   "artikel": 34,
+   "artikel": 33,
    "grup": "qc-senar"
   },
   {
@@ -1196,7 +1134,7 @@
    "ukuran": "Normal Tension",
    "merek": "Orphee",
    "seri": "QC",
-   "artikel": 35,
+   "artikel": 34,
    "grup": "qc-senar"
   },
   {
@@ -1227,7 +1165,7 @@
    "ukuran": "Hard Tension",
    "merek": "Orphee",
    "seri": "NX",
-   "artikel": 36,
+   "artikel": 35,
    "grup": "nx-senar"
   },
   {
@@ -1258,7 +1196,7 @@
    "ukuran": "Normal Tension",
    "merek": "Orphee",
    "seri": "NX",
-   "artikel": 37,
+   "artikel": 36,
    "grup": "nx-senar"
   },
   {
@@ -1288,7 +1226,7 @@
    "ukuran": "010",
    "merek": "Orphee",
    "seri": "TX",
-   "artikel": 38,
+   "artikel": 37,
    "grup": "tx-senar"
   },
   {
@@ -1333,7 +1271,7 @@
     }
    ],
    "tingkat": "Very Good",
-   "artikel": 39
+   "artikel": 38
   },
   {
    "kode": "STK-6J8WP3",
@@ -1381,7 +1319,7 @@
     }
    ],
    "tingkat": "Good",
-   "artikel": 40
+   "artikel": 39
   },
   {
    "kode": "STK-TZEN4Z",
@@ -1437,7 +1375,7 @@
     }
    ],
    "tingkat": "Very Good",
-   "artikel": 41
+   "artikel": 40
   },
   {
    "kode": "STK-U3X8N4",
@@ -1485,7 +1423,7 @@
     }
    ],
    "tingkat": "Excellent",
-   "artikel": 42
+   "artikel": 41
   },
   {
    "kode": "STK-UKV3BK",
@@ -1540,7 +1478,7 @@
      "kecil": "foto/stok/1a1bf9bf8a68cf0ae6df-k.webp"
     }
    ],
-   "artikel": 43
+   "artikel": 42
   },
   {
    "kode": "STK-FBXF37",
@@ -1596,7 +1534,7 @@
     }
    ],
    "tingkat": "Very Good",
-   "artikel": 44
+   "artikel": 43
   },
   {
    "kode": "STK-VM7JT5",
@@ -1624,7 +1562,7 @@
    ],
    "tipe": "Hardcase",
    "ukuran": "Standard Jumbo",
-   "artikel": 45
+   "artikel": 44
   },
   {
    "kode": "STK-SCYBYR",
@@ -1680,7 +1618,7 @@
     }
    ],
    "tingkat": "Very Good",
-   "artikel": 46
+   "artikel": 45
   },
   {
    "kode": "STK-752B52",
@@ -1735,7 +1673,7 @@
      "kecil": "foto/stok/e7844f12235295e49a13-k.webp"
     }
    ],
-   "artikel": 47
+   "artikel": 46
   },
   {
    "kode": "STK-QFV3U3",
@@ -1787,7 +1725,7 @@
     }
    ],
    "tingkat": "Mint",
-   "artikel": 48
+   "artikel": 47
   }
  ],
  "sampul": {
