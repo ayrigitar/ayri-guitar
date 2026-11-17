@@ -305,31 +305,6 @@
    "grup": "awr486-senar"
   },
   {
-   "kode": "STK-8N6JKP",
-   "kategori": "aksesoris",
-   "jenis": "Senar",
-   "kondisi": "baru",
-   "nama": "Alice AWR486 L",
-   "warna": "",
-   "deskripsi": "Senar L ukuran 012 dirancang khusus untuk gitar akustik, memberikan respons yang cepat dan nada yang hangat. Nano Coating melindungi senar dari korosi, sehingga umur pakainya lebih lama dan suara tetap bersih. Kombinasi bahan Phosphor Bronze menambah kejernihan serta sustain yang kuat. 🎸 Yuk, coba langsung di toko kami!",
-   "harga": 200000,
-   "status": "tersedia",
-   "sisa": 1,
-   "foto": [],
-   "alat": [
-    "Gitar Akustik"
-   ],
-   "ukuran": "012",
-   "merek": "Alice",
-   "seri": "AWR486",
-   "fitur": [
-    "Nano Coating",
-    "Phosphor Bronze"
-   ],
-   "artikel": 7,
-   "grup": "awr486-senar"
-  },
-  {
    "kode": "STK-BNWXEH",
    "kategori": "aksesoris",
    "jenis": "Senar",
@@ -356,8 +331,38 @@
    "ukuran": "010",
    "merek": "Orphee",
    "seri": "SE",
-   "artikel": 8,
+   "artikel": 7,
    "grup": "se-senar"
+  },
+  {
+   "kode": "STK-8N6JKP",
+   "kategori": "aksesoris",
+   "jenis": "Senar",
+   "kondisi": "baru",
+   "nama": "Alice AWR486 L",
+   "warna": "",
+   "deskripsi": "Senar L ukuran 012 dirancang khusus untuk gitar akustik, memberikan respons yang cepat dan nada yang hangat. Nano Coating melindungi senar dari korosi, sehingga umur pakainya lebih lama dan suara tetap bersih. Kombinasi bahan Phosphor Bronze menambah kejernihan serta sustain yang kuat. 🎸 Yuk, coba langsung di toko kami!",
+   "harga": 200000,
+   "status": "tersedia",
+   "sisa": 1,
+   "foto": [
+    {
+     "src": "foto/stok/senar-gitar-akustik-alice-awr486-l-ukuran-012-stk-8n6jkp-989c1f.webp",
+     "kecil": "foto/stok/senar-gitar-akustik-alice-awr486-l-ukuran-012-stk-8n6jkp-989c1f-k.webp"
+    }
+   ],
+   "alat": [
+    "Gitar Akustik"
+   ],
+   "ukuran": "012",
+   "merek": "Alice",
+   "seri": "AWR486",
+   "fitur": [
+    "Nano Coating",
+    "Phosphor Bronze"
+   ],
+   "artikel": 8,
+   "grup": "awr486-senar"
   },
   {
    "kode": "STK-DN7VY2",
