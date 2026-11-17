@@ -240,36 +240,6 @@
    "grup": "iso100lu-kabel"
   },
   {
-   "kode": "STK-YR7ACG",
-   "kategori": "aksesoris",
-   "jenis": "Senar",
-   "kondisi": "baru",
-   "nama": "Orphee RX19",
-   "warna": "",
-   "deskripsi": "Senar gitar listrik Orphee RX19 ukuran 011-050 dalam kondisi baru, siap pakai untuk menggantikan senar lama Anda. Berdasarkan keterangan pada kemasan, senar ini terbuat dari paduan nikel dengan teknologi hexagonal core yang dirancang untuk memberikan resonansi dan sustain yang lebih baik. Coklat keperakan dengan kemasan plastik tertutup rapat menjaga senar tetap bersih dan bebas karat hingga saat pemasangan. Yuk, mampir langsung ke Toko Gitar AYRI di Bogor untuk cek kualitasnya dan tanya-tanya kebutuhan senar lainnya. 🎸",
-   "harga": 40000,
-   "status": "tersedia",
-   "sisa": null,
-   "foto": [
-    {
-     "src": "foto/stok/orphee-rx19-gitar-listrik-ukuran-011-stk-yr7acg-342caf.webp",
-     "kecil": "foto/stok/orphee-rx19-gitar-listrik-ukuran-011-stk-yr7acg-342caf-k.webp"
-    },
-    {
-     "src": "foto/stok/orphee-rx19-gitar-listrik-ukuran-011-stk-yr7acg-54d366.webp",
-     "kecil": "foto/stok/orphee-rx19-gitar-listrik-ukuran-011-stk-yr7acg-54d366-k.webp"
-    }
-   ],
-   "alat": [
-    "Gitar Elektrik"
-   ],
-   "ukuran": "011",
-   "merek": "Orphee",
-   "seri": "RX",
-   "artikel": 8,
-   "grup": "rx-senar"
-  },
-  {
    "kode": "STK-NZGV2M",
    "kategori": "aksesoris",
    "jenis": "Senar",
@@ -296,7 +266,7 @@
    "ukuran": "010",
    "merek": "Orphee",
    "seri": "TX",
-   "artikel": 9,
+   "artikel": 8,
    "grup": "tx-senar"
   },
   {
@@ -327,7 +297,7 @@
    "ukuran": "Normal Tension",
    "merek": "Orphee",
    "seri": "NX",
-   "artikel": 10,
+   "artikel": 9,
    "grup": "nx-senar"
   },
   {
@@ -358,7 +328,7 @@
    "ukuran": "Hard Tension",
    "merek": "Orphee",
    "seri": "NX",
-   "artikel": 11,
+   "artikel": 10,
    "grup": "nx-senar"
   },
   {
@@ -389,7 +359,7 @@
    "ukuran": "Normal Tension",
    "merek": "Orphee",
    "seri": "QC",
-   "artikel": 12,
+   "artikel": 11,
    "grup": "qc-senar"
   },
   {
@@ -420,7 +390,7 @@
    "ukuran": "Hard Tension",
    "merek": "Orphee",
    "seri": "QC",
-   "artikel": 13,
+   "artikel": 12,
    "grup": "qc-senar"
   },
   {
@@ -450,7 +420,7 @@
    "ukuran": "011",
    "merek": "Orphee",
    "seri": "QA",
-   "artikel": 14,
+   "artikel": 13,
    "grup": "qa-senar"
   },
   {
@@ -480,7 +450,7 @@
    "ukuran": "012",
    "merek": "Orphee",
    "seri": "QA",
-   "artikel": 15,
+   "artikel": 14,
    "grup": "qa-senar"
   },
   {
@@ -515,7 +485,7 @@
     "Warm",
     "Extra Light"
    ],
-   "artikel": 16,
+   "artikel": 15,
    "grup": "sa-senar"
   },
   {
@@ -545,7 +515,7 @@
    "ukuran": "011",
    "merek": "Orphee",
    "seri": "TX",
-   "artikel": 17,
+   "artikel": 16,
    "grup": "tx-senar"
   },
   {
@@ -575,7 +545,7 @@
    "ukuran": "009",
    "merek": "Orphee",
    "seri": "QE",
-   "artikel": 18,
+   "artikel": 17,
    "grup": "qe-senar"
   },
   {
@@ -605,7 +575,7 @@
    "ukuran": "010",
    "merek": "Orphee",
    "seri": "QE",
-   "artikel": 19,
+   "artikel": 18,
    "grup": "qe-senar"
   },
   {
@@ -635,7 +605,7 @@
    "ukuran": "011",
    "merek": "Orphee",
    "seri": "QE",
-   "artikel": 20,
+   "artikel": 19,
    "grup": "qe-senar"
   },
   {
@@ -665,7 +635,7 @@
    "ukuran": "011",
    "merek": "Orphee",
    "seri": "SE",
-   "artikel": 21,
+   "artikel": 20,
    "grup": "se-senar"
   },
   {
@@ -695,7 +665,7 @@
    "ukuran": "009",
    "merek": "Orphee",
    "seri": "SE",
-   "artikel": 22,
+   "artikel": 21,
    "grup": "se-senar"
   },
   {
@@ -724,7 +694,7 @@
    ],
    "ukuran": "Hard Tension",
    "merek": "Orphee",
-   "artikel": 23
+   "artikel": 22
   },
   {
    "kode": "STK-AKSTPX",
@@ -751,6 +721,36 @@
     "Gitar Elektrik"
    ],
    "ukuran": "009",
+   "merek": "Orphee",
+   "seri": "RX",
+   "artikel": 23,
+   "grup": "rx-senar"
+  },
+  {
+   "kode": "STK-YR7ACG",
+   "kategori": "aksesoris",
+   "jenis": "Senar",
+   "kondisi": "baru",
+   "nama": "Orphee RX19",
+   "warna": "",
+   "deskripsi": "Senar gitar listrik Orphee RX19 ukuran 011-050 dalam kondisi baru, siap pakai untuk menggantikan senar lama Anda. Berdasarkan keterangan pada kemasan, senar ini terbuat dari paduan nikel dengan teknologi hexagonal core yang dirancang untuk memberikan resonansi dan sustain yang lebih baik. Coklat keperakan dengan kemasan plastik tertutup rapat menjaga senar tetap bersih dan bebas karat hingga saat pemasangan. Yuk, mampir langsung ke Toko Gitar AYRI di Bogor untuk cek kualitasnya dan tanya-tanya kebutuhan senar lainnya. 🎸",
+   "harga": 40000,
+   "status": "tersedia",
+   "sisa": null,
+   "foto": [
+    {
+     "src": "foto/stok/orphee-rx19-gitar-listrik-ukuran-011-stk-yr7acg-342caf.webp",
+     "kecil": "foto/stok/orphee-rx19-gitar-listrik-ukuran-011-stk-yr7acg-342caf-k.webp"
+    },
+    {
+     "src": "foto/stok/orphee-rx19-gitar-listrik-ukuran-011-stk-yr7acg-54d366.webp",
+     "kecil": "foto/stok/orphee-rx19-gitar-listrik-ukuran-011-stk-yr7acg-54d366-k.webp"
+    }
+   ],
+   "alat": [
+    "Gitar Elektrik"
+   ],
+   "ukuran": "011",
    "merek": "Orphee",
    "seri": "RX",
    "artikel": 24,
@@ -1381,10 +1381,10 @@
   "sa-senar": {
    "kolase": true
   },
-  "rx-senar": {
+  "se-senar": {
    "kolase": true
   },
-  "se-senar": {
+  "rx-senar": {
    "kolase": true
   }
  }
