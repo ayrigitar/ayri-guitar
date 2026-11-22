@@ -1572,6 +1572,20 @@
         if (ada) return st === 'dipesan' && tahan ? 'dipesan' : 'tersedia';
         return tahan ? 'dipesan' : 'terjual';
     };
+    /* gitar seken: tiap unit punya catatan sendiri (foto, kemulusan, no. seri, modal, riwayat jual). Unit lain dengan merek & model
+       yang sama dibuat dari catatan lama lewat "Restock unit serupa", bukan dengan mengisi ulang catatan lama. Titipan tidak (milik orang lain). */
+    L.bisaRestockSerupa = function (s) { return !!(s && s.kategori !== 'aksesoris' && s.kondisi === 'bekas' && !s.sumber_titip); };
+    /* yang sama untuk semua unit ikut disalin; yang khas per unit dikosongkan. kosong = stok baru kosong dari form */
+    L.SALIN_SERUPA = ['kategori', 'kondisi', 'gitar_jenis', 'merek', 'gitar_merk', 'tipe', 'warna', 'deskripsi', 'harga_jual'];
+    L.salinUnitSerupa = function (s, kosong) {
+        var r = kosong;
+        L.SALIN_SERUPA.forEach(function (k) { if (s[k] != null) r[k] = s[k]; });
+        r.fitur = (s.fitur || []).slice();
+        r.tingkat = ''; r.no_seri = ''; r.harga_beli = 0; r.asal = ''; r.foto = []; r.penjualan = [];
+        r.jumlah = 1; r.status = 'tersedia'; r.tampil = true; r.tgl_masuk = L.hariIni();
+        r.catatan_admin = '[' + L.tgl(L.hariIni()) + '] Unit serupa dari ' + s.kode + '.';
+        return r;
+    };
     /* barang yang Ditarik karena stoknya habis (mis. hasil opname), lalu jumlahnya diisi lagi di form stok: tanyakan apakah dijual lagi.
        Ditarik yang jumlahnya masih ada (dipilih sendiri, titipan diambil) tidak ditanya. */
     L.ditarikDiisiLagi = function (asli, s) {
