@@ -3622,6 +3622,10 @@
             masuk = +s.jumlah - +asli.jumlah;
             if (!confirm('Tambah stok +' + masuk + ' (dari ' + asli.jumlah + ' jadi ' + s.jumlah + ')?\n\nPenjualan lama (' + aktifJ.map(function (j) { return j.kode; }).join(', ') + ') tetap tercatat dan tidak berubah.')) return;
         }
+        /* Ditarik karena habis, lalu stok diisi lagi: tanyakan, jangan diam-diam tetap Ditarik */
+        if (L.ditarikDiisiLagi(asli, s) && confirm('Barang ini Ditarik karena stoknya habis. Stok sekarang ' + s.jumlah + ': jadikan Tersedia lagi (bisa dijual dan tampil di katalog)?\n\nBatal = tetap Ditarik.')) {
+            s.status = 'tersedia'; masuk = +s.jumlah;
+        }
         if (s.status === 'tersedia' && !(+s.jumlah > 0)) return toast('Jumlah tersedia masih 0, jadi barang tetap Terjual. Isi jumlah 1 bila barangnya memang ada lagi.', true);
         s.merek = String(s.merek || '').trim();
         if (sk.baru && !s.merek) return toast('Isi merek.', true);
