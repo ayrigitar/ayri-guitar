@@ -1493,6 +1493,15 @@
         return s;
     };
     L.namaFotoStok = function (s) { return L.slugFoto(L.judulStok(s) + ' ' + (s.warna || ''), 60) + (s.kode ? '-' + String(s.kode).toLowerCase() : ''); };
+    /* Barang yang tercatat terjual lewat transaksi, lalu diubah di form stok: 'blokir' = tolak (barang bekas itu satuan: batalkan transaksinya),
+       'tambah' = stok masuk lagi (aksesoris/barang baru dibeli ulang: penjualan lama tetap), null = tidak ada yang perlu dicegah/ditanyakan */
+    L.ubahStokTerjual = function (asli, s, jualAktif) {
+        if (!asli || asli.status !== 'terjual' || !(jualAktif || []).length) return null;
+        var naik = +s.jumlah > +asli.jumlah, pulih = s.status === 'tersedia' || s.status === 'dipesan';
+        if (!naik && !pulih) return null;
+        if (asli.kondisi === 'bekas' && asli.kategori !== 'aksesoris') return 'blokir';
+        return naik ? 'tambah' : null;
+    };
     L.STATUS_STOK = { tersedia: 'Tersedia', dipesan: 'Dipesan', terjual: 'Terjual', ditarik: 'Ditarik' };
     /* merek dan model dipisah (s.merek + s.gitar_merk / s.nama); stok lama yang nama/model-nya sudah memuat merek ("Yamaha F310") tidak digandakan */
     L.namaStok = function (s) {
