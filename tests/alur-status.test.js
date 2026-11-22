@@ -1,7 +1,7 @@
 'use strict';
-/* Tahap 0 (tes pengunci): perilaku alur status HARI INI, sebelum aturannya dipindah ke satu tabel.
-   Tidak ada yang diubah. Baris yang ditandai CELAH adalah perilaku yang sudah diketahui tidak konsisten; tesnya
-   sengaja diubah di PR yang memperbaikinya, supaya perubahan perilaku selalu terlihat dan disengaja.
+/* Tes pengunci alur status. Tahap 0 merekam perilaku apa adanya; baris yang ditandai CELAH adalah perilaku yang sudah
+   diketahui tidak konsisten, dan tesnya sengaja diubah di PR yang memperbaikinya, supaya perubahan perilaku selalu terlihat dan disengaja.
+   Tahap 1 (servis): papan antrian dan form servis memakai satu aturan, L.cekPindahServis / L.terapkanPindahServis.
 
    Bagian 1: aturan pindah status di admin.js (papan antrian servis, form servis, tebus, titip), fungsi aslinya dijalankan dengan tiruan layar.
    Bagian 2: apa yang dilakukan Layanan.api saat menyimpan status (tanggal, status turunan stok & jual) terhadap GitHub palsu. */
@@ -39,11 +39,14 @@ function layar(L, jawab) {
         salin: (x) => JSON.parse(JSON.stringify(x)),
         A: { simpanServis: (s) => { catat.simpan.push(s); return Promise.resolve(s); } },
         taruh() {}, gambarDaftar() {}, gambarStatus() {}, gambarRingkas() {}, gambarStatusTebus() {}, gambarStatusTitip() {},
-        setDirty() {}, $: () => null, waServis: () => '', gagal() {}
+        setDirty() {}, $: () => null, app: null, waServis: () => '', gagal() {},
+        /* untuk simpanServis: hanya sampai A.simpanServis dipanggil */
+        pemilik: true, owner: () => ctx.pemilik, validasi: () => '', teksUnggah: () => '',
+        prosesSimpan: (j, btn, teks, kerja) => { kerja(); }
     };
     vm.createContext(ctx);
     vm.runInContext('var ed, te, tp, menyimpan, rekaman = {}; function cariId(j, id) { return rekaman[id]; }\n' +
-        ['geserServis', 'ubahStatus', 'ubahStatusTebus', 'ubahStatusTitip'].map(ambilFungsi).join('\n'), ctx);
+        ['bolehPindahServis', 'geserServis', 'ubahStatus', 'simpanServis', 'ubahStatusTebus', 'ubahStatusTitip'].map(ambilFungsi).join('\n'), ctx);
     return ctx;
 }
 const kartu = { classList: { add() {}, remove() {} } };
@@ -93,15 +96,65 @@ test('servis, form: boleh lompat ke status mana saja; konfirmasi untuk DP kurang
     assert.equal(c.ed.s.status, 'dikerjakan'); assert.equal(c.catat.tanya.length, 0, 'dari Batal kembali aktif tanpa pertanyaan');
 });
 
-test('servis, form: CELAH (beda dengan papan) mundur dari Selesai tidak menghapus tanggal selesai; kembali ke Menunggu DP diizinkan', async () => {
+test('servis, form = papan (tahap 1): mundur dari Selesai menghapus tanggal selesai; kembali ke Menunggu DP ditolak bila DP sudah masuk', async () => {
     const { L } = await mulai();
     let c = layar(L, true); c.ed = { s: sv({ status: 'selesai', bayar: lunasDp, tgl_selesai: '2026-11-05' }), antri: [] };
     c.ubahStatus('dikerjakan');
-    assert.equal(c.ed.s.status, 'dikerjakan'); assert.equal(c.ed.s.tgl_selesai, '2026-11-05');
+    assert.equal(c.ed.s.status, 'dikerjakan'); assert.equal(c.ed.s.tgl_selesai, undefined, 'diisi lagi saat selesai lagi');
+    c = layar(L, true); c.ed = { s: sv({ status: 'diambil', bayar: lunasDp, tgl_selesai: '2026-11-05', tgl_diambil: '2026-11-07' }), antri: [] };
+    c.ubahStatus('selesai');
+    assert.equal(c.ed.s.tgl_selesai, '2026-11-05', 'masih selesai: tanggalnya tetap'); assert.equal(c.ed.s.tgl_diambil, undefined);
     c = layar(L, true); c.ed = { s: sv({ status: 'antri', bayar: lunasDp }), antri: [] };
     c.ubahStatus('menunggu_dp');
-    assert.equal(c.ed.s.status, 'menunggu_dp', 'form mengizinkan; simpanServis lalu menaikkannya lagi ke Antri');
-    assert.match(ambilFungsi('simpanServis'), /rec\.status === 'menunggu_dp' && h\.total > 0 && h\.kurangAwal === 0\) rec\.status = 'antri'/);
+    assert.equal(c.ed.s.status, 'antri', 'ditolak, sama dengan papan'); assert.match(c.catat.toast[0], /tidak bisa kembali ke Menunggu DP/);
+    c = layar(L, true); c.ed = { s: sv({ status: 'antri' }), antri: [] };
+    c.ubahStatus('menunggu_dp');
+    assert.equal(c.ed.s.status, 'menunggu_dp', 'DP belum masuk: boleh kembali ke Menunggu DP');
+    c = layar(L, true); c.ed = { s: sv({ status: 'selesai', tgl_selesai: '2026-11-05' }), antri: [] };
+    c.ubahStatus('dikerjakan');
+    assert.equal(c.ed.s.status, 'dikerjakan'); assert.equal(c.catat.tanya.length, 0, 'mundur untuk dikerjakan ulang: tidak ditanya soal DP');
+    c = layar(L, true); c.ed = { s: sv({ status: 'selesai', bayar: lunasDp, tgl_selesai: '2026-11-05' }), antri: [] };
+    c.ubahStatus('batal');
+    assert.equal(c.ed.s.tgl_selesai, '2026-11-05', 'Batal tidak menghapus tanggal');
+});
+
+test('servis, papan dan form memakai pertanyaan yang sama (satu aturan di layanan.js)', async () => {
+    const { L } = await mulai();
+    let c = layar(L, true); c.rekaman.s1 = sv({ status: 'selesai' });
+    c.geserServis('s1', 1, kartu);
+    const papan = c.catat.tanya.slice();
+    c = layar(L, true); c.ed = { s: sv({ status: 'selesai' }), antri: [] };
+    c.ubahStatus('diambil');
+    assert.deepEqual(c.catat.tanya, papan); assert.match(papan[0], /Sebaiknya terima pembayaran lewat Kasir/);
+    c = layar(L, true); c.rekaman.s1 = sv({ status: 'antri' });
+    c.geserServis('s1', 1, kartu);
+    const papan2 = c.catat.tanya.slice();
+    c = layar(L, true); c.ed = { s: sv({ status: 'antri' }), antri: [] };
+    c.ubahStatus('dikerjakan');
+    assert.deepEqual(c.catat.tanya, papan2); assert.match(papan2[0], /Pembayaran awal masih kurang/);
+    assert.match(ambilFungsi('ubahStatus'), /tsEl\.closest\('\.ly-row2'\)\.hidden = !L\.beres\(ed\.s\)/, 'kolom Tanggal selesai disembunyikan saat dibuka lagi');
+    for (const f of ['geserServis', 'ubahStatus']) assert.doesNotMatch(ambilFungsi(f), /confirm\(|delete s|delete ed/, f + ': aturannya tidak ditulis ulang di sini');
+});
+
+test('servis dibuka lagi dari Selesai: dicatat di catatan internal; diselesaikan lagi sebelum disimpan = tanggal tetap', async () => {
+    const { L } = await mulai();
+    const tersimpan = sv({ status: 'selesai', bayar: lunasDp, tgl_selesai: '2026-11-05', catatan_admin: 'lama' });
+    let c = layar(L, true); c.rekaman.s1 = tersimpan;
+    c.geserServis('s1', -1, kartu);
+    assert.match(c.catat.simpan[0].catatan_admin, /^lama\n\[.+\] Dibuka lagi: Selesai – bisa diambil → Sedang dikerjakan \(tanggal selesai lama .+\)/);
+    c = layar(L, true); c.rekaman.s1 = tersimpan; c.ed = { baru: false, s: JSON.parse(JSON.stringify(tersimpan)), antri: [] };
+    c.ubahStatus('dikerjakan'); c.simpanServis();
+    assert.equal(c.catat.simpan[0].tgl_selesai, undefined); assert.match(c.catat.simpan[0].catatan_admin, /Dibuka lagi/);
+    for (const pemilik of [true, false]) {
+        c = layar(L, true); c.pemilik = pemilik; c.rekaman.s1 = tersimpan; c.ed = { baru: false, s: JSON.parse(JSON.stringify(tersimpan)), antri: [] };
+        c.ubahStatus('dikerjakan'); c.ubahStatus('selesai'); c.simpanServis();
+        assert.equal(c.catat.simpan[0].tgl_selesai, '2026-11-05', 'tidak ada yang berubah (pemilik: ' + pemilik + ')');
+        assert.equal(c.catat.simpan[0].catatan_admin, 'lama', 'tanpa catatan');
+    }
+    c = layar(L, true); c.rekaman.s1 = sv({ status: 'dikerjakan', bayar: lunasDp }); c.ed = { baru: false, s: sv({ status: 'dikerjakan', bayar: lunasDp }), antri: [] };
+    c.ubahStatus('selesai'); c.simpanServis();
+    assert.equal(c.catat.simpan[0].tgl_selesai, undefined, 'belum pernah selesai: tanggal diisi api saat menyimpan');
+    assert.match(ambilFungsi('simpanServis'), /rec\.status === 'menunggu_dp' && h\.total > 0 && h\.kurangAwal === 0\) rec\.status = 'antri'/, 'DP lunas saat disimpan: otomatis Antri');
 });
 
 test('tebus, form: pindah ke status mana saja; konfirmasi hanya saat masuk Milik toko (sebelum batas), Ditebus, Batal', async () => {

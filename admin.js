@@ -916,14 +916,16 @@
             }).join('') : '<p class="kb-kosong">Tidak ada</p>') + (lebih ? '<p class="kb-kosong">+' + lebih + ' lagi di tampilan Daftar</p>' : '') + '</div></div>';
         }).join('') + '</div>';
     }
-    /* pindah status dari papan: aturan & konfirmasi sama dengan form servis */
+    /* aturan pindah status servis ada di L.cekPindahServis / L.terapkanPindahServis: sama untuk papan antrian dan form */
+    function bolehPindahServis(s, ke) {
+        var c = L.cekPindahServis(s, ke, L.hitung(s, s.items, s.bayar));
+        if (c.tolak) { toast(c.tolak, true); return false; }
+        return c.tanya.every(function (t) { return confirm(t); });
+    }
     function geserServis(id, arah, kartu) {
-        var s = salin(cariId('servis', id)), i = L.URUT_STATUS.indexOf(s.status), st = L.URUT_STATUS[i + arah], h = L.hitung(s, s.items, s.bayar);
-        if (!st) return;
-        if ((st === 'dikerjakan' || st === 'antri') && arah > 0 && h.kurangAwal > 0 && !confirm('Pembayaran awal masih kurang ' + L.rupiah(h.kurangAwal) + '. Aturan toko: dikerjakan setelah DP dan part lunas.\n\nTetap ubah status?')) return;
-        if (st === 'diambil' && h.sisa > 0 && !confirm('Masih ada sisa pembayaran ' + L.rupiah(h.sisa) + '. Sebaiknya terima pembayaran lewat Kasir.\n\nTetap tandai sudah diambil?')) return;
-        if (st === 'menunggu_dp' && h.total > 0 && h.kurangAwal === 0) return toast('Pembayaran awal sudah terpenuhi, jadi status tidak bisa kembali ke Menunggu DP.', true);
-        s.status = st; if (arah < 0 && st !== 'selesai' && st !== 'diambil') { delete s.tgl_selesai; } if (arah < 0 && st !== 'diambil') delete s.tgl_diambil;
+        var lama = cariId('servis', id), s = salin(lama), st = L.URUT_STATUS[L.URUT_STATUS.indexOf(s.status) + arah];
+        if (!st || !bolehPindahServis(s, st)) return;
+        L.catatBukaUlang(lama, L.terapkanPindahServis(s, st));
         kartu.classList.add('sibuk'); menyimpan = true;
         A.simpanServis(s, []).then(function (row) {
             menyimpan = false; taruh('servis', row); gambarDaftar();
@@ -1778,12 +1780,9 @@
         }
     }
     function ubahStatus(st) {
-        var h = L.hitung(ed.s, ed.s.items, ed.s.bayar);
-        if (st === ed.s.status) return;
-        if ((st === 'dikerjakan' || st === 'antri') && h.kurangAwal > 0 && !confirm('Pembayaran awal masih kurang ' + L.rupiah(h.kurangAwal) + '. Aturan toko: dikerjakan setelah DP dan part lunas.\n\nTetap ubah status?')) return;
-        if (st === 'diambil' && h.sisa > 0 && !confirm('Masih ada sisa pembayaran ' + L.rupiah(h.sisa) + '. Tandai sudah diambil?')) return;
-        if (st === 'batal' && !confirm('Tandai servis ini dibatalkan? Pelanggan tidak bisa lagi membuka status dan notanya.')) return;
-        ed.s.status = st; gambarStatus(); gambarRingkas(); setDirty(true);
+        if (st === ed.s.status || !bolehPindahServis(ed.s, st)) return;
+        L.terapkanPindahServis(ed.s, st); gambarStatus(); gambarRingkas(); setDirty(true);
+        var tsEl = $('[data-f="tgl_selesai"]', app); if (tsEl) tsEl.closest('.ly-row2').hidden = !L.beres(ed.s); /* dibuka lagi: tanggal selesai lama tidak ditampilkan/diubah */
         var wa = $('#sv-wa'); if (wa) wa.innerHTML = waServis();
         if (st === 'selesai' && !ed.s.foto.concat(ed.antri).some(function (f) { return f.tahap === 'sesudah'; })) toast('Jangan lupa tambahkan foto sesudah servis dan saran untuk pelanggan.');
     }
@@ -1824,7 +1823,10 @@
         if (rec.status === 'menunggu_dp' && h.total > 0 && h.kurangAwal === 0) rec.status = 'antri';
         /* tanggal selesai: hanya pemilik yang mengubahnya; perubahan dicatat (hitungan gratis titip dan garansi ikut tanggal ini) */
         var tersimpan = !baru && cariId('servis', ed.s.id), tglBerubah = false;
-        if (tersimpan && tersimpan.tgl_selesai && rec.tgl_selesai !== tersimpan.tgl_selesai) {
+        /* dibuka lagi lalu diselesaikan lagi sebelum disimpan: tanggal selesai yang tersimpan tidak berubah */
+        if (tersimpan && tersimpan.tgl_selesai && L.beres(rec) && !rec.tgl_selesai) rec.tgl_selesai = tersimpan.tgl_selesai;
+        L.catatBukaUlang(tersimpan, rec);
+        if (tersimpan && tersimpan.tgl_selesai && L.beres(rec) && rec.tgl_selesai !== tersimpan.tgl_selesai) {
             if (!owner()) rec.tgl_selesai = tersimpan.tgl_selesai;
             else { tglBerubah = true; rec.catatan_admin = (rec.catatan_admin ? rec.catatan_admin + '\n' : '') + '[' + L.tgl(L.hariIni()) + '] Tanggal selesai diubah dari ' + L.tgl(tersimpan.tgl_selesai) + ' ke ' + L.tgl(rec.tgl_selesai) + ' (servis ulang / koreksi).'; }
         }
