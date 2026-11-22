@@ -1529,6 +1529,25 @@
         return naik ? 'tambah' : null;
     };
     L.STATUS_STOK = { tersedia: 'Tersedia', dipesan: 'Dipesan', terjual: 'Terjual', ditarik: 'Ditarik' };
+    /* status stok: SATU aturan, dipakai saat stok disimpan, saat transaksi jual berubah, dan saat opname disesuaikan.
+       Terjual = habis karena penjualan. Ditarik = keluar dari stok BUKAN karena dijual (bonus, rusak, titipan diambil);
+       Ditarik hanya diubah lewat pilihan di form stok. Dipesan = masih ditahan pesanan DP/lunas yang berjalan.
+       o.ditahan: ada transaksi aktif yang menahan barang ini (tanpa o.ditahan: dianggap ditahan bila statusnya Dipesan).
+       o.sebab === 'opname': hitung fisik. Habis tanpa penjualan = Ditarik; ada lagi setelah Terjual = Tersedia; selain itu tetap. */
+    L.statusStok = function (s, o) {
+        o = o || {};
+        var st = s.status, ada = +s.jumlah > 0;
+        if (st === 'ditarik') return 'ditarik';
+        if (o.sebab === 'opname') return ada ? (st === 'terjual' ? 'tersedia' : st) : (st === 'tersedia' ? 'ditarik' : st);
+        var tahan = o.ditahan === undefined ? st === 'dipesan' : o.ditahan;
+        if (ada) return st === 'dipesan' && tahan ? 'dipesan' : 'tersedia';
+        return tahan ? 'dipesan' : 'terjual';
+    };
+    /* barang yang Ditarik karena stoknya habis (mis. hasil opname), lalu jumlahnya diisi lagi di form stok: tanyakan apakah dijual lagi.
+       Ditarik yang jumlahnya masih ada (dipilih sendiri, titipan diambil) tidak ditanya. */
+    L.ditarikDiisiLagi = function (asli, s) {
+        return !!(asli && asli.status === 'ditarik' && !(+asli.jumlah > 0) && s.status === 'ditarik' && +s.jumlah > 0);
+    };
     /* merek dan model dipisah (s.merek + s.gitar_merk / s.nama); stok lama yang nama/model-nya sudah memuat merek ("Yamaha F310") tidak digandakan */
     L.namaStok = function (s) {
         var aks = s.kategori === 'aksesoris', dasar = String((aks ? s.nama : s.gitar_merk) || '').trim(), m = String(s.merek || '').trim();
@@ -1766,7 +1785,7 @@
         rec.foto = rec.foto || []; rec.penjualan = rec.penjualan || []; rec.updated_at = sekarang;
         var namaDasar = L.namaFotoStok(rec); /* foto baru diberi nama dari merk/model, warna, dan kode */
         /* habis tapi masih ditahan pesanan DP: tetap Dipesan */
-        if (rec.status !== 'ditarik') rec.status = +rec.jumlah > 0 ? (rec.status === 'dipesan' ? 'dipesan' : 'tersedia') : (rec.status === 'dipesan' ? 'dipesan' : 'terjual');
+        rec.status = L.statusStok(rec);
         /* foto lama yang masih terenkripsi (dari tebus / versi sebelumnya) dijadikan foto produk publik; file lamanya
            terhapus lewat hapusFotoHilang karena id-nya berganti */
         return cekBentrok('stok', rec, dasar, lama).then(function () {
@@ -1875,11 +1894,9 @@
     }
     /* status barang setelah transaksi berubah: habis + masih ada pesanan berjalan = Dipesan, habis saja = Terjual */
     function statusStokDari(s, jualList) {
-        if (s.status === 'ditarik') return 'ditarik';
         var ditahan = jualList.some(function (j) { return (j.status === 'dp' || j.status === 'lunas') && (j.items || []).some(function (i) { return i.stok_id === s.id; }); });
         /* masih ada unit: tetap "Dipesan" hanya selama memang ada pesanan berjalan; pesanan batal/dihapus mengembalikannya jadi Tersedia */
-        if (+s.jumlah > 0) return s.status === 'dipesan' && ditahan ? 'dipesan' : 'tersedia';
-        return ditahan ? 'dipesan' : 'terjual';
+        return L.statusStok(s, { ditahan: ditahan });
     }
     /* terapkan transaksi ke daftar stok (jumlah + catatan penjualan). aktif = transaksi masih menahan barang */
     function terapkanStok(rec, stokList, aktifLama, aktifBaru) {
@@ -2039,8 +2056,7 @@
                     /* dihitung ulang dari jumlah di repo saat ini: penjualan sejak hitung fisik tetap terhitung */
                     var beda = it.fisik - it.sistem; s.jumlah = Math.max(0, (+s.jumlah || 0) + beda); s.updated_at = sekarang;
                     s.catatan_admin = ((s.catatan_admin ? s.catatan_admin + '\n' : '') + 'Opname ' + rec.kode + ' ' + L.tgl(t) + ': ' + (beda > 0 ? '+' : '') + beda + (it.catatan ? ' (' + it.catatan + ')' : '')).slice(-600);
-                    if (+s.jumlah > 0 && (s.status === 'terjual')) s.status = 'tersedia';
-                    if (!(+s.jumlah > 0) && s.status === 'tersedia') s.status = 'ditarik';
+                    s.status = L.statusStok(s, { sebab: 'opname' });
                     ubah = true;
                 });
                 h = { list: list, stok: stok, ubah: ubah };

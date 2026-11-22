@@ -258,3 +258,33 @@ test('api tebus, titip, sewa: tanggal diisi saat masuk status akhir; status bisa
     w = await A.simpanSewa(Object.assign({}, w, { status: 'aktif' }), []);
     assert.equal(w.status, 'aktif'); assert.equal(w.tgl_kembali, hariIni());
 });
+
+/* ---------- Tahap 2: status stok dari satu aturan (L.statusStok) ---------- */
+test('stok, tahap 2: L.statusStok sama persis dengan tiga rumus lama (simpan stok, transaksi jual, opname) untuk semua kombinasi', async () => {
+    const { L } = await mulai();
+    const lamaSimpan = (s) => s.status !== 'ditarik' ? (+s.jumlah > 0 ? (s.status === 'dipesan' ? 'dipesan' : 'tersedia') : (s.status === 'dipesan' ? 'dipesan' : 'terjual')) : 'ditarik';
+    const lamaJual = (s, ditahan) => s.status === 'ditarik' ? 'ditarik' : +s.jumlah > 0 ? (s.status === 'dipesan' && ditahan ? 'dipesan' : 'tersedia') : (ditahan ? 'dipesan' : 'terjual');
+    const lamaOpname = (s) => { let st = s.status; if (+s.jumlah > 0 && st === 'terjual') st = 'tersedia'; if (!(+s.jumlah > 0) && st === 'tersedia') st = 'ditarik'; return st; };
+    for (const status of ['tersedia', 'dipesan', 'terjual', 'ditarik', undefined]) for (const jumlah of [0, 1, 5, undefined]) {
+        const s = { status, jumlah }, k = JSON.stringify(s);
+        assert.equal(L.statusStok(s), lamaSimpan(s), 'simpan ' + k);
+        for (const ditahan of [true, false]) assert.equal(L.statusStok(s, { ditahan }), lamaJual(s, ditahan), 'jual ' + ditahan + ' ' + k);
+        if (status) assert.equal(L.statusStok(s, { sebab: 'opname' }), lamaOpname(s), 'opname ' + k);
+    }
+    const kode = baca('layanan.js');
+    assert.equal((kode.match(/status = 'ditarik'|=== 'tersedia'\) s\.status/g) || []).length, 0, 'tidak ada rumus status stok kedua di layanan.js');
+});
+
+test('stok, tahap 2: barang Ditarik karena habis lalu diisi lagi di form = ditanya; Ditarik yang masih ada jumlahnya tidak', async () => {
+    const { L } = await mulai();
+    const ditarik0 = { status: 'ditarik', jumlah: 0 };
+    assert.equal(L.ditarikDiisiLagi(ditarik0, { status: 'ditarik', jumlah: 10 }), true);
+    assert.equal(L.ditarikDiisiLagi(ditarik0, { status: 'ditarik', jumlah: 0 }), false, 'jumlah tetap 0');
+    assert.equal(L.ditarikDiisiLagi(ditarik0, { status: 'tersedia', jumlah: 10 }), false, 'sudah diklik Tersedia sendiri');
+    assert.equal(L.ditarikDiisiLagi({ status: 'ditarik', jumlah: 1 }, { status: 'ditarik', jumlah: 2 }), false, 'Ditarik pilihan sendiri / titipan diambil');
+    assert.equal(L.ditarikDiisiLagi(null, { status: 'ditarik', jumlah: 2 }), false, 'barang baru');
+    assert.equal(L.statusStok({ status: 'ditarik', jumlah: 10 }), 'ditarik', 'tanpa jawaban di form: api tetap Ditarik');
+    const stok = ambilFungsi('simpanStok');
+    assert.match(stok, /if \(L\.ditarikDiisiLagi\(asli, s\) && confirm\('Barang ini Ditarik karena stoknya habis[^]*?\{\s*s\.status = 'tersedia'; masuk = \+s\.jumlah;/, 'OK = Tersedia + catatan stok masuk');
+    assert.ok(stok.indexOf('L.ditarikDiisiLagi') < stok.indexOf("s.status === 'tersedia' && !(+s.jumlah > 0)"), 'ditanya sebelum pemeriksaan lain');
+});
