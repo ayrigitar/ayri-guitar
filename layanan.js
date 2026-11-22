@@ -64,6 +64,32 @@
     L.TAHAP = { gitar: 'Gitar', sebelum: 'Sebelum servis', sesudah: 'Sesudah servis' };
     L.tahapFoto = function (f) { return f.tahap === 'kerusakan' ? 'sebelum' : f.tahap; };
     L.beres = function (s) { return s.status === 'selesai' || s.status === 'diambil'; };
+    /* alur status servis: SATU aturan untuk papan antrian dan form servis.
+       Papan hanya maju/mundur satu kolom (URUT_STATUS); form boleh lompat ke status mana saja, termasuk Batal.
+       h = L.hitung(s, s.items, s.bayar). Hasil { tolak: pesan } (tidak boleh) atau { tanya: [pertanyaan...] } (boleh, setelah semua dijawab OK).
+       Hanya layar yang memakai aturan ini; L.api.simpanServis tetap menerima status apa pun (antrian offline diputar ulang ke sana). */
+    L.cekPindahServis = function (s, ke, h) {
+        var maju = L.URUT_STATUS.indexOf(ke) > L.URUT_STATUS.indexOf(s.status), tanya = [];
+        if (ke === 'menunggu_dp' && h.total > 0 && h.kurangAwal === 0) return { tolak: 'Pembayaran awal sudah terpenuhi, jadi status tidak bisa kembali ke Menunggu DP.', tanya: [] };
+        if ((ke === 'antri' || ke === 'dikerjakan') && maju && h.kurangAwal > 0) tanya.push('Pembayaran awal masih kurang ' + L.rupiah(h.kurangAwal) + '. Aturan toko: dikerjakan setelah DP dan part lunas.\n\nTetap ubah status?');
+        if (ke === 'diambil' && h.sisa > 0) tanya.push('Masih ada sisa pembayaran ' + L.rupiah(h.sisa) + '. Sebaiknya terima pembayaran lewat Kasir.\n\nTetap tandai sudah diambil?');
+        if (ke === 'batal') tanya.push('Tandai servis ini dibatalkan? Pelanggan tidak bisa lagi membuka status dan notanya.');
+        return { tolak: '', tanya: tanya };
+    };
+    /* pindah status + tanggalnya: belum selesai = tanggal selesai dihapus (diisi lagi saat selesai), belum diambil = tanggal diambil dihapus.
+       Batal tidak menghapus tanggal (riwayat tetap). */
+    L.terapkanPindahServis = function (s, ke) {
+        s.status = ke;
+        if (ke !== 'batal') { if (!L.beres(s)) delete s.tgl_selesai; if (ke !== 'diambil') delete s.tgl_diambil; }
+        return s;
+    };
+    /* servis yang sudah selesai dibuka lagi (mis. pelanggan belum puas): dicatat di catatan internal beserta tanggal selesai lamanya */
+    L.catatBukaUlang = function (lama, rec) {
+        if (!lama || !lama.tgl_selesai || !L.beres(lama) || L.beres(rec) || rec.status === 'batal') return rec;
+        rec.catatan_admin = (rec.catatan_admin ? rec.catatan_admin + '\n' : '') + '[' + L.tgl(L.hariIni()) + '] Dibuka lagi: ' + L.STATUS[lama.status].label + ' → ' + L.STATUS[rec.status].label +
+            ' (tanggal selesai lama ' + L.tgl(lama.tgl_selesai) + '). Tanggal selesai diisi lagi saat servis selesai.';
+        return rec;
+    };
 
     /* ---------- garansi: '7h' = 7 hari, '6b' = 6 bulan ---------- */
     L.garansiLabel = function (g) {
