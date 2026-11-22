@@ -953,7 +953,8 @@
    "ukuran": "011",
    "merek": "Orphee",
    "seri": "TX",
-   "artikel": 28
+   "artikel": 28,
+   "grup": "tx-senar"
   },
   {
    "kode": "STK-2Z9THR",
@@ -1175,6 +1176,36 @@
    "grup": "nx-senar"
   },
   {
+   "kode": "STK-NZGV2M",
+   "kategori": "aksesoris",
+   "jenis": "Senar",
+   "kondisi": "baru",
+   "nama": "Orphee TX620",
+   "warna": "",
+   "deskripsi": "Senar TX620 ukuran .010 Bronze memberikan suara yang jernih dan resonansi kuat, cocok untuk pemain yang suka tone bright pada gitar akustik. Karena terbuat dari bahan bronze, nada bass tetap terasa penuh sementara treblenya bersih tanpa berisik. Kondisinya baru, jadi kamu akan langsung merasakan respons cepat dan tuning yang stabil. Yuk, coba langsung di toko kami dan rasakan perbedaannya! 🎸",
+   "harga": 40000,
+   "status": "tersedia",
+   "sisa": null,
+   "foto": [
+    {
+     "src": "foto/stok/orphee-tx620-ukuran-010-bronze-stk-nzgv2m-deda7e.webp",
+     "kecil": "foto/stok/orphee-tx620-ukuran-010-bronze-stk-nzgv2m-deda7e-k.webp"
+    },
+    {
+     "src": "foto/stok/orphee-tx620-ukuran-010-bronze-stk-nzgv2m-2acac6.webp",
+     "kecil": "foto/stok/orphee-tx620-ukuran-010-bronze-stk-nzgv2m-2acac6-k.webp"
+    }
+   ],
+   "alat": [
+    "Gitar Akustik"
+   ],
+   "ukuran": "010",
+   "merek": "Orphee",
+   "seri": "TX",
+   "artikel": 36,
+   "grup": "tx-senar"
+  },
+  {
    "kode": "STK-V9FPZW",
    "kategori": "gitar",
    "jenis": "Bass",
@@ -1216,7 +1247,7 @@
     }
    ],
    "tingkat": "Very Good",
-   "artikel": 36
+   "artikel": 37
   },
   {
    "kode": "STK-6J8WP3",
@@ -1264,7 +1295,7 @@
     }
    ],
    "tingkat": "Good",
-   "artikel": 37
+   "artikel": 38
   },
   {
    "kode": "STK-TZEN4Z",
@@ -1320,7 +1351,7 @@
     }
    ],
    "tingkat": "Very Good",
-   "artikel": 38
+   "artikel": 39
   },
   {
    "kode": "STK-U3X8N4",
@@ -1368,7 +1399,7 @@
     }
    ],
    "tingkat": "Excellent",
-   "artikel": 39
+   "artikel": 40
   },
   {
    "kode": "STK-UKV3BK",
@@ -1423,7 +1454,7 @@
      "kecil": "foto/stok/1a1bf9bf8a68cf0ae6df-k.webp"
     }
    ],
-   "artikel": 40
+   "artikel": 41
   },
   {
    "kode": "STK-FBXF37",
@@ -1479,7 +1510,7 @@
     }
    ],
    "tingkat": "Very Good",
-   "artikel": 41
+   "artikel": 42
   },
   {
    "kode": "STK-VM7JT5",
@@ -1507,7 +1538,7 @@
    ],
    "tipe": "Hardcase",
    "ukuran": "Standard Jumbo",
-   "artikel": 42
+   "artikel": 43
   },
   {
    "kode": "STK-752B52",
@@ -1562,7 +1593,7 @@
      "kecil": "foto/stok/e7844f12235295e49a13-k.webp"
     }
    ],
-   "artikel": 43
+   "artikel": 44
   },
   {
    "kode": "STK-QFV3U3",
@@ -1614,7 +1645,7 @@
     }
    ],
    "tingkat": "Mint",
-   "artikel": 44
+   "artikel": 45
   }
  ],
  "sampul": {
