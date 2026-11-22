@@ -834,6 +834,20 @@ html[data-theme="dark"] .rk-naik { color: #5CD196 !important; }
 .ly-pilih button[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); }
 
 /* halaman seri: daftar varian (ukuran/panjang, harga, status, tautan) */
+/* halaman unit: gitar lain dengan model sama (beda kemulusan/harga) */
+.unit-kembar { margin: 22px 0 4px; }
+.unit-kembar h2 { margin: 0 0 4px; font-size: 1.05rem; }
+.unit-kembar > p { margin: 0 0 10px; }
+.unit-kembar__r { display: grid; grid-template-columns: 56px 1fr auto; grid-template-rows: auto auto; gap: 2px 12px; align-items: center; margin-top: 8px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 14px; background: var(--surface); color: var(--ink); text-decoration: none; }
+.unit-kembar__r img, .unit-kembar__f { grid-row: 1 / 3; width: 56px; height: 56px; border-radius: 10px; object-fit: cover; background: var(--surface-2); }
+.unit-kembar__t { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; }
+.unit-kembar__t small { font-size: .8rem; color: var(--ink-3); }
+.unit-kembar__t .unit-kembar__k { font-weight: 700; color: var(--accent); }
+.unit-kembar__t .unit-kembar__k--mulus { color: var(--ok, #12804D); }
+.unit-kembar__h { display: flex; flex-direction: column; text-align: right; }
+.unit-kembar__h b { color: var(--accent); }
+.unit-kembar__h small { font-size: .78rem; color: var(--ink-3); }
+.unit-kembar__l { grid-column: 2 / 4; font-size: .8rem; font-weight: 700; color: var(--accent); }
 .unit-varian { display: grid; gap: 8px; margin: 14px 0 0; }
 .unit-varian__r { display: grid; grid-template-columns: 1fr auto; gap: 4px 10px; align-items: center; padding: 12px 14px; border: 1px solid var(--line); border-radius: 14px; background: var(--surface); }
 .unit-varian__n { font-weight: 800; color: var(--ink); }

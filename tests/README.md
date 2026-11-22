@@ -21,6 +21,7 @@ Uji memuat kode ASLI dari repo (`layanan.js`, `admin.js`, `artikel-*.js`, `sw.js
 | `tuner.test.js` | mesin tuner: akurasi (< 1 sen) dan kecepatan jarum muncul (< 200 ms) pada petikan senar buatan |
 | `alur-status.test.js` | tes pengunci alur status (papan antrian & form servis memakai satu aturan `L.cekPindahServis`, tebus, titip, dan apa yang api lakukan untuk servis, jual, stok, opname, tebus, titip, sewa); baris CELAH diubah di PR yang memperbaikinya |
 | `restock-serupa.test.js` | gitar seken: "Restock unit serupa" membuat unit baru (kode baru) dari unit lama; yang khas per unit dikosongkan, unit lama utuh |
+| `unit-model-sama.test.js` | halaman unit: gitar lain dengan model sama (beda kemulusan/harga) saling ditautkan, data publik saja, hilang saat tinggal satu |
 | `admin-ui.test.js` | tombol aksi admin memakai komponen seragam (id tetap ada), poster Bagikan memuat foto lewat GitHub |
 | `chord.test.js` | mesin chord (bentuk jari, kecepatan) dan pembaca chart |
 | `halaman.test.js` | sintaks semua skrip, urutan `util.js`, tautan lokal, aturan keamanan halaman admin (CSP), sitemap, service worker, tidak ada token di repo |

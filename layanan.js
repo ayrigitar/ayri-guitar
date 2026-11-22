@@ -1623,6 +1623,31 @@
             artikel: arguments.length > 1 ? slugArtikel : slugArtikelUnit(s)   /* tanpa artikel = kunci tidak ditulis */
         };
     }
+    /* gitar di katalog dengan jenis & merek/model yang sama (beda kemulusan/harga) saling ditautkan di halaman unit ("Unit lain, model sama") */
+    L.kunciModel = function (x) { return x.kategori === 'gitar' ? L.slugFoto(x.jenis + ' ' + x.nama, 80) : ''; };
+    /* 0 = baru, 1 = Mint ... 4 = Good; null = bekas tanpa tingkat (tidak dibandingkan) */
+    function peringkatKondisi(x) {
+        if (x.kondisi === 'baru') return 0;
+        var i = -1; C.tingkatKondisi.forEach(function (k, n) { if (k[1] === x.tingkat) i = n; });
+        return i < 0 ? null : i + 1;
+    }
+    L.bandingUnit = function (ini, lain) {
+        var a = peringkatKondisi(ini), b = peringkatKondisi(lain), mulus = a != null && b != null && b < a, hemat = +lain.harga < +ini.harga;
+        return mulus && hemat ? 'Lebih mulus & lebih hemat' : mulus ? 'Lebih mulus' : hemat ? 'Lebih hemat' : '';
+    };
+    /* item = butir katalog; tiap gitar yang punya kembaran mendapat lain = [unit lain] (data publik saja, termahal dulu) */
+    L.tautKembar = function (item) {
+        var peta = {};
+        item.forEach(function (x) { var k = L.kunciModel(x); if (k) (peta[k] = peta[k] || []).push(x); });
+        Object.keys(peta).forEach(function (k) {
+            var m = peta[k]; if (m.length < 2) return;
+            m.forEach(function (x) {
+                x.lain = m.filter(function (y) { return y !== x; }).sort(function (a, b) { return b.harga - a.harga; })
+                    .map(function (y) { return { kode: y.kode, kondisi: y.kondisi, tingkat: y.tingkat, harga: y.harga, warna: y.warna || undefined, kecil: y.foto[0] ? y.foto[0].kecil : undefined }; });
+            });
+        });
+        return item;
+    };
     L.untungStok = function (s) {
         var untung = 0, unit = 0;
         (s.penjualan || []).forEach(function (p) { untung += (p.harga - (+s.harga_beli || 0)) * p.qty; unit += p.qty; });
@@ -1664,8 +1689,23 @@
             (x.deskripsi ? '<div class="unit-desk"><h2>Deskripsi</h2><p>' + e(x.deskripsi) + '</p></div>' : '') +
             (x.grup && /^[a-z0-9-]+$/.test(x.grup) ? '<p class="unit-panduan"><a href="seri-' + x.grup + '.html">Lihat semua pilihan ' + e(x.seri) + ' &rsaquo;</a></p>' : '') +
             (x.artikel && /^[a-z0-9-]+$/.test(x.artikel) ? '<p class="unit-panduan"><a href="../artikel-' + x.artikel + '.html">Baca panduan lengkap: spesifikasi, perawatan, dan tips membeli &rsaquo;</a></p>' : '') +
+            isiKembar(x) +
             '<div class="unit-aksi"><a class="ly-btn ly-btn--wa unit-wa" target="_blank" rel="noopener" href="' + e(wa) + '">Tanya / pesan via WhatsApp</a><button type="button" class="ly-btn" id="unit-bagikan">Bagikan</button></div>' +
             '<div class="unit-toko"><b>' + e(C.toko.nama) + '</b><span>' + e(C.toko.alamat || '') + '</span>' + (C.toko.jam ? '<span>Jam buka: ' + e(C.toko.jam) + '</span>' : '') + '<span class="ly-muted">Lihat langsung, coba, dan bayar di toko.</span></div></section></div>';
+    }
+    /* "Unit lain, model sama": foto kecil, kemulusan, harga & selisihnya, label Lebih mulus / Lebih hemat, tautan ke halaman unitnya */
+    function isiKembar(x) {
+        var e = L.esc, lain = (x.lain || []).filter(function (y) { return /^[A-Za-z0-9-]+$/.test(y.kode); });
+        if (!lain.length) return '';
+        return '<div class="unit-kembar"><h2>Unit lain, model sama</h2><p class="ly-muted">' + e(x.nama) + ' yang lain di toko: beda kemulusan, beda harga.</p>' + lain.map(function (y) {
+            var beda = +y.harga - +x.harga, ket = L.bandingUnit(x, y);
+            return '<a class="unit-kembar__r" href="' + e(y.kode) + '.html">' + (y.kecil ? '<img src="../' + e(y.kecil) + '" alt="" loading="lazy" decoding="async">' : '<span class="unit-kembar__f"></span>') +
+                '<span class="unit-kembar__t"><span class="kat-badge kat-' + (y.kondisi === 'baru' ? 'baru' : 'tingkat') + '">' + e(y.kondisi === 'baru' ? 'Baru' : y.tingkat || 'Used') + '</span>' +
+                (ket ? '<small class="unit-kembar__k' + (/mulus/.test(ket) ? ' unit-kembar__k--mulus' : '') + '">' + e(ket) + '</small>' : '') +
+                (y.warna && y.warna !== x.warna ? '<small>' + e(y.warna) + '</small>' : '') + '</span>' +
+                '<span class="unit-kembar__h"><b>' + e(L.rupiah(y.harga)) + '</b>' + (beda ? '<small>' + (beda > 0 ? '+' : '−') + e(L.rupiah(Math.abs(beda))) + '</small>' : '') + '</span>' +
+                '<span class="unit-kembar__l">Lihat &rsaquo;</span></a>';
+        }).join('') + '</div>';
     }
     /* tpl = isi scripts/unit-template.html. Tanpa templat (repo situs lama): halaman pratinjau kecil yang meneruskan ke unit.html */
     L.halamanUnit = function (x, tpl) {
@@ -1756,6 +1796,7 @@
             var grupMap = {};
             item.forEach(function (x) { if (x.seri) { var k = L.slugFoto(x.seri + ' ' + x.jenis, 60); if (k) (grupMap[k] = grupMap[k] || []).push(x); } });
             Object.keys(grupMap).forEach(function (k) { if (grupMap[k].length > 1) grupMap[k].forEach(function (x) { x.grup = k; }); else delete grupMap[k]; });
+            L.tautKembar(item); /* gitar model sama: kunci lain ditulis hanya bila ada kembarannya (halaman unit lain tidak berubah) */
             var sampul = {}; Object.keys(grupMap).forEach(function (k) { var c = petaCv[k]; if (c && (c.src || c.kolase)) { sampul[k] = c.src ? { src: c.src, kecil: c.kecil || c.src } : {}; if (c.kolase) sampul[k].kolase = true; } }); /* kolase = true: kartu katalog & poster menyusun foto varian */
             var isi = { toko: C.toko.nama, v: VERSI_HALAMAN_UNIT, item: item }; if (Object.keys(sampul).length) isi.sampul = sampul; /* kunci ditulis hanya bila ada: katalog lama tidak berubah */
             var teks = JSON.stringify(isi, null, 1) + '\n';
