@@ -3610,9 +3610,15 @@
     function simpanStok() {
         var s = sk.s, asli = !sk.baru && cariId('stok', s.id), aktifJ = asli ? jualAktifStok(s) : [];
         /* barang yang terjual lewat transaksi tidak dikembalikan dengan mengubah status/jumlah di sini: transaksinya yang harus dibatalkan */
-        if (asli && asli.status === 'terjual' && aktifJ.length && (s.status === 'tersedia' || s.status === 'dipesan' || +s.jumlah > +asli.jumlah)) {
+        var cegah = L.ubahStokTerjual(asli, s, aktifJ), masuk = 0;
+        if (cegah === 'blokir') {
             if (confirm('Barang ini masih tercatat terjual di ' + aktifJ.map(function (j) { return j.kode; }).join(', ') + '. Mengubah status atau jumlah di sini tidak membatalkan penjualan dan uangnya.\n\nBuka transaksinya sekarang untuk membatalkannya?')) pindah('#jual/' + aktifJ[0].id);
             return;
+        }
+        /* aksesoris/barang baru dibeli lagi dari supplier: jumlahnya naik, penjualan lama tetap tercatat apa adanya */
+        if (cegah === 'tambah') {
+            masuk = +s.jumlah - +asli.jumlah;
+            if (!confirm('Tambah stok +' + masuk + ' (dari ' + asli.jumlah + ' jadi ' + s.jumlah + ')?\n\nPenjualan lama (' + aktifJ.map(function (j) { return j.kode; }).join(', ') + ') tetap tercatat dan tidak berubah.')) return;
         }
         if (s.status === 'tersedia' && !(+s.jumlah > 0)) return toast('Jumlah tersedia masih 0, jadi barang tetap Terjual. Isi jumlah 1 bila barangnya memang ada lagi.', true);
         s.merek = String(s.merek || '').trim();
@@ -3623,6 +3629,7 @@
         if (s.harga_jual && s.harga_jual < s.harga_beli && !confirm('Harga jual lebih rendah dari modal. Tetap simpan?')) return;
         var baru = sk.baru, fotoBaru = sk.antri.map(function (q) { return { hasil: q.hasil }; });
         var rec = Object.assign({}, s, { penjualan: s.penjualan.map(function (p) { var x = Object.assign({}, p); delete x.baru; return x; }) });
+        if (masuk) rec.catatan_admin = ((s.catatan_admin ? s.catatan_admin + '\n' : '') + '[' + L.tgl(L.hariIni()) + '] Stok masuk +' + masuk + ' (restock).').slice(-600);
         prosesSimpan('stok', $('#sk-simpan'), teksUnggah(fotoBaru), function () { return A.simpanStok(rec, fotoBaru); }, function (row) {
             lepasAntri(sk.antri); sk = { baru: false, s: salin(row), antri: [] };
             toast(baru ? 'Stok tersimpan. Kode: ' + row.kode + '.' : 'Tersimpan.');

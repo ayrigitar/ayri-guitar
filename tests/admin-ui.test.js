@@ -85,8 +85,9 @@ test('tab Jual: struk bisa dicetak ulang/dibagikan tanpa nomor WA; transaksi sel
     assert.match(jual, /aktif \|\| j\.status === 'selesai' \? '<fieldset class="ly-card"><legend>Status<\/legend>/, 'transaksi selesai juga bisa dibatalkan (barang dikembalikan)');
     assert.match(jual, /bagikanTeks\(teksStruk\(strukDariJual\(j\)\)\)/);
     assert.match(kode, /function strukDariJual\(j\)/); assert.match(kode, /function bagikanTeks\(teks\)/);
-    const stok = kode.slice(kode.indexOf('function simpanStok()'), kode.indexOf('function simpanStok()') + 1400);
-    assert.match(stok, /asli\.status === 'terjual' && aktifJ\.length/, 'barang terjual lewat transaksi: diarahkan ke transaksinya');
+    const stok = kode.slice(kode.indexOf('function simpanStok()'), kode.indexOf('function simpanStok()') + 2200);
+    assert.match(stok, /L\.ubahStokTerjual\(asli, s, aktifJ\)[\s\S]*cegah === 'blokir'[\s\S]*pindah\('#jual\//, 'barang bekas terjual lewat transaksi: diarahkan ke transaksinya');
+    assert.match(stok, /cegah === 'tambah'/, 'aksesoris/barang baru: stok masuk lagi boleh, dengan konfirmasi');
     assert.match(stok, /s\.status === 'tersedia' && !\(\+s\.jumlah > 0\)\) return toast\(/, 'tersedia dengan jumlah 0 tidak lagi diam-diam jadi Terjual');
     assert.match(kode, /id="sk-status-info"/);
 });
