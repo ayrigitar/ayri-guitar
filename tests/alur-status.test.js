@@ -37,7 +37,7 @@ function layar(L, jawab) {
         confirm: (t) => { catat.tanya.push(t); return jawab !== false; },
         toast: (t) => { catat.toast.push(t); },
         salin: (x) => JSON.parse(JSON.stringify(x)),
-        A: { simpanServis: (s) => { catat.simpan.push(s); return Promise.resolve(s); } },
+        A: { simpanServis: (s) => { catat.simpan.push(s); return Promise.resolve(s); }, simpanStok: (s) => { catat.simpan.push(s); return Promise.resolve(s); } },
         taruh() {}, gambarDaftar() {}, gambarStatus() {}, gambarRingkas() {}, gambarStatusTebus() {}, gambarStatusTitip() {},
         setDirty() {}, $: () => null, app: null, waServis: () => '', gagal() {},
         /* untuk simpanServis: hanya sampai A.simpanServis dipanggil */
@@ -46,7 +46,7 @@ function layar(L, jawab) {
     };
     vm.createContext(ctx);
     vm.runInContext('var ed, te, tp, menyimpan, rekaman = {}; function cariId(j, id) { return rekaman[id]; }\n' +
-        ['bolehPindahServis', 'geserServis', 'ubahStatus', 'simpanServis', 'ubahStatusTebus', 'ubahStatusTitip'].map(ambilFungsi).join('\n'), ctx);
+        ['lolosCek', 'bolehPindahServis', 'geserServis', 'ubahStatus', 'simpanServis', 'ubahStatusTebus', 'ubahStatusTitip', 'tarikStokTitip', 'kembalikanStokTitip'].map(ambilFungsi).join('\n'), ctx);
     return ctx;
 }
 const kartu = { classList: { add() {}, remove() {} } };
@@ -166,12 +166,32 @@ test('tebus, form: pindah ke status mana saja; konfirmasi hanya saat masuk Milik
     c = layar(L, true); c.te = { t: tb({ batas_tebus: '2020-01-01' }) };
     c.ubahStatusTebus('milik_toko');
     assert.equal(c.catat.tanya.length, 0, 'batas sudah lewat: tanpa pertanyaan');
-    c = layar(L, true); c.te = { t: tb({ status: 'ditebus' }) };
+});
+
+test('tebus, tahap 3: dari status akhir = perbaikan salah tekan (ditanya, tanggal lama dihapus); Milik toko yang sudah di stok tidak bisa dipindah', async () => {
+    const { L } = await mulai();
+    const tb = (ekstra) => Object.assign({ status: 'aktif', harga_beli: 900000, tgl_beli: '2026-11-01', batas_tebus: '2020-01-01' }, ekstra || {});
+    let c = layar(L, false); c.te = { t: tb({ status: 'ditebus', tgl_tebus: '2026-11-10' }) };
     c.ubahStatusTebus('aktif');
-    assert.equal(c.te.t.status, 'aktif'); assert.equal(c.catat.tanya.length, 0, 'CELAH: Ditebus bisa kembali ke Masa tebus tanpa pertanyaan');
+    assert.equal(c.te.t.status, 'ditebus', 'dijawab Batal: tetap'); assert.match(c.catat.tanya[0], /Kembalikan dari "Sudah dibeli kembali" ke "Masa tebus"\? Hanya untuk memperbaiki salah tekan/);
+    c = layar(L, true); c.te = { t: tb({ status: 'ditebus', tgl_tebus: '2026-11-10' }) };
+    c.ubahStatusTebus('aktif');
+    assert.equal(c.te.t.status, 'aktif'); assert.equal(c.te.t.tgl_tebus, undefined, 'tanggal dibeli kembali dihapus');
     c = layar(L, true); c.te = { t: tb({ status: 'batal' }) };
     c.ubahStatusTebus('milik_toko');
-    assert.equal(c.te.t.status, 'milik_toko', 'dari Batal pun bisa');
+    assert.equal(c.te.t.status, 'milik_toko'); assert.equal(c.catat.tanya.length, 1, 'dari Batal: ditanya');
+    c = layar(L, true); c.te = { t: tb({ status: 'milik_toko', tgl_berakhir: '2026-11-10' }) };
+    c.ubahStatusTebus('ditebus');
+    assert.equal(c.te.t.status, 'ditebus'); assert.equal(c.te.t.tgl_berakhir, undefined); assert.equal(c.catat.tanya.length, 2, 'salah tekan + sudah bayar?');
+    c = layar(L, true); c.rekaman.k1 = { id: 'k1', kode: 'STK-AAA', status: 'tersedia' }; c.te = { t: tb({ status: 'milik_toko', stok_id: 'k1' }) };
+    c.ubahStatusTebus('ditebus');
+    assert.equal(c.te.t.status, 'milik_toko', 'sudah di stok: ditolak'); assert.match(c.catat.toast[0], /sudah masuk stok \(kode STK-AAA\)/); assert.equal(c.catat.tanya.length, 0);
+    c = layar(L, true); c.rekaman.k1 = { id: 'k1', kode: 'STK-AAA', status: 'ditarik' }; c.te = { t: tb({ status: 'milik_toko', stok_id: 'k1' }) };
+    c.ubahStatusTebus('aktif');
+    assert.equal(c.te.t.status, 'aktif', 'stok sudah ditarik: boleh, dengan pertanyaan');
+    c = layar(L, true); c.te = { t: tb({ stok_id: 'hilang' }) };
+    c.ubahStatusTebus('milik_toko');
+    assert.equal(c.te.t.status, 'milik_toko', 'dari Masa tebus tidak diperiksa stoknya');
 });
 
 test('titip, form: konfirmasi saat Diambil/Batal; kembali ke Aktif tanpa pertanyaan (stok yang sudah ditarik tidak ikut kembali)', async () => {
@@ -179,11 +199,29 @@ test('titip, form: konfirmasi saat Diambil/Batal; kembali ke Aktif tanpa pertany
     let c = layar(L, true); c.tp = { t: { status: 'aktif' } };
     c.ubahStatusTitip('diambil');
     assert.equal(c.tp.t.status, 'diambil'); assert.match(c.catat.tanya[0], /ditarik dari stok/);
-    c = layar(L, true); c.tp = { t: { status: 'diambil' } };
+});
+
+test('titip, tahap 3: kembali ke Dititipkan ditanya; saat disimpan gitarnya kembali Tersedia & tampil; tanpa perubahan status stok tidak disentuh', async () => {
+    const { L } = await mulai();
+    let c = layar(L, false); c.tp = { t: { status: 'diambil', tgl_diambil: '2026-11-10' } };
     c.ubahStatusTitip('aktif');
-    assert.equal(c.tp.t.status, 'aktif'); assert.equal(c.catat.tanya.length, 0);
-    const tarik = ambilFungsi('tarikStokTitip');
-    assert.match(tarik, /row\.status !== 'aktif'/, 'stok hanya ditarik saat titipan tidak aktif; tidak ada langkah sebaliknya');
+    assert.equal(c.tp.t.status, 'diambil', 'dijawab Batal: tetap'); assert.match(c.catat.tanya[0], /tampil lagi di stok dan katalog/);
+    c = layar(L, true); c.tp = { t: { status: 'diambil', tgl_diambil: '2026-11-10' } };
+    c.ubahStatusTitip('aktif');
+    assert.equal(c.tp.t.status, 'aktif'); assert.equal(c.tp.t.tgl_diambil, undefined);
+    c = layar(L, true); c.rekaman.k1 = { id: 'k1', status: 'ditarik', tampil: false, jumlah: 1 };
+    await c.kembalikanStokTitip({ status: 'aktif', stok_id: 'k1' });
+    assert.equal(c.catat.simpan[0].status, 'tersedia'); assert.equal(c.catat.simpan[0].tampil, true);
+    c = layar(L, true); c.rekaman.k1 = { id: 'k1', status: 'tersedia', tampil: true, jumlah: 1 };
+    await c.kembalikanStokTitip({ status: 'aktif', stok_id: 'k1' });
+    assert.equal(c.catat.simpan.length, 0, 'stok tidak ditarik: tidak disimpan');
+    c = layar(L, true); c.rekaman.k1 = { id: 'k1', status: 'tersedia', tampil: true, jumlah: 1 };
+    await c.tarikStokTitip({ status: 'diambil', stok_id: 'k1' });
+    assert.equal(c.catat.simpan[0].status, 'ditarik'); assert.equal(c.catat.simpan[0].tampil, false);
+    const simpan = ambilFungsi('simpanTitip');
+    assert.match(simpan, /dibukaLagi = !!\(lama && lama\.status !== 'aktif' && t\.status === 'aktif'\)/);
+    assert.match(simpan, /\.then\(dibukaLagi \? kembalikanStokTitip : tarikStokTitip\)/, 'stok dikembalikan hanya saat status berubah ke Dititipkan');
+    for (const f of ['ubahStatusTebus', 'ubahStatusTitip']) assert.doesNotMatch(ambilFungsi(f), /confirm\(/, f + ': aturannya di layanan.js');
 });
 
 /* ---------- Bagian 2: Layanan.api ---------- */

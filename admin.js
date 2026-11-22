@@ -917,11 +917,12 @@
         }).join('') + '</div>';
     }
     /* aturan pindah status servis ada di L.cekPindahServis / L.terapkanPindahServis: sama untuk papan antrian dan form */
-    function bolehPindahServis(s, ke) {
-        var c = L.cekPindahServis(s, ke, L.hitung(s, s.items, s.bayar));
+    /* hasil L.cekPindah*: tolak = pesan, tanya = semua harus dijawab OK */
+    function lolosCek(c) {
         if (c.tolak) { toast(c.tolak, true); return false; }
         return c.tanya.every(function (t) { return confirm(t); });
     }
+    function bolehPindahServis(s, ke) { return lolosCek(L.cekPindahServis(s, ke, L.hitung(s, s.items, s.bayar))); }
     function geserServis(id, arah, kartu) {
         var lama = cariId('servis', id), s = salin(lama), st = L.URUT_STATUS[L.URUT_STATUS.indexOf(s.status) + arah];
         if (!st || !bolehPindahServis(s, st)) return;
@@ -2010,12 +2011,11 @@
     function gambarStatusTebus() {
         $('#tb-status').innerHTML = ['aktif', 'ditebus', 'milik_toko', 'batal'].map(function (k) { return '<button type="button" data-st="' + k + '" aria-pressed="' + (te.t.status === k) + '">' + E(L.STATUS_TEBUS[k].label) + '</button>'; }).join('');
     }
+    /* aturan pindah status ada di L.cekPindahTebus / L.terapkanPindahTebus */
     function ubahStatusTebus(st) {
         var t = te.t; if (st === t.status) return;
-        if (st === 'milik_toko' && !L.infoTebus(t).lewat && !confirm('Batas tebus (' + L.tgl(t.batas_tebus) + ') belum lewat. Jadikan milik toko hanya bila penjual menyatakan tertulis tidak akan menebus. Lanjutkan?')) return;
-        if (st === 'ditebus' && !confirm('Penjual sudah membayar ' + L.rupiah(L.hargaTebus(t)) + ' dan gitar diserahkan kembali?')) return;
-        if (st === 'batal' && !confirm('Batalkan transaksi ini? Surat perjanjian di situs akan dihapus.')) return;
-        t.status = st; gambarStatusTebus(); setDirty(true);
+        if (!lolosCek(L.cekPindahTebus(t, st, t.stok_id && cariId('stok', t.stok_id)))) return;
+        L.terapkanPindahTebus(t, st); gambarStatusTebus(); setDirty(true);
     }
     function gambarFotoTebus() {
         var el = $('#tb-foto'); if (!el) return;
@@ -2168,11 +2168,11 @@
     function gambarStatusTitip() {
         $('#tp-status').innerHTML = ['aktif', 'diambil', 'batal'].map(function (k) { return '<button type="button" data-st="' + k + '" aria-pressed="' + (tp.t.status === k) + '">' + E(L.STATUS_TITIP[k]) + '</button>'; }).join('');
     }
+    /* aturan pindah status ada di L.cekPindahTitip / L.terapkanPindahTitip */
     function ubahStatusTitip(st) {
         var t = tp.t; if (st === t.status) return;
-        if (st === 'diambil' && !confirm('Pemilik sudah mengambil gitarnya kembali? Gitar akan ditarik dari stok dan katalog.')) return;
-        if (st === 'batal' && !confirm('Batalkan titipan ini? Gitar akan ditarik dari stok dan katalog.')) return;
-        t.status = st; gambarStatusTitip(); setDirty(true);
+        if (!lolosCek(L.cekPindahTitip(t, st))) return;
+        L.terapkanPindahTitip(t, st); gambarStatusTitip(); setDirty(true);
     }
     function gambarFotoTitip() {
         var el = $('#tp-foto'); if (!el) return;
@@ -2186,6 +2186,13 @@
         var r = salin(s); r.status = 'ditarik'; r.tampil = false;
         return A.simpanStok(r).then(function (x) { taruh('stok', x); return row; }, function (e) { toast('Titipan tersimpan, tapi stok belum ditarik dari katalog: ' + (e.message || e) + ' Tarik manual di menu Stok.', true); return row; });
     }
+    /* kebalikannya: titipan dikembalikan ke Dititipkan (salah tekan) = gitarnya tampil lagi di stok & katalog. Hanya saat status berubah ke aktif */
+    function kembalikanStokTitip(row) {
+        var s = row.status === 'aktif' && row.stok_id && cariId('stok', row.stok_id);
+        if (!s || s.status !== 'ditarik') return Promise.resolve(row);
+        var r = salin(s); r.status = 'tersedia'; r.tampil = true;
+        return A.simpanStok(r).then(function (x) { taruh('stok', x); return row; }, function (e) { toast('Titipan tersimpan, tapi stok belum dikembalikan ke katalog: ' + (e.message || e) + ' Ubah manual di menu Stok.', true); return row; });
+    }
     function simpanTitip() {
         var t = tp.t;
         t.nama = String(t.nama).trim(); t.hp = String(t.hp).trim(); t.nik = String(t.nik || '').replace(/\D/g, '');
@@ -2196,7 +2203,8 @@
         if (!(t.harga_min > 0) || t.harga_min > t.harga_jual) return toast('Harga minimum harus diisi dan tidak boleh lebih tinggi dari harga jual.', true);
         if (tp.antri.some(function (q) { return !q.hasil; })) return toast('Foto masih diproses, tunggu sebentar.', true);
         var baru = tp.baru, fotoBaru = tp.antri.map(function (q) { return { hasil: q.hasil, tahap: q.tahap }; });
-        prosesSimpan('titip', $('#tp-simpan'), teksUnggah(fotoBaru), function () { return A.simpanTitip(t, fotoBaru).then(tarikStokTitip); }, function (row) {
+        var lama = !baru && cariId('titip', t.id), dibukaLagi = !!(lama && lama.status !== 'aktif' && t.status === 'aktif');
+        prosesSimpan('titip', $('#tp-simpan'), teksUnggah(fotoBaru), function () { return A.simpanTitip(t, fotoBaru).then(dibukaLagi ? kembalikanStokTitip : tarikStokTitip); }, function (row) {
             lepasAntri(tp.antri); tp = { baru: false, t: salin(row), antri: [] };
             toast(baru ? 'Tersimpan. Kode: ' + row.kode + '. Kirim surat titip ke pemilik lewat tombol WA.' : 'Tersimpan.');
             if (baru) pindah('#titip/' + row.id); else gambarTitip();

@@ -151,6 +151,25 @@
         var sisa = t.batas_tebus ? L.hariAntara(hariIni || L.hariIni(), t.batas_tebus) : null;
         return { sisa: sisa, lewat: sisa != null && sisa < 0, harga: L.hargaTebus(t) };
     };
+    /* alur status tebus: SATU aturan untuk form tebus. Hasil { tolak: pesan } atau { tanya: [...] } seperti L.cekPindahServis.
+       Dari status akhir (dibeli kembali / milik toko / batal) = perbaikan salah tekan, selalu ditanya.
+       Milik toko yang gitarnya masih ada di stok (stok = data stok tertaut, belum Ditarik) tidak bisa dipindah. */
+    L.cekPindahTebus = function (t, ke, stok) {
+        var dari = t.status, tanya = [];
+        if (dari === 'milik_toko' && stok && stok.status !== 'ditarik') return { tolak: 'Gitar ini sudah masuk stok (kode ' + stok.kode + '). Tarik atau hapus dari stok dulu bila memang salah.', tanya: [] };
+        if (dari && dari !== 'aktif') tanya.push('Kembalikan dari "' + L.STATUS_TEBUS[dari].label + '" ke "' + L.STATUS_TEBUS[ke].label + '"? Hanya untuk memperbaiki salah tekan.');
+        if (ke === 'milik_toko' && !L.infoTebus(t).lewat) tanya.push('Batas tebus (' + L.tgl(t.batas_tebus) + ') belum lewat. Jadikan milik toko hanya bila penjual menyatakan tertulis tidak akan menebus. Lanjutkan?');
+        if (ke === 'ditebus') tanya.push('Penjual sudah membayar ' + L.rupiah(L.hargaTebus(t)) + ' dan gitar diserahkan kembali?');
+        if (ke === 'batal') tanya.push('Batalkan transaksi ini? Surat perjanjian di situs akan dihapus.');
+        return { tolak: '', tanya: tanya };
+    };
+    /* tanggal status lama dihapus: status baru mendapat tanggalnya sendiri saat disimpan */
+    L.terapkanPindahTebus = function (t, ke) {
+        t.status = ke;
+        if (ke !== 'ditebus') delete t.tgl_tebus;
+        if (ke !== 'milik_toko') delete t.tgl_berakhir;
+        return t;
+    };
     L.perluIngatTebus = function (t, hariIni) {
         if (t.status !== 'aktif' || !t.batas_tebus) return false;
         var i = L.infoTebus(t, hariIni), terakhir = (t.pengingat || []).slice(-1)[0] || '';
@@ -1116,6 +1135,16 @@
     var TT = C.titip;
     L.STATUS_TITIP = { aktif: 'Dititipkan', diambil: 'Diambil pemilik', batal: 'Dibatalkan' };
     L.titipanTerkunci = function (s) { return !!(s && s.sumber_titip); };
+    /* alur status titip: SATU aturan untuk form titip (bentuk hasil sama dengan L.cekPindahServis).
+       Diambil/Batal menarik gitar dari stok & katalog; kembali ke Dititipkan mengembalikannya (lihat admin.js). */
+    L.cekPindahTitip = function (t, ke) {
+        var tanya = [];
+        if (ke === 'diambil') tanya.push('Pemilik sudah mengambil gitarnya kembali? Gitar akan ditarik dari stok dan katalog.');
+        if (ke === 'batal') tanya.push('Batalkan titipan ini? Gitar akan ditarik dari stok dan katalog.');
+        if (ke === 'aktif') tanya.push('Kembalikan ke "Dititipkan"? Gitarnya akan tampil lagi di stok dan katalog.');
+        return { tolak: '', tanya: tanya };
+    };
+    L.terapkanPindahTitip = function (t, ke) { t.status = ke; if (ke !== 'diambil') delete t.tgl_diambil; return t; };
     /* ketentuan komisi disalin ke tiap catatan saat dibuat, supaya surat dan pembayaran selalu sesuai kesepakatan walau pengaturan berubah */
     L.komisiBawaanTitip = function () { return { komisi_persen: TT.komisiPersen, komisi_min: TT.komisiMin, batas_mahal: TT.batasMahal, persen_mahal: TT.persenMahal }; };
     /* komisi = persen harga jual yang sebenarnya (persen_mahal bila harga di atas batas_mahal), minimal komisi_min, paling banyak sebesar harganya */
