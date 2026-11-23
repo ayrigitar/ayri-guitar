@@ -108,6 +108,37 @@
         w.appendChild(a); w.appendChild(b);
     }
     function kisiAksi(daftar) { return '<div class="ly-aksi">' + daftar.join('') + '</div>'; }
+    /* Saran isian: ditampilkan DI BAWAH kolom sebagai tombol kecil, bukan daftar bawaan browser (di HP daftar itu bisa menutupi kolom yang sedang diketik).
+       Sumber = <datalist id> yang ditunjuk atribut data-saran pada kolom; isi datalist boleh berubah kapan saja. Dipasang untuk semua kolom bersaran lewat pendengar di document. */
+    var saranAktif = null, saranTahan = false;
+    function saranTutup() { if (saranAktif) { saranAktif.remove(); saranAktif = null; } }
+    function saranTampil(inp) {
+        saranTutup();
+        var dl = document.getElementById(inp.dataset.saran); if (!dl) return;
+        var q = inp.value.trim().toLowerCase();
+        var cocok = [].map.call(dl.options, function (o) { return o.value; }).filter(function (v) { return v && v.toLowerCase() !== q && (!q || v.toLowerCase().indexOf(q) > -1); }).slice(0, 8);
+        if (!cocok.length) return;
+        var el = document.createElement('div'); el.className = 'ly-saran'; el._inp = inp;
+        el.innerHTML = cocok.map(function (v) { return '<button type="button" class="ly-saran__i" data-saran-isi="' + E(v) + '">' + E(v) + '</button>'; }).join('');
+        var lbl = inp.closest('label');
+        if (lbl) lbl.appendChild(el); else (inp.closest('.ly-row2') || inp).after(el);
+        saranAktif = el;
+        /* daftar + kolomnya harus terlihat di atas keyboard dan tombol Simpan */
+        var vv = window.visualViewport, bawah = (vv ? vv.offsetTop + vv.height : window.innerHeight) - 96, rd = el.getBoundingClientRect(), ri = inp.getBoundingClientRect();
+        var geser = Math.min(rd.bottom - bawah + 8, ri.top - 60); if (geser > 0) window.scrollBy(0, geser);
+    }
+    document.addEventListener('focusin', function (e) {
+        var t = e.target; if (saranTahan) return;
+        if (t.dataset && t.dataset.saran) saranTampil(t); else if (!(saranAktif && saranAktif.contains(t))) saranTutup();
+    });
+    document.addEventListener('input', function (e) { var t = e.target; if (!saranTahan && t.dataset && t.dataset.saran) saranTampil(t); });
+    document.addEventListener('focusout', function () { setTimeout(function () { var a = document.activeElement; if (saranAktif && a !== saranAktif._inp && !saranAktif.contains(a)) saranTutup(); }, 150); });
+    document.addEventListener('click', function (e) {
+        var b = e.target.closest && e.target.closest('[data-saran-isi]'); if (!b || !saranAktif) return;
+        var inp = saranAktif._inp; saranTahan = true;
+        inp.value = b.dataset.saranIsi; inp.dispatchEvent(new Event('input', { bubbles: true })); inp.dispatchEvent(new Event('change', { bubbles: true }));
+        saranTutup(); inp.focus(); saranTahan = false;
+    });
     function owner() { return A.peran() === 'owner'; }
     function setDirty(v) { dirty = v; var d = $('#dirty'); if (d) d.hidden = !v; if (ae && $('#ar')) { if (v) jadwalDraf(); else { clearTimeout(jadwalDraf.t); jadwalDraf.t = null; var t = $('#ar-draf'); if (t) t.textContent = ''; } } }
     function opsi(list, cur) { return list.map(function (o) { var v = Array.isArray(o) ? o[0] : o, t = Array.isArray(o) ? o[1] : o; return '<option value="' + E(v) + '"' + (String(v) === String(cur == null ? '' : cur) ? ' selected' : '') + '>' + E(t) + '</option>'; }).join(''); }
@@ -686,7 +717,7 @@
         m.innerHTML = '<div class="ly-modal__in ks-m" role="dialog" aria-modal="true" aria-label="Jasa cepat">' +
             '<div class="ks-m__head"><b>Jasa cepat</b><button type="button" class="ly-x" data-tutup aria-label="Tutup">×</button></div>' +
             '<p class="ly-hint" style="margin:0 0 10px">Untuk pekerjaan yang selesai sambil pelanggan menunggu. Tanpa garansi, tidak masuk menu Servis.</p>' +
-            '<div class="ks-jasa-f"><label>Nama jasa<input class="ly-in" id="kj-nama" list="kj-saran" maxlength="80" autocomplete="off" placeholder="mis. Pasang senar, Ganti baterai"></label>' +
+            '<div class="ks-jasa-f"><label>Nama jasa<input class="ly-in" id="kj-nama" data-saran="kj-saran" maxlength="80" autocomplete="off" placeholder="mis. Pasang senar, Ganti baterai"></label>' +
             '<datalist id="kj-saran">' + saran.map(function (x) { return '<option value="' + E(x.nama) + '"></option>'; }).join('') + '</datalist>' +
             '<label>Harga (Rp)<input class="ly-in" id="kj-harga" type="text" inputmode="numeric" autocomplete="off" data-rp></label></div>' +
             '<div class="ly-btns ks-m__aksi"><button type="button" class="ly-btn" data-tutup>Batal</button><button type="button" class="ly-btn ly-btn--pri" id="kj-ok">Tambah ke keranjang</button></div></div>';
@@ -987,7 +1018,7 @@
             el.innerHTML = '<div class="kas-head"><h2>Kas hari ini</h2><span class="st-chip st-menunggu_dp">Belum dibuka</span></div>' +
                 '<p class="ly-muted" style="margin:0">Hitung uang di laci sebelum mulai melayani, lalu buka kasir.</p>' +
                 '<div class="ly-f"><div class="ly-row2"><label>Saldo awal laci (Rp)<input type="text" inputmode="numeric" autocomplete="off" data-rp id="kas-awal" value="' + (k && k.saldo_awal || '') + '"></label>' +
-                '<label>Dibuka oleh<input id="kas-oleh" list="kas-nama" value="' + E(namaTerakhir()) + '"></label></div>' + dl +
+                '<label>Dibuka oleh<input id="kas-oleh" data-saran="kas-nama" value="' + E(namaTerakhir()) + '"></label></div>' + dl +
                 '<button type="button" class="ly-btn ly-btn--pri" id="kas-buka">Buka kasir</button></div>';
         } else if (!k.tutup_jam) {
             el.innerHTML = '<div class="kas-head"><h2>Kas hari ini</h2><span class="st-chip st-selesai">Buka sejak ' + E(k.buka_jam) + '</span></div>' +
@@ -998,11 +1029,11 @@
                 '<details class="kas-form" id="kas-f-keluar"><summary class="ly-btn">+ Catat pengeluaran</summary><div class="ly-f">' +
                 '<label>Untuk apa<input id="kp-ket" placeholder="mis. beli senar 10 set, bensin, makan siang"></label>' +
                 '<div class="ly-row2"><label>Jumlah (Rp)<input type="text" inputmode="numeric" autocomplete="off" data-rp id="kp-jml"></label><label>Kategori<select id="kp-kat">' + opsi(L.KATEGORI_KELUAR, L.KATEGORI_KELUAR[0]) + '</select></label></div>' +
-                '<div class="ly-row2"><label>Dibayar dari<select id="kp-metode">' + opsi([['tunai', 'Laci (tunai)'], ['transfer', 'Rekening (transfer)']], 'tunai') + '</select></label><label>Dicatat oleh<input id="kp-oleh" list="kas-nama" value="' + E(namaTerakhir()) + '"></label></div>' + dl +
+                '<div class="ly-row2"><label>Dibayar dari<select id="kp-metode">' + opsi([['tunai', 'Laci (tunai)'], ['transfer', 'Rekening (transfer)']], 'tunai') + '</select></label><label>Dicatat oleh<input id="kp-oleh" data-saran="kas-nama" value="' + E(namaTerakhir()) + '"></label></div>' + dl +
                 '<button type="button" class="ly-btn ly-btn--pri" id="kas-keluar">Simpan pengeluaran</button></div></details>' +
                 '<details class="kas-form" id="kas-f-tutup"><summary class="ly-btn">Tutup kasir</summary><div class="ly-f">' +
                 '<p class="ly-muted" style="margin:0">Hitung semua uang di laci, lalu isi jumlahnya. Seharusnya <b>' + L.rupiah(n.harus) + '</b>.</p>' +
-                '<div class="ly-row2"><label>Uang di laci (Rp)<input type="text" inputmode="numeric" autocomplete="off" data-rp id="kt-hitung"></label><label>Ditutup oleh<input id="kt-oleh" list="kas-nama" value="' + E(namaTerakhir()) + '"></label></div>' +
+                '<div class="ly-row2"><label>Uang di laci (Rp)<input type="text" inputmode="numeric" autocomplete="off" data-rp id="kt-hitung"></label><label>Ditutup oleh<input id="kt-oleh" data-saran="kas-nama" value="' + E(namaTerakhir()) + '"></label></div>' +
                 '<label>Catatan (opsional)<input id="kt-cat" placeholder="mis. uang kecil ditukar, setor ke rekening Rp…"></label><div id="kt-selisih"></div>' +
                 '<button type="button" class="ly-btn ly-btn--pri" id="kas-tutup">Tutup kasir</button></div></details>';
         } else {
@@ -3450,16 +3481,16 @@
             '<div class="ly-status" id="sk-kondisi"' + (aks ? ' hidden' : '') + '>' + ['baru', 'bekas'].map(function (k) { return '<button type="button" data-kondisi="' + k + '" aria-pressed="' + (s.kondisi === k) + '">' + L.KONDISI[k] + '</button>'; }).join('') + '</div>' +
             '<div id="sk-tingkat" class="ly-f"' + (!aks && s.kondisi === 'bekas' ? '' : ' hidden') + '><label><span class="ly-lt">Tingkat kondisi (poster &amp; katalog)' + bantu('tip-tingkat') + '</span><select data-s="tingkat">' + opsi([['', 'Belum dinilai']].concat(C.tingkatKondisi.map(function (t) { return [t[0], t[1]]; })), s.tingkat || '') + '</select></label>' +
             tip('tip-tingkat', C.tingkatKondisi.map(function (t) { return '<b>' + E(t[1]) + '</b>: ' + E(t[2]); }).join('. ') + '. Cacat yang ada tetap ditulis di deskripsi.') + '</div>' +
-            '<label><span class="ly-lt">Merek' + bantu('tip-merek') + '</span><input data-s="merek" autocapitalize="words" autocomplete="off" list="dl-merek" placeholder="mis. Yamaha"></label><datalist id="dl-merek">' + opsiDatalist(merekSaran()) + '</datalist>' + tip('tip-merek', 'Merek dipisah dari model, supaya satu artikel merek bisa dipakai semua unit merek itu.') +
-            '<div id="sk-gitar"' + (aks ? ' hidden' : '') + ' class="ly-f"><div class="ly-row2"><label>Jenis gitar<select data-s="gitar_jenis">' + opsi(jenis, s.gitar_jenis) + '</select></label><label>Model<input data-s="gitar_merk" autocomplete="off" list="dl-model" placeholder="mis. F310"></label></div>' +
+            '<label><span class="ly-lt">Merek' + bantu('tip-merek') + '</span><input data-s="merek" autocapitalize="words" autocomplete="off" data-saran="dl-merek" placeholder="mis. Yamaha"></label><datalist id="dl-merek">' + opsiDatalist(merekSaran()) + '</datalist>' + tip('tip-merek', 'Merek dipisah dari model, supaya satu artikel merek bisa dipakai semua unit merek itu.') +
+            '<div id="sk-gitar"' + (aks ? ' hidden' : '') + ' class="ly-f"><div class="ly-row2"><label>Jenis gitar<select data-s="gitar_jenis">' + opsi(jenis, s.gitar_jenis) + '</select></label><label>Model<input data-s="gitar_merk" autocomplete="off" data-saran="dl-model" placeholder="mis. F310"></label></div>' +
             '<label>Nomor seri (tidak tampil di website)<input data-s="no_seri" autocapitalize="characters"></label></div>' +
-            '<div id="sk-aks"' + (aks ? '' : ' hidden') + ' class="ly-f"><div class="ly-row2"><label>Kategori<select data-s="sub">' + opsi(subs, s.sub) + '</select></label><label>Nama / model produk<input data-s="nama" autocomplete="off" list="dl-model" placeholder="mis. QA140"></label></div><datalist id="dl-model"></datalist>' +
-            '<label><span class="ly-lt">Seri (opsional)' + bantu('tip-seri') + '</span><input data-s="seri" autocomplete="off" list="dl-seri" placeholder="mis. QA Series"></label><datalist id="dl-seri">' + opsiDatalist(saranDariStok(function (x) { return x.seri; })) + '</datalist>' +
+            '<div id="sk-aks"' + (aks ? '' : ' hidden') + ' class="ly-f"><div class="ly-row2"><label>Kategori<select data-s="sub">' + opsi(subs, s.sub) + '</select></label><label>Nama / model produk<input data-s="nama" autocomplete="off" data-saran="dl-model" placeholder="mis. QA140"></label></div><datalist id="dl-model"></datalist>' +
+            '<label><span class="ly-lt">Seri (opsional)' + bantu('tip-seri') + '</span><input data-s="seri" autocomplete="off" data-saran="dl-seri" placeholder="mis. QA Series"></label><datalist id="dl-seri">' + opsiDatalist(saranDariStok(function (x) { return x.seri; })) + '</datalist>' +
             tip('tip-seri', 'Isi <b>sama persis</b> untuk barang yang satu seri (mis. QA140, QA150, QA160 = "QA Series"). Di katalog digabung jadi satu halaman dengan pilihan ukuran/panjang. Isi juga Ukuran atau Tipe masing-masing.') +
             '<div id="sk-skema" class="ly-f">' + skemaHtml(s) + '</div></div>' +
             '<label><span id="sk-lbl-warna">' + (aks ? LBL_VARIAN : 'Warna') + '</span><input data-s="warna" placeholder="' + (aks ? PH_VARIAN : 'mis. Hitam Glossy') + '"></label>' +
             '<div class="ly-f"><span class="ly-hint" style="margin:0"><b>Fitur unggulan</b> (jadi bubble oval di samping foto poster, maks. 4). Ketik huruf pertama untuk saran.</span><div class="ly-pilih" id="sk-fitur"></div>' +
-            '<div class="ly-row2"><input class="ly-in" id="sk-fitur-in" list="dl-fitur" autocomplete="off" maxlength="24" placeholder="mis. Phosphor Bronze"><button type="button" class="ly-btn ly-btn--sm" id="sk-fitur-tambah">Tambah</button></div><datalist id="dl-fitur">' + opsiDatalist(fiturSaran()) + '</datalist></div>' +
+            '<div class="ly-row2"><input class="ly-in" id="sk-fitur-in" data-saran="dl-fitur" autocomplete="off" maxlength="24" placeholder="mis. Phosphor Bronze"><button type="button" class="ly-btn ly-btn--sm" id="sk-fitur-tambah">Tambah</button></div><datalist id="dl-fitur">' + opsiDatalist(fiturSaran()) + '</datalist></div>' +
             '<label>Deskripsi (kondisi, spesifikasi, kelengkapan)<textarea data-s="deskripsi" rows="3" placeholder="mis. mulus, action rendah, bonus softcase"></textarea></label>' +
             (L.ai.aktif ? '<div class="ly-btns"><button type="button" class="ly-btn ly-btn--sm" id="sk-ai">✨ Tulis deskripsi dengan AI</button></div><p class="ly-hint" style="margin:0">Tulis catatan singkat dulu (mis. lecet kecil di body, bonus softcase); AI ikut melihat foto yang sudah diunggah (maks. 3) dan menambah spesifikasi model (jumlah senar, bahan, konstruksi). Spesifikasi itu dari pengetahuan AI, jadi cek lagi dengan barangnya sebelum menyimpan.</p>' : '') + '</fieldset>' +
             '<fieldset class="ly-card ly-f ly-grid"><legend>Harga &amp; jumlah</legend>' +
@@ -3745,7 +3776,7 @@
             '<fieldset class="ly-card ly-f ly-grid"><legend>Judul &amp; alamat</legend>' +
             '<label>Judul<input data-a="judul" maxlength="140" placeholder="mis. Repair Bridge Lepas Yamaha APX500"></label>' +
             '<label>Alamat halaman<input data-a="slug" pattern="[a-z0-9-]+" autocapitalize="off"><span class="ly-hint" id="ar-url"></span></label>' +
-            '<label>Penulis<input data-a="penulis" maxlength="60" list="ar-penulis" autocomplete="off" placeholder="Kosong = Toko Gitar AYRI"><span class="ly-hint">Tampil di artikel. Isi nama yang menulis (Anda atau karyawan).</span></label>' +
+            '<label>Penulis<input data-a="penulis" maxlength="60" data-saran="ar-penulis" autocomplete="off" placeholder="Kosong = Toko Gitar AYRI"><span class="ly-hint">Tampil di artikel. Isi nama yang menulis (Anda atau karyawan).</span></label>' +
             '<datalist id="ar-penulis">' + daftarPenulis().map(function (n) { return '<option value="' + E(n) + '">'; }).join('') + '</datalist>' +
             '<div class="ly-row2"><label>Label<input data-a="tag" maxlength="40"></label><label>Status<select data-a="status">' + opsi([['draf', 'Draf'], ['terbit', 'Terbit']], a.status) + '</select></label></div>' +
             '<label>Ringkasan untuk Google (maks. 160 huruf)<textarea data-a="ringkasan" rows="2" maxlength="160"></textarea><span class="ly-hint" id="ar-n"></span></label></fieldset>' +

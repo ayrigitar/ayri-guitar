@@ -84,7 +84,7 @@ test('penulis artikel: tampil di halaman & data Google; kosong = atas nama toko'
     assert.equal(ld(ada).publisher.name, 'Toko Gitar AYRI');
     assert.doesNotMatch(tpl, /AYRI Gitar Bogor/);
     const kode = baca('admin.js');
-    assert.match(kode, /<label>Penulis<input data-a="penulis" maxlength="60" list="ar-penulis"/);
+    assert.match(kode, /<label>Penulis<input data-a="penulis" maxlength="60" data-saran="ar-penulis"/);
     assert.match(kode, /function daftarPenulis\(\)/, 'nama yang pernah dipakai muncul sebagai pilihan');
 });
 

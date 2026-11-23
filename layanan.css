@@ -298,6 +298,10 @@ body.nota-body { background: var(--bg-alt); color: var(--ink); font-family: var(
 .ly-item__b { grid-column: 1 / -1; position: relative; z-index: 1; display: flex; justify-content: flex-end; margin-top: 4px; }
 .ly-ingat { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 12px; padding: 12px 14px; border: 1px solid #F7D9A8; border-radius: var(--r-md); background: #FEF3E2; color: #6B3E08; font-size: .875rem; line-height: 1.45; }
 .ly-ingat--info { margin-top: 10px; border-color: var(--line); background: var(--surface-2); color: var(--ink-2); }
+/* saran isian di bawah kolom (menggantikan daftar bawaan browser) */
+.ly-saran { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+.ly-saran__i { min-height: 36px; max-width: 100%; padding: 6px 12px; overflow: hidden; border: 1px solid var(--line-strong); border-radius: 999px; background: var(--surface); color: var(--ink); font: 600 .8125rem/1.2 var(--font-sans); text-overflow: ellipsis; white-space: nowrap; cursor: pointer; }
+.ly-saran__i:active { background: var(--surface-2); }
 /* Restock unit serupa: isian yang khas per unit dan masih harus diisi (terang & gelap) */
 .ly-isi-baru { background: rgba(245, 182, 92, .2) !important; }
 html[data-theme="dark"] .ly-ingat:not(.ly-ingat--info) { border-color: rgba(245, 182, 92, .3); background: rgba(245, 182, 92, .1); color: #F5B65C; }
