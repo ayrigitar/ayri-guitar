@@ -40,7 +40,7 @@ test('antarmuka stok & poster: alat musik, ukuran, fitur, saran merek; poster ak
     assert.match(cfg, /aksesoris: {[\s\S]*'Senar': { alat: true, ukuran: { label: 'Ukuran \/ tension senar', pilihan: \['008'[\s\S]*'013', 'Normal Tension', 'Hard Tension'\] } }/, 'senar: alat + ukuran');
     assert.match(cfg, /'Kabel': { tipe: {[\s\S]*'Jack 6.5mm Mono'[\s\S]*'XLR'[\s\S]*}, ukuran: { label: 'Panjang kabel', pilihan: \['1 Meter'[\s\S]*'10 Meter'\] } }/, 'kabel: tipe kepala + panjang, tanpa alat musik');
     assert.match(cfg, /'Case & tas': { alat: true, tanpaKategori: true, tipe: {[\s\S]*'Hardcase', 'Softcase', 'Gigbag'/, 'case: judul tanpa kata kategori');
-    assert.match(kode, /list="dl-merek"/); assert.match(kode, /function merekSaran\(\) \{ return saranDariStok\(function \(s\) \{ return s\.merek; \}\); \}/, 'saran merek dari stok yang sudah ada');
+    assert.match(kode, /data-saran="dl-merek"/); assert.match(kode, /function merekSaran\(\) \{ return saranDariStok\(function \(s\) \{ return s\.merek; \}\); \}/, 'saran merek dari stok yang sudah ada');
     for (const id of ['sk-alat', 'sk-skema', 'sk-fitur', 'sk-fitur-in', 'sk-fitur-tambah']) assert.match(kode, new RegExp(id), id);
     assert.match(kode, /function skemaHtml\(s\)/); assert.match(kode, /id="sk-skema" class="ly-f">' \+ skemaHtml\(s\)/, 'isian mengikuti kategori aksesoris');
     assert.match(kode, /s\.fitur\.length >= 4\) return toast\('Maksimal 4 fitur/);

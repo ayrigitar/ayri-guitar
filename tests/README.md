@@ -23,6 +23,7 @@ Uji memuat kode ASLI dari repo (`layanan.js`, `admin.js`, `artikel-*.js`, `sw.js
 | `restock-serupa.test.js` | gitar seken: "Restock unit serupa" membuat unit baru (kode baru) dari unit lama; yang khas per unit dikosongkan, unit lama utuh |
 | `unit-model-sama.test.js` | halaman unit: gitar lain dengan model sama (beda kemulusan/harga) saling ditautkan, data publik saja, hilang saat tinggal satu |
 | `saran-model.test.js` | form stok: saran Model / Nama produk dari stok tersimpan, disaring menurut Merek |
+| `saran-isian.test.js` | saran isian (Merek, Model, Seri, Fitur, kasir, kas, penulis) tampil di bawah kolom, bukan daftar bawaan browser yang bisa menutupi kolom di HP |
 | `admin-ui.test.js` | tombol aksi admin memakai komponen seragam (id tetap ada), poster Bagikan memuat foto lewat GitHub |
 | `chord.test.js` | mesin chord (bentuk jari, kecepatan) dan pembaca chart |
 | `halaman.test.js` | sintaks semua skrip, urutan `util.js`, tautan lokal, aturan keamanan halaman admin (CSP), sitemap, service worker, tidak ada token di repo |

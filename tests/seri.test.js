@@ -47,7 +47,7 @@ test('seri: dua varian digabung (halaman seri, canonical, peta situs); satu vari
 
 test('antarmuka: isian Seri dengan saran, katalog menggabung kartu, skrip halaman seri', () => {
     const admin = baca('admin.js'), katalog = baca('katalog.html'), statis = baca('unit-statis.js');
-    assert.match(admin, /list="dl-seri"/); assert.match(admin, /saranDariStok\(function \(x\) \{ return x\.seri; \}\)/);
+    assert.match(admin, /data-saran="dl-seri"/); assert.match(admin, /saranDariStok\(function \(x\) \{ return x\.seri; \}\)/);
     assert.match(katalog, /function kartuSeri\(g\)/); assert.match(katalog, /unit\/seri-/); assert.match(katalog, /<small>mulai<\/small>/);
     assert.match(statis, /\^seri-/, 'skrip mengenali halaman seri');
 });

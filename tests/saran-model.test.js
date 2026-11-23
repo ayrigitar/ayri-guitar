@@ -35,8 +35,8 @@ test('saran model: dari stok tersimpan, yang paling sering dulu; disaring menuru
 });
 
 test('form stok: isian Model & Nama produk memakai daftar saran, diperbarui saat Merek atau kategori berubah', () => {
-    assert.match(ADMIN, /<input data-s="gitar_merk" autocomplete="off" list="dl-model"/);
-    assert.match(ADMIN, /<input data-s="nama" autocomplete="off" list="dl-model"/);
+    assert.match(ADMIN, /<input data-s="gitar_merk" autocomplete="off" data-saran="dl-model"/);
+    assert.match(ADMIN, /<input data-s="nama" autocomplete="off" data-saran="dl-model"/);
     assert.match(ADMIN, /<datalist id="dl-model"><\/datalist>/);
     assert.match(ADMIN, /if \(k === 'merek'\) gambarSaranModel\(\);/);
     assert.match(ADMIN, /if \(d\.kategori\) setTimeout\(function \(\) \{ gambarSampulSk\(\); gambarSaranModel\(\); \}\);/);
