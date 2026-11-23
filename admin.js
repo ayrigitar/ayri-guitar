@@ -3415,6 +3415,15 @@
         return Object.keys(n).sort(function (a, b) { return n[b] - n[a] || a.localeCompare(b); });
     }
     function merekSaran() { return saranDariStok(function (s) { return s.merek; }); }
+    /* saran Model (gitar) / Nama produk (aksesoris) dari stok yang pernah disimpan; bila Merek sudah diisi, hanya model merek itu */
+    function modelSaran(s) {
+        var m = String(s.merek || '').trim().toLowerCase(), aks = s.kategori === 'aksesoris';
+        return saranDariStok(function (x) {
+            if ((x.kategori === 'aksesoris') !== aks || (m && String(x.merek || '').trim().toLowerCase() !== m)) return;
+            return aks ? x.nama : x.gitar_merk;
+        });
+    }
+    function gambarSaranModel() { var dl = $('#dl-model'); if (dl && sk) dl.innerHTML = opsiDatalist(modelSaran(sk.s)); }
     function fiturSaran() { return saranDariStok(function (s) { return s.fitur; }, C.fiturSaran); }
     function opsiDatalist(l) { return l.map(function (v) { return '<option value="' + E(v) + '">'; }).join(''); }
     function stokKosong() {
@@ -3442,9 +3451,9 @@
             '<div id="sk-tingkat" class="ly-f"' + (!aks && s.kondisi === 'bekas' ? '' : ' hidden') + '><label><span class="ly-lt">Tingkat kondisi (poster &amp; katalog)' + bantu('tip-tingkat') + '</span><select data-s="tingkat">' + opsi([['', 'Belum dinilai']].concat(C.tingkatKondisi.map(function (t) { return [t[0], t[1]]; })), s.tingkat || '') + '</select></label>' +
             tip('tip-tingkat', C.tingkatKondisi.map(function (t) { return '<b>' + E(t[1]) + '</b>: ' + E(t[2]); }).join('. ') + '. Cacat yang ada tetap ditulis di deskripsi.') + '</div>' +
             '<label><span class="ly-lt">Merek' + bantu('tip-merek') + '</span><input data-s="merek" autocapitalize="words" autocomplete="off" list="dl-merek" placeholder="mis. Yamaha"></label><datalist id="dl-merek">' + opsiDatalist(merekSaran()) + '</datalist>' + tip('tip-merek', 'Merek dipisah dari model, supaya satu artikel merek bisa dipakai semua unit merek itu.') +
-            '<div id="sk-gitar"' + (aks ? ' hidden' : '') + ' class="ly-f"><div class="ly-row2"><label>Jenis gitar<select data-s="gitar_jenis">' + opsi(jenis, s.gitar_jenis) + '</select></label><label>Model<input data-s="gitar_merk" placeholder="mis. F310"></label></div>' +
+            '<div id="sk-gitar"' + (aks ? ' hidden' : '') + ' class="ly-f"><div class="ly-row2"><label>Jenis gitar<select data-s="gitar_jenis">' + opsi(jenis, s.gitar_jenis) + '</select></label><label>Model<input data-s="gitar_merk" autocomplete="off" list="dl-model" placeholder="mis. F310"></label></div>' +
             '<label>Nomor seri (tidak tampil di website)<input data-s="no_seri" autocapitalize="characters"></label></div>' +
-            '<div id="sk-aks"' + (aks ? '' : ' hidden') + ' class="ly-f"><div class="ly-row2"><label>Kategori<select data-s="sub">' + opsi(subs, s.sub) + '</select></label><label>Nama / model produk<input data-s="nama" placeholder="mis. QA140"></label></div>' +
+            '<div id="sk-aks"' + (aks ? '' : ' hidden') + ' class="ly-f"><div class="ly-row2"><label>Kategori<select data-s="sub">' + opsi(subs, s.sub) + '</select></label><label>Nama / model produk<input data-s="nama" autocomplete="off" list="dl-model" placeholder="mis. QA140"></label></div><datalist id="dl-model"></datalist>' +
             '<label><span class="ly-lt">Seri (opsional)' + bantu('tip-seri') + '</span><input data-s="seri" autocomplete="off" list="dl-seri" placeholder="mis. QA Series"></label><datalist id="dl-seri">' + opsiDatalist(saranDariStok(function (x) { return x.seri; })) + '</datalist>' +
             tip('tip-seri', 'Isi <b>sama persis</b> untuk barang yang satu seri (mis. QA140, QA150, QA160 = "QA Series"). Di katalog digabung jadi satu halaman dengan pilihan ukuran/panjang. Isi juga Ukuran atau Tipe masing-masing.') +
             '<div id="sk-skema" class="ly-f">' + skemaHtml(s) + '</div></div>' +
@@ -3482,7 +3491,7 @@
         $$('[data-s]', app).forEach(function (el) { var v = s[el.dataset.s]; el.value = v == null ? '' : v; });
         $('#sk-tampil').checked = s.tampil !== false;
         if (sk.dari) ['[data-s="tingkat"]', '[data-s="no_seri"]', '[data-s="harga_beli"]', '#sk-foto'].forEach(function (q) { var x = $(q, app); if (x) (q === '#sk-foto' ? x.closest('fieldset') : x).classList.add('ly-isi-baru'); });
-        gambarSumStok(); gambarStatusStok(); gambarJual(); gambarFotoStok(); gambarAlatStok(); gambarFiturStok(); gambarSampulSk(); setDirty(false);
+        gambarSumStok(); gambarStatusStok(); gambarJual(); gambarFotoStok(); gambarAlatStok(); gambarFiturStok(); gambarSampulSk(); gambarSaranModel(); setDirty(false);
         var el = $('#sk');
         if (sampulSeri === null) A.muatSampulSeri().then(function (p) { sampulSeri = p; gambarSampulSk(); }, function () { /* tanpa sampul: katalog memakai foto barang */ });
         function tampilTingkat() { $('#sk-tingkat').hidden = !(s.kategori !== 'aksesoris' && s.kondisi === 'bekas'); }
@@ -3496,12 +3505,13 @@
             if (k === 'sub') { var dk = skemaAks(s.sub); s.tipe = ''; s.ukuran = ''; if (!dk.alat) s.alat = []; $('#sk-skema').innerHTML = skemaHtml(s); gambarAlatStok(); } /* isian kategori lama tidak ikut terbawa */
             if (/harga|jumlah/.test(k)) gambarSumStok();
             if (k === 'seri' || k === 'sub') gambarSampulSk();
+            if (k === 'merek') gambarSaranModel();
         }
         el.addEventListener('input', ubah); el.addEventListener('change', ubah);
         el.addEventListener('keydown', function (e) { if (e.key === 'Enter' && e.target.id === 'sk-fitur-in') { e.preventDefault(); tambahFitur(); } });
         el.addEventListener('click', function (e) {
             var b = e.target.closest('button'); if (!b) return; var d = b.dataset;
-            if (d.kategori) setTimeout(gambarSampulSk);
+            if (d.kategori) setTimeout(function () { gambarSampulSk(); gambarSaranModel(); });
             if (b.id === 'sk-sampul-hapus') { hapusSampulSk(); return; }
             if (b.id === 'sk-kolase') { kolaseSk(b); return; }
             if (d.kondisi) { s.kondisi = d.kondisi; $$('#sk-kondisi button').forEach(function (x) { x.setAttribute('aria-pressed', x.dataset.kondisi === s.kondisi); }); tampilTingkat(); setDirty(true); }
