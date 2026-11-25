@@ -837,7 +837,13 @@
         res.forEach(function (sg, i) { sg.t1 = i + 1 < res.length ? res[i + 1].t0 : Math.min(ana.dur, ((lastA + 1) * hop + N / 2) / sr); });
         return res;
     }
-    function voic(s) { var v = voicings(sroot(s), lvTi(s)); return v[0]; }
+    /* bentuk jari tiap chord dipilih untuk seluruh lagu: yang mudah dulu, lalu yang paling dekat dengan chord sebelum/sesudahnya (rencanaBentuk di chord-engine.js) */
+    var rencana = { sig: '', p: null };
+    function voic(s) {
+        var sig = I.key + '|' + st.capo + '|' + st.level + '|' + segs.map(function (g) { return sroot(g) + ':' + lvTi(g); }).join(',');
+        if (rencana.sig !== sig) rencana = { sig: sig, p: rencanaBentuk(segs.map(function (g) { return { r: sroot(g), ti: lvTi(g) }; }), I) };
+        return rencana.p.of(sroot(s), lvTi(s))[0];
+    }
     /* nama diagram bila beda dari nama chord (mis. Fmaj9 digambar sebagai Fmaj7) */
     function diagNote(s) { var full = cname(s), simple = disp(NM[sroot(s)] + TYPES[lvTi(s)].s); return full !== simple ? ' · diagram: ' + simple : ''; }
     function drawChord(idx) {

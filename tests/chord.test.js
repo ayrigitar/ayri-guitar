@@ -53,3 +53,32 @@ test('pembaca chart: baris chord + lirik, kapo, dan pengulangan', () => {
     assert.equal(parseChart('Do Re Mi').length, 0, 'baris lirik biasa tidak dianggap chord');
     assert.equal(parseChart('Am I Am').length, 0);
 });
+
+/* Bentuk jari di Transkrip: sama dengan aplikasi Studio Tools (VoicingPicker). Gm/Gm7 barre; Bb memilih bentuk A atau E menurut chord tetangga. */
+function pemilih() {
+    const sb = { console }; vm.createContext(sb);
+    vm.runInContext(baca('chord-engine.js') + '\nthis.__ex = { rencanaBentuk, voicings, INSTS, tIdx };', sb, { filename: 'chord-engine.js' });
+    return sb.__ex;
+}
+test('transkrip: Gm, Gm7, Fm, F#m memakai bentuk barre; Em, Am, Dm tetap terbuka', () => {
+    const { rencanaBentuk, INSTS, tIdx } = pemilih(), m = tIdx('m'), m7 = tIdx('m7');
+    const f = (r, t) => [...rencanaBentuk([{ r, ti: t }], INSTS.gtr).of(r, t)[0].f].join(',');
+    assert.equal(f(7, m), '3,5,5,3,3,3'); assert.equal(f(7, m7), '3,5,3,3,3,3');
+    assert.equal(f(5, m), '1,3,3,1,1,1'); assert.equal(f(6, m), '2,4,4,2,2,2');
+    assert.equal(f(4, m), '0,2,2,0,0,0'); assert.equal(f(9, m), '-1,0,2,2,1,0'); assert.equal(f(2, m), '-1,-1,0,2,3,1');
+});
+test('transkrip: Bb memilih bentuk A (fret 1) atau bentuk E (fret 6) menurut chord sebelum dan sesudahnya; keduanya tetap ada di daftar', () => {
+    const { rencanaBentuk, INSTS, tIdx } = pemilih(), maj = tIdx('maj'), m = tIdx('m');
+    const f = (lagu) => [...rencanaBentuk(lagu, INSTS.gtr).of(10, maj)[0].f].join(',');
+    assert.equal(f([{ r: 10, ti: maj }]), '-1,1,3,3,3,1');
+    assert.equal(f([{ r: 0, ti: maj }, { r: 10, ti: maj }, { r: 5, ti: maj }, { r: 0, ti: maj }]), '-1,1,3,3,3,1');
+    assert.equal(f([{ r: 7, ti: m }, { r: 10, ti: maj }, { r: 3, ti: maj }, { r: 7, ti: m }]), '6,8,8,7,6,6');
+    const semua = rencanaBentuk([{ r: 10, ti: maj }], INSTS.gtr).of(10, maj).map((v) => v.f.join(','));
+    assert.ok(semua.includes('-1,1,3,3,3,1') && semua.includes('6,8,8,7,6,6'));
+});
+test('transkrip: ukulele, bass, dan piano tetap memakai urutan mesin; halaman memakai rencanaBentuk', () => {
+    const { rencanaBentuk, voicings, INSTS, tIdx } = pemilih(), maj = tIdx('maj');
+    for (const k of ['uke', 'bas']) assert.deepEqual(JSON.stringify(rencanaBentuk([{ r: 0, ti: maj }], INSTS[k]).of(0, maj)), JSON.stringify(voicings(0, maj, INSTS[k])));
+    assert.equal(rencanaBentuk([{ r: 0, ti: maj }], INSTS.pno).of(0, maj).length, 1);
+    assert.match(baca('transkrip.html'), /rencanaBentuk\(segs\.map/);
+});
