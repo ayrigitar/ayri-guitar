@@ -265,3 +265,107 @@ function pianoDiagram(v, o) {
     if (!o.mini) for (m = lo; m <= hi; m++) { if (wx[m] !== undefined) s += '<rect class="cd-hit" data-m="' + m + '" x="' + wx[m] + '" y="' + bh + '" width="' + kw + '" height="' + (h - bh) + '"/>'; else if (wx[m - 1] !== undefined) s += '<rect class="cd-hit" data-m="' + m + '" x="' + (wx[m - 1] + kw - bw / 2) + '" y="0" width="' + bw + '" height="' + bh + '"/>'; }
     return s + '</svg>';
 }
+/* ---- Pemilih bentuk untuk satu lagu (sama dengan VoicingPicker di aplikasi Studio Tools) ----
+   Mesin mendaftar sampai 8 bentuk per chord, dari posisi terendah. Itu belum tentu yang paling mudah (barre bisa mendahului bentuk terbuka).
+   Dari bentuk yang mudah saja dipilih yang paling dekat dengan bentuk chord sebelum/sesudahnya, supaya tangan bergeser sesedikit mungkin.
+   Hanya gitar dan guitalele; instrumen lain tetap memakai urutan mesin. */
+var BENTUK_MARGIN = 2, BENTUK_MAKS = 4, BARRE_DULU = { m: 1, m7: 1 }, BARRE_DUA = { maj: 1, m: 1, m7: 1 };
+function bentukBarre(v, first, last, mn) {
+    if (mn === 0 || first < 0) return 0;
+    var onBar = [], i;
+    for (i = 0; i < v.f.length; i++) if (v.f[i] === mn) onBar.push(i);
+    var finger = v.g[onBar[0]] || 0;
+    if (!finger) return 0;
+    var across = onBar.filter(function (k) { return v.g[k] === finger; });
+    if (across.length < 2) return 0;
+    var hi = Math.max.apply(null, across), lo = Math.min.apply(null, across);
+    if (across.length === 2 && hi === last) return 1.5;
+    if (lo === first && hi === last) return 2.5;
+    return 4.5;
+}
+/* seberapa sulit satu bentuk; makin kecil makin mudah */
+function sulitBentuk(v) {
+    if (v.kb || !v.f || !v.f.length) return 0;
+    var fr = v.f.filter(function (x) { return x > 0; }), first = -1, last = -1, inner = 0, i, ids = {}, n = 0;
+    for (i = 0; i < v.f.length; i++) if (v.f[i] >= 0) { if (first < 0) first = i; last = i; }
+    if (first >= 0) for (i = first; i <= last; i++) if (v.f[i] < 0) inner++;
+    v.g.forEach(function (g) { if (g > 0 && !ids[g]) { ids[g] = 1; n++; } });
+    var mn = fr.length ? Math.min.apply(null, fr) : 0, span = fr.length ? Math.max.apply(null, fr) - mn : 0;
+    return n + bentukBarre(v, first, last, mn) + inner * 3 + (span >= 3 ? 1.5 : 0) + mn * 0.4;
+}
+/* barre dari senar `mulai` sampai senar 1: satu jari menekan semua senar itu di fret terendah */
+function barreDari(v, mulai, maks) {
+    if (v.kb || v.f.length !== 6) return false;
+    var i, mn = 99;
+    for (i = 0; i < mulai; i++) if (v.f[i] !== -1) return false;
+    for (i = mulai; i < 6; i++) { if (v.f[i] <= 0) return false; mn = Math.min(mn, v.f[i]); }
+    if (mn > maks) return false;
+    var bar = [];
+    for (i = 0; i < 6; i++) if (v.f[i] === mn) bar.push(i);
+    return bar.length >= 2 && bar[0] === mulai && bar[bar.length - 1] === 5 && bar.every(function (k) { return v.g[k] === v.g[bar[0]]; });
+}
+function barreA(v) { return barreDari(v, 1, 5); }
+function barreE(v) { return barreDari(v, 0, 8); }
+function barreRendah(v) { return barreDari(v, 0, 4); }
+function posisiTangan(v) { var fr = v.f.filter(function (x) { return x > 0; }); return fr.length ? fr.reduce(function (a, b) { return a + b; }, 0) / fr.length : 0; }
+function bentukMudah(all) {
+    if (!all.length) return all;
+    var ranked = all.map(function (v, i) { return { v: v, i: i, d: sulitBentuk(v) }; }).sort(function (a, b) { return a.d - b.d || a.i - b.i; });
+    var limit = ranked[0].d + BENTUK_MARGIN;
+    return ranked.filter(function (x) { return x.d <= limit + 1e-9; }).slice(0, BENTUK_MAKS).map(function (x) { return x.v; });
+}
+function bentukPintar(inst) { return inst.key === 'gtr' || inst.key === 'gll'; }
+function jumlahSenar(v) { return v.f.filter(function (x) { return x >= 0; }).length; }
+/* lagu = daftar { r, ti } sesuai urutan waktu. Hasil: { of(root, ti) } = bentuk terpilih lebih dulu, lalu bentuk lain dari yang mudah ke yang sulit */
+function rencanaBentuk(lagu, inst) {
+    var kunci = function (r, ti) { return r * 1000 + ti; }, keys = [], seen = {}, i;
+    lagu.forEach(function (c) { var k = kunci(c.r, c.ti); if (!seen[k]) { seen[k] = 1; keys.push({ k: k, r: c.r, ti: c.ti }); } });
+    var opsi = {};
+    if (inst.kb || !bentukPintar(inst)) {
+        keys.forEach(function (c) { var all = voicings(c.r, c.ti, inst); opsi[c.k] = inst.kb ? all.slice(0, 1) : all; });
+        return { of: function (r, ti) { return opsi[kunci(r, ti)] || voicings(r, ti, inst); } };
+    }
+    var mudah = {}, semua = {}, penuh = {}, dipilih = {};
+    keys.forEach(function (c) {
+        var all = voicings(c.r, c.ti, inst), ok = bentukMudah(all), tk = TYPES[c.ti].k, most = 0, full;
+        semua[c.k] = all;
+        ok.forEach(function (v) { most = Math.max(most, jumlahSenar(v)); });
+        full = ok.filter(function (v) { return jumlahSenar(v) === most; });
+        /* m dan m7: bentuk barre (Fm 133111, F#m 244222, Gm 355333) dipakai lebih dulu dan tidak ikut bersaing soal kedekatan */
+        if (BARRE_DULU[tk]) { var b = all.filter(barreRendah)[0]; if (b) full = [b]; }
+        /* chord tanpa bentuk terbuka (Bb, B, Eb ...): bentuk A (Bb di fret 1) dan bentuk E (Bb di fret 6) bersaing menurut kedekatan */
+        if (BARRE_DUA[tk] && !ok.some(function (v) { return v.f.indexOf(0) >= 0; })) {
+            var dua = all.filter(function (v) { return barreA(v) || barreE(v); });
+            dua = dua.map(function (v, j) { return { v: v, j: j, m: Math.min.apply(null, v.f.filter(function (x) { return x > 0; })) }; }).sort(function (a, b) { return a.m - b.m || a.j - b.j; }).map(function (x) { return x.v; });
+            if (dua.length >= 2) full = dua;
+        }
+        mudah[c.k] = full.concat(ok.filter(function (v) { return full.indexOf(v) < 0; }));
+        penuh[c.k] = full.length;
+        dipilih[c.k] = mudah[c.k][0];
+    });
+    var next = {}, prev = {};
+    for (i = 0; i + 1 < lagu.length; i++) {
+        var a = kunci(lagu[i].r, lagu[i].ti), b2 = kunci(lagu[i + 1].r, lagu[i + 1].ti);
+        if (a === b2) continue;
+        (next[a] = next[a] || {})[b2] = (next[a][b2] || 0) + 1;
+        (prev[b2] = prev[b2] || {})[a] = (prev[b2][a] || 0) + 1;
+    }
+    for (var ulang = 0; ulang < 4; ulang++) keys.forEach(function (c) {
+        var full = mudah[c.k].slice(0, penuh[c.k]);
+        if (full.length < 2) return;
+        var best = dipilih[c.k], bestCost = Infinity;
+        full.forEach(function (v) {
+            var cost = 0, o;
+            for (o in next[c.k] || {}) if (dipilih[o]) cost += next[c.k][o] * Math.abs(posisiTangan(v) - posisiTangan(dipilih[o]));
+            for (o in prev[c.k] || {}) if (dipilih[o]) cost += prev[c.k][o] * Math.abs(posisiTangan(v) - posisiTangan(dipilih[o]));
+            if (cost < bestCost - 1e-9) { best = v; bestCost = cost; }
+        });
+        dipilih[c.k] = best;
+    });
+    keys.forEach(function (c) {
+        var ch = dipilih[c.k], lebihMudah = [ch].concat(mudah[c.k].filter(function (v) { return v !== ch; }));
+        var sisa = semua[c.k].map(function (v, j) { return { v: v, j: j, d: sulitBentuk(v) }; }).sort(function (a, b) { return a.d - b.d || a.j - b.j; }).map(function (x) { return x.v; }).filter(function (v) { return lebihMudah.indexOf(v) < 0; });
+        opsi[c.k] = lebihMudah.concat(sisa);
+    });
+    return { of: function (r, ti) { return opsi[kunci(r, ti)] || voicings(r, ti, inst); } };
+}
