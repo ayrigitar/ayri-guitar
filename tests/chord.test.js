@@ -76,6 +76,19 @@ test('transkrip: Bb memilih bentuk A (fret 1) atau bentuk E (fret 6) menurut cho
     const semua = rencanaBentuk([{ r: 10, ti: maj }], INSTS.gtr).of(10, maj).map((v) => v.f.join(','));
     assert.ok(semua.includes('-1,1,3,3,3,1') && semua.includes('6,8,8,7,6,6'));
 });
+test('transkrip: bentuk awal gitar adalah bentuk yang umum dipakai (B7 dan Bm7 seperti bentuk B di fret 2, Cm bentuk A di fret 3)', () => {
+    const { rencanaBentuk, INSTS, tIdx } = pemilih();
+    const f = (lagu, r, k) => [...rencanaBentuk(lagu, INSTS.gtr).of(r, tIdx(k))[0].f].join(',');
+    const ada = (r, k) => [{ r, ti: tIdx(k) }];
+    assert.equal(f(ada(11, '7'), 11, '7'), '-1,2,4,2,4,2'); assert.equal(f(ada(11, 'm7'), 11, 'm7'), '-1,2,4,2,3,2');
+    // di dalam lagu bersama chord terbuka tetap bentuk yang sama
+    const lagu = [{ r: 4, ti: tIdx('maj') }, { r: 11, ti: tIdx('7') }, { r: 4, ti: tIdx('maj') }, { r: 11, ti: tIdx('m7') }, { r: 9, ti: tIdx('maj') }];
+    assert.equal(f(lagu, 11, '7'), '-1,2,4,2,4,2'); assert.equal(f(lagu, 11, 'm7'), '-1,2,4,2,3,2');
+    assert.equal(f(ada(0, 'm'), 0, 'm'), '-1,3,5,5,4,3');
+    assert.equal(f(ada(6, '7'), 6, '7'), '2,4,2,3,2,2'); assert.equal(f(ada(10, 'maj7'), 10, 'maj7'), '-1,1,3,2,3,1');
+    assert.equal(f(ada(2, 'sus4'), 2, 'sus4'), '-1,-1,0,2,3,3'); assert.equal(f(ada(9, 'sus4'), 9, 'sus4'), '-1,0,2,2,3,0');
+    assert.equal(f(ada(5, 'maj7'), 5, 'maj7'), '-1,-1,3,2,1,0');
+});
 test('transkrip: ukulele, bass, dan piano tetap memakai urutan mesin; halaman memakai rencanaBentuk', () => {
     const { rencanaBentuk, voicings, INSTS, tIdx } = pemilih(), maj = tIdx('maj');
     for (const k of ['uke', 'bas']) assert.deepEqual(JSON.stringify(rencanaBentuk([{ r: 0, ti: maj }], INSTS[k]).of(0, maj)), JSON.stringify(voicings(0, maj, INSTS[k])));
