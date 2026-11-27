@@ -112,3 +112,13 @@ test('transkrip: tidak ada tombol pilihan tampilan di layar lebar; daftar chord 
     assert.match(html, /id="ejas"/); assert.match(html, /'ayri-trans'[^]*eja: st\.eja/);
     assert.doesNotMatch(html, /NM\[/, 'nama nada di halaman ini lewat nm(), bukan daftar campuran NM');
 });
+
+test('transkrip: daftar chord berbentuk kisi 3 kolom seperti di aplikasi (nama, waktu, diagram; yang berbunyi di baris tengah, yang lewat redup)', () => {
+    const html = baca('transkrip.html').replace(/\r\n/g, '\n'), css = baca('tools.css').replace(/\r\n/g, '\n');
+    assert.match(html, /<span class="sc-h"><b>' \+ cname\(s\) \+ '<\/b><small>[^]*<span class="sc-d">' \+ \(v \? diagram\(v, \{ mini: true/, 'tiap sel: nama, waktu, diagram');
+    assert.match(html, /k === i \? ' on' : k < i \? ' past' : ''/, 'chord yang sudah lewat diberi tanda');
+    assert.match(html, /a = ch\[Math\.floor\(i \/ 3\) \* 3\][^]*sh\.scrollTop = a\.offsetTop - \(sh\.clientHeight - a\.offsetHeight\) \/ 2/, 'baris chord yang berbunyi di tengah, bergulir per baris');
+    assert.match(css, /\.tr-lagu \.sheet \{ display: grid; grid-template-columns: repeat\(3, minmax\(0, 1fr\)\)/);
+    assert.match(css, /\.tr-lagu \.sc\.on \{ border: 2px solid var\(--accent\)/);
+    assert.match(css, /#pa \.sc-d \{ display: none; \}/, 'cetak tetap berupa daftar nama dan waktu');
+});

@@ -852,11 +852,12 @@
     }
     /* bentuk jari tiap chord dipilih untuk seluruh lagu: yang mudah dulu, lalu yang paling dekat dengan chord sebelum/sesudahnya (rencanaBentuk di chord-engine.js) */
     var rencana = { sig: '', p: null };
-    function voic(s) {
+    function planBentuk() {
         var sig = I.key + '|' + st.capo + '|' + st.level + '|' + segs.map(function (g) { return sroot(g) + ':' + lvTi(g); }).join(',');
         if (rencana.sig !== sig) rencana = { sig: sig, p: rencanaBentuk(segs.map(function (g) { return { r: sroot(g), ti: lvTi(g) }; }), I) };
-        return rencana.p.of(sroot(s), lvTi(s))[0];
+        return rencana.p;
     }
+    function voic(s) { return planBentuk().of(sroot(s), lvTi(s))[0]; }
     /* nama diagram bila beda dari nama chord (mis. Fmaj9 digambar sebagai Fmaj7) */
     function diagNote(s) { var full = cname(s), simple = disp(nm(sroot(s), false) + TYPES[lvTi(s)].s); return full !== simple ? ' · diagram: ' + simple : ''; }
     function drawChord(idx) {
@@ -869,8 +870,20 @@
         var nx = segs[idx + 1]; $('nx').textContent = nx ? cname(nx) : 'selesai';
         $('nd').innerHTML = nx && voic(nx) ? diagram(voic(nx), { mini: true }) : '';
     }
+    /* daftar chord: 3 kolom x 3 baris terlihat; baris chord yang berbunyi selalu di tengah dan baris bergulir satu per tiga chord (seperti di aplikasi) */
+    function ukurBaris() { var sh = $('sheet'), t = sh.clientHeight; if (t > 0) sh.style.setProperty('--baris', Math.max(96, Math.floor((t - 32) / 3)) + 'px'); }
+    function gulirBaris(i) {
+        var sh = $('sheet'), ch = sh.children, a = ch[Math.floor(i / 3) * 3]; if (!a) return;
+        sh.scrollTop = a.offsetTop - (sh.clientHeight - a.offsetHeight) / 2;
+    }
+    if (window.ResizeObserver) new ResizeObserver(ukurBaris).observe($('sheet')); else window.addEventListener('resize', ukurBaris);
     function sheet() {
-        $('sheet').innerHTML = segs.map(function (s, i) { return '<button type="button" class="sc" data-i="' + i + '"><b>' + cname(s) + '</b><small>' + fmt(s.t0) + (s.src === 'auto' ? ' *' : '') + '</small></button>'; }).join('');
+        var pl = segs.length ? planBentuk() : null;
+        $('sheet').innerHTML = segs.map(function (s, i) {
+            var v = pl ? pl.of(sroot(s), lvTi(s))[0] : null;
+            return '<button type="button" class="sc" data-i="' + i + '"><span class="sc-h"><b>' + cname(s) + '</b><small>' + fmt(s.t0) + (s.src === 'auto' ? ' *' : '') + '</small></span><span class="sc-d">' + (v ? diagram(v, { mini: true, alt: 'Diagram ' + cname(s) }) : '') + '</span></button>';
+        }).join('');
+        ukurBaris();
         var cnt = {}, u = []; segs.forEach(function (s) { var k = cname(s); if (!cnt[k]) { cnt[k] = 0; u.push(s); } cnt[k]++; });
         u.sort(function (a, b) { return cnt[cname(b)] - cnt[cname(a)]; });
         $('legend').innerHTML = u.map(function (s) { var v = voic(s); return '<div class="lg"><b>' + cname(s) + (capoOn() ? ' <small>(bunyi ' + cname(s, true) + ')</small>' : '') + '</b>' + (v ? diagram(v, { alt: cname(s) }) : '<small>-</small>') + '</div>'; }).join('');
@@ -980,9 +993,9 @@
     function mark(t, force) {
         var i = idxAt(t);
         if (i !== cur || force) {
-            cur = i; var ch = $('sheet').children, k; for (k = 0; k < ch.length; k++) ch[k].className = 'sc' + (k === i ? ' on' : '') + (k === st.sel ? ' sel' : '');
+            cur = i; var ch = $('sheet').children, k; for (k = 0; k < ch.length; k++) ch[k].className = 'sc' + (k === i ? ' on' : k < i ? ' past' : '') + (k === st.sel ? ' sel' : '');
             if (i !== shown || force) { shown = i; drawChord(i); }
-            if (ch[i] && !au.paused && $('sheet').offsetParent) $('sheet').scrollTop = ch[i].offsetTop - $('sheet').clientHeight / 2 + 20;
+            if (ch[i] && !au.paused && $('sheet').offsetParent) gulirBaris(i);
         }
         var hl = chartOn && heard ? heardDiff(segs[i], heard[idxIn(heard, t)]) : '', ht = hl ? 'terdengar: ' + hl : ''; if ($('hd').textContent !== ht) $('hd').textContent = ht;
         var nx = segs[i + 1]; if (nx && !counting) $('nt').textContent = 'dalam ' + Math.max(0, (nx.t0 - t) / st.rate).toFixed(1) + ' dtk';
