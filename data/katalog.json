@@ -3,6 +3,62 @@
  "v": 4,
  "item": [
   {
+   "kode": "STK-P4FAFX",
+   "kategori": "gitar",
+   "jenis": "Klasik",
+   "kondisi": "bekas",
+   "nama": "Yamaha C315",
+   "warna": "Natural",
+   "deskripsi": "Gitar klasik Yamaha C315 warna natural ini dalam kondisi bekas tingkat Mint, hampir seperti baru tanpa cacat berarti. Cocok untuk pemain yang menginginkan suara klasik Yamaha yang hangat dan responsif.  \n\nSpesifikasi:  \n- Jumlah senar: 6 (nylon)  \n- Bahan body: top spruce, back & sides meranti  \n- Neck: nato, fingerboard rosewood  \n- Skala: 650 mm  \n- Bridge: rosewood  \n- Tuner: standar klasik  \n\nAyo coba langsung di toko untuk merasakan kenyamanannya! 🎸",
+   "harga": 850000,
+   "status": "tersedia",
+   "sisa": null,
+   "foto": [
+    {
+     "src": "foto/stok/gitar-klasik-yamaha-c315-natural-stk-p4fafx-600954.webp",
+     "kecil": "foto/stok/gitar-klasik-yamaha-c315-natural-stk-p4fafx-600954-k.webp"
+    },
+    {
+     "src": "foto/stok/gitar-klasik-yamaha-c315-natural-stk-p4fafx-d05d05.webp",
+     "kecil": "foto/stok/gitar-klasik-yamaha-c315-natural-stk-p4fafx-d05d05-k.webp"
+    },
+    {
+     "src": "foto/stok/gitar-klasik-yamaha-c315-natural-stk-p4fafx-1f2125.webp",
+     "kecil": "foto/stok/gitar-klasik-yamaha-c315-natural-stk-p4fafx-1f2125-k.webp"
+    },
+    {
+     "src": "foto/stok/gitar-klasik-yamaha-c315-natural-stk-p4fafx-bfc667.webp",
+     "kecil": "foto/stok/gitar-klasik-yamaha-c315-natural-stk-p4fafx-bfc667-k.webp"
+    },
+    {
+     "src": "foto/stok/gitar-klasik-yamaha-c315-natural-stk-p4fafx-b3db50.webp",
+     "kecil": "foto/stok/gitar-klasik-yamaha-c315-natural-stk-p4fafx-b3db50-k.webp"
+    },
+    {
+     "src": "foto/stok/gitar-klasik-yamaha-c315-natural-stk-p4fafx-e942d8.webp",
+     "kecil": "foto/stok/gitar-klasik-yamaha-c315-natural-stk-p4fafx-e942d8-k.webp"
+    },
+    {
+     "src": "foto/stok/gitar-klasik-yamaha-c315-natural-stk-p4fafx-212667.webp",
+     "kecil": "foto/stok/gitar-klasik-yamaha-c315-natural-stk-p4fafx-212667-k.webp"
+    },
+    {
+     "src": "foto/stok/gitar-klasik-yamaha-c315-natural-stk-p4fafx-7db7e5.webp",
+     "kecil": "foto/stok/gitar-klasik-yamaha-c315-natural-stk-p4fafx-7db7e5-k.webp"
+    },
+    {
+     "src": "foto/stok/gitar-klasik-yamaha-c315-natural-stk-p4fafx-5f77be.webp",
+     "kecil": "foto/stok/gitar-klasik-yamaha-c315-natural-stk-p4fafx-5f77be-k.webp"
+    },
+    {
+     "src": "foto/stok/gitar-klasik-yamaha-c315-natural-stk-p4fafx-f66c02.webp",
+     "kecil": "foto/stok/gitar-klasik-yamaha-c315-natural-stk-p4fafx-f66c02-k.webp"
+    }
+   ],
+   "tingkat": "Mint",
+   "artikel": 0
+  },
+  {
    "kode": "STK-SUKWGW",
    "kategori": "gitar",
    "jenis": "Akustik Elektrik",
@@ -61,7 +117,7 @@
     "Ovation Style",
     "Fiber Back"
    ],
-   "artikel": 0
+   "artikel": 1
   },
   {
    "kode": "STK-MJM3ZN",
@@ -120,7 +176,7 @@
    "fitur": [
     "Vintage"
    ],
-   "artikel": 1
+   "artikel": 2
   },
   {
    "kode": "STK-Z3UB5C",
@@ -181,7 +237,7 @@
     "Diecast Tuning Machine",
     "Discontinued"
    ],
-   "artikel": 2
+   "artikel": 3
   },
   {
    "kode": "STK-CEPNFK",
@@ -211,7 +267,7 @@
     "Super Light",
     "Anti Rust"
    ],
-   "artikel": 3,
+   "artikel": 4,
    "grup": "aw436p-senar"
   },
   {
@@ -242,7 +298,7 @@
     "Extra Light",
     "Phosphor Bronze"
    ],
-   "artikel": 4,
+   "artikel": 5,
    "grup": "aw436p-senar"
   },
   {
@@ -272,7 +328,7 @@
     "Phosphor Bronze",
     "Nano Coating"
    ],
-   "artikel": 5,
+   "artikel": 6,
    "grup": "awr486-senar"
   },
   {
@@ -302,7 +358,7 @@
     "Nano Coating",
     "Phosphor Bronze"
    ],
-   "artikel": 6,
+   "artikel": 7,
    "grup": "awr486-senar"
   },
   {
@@ -332,7 +388,7 @@
    "ukuran": "010",
    "merek": "Orphee",
    "seri": "SE",
-   "artikel": 7,
+   "artikel": 8,
    "grup": "se-senar"
   },
   {
@@ -356,7 +412,7 @@
    "ukuran": "5 Meter",
    "merek": "Beyer",
    "seri": "ISO100LU",
-   "artikel": 8,
+   "artikel": 9,
    "grup": "iso100lu-kabel"
   },
   {
@@ -380,7 +436,7 @@
    "ukuran": "3 Meter",
    "merek": "Beyer",
    "seri": "ISO100LU",
-   "artikel": 9,
+   "artikel": 10,
    "grup": "iso100lu-kabel"
   },
   {
@@ -414,7 +470,7 @@
     "Phosphor Bronze",
     "Warm"
    ],
-   "artikel": 10,
+   "artikel": 11,
    "grup": "sa-senar"
   },
   {
@@ -447,7 +503,7 @@
    "fitur": [
     "Phosphor Bronze"
    ],
-   "artikel": 11,
+   "artikel": 12,
    "grup": "sa-senar"
   },
   {
@@ -478,7 +534,7 @@
    "ukuran": "Hard Tension",
    "merek": "Orphee",
    "seri": "SC",
-   "artikel": 12,
+   "artikel": 13,
    "grup": "sc-senar"
   },
   {
@@ -509,7 +565,7 @@
    "ukuran": "Normal Tension",
    "merek": "Orphee",
    "seri": "SC",
-   "artikel": 13,
+   "artikel": 14,
    "grup": "sc-senar"
   },
   {
@@ -539,7 +595,7 @@
    "ukuran": "009",
    "merek": "Orphee",
    "seri": "QA",
-   "artikel": 14,
+   "artikel": 15,
    "grup": "qa-senar"
   },
   {
@@ -569,7 +625,7 @@
    "ukuran": "010",
    "merek": "Orphee",
    "seri": "QA",
-   "artikel": 15,
+   "artikel": 16,
    "grup": "qa-senar"
   },
   {
@@ -597,7 +653,7 @@
    ],
    "merek": "JOYO",
    "seri": "JCP",
-   "artikel": 16,
+   "artikel": 17,
    "grup": "jcp-capo"
   },
   {
@@ -625,7 +681,7 @@
     "Guitalele"
    ],
    "merek": "TaffStudio",
-   "artikel": 17
+   "artikel": 18
   },
   {
    "kode": "STK-6DZ7XA",
@@ -655,7 +711,7 @@
    ],
    "merek": "JOYO",
    "seri": "JCP",
-   "artikel": 18,
+   "artikel": 19,
    "grup": "jcp-capo"
   },
   {
@@ -685,7 +741,7 @@
    "ukuran": "010",
    "merek": "Orphee",
    "seri": "RX",
-   "artikel": 19,
+   "artikel": 20,
    "grup": "rx-senar"
   },
   {
@@ -715,7 +771,7 @@
    "ukuran": "011",
    "merek": "Orphee",
    "seri": "RX",
-   "artikel": 20,
+   "artikel": 21,
    "grup": "rx-senar"
   },
   {
@@ -745,7 +801,7 @@
    "ukuran": "009",
    "merek": "Orphee",
    "seri": "RX",
-   "artikel": 21,
+   "artikel": 22,
    "grup": "rx-senar"
   },
   {
@@ -774,7 +830,7 @@
    ],
    "ukuran": "Hard Tension",
    "merek": "Orphee",
-   "artikel": 22
+   "artikel": 23
   },
   {
    "kode": "STK-RT4XNQ",
@@ -803,7 +859,7 @@
    "ukuran": "009",
    "merek": "Orphee",
    "seri": "SE",
-   "artikel": 23,
+   "artikel": 24,
    "grup": "se-senar"
   },
   {
@@ -833,7 +889,7 @@
    "ukuran": "011",
    "merek": "Orphee",
    "seri": "SE",
-   "artikel": 24,
+   "artikel": 25,
    "grup": "se-senar"
   },
   {
@@ -863,7 +919,7 @@
    "ukuran": "011",
    "merek": "Orphee",
    "seri": "QE",
-   "artikel": 25,
+   "artikel": 26,
    "grup": "qe-senar"
   },
   {
@@ -893,7 +949,7 @@
    "ukuran": "010",
    "merek": "Orphee",
    "seri": "QE",
-   "artikel": 26,
+   "artikel": 27,
    "grup": "qe-senar"
   },
   {
@@ -923,7 +979,7 @@
    "ukuran": "009",
    "merek": "Orphee",
    "seri": "QE",
-   "artikel": 27,
+   "artikel": 28,
    "grup": "qe-senar"
   },
   {
@@ -953,7 +1009,7 @@
    "ukuran": "011",
    "merek": "Orphee",
    "seri": "TX",
-   "artikel": 28,
+   "artikel": 29,
    "grup": "tx-senar"
   },
   {
@@ -988,7 +1044,7 @@
     "Warm",
     "Extra Light"
    ],
-   "artikel": 29,
+   "artikel": 30,
    "grup": "sa-senar"
   },
   {
@@ -1018,7 +1074,7 @@
    "ukuran": "012",
    "merek": "Orphee",
    "seri": "QA",
-   "artikel": 30,
+   "artikel": 31,
    "grup": "qa-senar"
   },
   {
@@ -1048,7 +1104,7 @@
    "ukuran": "011",
    "merek": "Orphee",
    "seri": "QA",
-   "artikel": 31,
+   "artikel": 32,
    "grup": "qa-senar"
   },
   {
@@ -1079,7 +1135,7 @@
    "ukuran": "Hard Tension",
    "merek": "Orphee",
    "seri": "QC",
-   "artikel": 32,
+   "artikel": 33,
    "grup": "qc-senar"
   },
   {
@@ -1110,7 +1166,7 @@
    "ukuran": "Normal Tension",
    "merek": "Orphee",
    "seri": "QC",
-   "artikel": 33,
+   "artikel": 34,
    "grup": "qc-senar"
   },
   {
@@ -1141,7 +1197,7 @@
    "ukuran": "Hard Tension",
    "merek": "Orphee",
    "seri": "NX",
-   "artikel": 34,
+   "artikel": 35,
    "grup": "nx-senar"
   },
   {
@@ -1172,7 +1228,7 @@
    "ukuran": "Normal Tension",
    "merek": "Orphee",
    "seri": "NX",
-   "artikel": 35,
+   "artikel": 36,
    "grup": "nx-senar"
   },
   {
@@ -1202,7 +1258,7 @@
    "ukuran": "010",
    "merek": "Orphee",
    "seri": "TX",
-   "artikel": 36,
+   "artikel": 37,
    "grup": "tx-senar"
   },
   {
@@ -1247,7 +1303,7 @@
     }
    ],
    "tingkat": "Very Good",
-   "artikel": 37
+   "artikel": 38
   },
   {
    "kode": "STK-6J8WP3",
@@ -1295,7 +1351,7 @@
     }
    ],
    "tingkat": "Good",
-   "artikel": 38
+   "artikel": 39
   },
   {
    "kode": "STK-TZEN4Z",
@@ -1351,7 +1407,7 @@
     }
    ],
    "tingkat": "Very Good",
-   "artikel": 39
+   "artikel": 40
   },
   {
    "kode": "STK-U3X8N4",
@@ -1399,7 +1455,7 @@
     }
    ],
    "tingkat": "Excellent",
-   "artikel": 40
+   "artikel": 41
   },
   {
    "kode": "STK-UKV3BK",
@@ -1454,7 +1510,7 @@
      "kecil": "foto/stok/1a1bf9bf8a68cf0ae6df-k.webp"
     }
    ],
-   "artikel": 41
+   "artikel": 42
   },
   {
    "kode": "STK-FBXF37",
@@ -1510,7 +1566,7 @@
     }
    ],
    "tingkat": "Very Good",
-   "artikel": 42
+   "artikel": 43
   },
   {
    "kode": "STK-VM7JT5",
@@ -1538,7 +1594,7 @@
    ],
    "tipe": "Hardcase",
    "ukuran": "Standard Jumbo",
-   "artikel": 43
+   "artikel": 44
   },
   {
    "kode": "STK-752B52",
@@ -1593,7 +1649,7 @@
      "kecil": "foto/stok/e7844f12235295e49a13-k.webp"
     }
    ],
-   "artikel": 44
+   "artikel": 45
   },
   {
    "kode": "STK-QFV3U3",
@@ -1645,7 +1701,7 @@
     }
    ],
    "tingkat": "Mint",
-   "artikel": 45
+   "artikel": 46
   }
  ],
  "sampul": {
