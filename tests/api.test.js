@@ -74,6 +74,29 @@ test('stok: tiap barang di katalog punya halaman pratinjau unit/<kode>.html (tag
     assert.equal(gh.isi('ayri-guitar', 'unit/' + r.kode + '.html'), null, 'halaman unit dihapus bila barang keluar dari katalog');
 });
 
+test('stok: link Tokopedia dan Shopee per barang masuk katalog dan halaman unit; alamat di luar kedua toko itu dibuang', async () => {
+    const { gh, A, L } = await mulai();
+    const r = await A.simpanStok(stokContoh(null, 1, { id: undefined, kode: undefined, created_at: undefined, link_tokopedia: 'https://www.tokopedia.com/rioalamnur/gitar-x?utm=1', link_shopee: 'shopee.co.id/gitar-x-i.1.2' }), []);
+    const item = gh.json('ayri-guitar', 'data/katalog.json').item.find((x) => x.kode === r.kode);
+    assert.equal(item.tokopedia, 'https://www.tokopedia.com/rioalamnur/gitar-x?utm=1'); assert.equal(item.shopee, 'https://shopee.co.id/gitar-x-i.1.2');
+    const halaman = gh.isi('ayri-guitar', 'unit/' + r.kode + '.html');
+    assert.ok(halaman.includes('href="https://www.tokopedia.com/rioalamnur/gitar-x?utm=1"') && halaman.includes('Beli di Tokopedia') && halaman.includes('Beli di Shopee') && halaman.includes('rel="noopener nofollow"'));
+    /* alamat bukan milik Tokopedia/Shopee tidak pernah sampai ke katalog atau halaman unit, walau tersimpan di data stok */
+    const r2 = await A.simpanStok(Object.assign({}, r, { link_tokopedia: 'https://tokopedia.com.jahat.example/x', link_shopee: 'javascript:alert(1)' }), []);
+    const item2 = gh.json('ayri-guitar', 'data/katalog.json').item.find((x) => x.kode === r.kode);
+    assert.ok(!('tokopedia' in item2) && !('shopee' in item2));
+    assert.ok(!gh.isi('ayri-guitar', 'unit/' + r.kode + '.html').includes('Beli di'));
+    assert.ok(!JSON.stringify(gh.json('ayri-guitar', 'data/katalog.json')).includes('harga_beli'));
+});
+test('util: tautMarket hanya menerima alamat Tokopedia dan Shopee lewat https', () => {
+    const sb = {}; require('node:vm').createContext(sb); require('node:vm').runInContext(require('node:fs').readFileSync(require('node:path').join(__dirname, '..', 'util.js'), 'utf8'), sb); const U = sb.AYRI_UTIL;
+    const t = (u, k) => U.tautMarket(u, k);
+    assert.equal(t('https://www.tokopedia.com/a/b', 'tokopedia'), 'https://www.tokopedia.com/a/b');
+    assert.equal(t('  tokopedia.link/AbC12  ', 'tokopedia'), 'https://tokopedia.link/AbC12');
+    assert.equal(t('http://tk.tokopedia.com/x', 'tokopedia'), 'https://tk.tokopedia.com/x');
+    assert.equal(t('https://shopee.co.id/p-i.1.2', 'shopee'), 'https://shopee.co.id/p-i.1.2'); assert.equal(t('https://shope.ee/abc', 'shopee'), 'https://shope.ee/abc'); assert.equal(t('https://id.shp.ee/abc', 'shopee'), 'https://id.shp.ee/abc');
+    for (const [u, k] of [['https://tokopedia.com.jahat.com/x', 'tokopedia'], ['https://nottokopedia.com/x', 'tokopedia'], ['https://tokopedia.com@jahat.com/x', 'tokopedia'], ['javascript:alert(1)', 'shopee'], ['https://shopee.co.id/x', 'tokopedia'], ['https://tokopedia.com/x', 'shopee'], ['https://shopee.co.id/a b', 'shopee'], ['https://shopee.co.id/"><script>', 'shopee'], ['', 'shopee'], [null, 'shopee'], ['https://shopee.co.id/' + 'a'.repeat(600), 'shopee']]) assert.equal(t(u, k), '', String(u).slice(0, 40));
+});
 test('stok: tingkat kondisi hanya tampil di katalog untuk gitar bekas, tanpa tingkat kunci tidak ditulis', async () => {
     const { gh, A } = await mulai();
     const baru = { id: undefined, kode: undefined, created_at: undefined };

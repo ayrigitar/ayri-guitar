@@ -1618,6 +1618,7 @@
             kode: s.kode, kategori: aks ? 'aksesoris' : 'gitar', jenis: L.jenisStok(s), kondisi: s.kondisi || 'baru', nama: L.namaStok(s), warna: s.warna || '',
             deskripsi: s.deskripsi || '', harga: +s.harga_jual, status: s.status, sisa: aks && +s.jumlah <= C.katalogSisaTampil ? +s.jumlah : null,
             foto: (s.foto || []).filter(function (f) { return f.repo === 'publik'; }).map(function (f) { return { src: f.path, kecil: f.thumb_path || f.path }; }),
+            tokopedia: AYRI_UTIL.tautMarket(s.link_tokopedia, 'tokopedia') || undefined, shopee: AYRI_UTIL.tautMarket(s.link_shopee, 'shopee') || undefined,   /* tanpa link = kunci tidak ditulis */
             tingkat: L.tingkatStok(s) || undefined,   /* tanpa tingkat = kunci tidak ditulis (katalog lama tidak berubah) */
             alat: aks && (s.alat || []).length ? s.alat.slice() : undefined, tipe: aks && s.tipe ? s.tipe : undefined, ukuran: aks && s.ukuran ? s.ukuran : undefined, merek: aks && s.merek ? String(s.merek).trim() : undefined, seri: aks && s.seri ? String(s.seri).trim() : undefined, fitur: (s.fitur || []).length ? s.fitur.slice() : undefined,
             artikel: arguments.length > 1 ? slugArtikel : slugArtikelUnit(s)   /* tanpa artikel = kunci tidak ditulis */
@@ -1691,6 +1692,7 @@
             (x.artikel && /^[a-z0-9-]+$/.test(x.artikel) ? '<p class="unit-panduan"><a href="../artikel-' + x.artikel + '.html">Baca panduan lengkap: spesifikasi, perawatan, dan tips membeli &rsaquo;</a></p>' : '') +
             isiKembar(x) +
             '<div class="unit-aksi"><a class="ly-btn ly-btn--wa unit-wa" target="_blank" rel="noopener" href="' + e(wa) + '">Tanya / pesan via WhatsApp</a><button type="button" class="ly-btn" id="unit-bagikan">Bagikan</button></div>' +
+            AYRI_UTIL.htmlMarket(x) +
             '<div class="unit-toko"><b>' + e(C.toko.nama) + '</b><span>' + e(C.toko.alamat || '') + '</span>' + (C.toko.jam ? '<span>Jam buka: ' + e(C.toko.jam) + '</span>' : '') + '<span class="ly-muted">Lihat langsung, coba, dan bayar di toko.</span></div></section></div>';
     }
     /* "Unit lain, model sama": foto kecil, kemulusan, harga & selisihnya, label Lebih mulus / Lebih hemat, tautan ke halaman unitnya */

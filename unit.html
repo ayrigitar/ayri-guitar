@@ -167,6 +167,7 @@ document.addEventListener('DOMContentLoaded', function () {
             (x.status === 'dipesan' ? '<p class="unit-status unit-status--pesan">Sedang dipesan pembeli lain. Tanyakan bila batal.</p>' : '<p class="unit-status">Tersedia di toko</p>') +
             spek(x) + (x.deskripsi ? '<div class="unit-desk"><h2>Deskripsi</h2><p>' + esc(x.deskripsi) + '</p></div>' : '') +
             '<div class="unit-aksi"><a class="ly-btn ly-btn--wa unit-wa" target="_blank" rel="noopener" href="' + esc(wa(x)) + '">Tanya / pesan via WhatsApp</a><button type="button" class="ly-btn" id="unit-bagikan">Bagikan</button></div>' +
+            AYRI_UTIL.htmlMarket(x) +
             '<div class="unit-toko"><b>' + esc(toko.nama || 'Toko Gitar AYRI') + '</b><span>' + esc(toko.alamat || '') + '</span>' + (toko.jam ? '<span>Jam buka: ' + esc(toko.jam) + '</span>' : '') + '<span class="ly-muted">Lihat langsung, coba, dan bayar di toko.</span></div>' +
             '</section></div>' +
             (serupa.length ? '<section class="unit-serupa"><h2>Barang lainnya</h2><div class="kat-grid">' + serupa.map(kartu).join('') + '</div></section>' : '');
