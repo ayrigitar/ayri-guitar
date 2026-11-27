@@ -98,9 +98,11 @@
 }
 .t-note sup { margin-top: .12em; font: 700 .32em/1 var(--font-sans); color: var(--ink-3); letter-spacing: 0; }
 .tm.idle .t-note { color: var(--ink-3); }
-/* tuner: nada jadi pusat layar (besar), penunjuk setinggi secukupnya */
-.tuner-app .bf { flex: 0 0 auto; height: clamp(110px, 22dvh, 230px); }
-.tuner-app .t-note { margin-top: 14px; font-size: clamp(3.6rem, 13dvh, 8rem); }
+/* tuner di HP: nada jadi pusat layar (besar), penunjuk setinggi secukupnya; di PC tetap tampilan lama */
+@media (max-width: 899.98px), (max-height: 519.98px) {
+  .tuner-app .bf { flex: 0 0 auto; height: clamp(110px, 22dvh, 230px); }
+  .tuner-app .t-note { margin-top: 14px; font-size: clamp(3.6rem, 13dvh, 8rem); }
+}
 .tm.ok .t-note { text-shadow: 0 0 28px rgba(46, 180, 115, .55); }
 .t-status { min-height: 1.4em; font-size: 1rem; font-weight: 700; color: var(--ink-2); }
 .t-status.ok { color: #5CD196; }
