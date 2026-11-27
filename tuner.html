@@ -148,11 +148,15 @@
         </div>
         <h1 class="sr-only">Tuner Online: Gitar, Bass, Ukulele, Piano, Biola, Oud dan Kecapi</h1>
         <div class="selrow">
-            <label class="lb">Alat musik<select id="inst" class="sel"></select></label>
-            <label class="lb">Setelan<select id="tuning" class="sel"></select></label>
+            <label class="lb lb-i">Alat musik<select id="inst" class="sel" aria-label="Alat musik"></select></label>
+            <button type="button" class="tr-more-btn" id="tsetbtn" aria-expanded="false" aria-controls="tsetpanel" aria-label="Pengaturan tuner: mode presisi, mikrofon, nada A4" title="Pengaturan"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></svg></button>
+            <label class="lb lb-t">Setelan<select id="tuning" class="sel" aria-label="Setelan senar"></select></label>
             <label class="lb" id="tonicwrap" hidden>Nada dasar (da)<select id="tonic" class="sel"></select></label>
-            <label class="lb lb-cek"><span>Mode presisi</span><input type="checkbox" id="presisi" aria-label="Mode presisi: sen tepat satu desimal dan jarum lebih halus (+-25 sen)"></label>
-            <label class="lb">Mikrofon<select id="sens" class="sel"><option value="r">Rendah (ramai)</option><option value="s" selected>Sedang</option><option value="t">Tinggi (sepi)</option></select></label>
+            <div class="tset-panel" id="tsetpanel" role="group" aria-label="Pengaturan tuner">
+                <label class="lb lb-cek"><span>Mode presisi</span><input type="checkbox" id="presisi" aria-label="Mode presisi: sen tepat satu desimal dan jarum lebih halus (+-25 sen)"></label>
+                <label class="lb">Mikrofon<select id="sens" class="sel"><option value="r">Rendah (ramai)</option><option value="s" selected>Sedang</option><option value="t">Tinggi (sepi)</option></select></label>
+                <div class="a4row"><span>A4</span><button id="a4m" type="button" aria-label="Turunkan 1 Hz">&minus;</button><input id="a4" type="number" inputmode="decimal" min="400" max="480" step="0.1" value="440" aria-label="Frekuensi nada A4 dalam Hz"><button id="a4p" type="button" aria-label="Naikkan 1 Hz">+</button><span>Hz</span><button type="button" id="a4r" class="a4r" style="display:none" title="Kembali ke standar 440 Hz">Reset 440</button><span class="t-a4s" id="a4s"></span></div>
+            </div>
         </div>
         <div class="t-card tm idle" id="tm">
             <div class="bf" role="img" aria-label="Penunjuk ketepatan nada">
@@ -173,7 +177,6 @@
             <label class="lb">Oktaf<select id="po" class="sel"></select></label>
             <button id="pplay" type="button" class="t-btn alt" aria-label="Dengarkan nada acuan">&#9654;</button>
         </div>
-        <div class="a4row"><span>A4</span><button id="a4m" type="button" aria-label="Turunkan 1 Hz">&minus;</button><input id="a4" type="number" inputmode="decimal" min="400" max="480" step="0.1" value="440" aria-label="Frekuensi nada A4 dalam Hz"><button id="a4p" type="button" aria-label="Naikkan 1 Hz">+</button><span>Hz</span><button type="button" id="a4r" class="a4r" style="display:none" title="Kembali ke standar 440 Hz">Reset 440</button><span class="t-a4s" id="a4s"></span></div>
         <button id="start" type="button" class="t-btn">Mulai Tuner</button>
         </div>
     </main>
@@ -318,7 +321,15 @@
         function saveCust() { try { localStorage.setItem('ayri-tuner-custom', JSON.stringify(cust)); } catch (e) {} }
         function reset() { target = (inst === 'pn' && pT !== null) ? 0 : null; baca.lepas(); drawStrings(); }
         $('presisi').checked = presisi;
-        $('presisi').addEventListener('change', function () { presisi = this.checked; try { localStorage.setItem('ayri-tuner-presisi', presisi ? '1' : '0'); } catch (e) {} if (nd.live) aim(nd.cs); });
+        /* panel pengaturan: A4, mode presisi, mikrofon; titik di tombol bila ada yang diubah dari bawaan */
+        var tsb = $('tsetbtn'), tsp = $('tsetpanel');
+        function tsetBuka(b) { tsp.classList.toggle('buka', b); tsb.setAttribute('aria-expanded', b ? 'true' : 'false'); }
+        function tsetTitik() { tsb.classList.toggle('ada', A4 !== 440 || presisi); }
+        tsb.addEventListener('click', function (e) { e.stopPropagation(); tsetBuka(!tsp.classList.contains('buka')); });
+        document.addEventListener('click', function (e) { if (tsp.classList.contains('buka') && !tsp.contains(e.target)) tsetBuka(false); });
+        document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && tsp.classList.contains('buka')) { tsetBuka(false); tsb.focus(); } });
+        tsetTitik();
+        $('presisi').addEventListener('change', function () { presisi = this.checked; try { localStorage.setItem('ayri-tuner-presisi', presisi ? '1' : '0'); } catch (e) {} tsetTitik(); if (nd.live) aim(nd.cs); });
         $('inst').addEventListener('change', function () { inst = this.value; tun = 's'; fillTun(); reset(); });
         $('tuning').addEventListener('change', function () { tun = this.value; reset(); });
         $('auto').addEventListener('click', function () { target = null; baca.pick(); drawStrings(); });
@@ -736,7 +747,7 @@
         function setA4(v) {
             v = parseFloat(v); if (!(v >= 400 && v <= 480)) v = 440;
             A4 = Math.round(v * 10) / 10; $('a4').value = A4;
-            var std = A4 === 440; $('a4r').style.display = std ? 'none' : ''; $('a4s').className = 't-a4s' + (std ? '' : ' chg'); $('a4s').textContent = std ? '\u2713 Standar' : '\u26A0 Diubah';
+            var std = A4 === 440; $('a4r').style.display = std ? 'none' : ''; $('a4s').className = 't-a4s' + (std ? '' : ' chg'); $('a4s').textContent = std ? '\u2713 Standar' : '\u26A0 Diubah'; if (typeof tsetTitik === 'function') tsetTitik();
             try { localStorage.setItem('ayri-tuner-a4', A4); } catch (e) {}
             baca.lepas();
         }

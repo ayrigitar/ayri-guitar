@@ -179,17 +179,24 @@ input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; appear
 
 /* 5. Tata letak: Tuner
    ========================================================================== */
-/* HP: alat musik + mikrofon di baris 1, setelan (teks panjang) selebar layar di baris 2 */
+/* alat musik + tombol pengaturan di baris 1, setelan (teks panjang) selebar layar di baris 2; mode presisi, mikrofon, dan A4 ada di panel tombol pengaturan */
 .tuner-app .selrow {
-  display: grid; gap: 8px;
-  grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
-  grid-template-areas: "inst sens" "tun tun";
+  position: relative; display: grid; gap: 8px; align-items: center;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas: "inst gear" "tun tun";
 }
-.tuner-app .selrow:has(#tonicwrap:not([hidden])) { grid-template-areas: "inst sens" "tun tonic"; }
-.tuner-app .selrow > :nth-child(1) { grid-area: inst; }
-.tuner-app .selrow > :nth-child(2) { grid-area: tun; }
+.tuner-app .selrow:has(#tonicwrap:not([hidden])) { grid-template-areas: "inst gear" "tun tun" "tonic tonic"; }
+.tuner-app .selrow > .lb-i { grid-area: inst; }
+.tuner-app .selrow > #tsetbtn { grid-area: gear; width: 44px; height: 44px; }
+.tuner-app .selrow > .lb-t { grid-area: tun; }
 .tuner-app .selrow > #tonicwrap { grid-area: tonic; }
-.tuner-app .selrow > :nth-child(4) { grid-area: sens; }
+.tuner-app .selrow > .lb-i, .tuner-app .selrow > .lb-t { gap: 0; font-size: 0; }
+.tuner-app .tset-panel {
+  display: none; position: absolute; left: 0; right: 0; top: calc(100% + 8px); z-index: 30;
+  flex-direction: column; gap: 12px; padding: 14px;
+  border: 1px solid var(--line); border-radius: var(--r-lg); background: var(--surface); box-shadow: var(--shadow-md);
+}
+.tuner-app .tset-panel.buka { display: flex; }
 .tuner-app .tm { flex: 1 1 0; min-height: 0; }
 .tuner-app .ctl-col { display: contents; }
 .tuner-app .strrow { display: flex; align-items: stretch; gap: 6px; }
@@ -299,8 +306,7 @@ input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; appear
     border: 1px solid var(--line); border-radius: var(--r-xl);
     background: var(--surface); box-shadow: var(--shadow-sm);
   }
-  .tuner-app .selrow { grid-area: sel; grid-template-columns: 1fr 1fr; grid-template-areas: "inst tun" "sens tonic"; gap: 12px; }
-  .tuner-app .selrow:has(#tonicwrap:not([hidden])) { grid-template-areas: "inst tun" "sens tonic"; }
+  .tuner-app .selrow { grid-area: sel; gap: 12px; }
   .tuner-app .ctl-col { grid-area: ctl; display: flex; flex-direction: column; gap: 14px; min-height: 0; }
   .tuner-app #start { margin-top: auto; }
 
