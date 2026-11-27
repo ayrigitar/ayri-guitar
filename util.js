@@ -5,6 +5,20 @@
     var U = root.AYRI_UTIL = {
         /* aman untuk isi elemen maupun nilai atribut (kutip ganda dan tunggal ikut diganti) */
         esc: function (s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return HTML[c]; }); },
+        /* link produk marketplace: hanya alamat https milik Tokopedia atau Shopee (termasuk tautan pendeknya); selain itu kosong. toko = 'tokopedia' | 'shopee' */
+        tautMarket: function (url, toko) {
+            var m = /^(?:https?:\/\/)?([a-z0-9][a-z0-9.-]*)(?::443)?(\/[^\s"'<>\\]*)?$/i.exec(String(url == null ? '' : url).trim());
+            if (!m || m[0].length > 500) return '';
+            var h = m[1].toLowerCase(), ok = toko === 'tokopedia' ? /(^|\.)tokopedia\.com$|^tokopedia\.link$/.test(h) : toko === 'shopee' ? /(^|\.)shopee\.co\.id$|(^|\.)shope\.ee$|(^|\.)shp\.ee$/.test(h) : false;
+            return ok ? 'https://' + h + (m[2] || '') : '';
+        },
+        htmlMarket: function (x) {
+            var e = U.esc, t = U.tautMarket(x.tokopedia, 'tokopedia'), s = U.tautMarket(x.shopee, 'shopee');
+            if (!t && !s) return '';
+            return '<div class="unit-mp"><span class="unit-mp__h">Atau beli lewat marketplace (pembayaran dan pengiriman diatur marketplace)</span><div class="unit-mp__b">' +
+                (t ? '<a class="ly-btn unit-mp__a" target="_blank" rel="noopener nofollow" href="' + e(t) + '">Beli di Tokopedia</a>' : '') +
+                (s ? '<a class="ly-btn unit-mp__a" target="_blank" rel="noopener nofollow" href="' + e(s) + '">Beli di Shopee</a>' : '') + '</div></div>';
+        },
         /* 1500000 -> Rp1.500.000 (angka negatif diberi tanda minus) */
         rupiah: function (n) { n = Math.round(+n || 0); return (n < 0 ? '−' : '') + 'Rp' + Math.abs(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.'); },
         /* judul barang di katalog/poster. Gitar: "Gitar Akustik Yamaha F310" (Bass/Ukulele tanpa kata Gitar). Aksesoris: Kategori + Tipe + Alat musik + Merek & model + Ukuran,

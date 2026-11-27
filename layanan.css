@@ -404,6 +404,10 @@ html[data-theme="dark"] .unit-status:not(.unit-status--pesan) { color: #6EE7A8; 
 .unit-aksi { display: flex; flex-wrap: wrap; gap: 8px; }
 .unit-wa { flex: 1 1 14rem; min-height: 50px; font-size: 1rem; }
 .unit-aksi .ly-btn:not(.unit-wa) { min-height: 50px; }
+.unit-mp { display: grid; gap: 6px; margin-top: 10px; }
+.unit-mp__h { font-size: .8125rem; color: var(--ink-3); }
+.unit-mp__b { display: flex; flex-wrap: wrap; gap: 8px; }
+.unit-mp__a { flex: 1 1 10rem; min-height: 46px; }
 .unit-toko { display: grid; gap: 2px; padding: 12px 14px; border: 1px solid var(--line); border-radius: var(--r-md, 14px); background: var(--surface-2); font-size: .8125rem; }
 .unit-serupa { display: grid; gap: 4px; }
 .unit-bar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 40; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px var(--gutter) calc(10px + env(safe-area-inset-bottom)); border-top: 1px solid var(--line); background: var(--surface); box-shadow: 0 -6px 20px rgba(0, 0, 0, .08); }

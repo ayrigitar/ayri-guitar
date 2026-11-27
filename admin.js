@@ -3492,6 +3492,9 @@
             '<div class="ly-f"><span class="ly-hint" style="margin:0"><b>Fitur unggulan</b> (jadi bubble oval di samping foto poster, maks. 4). Ketik huruf pertama untuk saran.</span><div class="ly-pilih" id="sk-fitur"></div>' +
             '<div class="ly-row2"><input class="ly-in" id="sk-fitur-in" data-saran="dl-fitur" autocomplete="off" maxlength="24" placeholder="mis. Phosphor Bronze"><button type="button" class="ly-btn ly-btn--sm" id="sk-fitur-tambah">Tambah</button></div><datalist id="dl-fitur">' + opsiDatalist(fiturSaran()) + '</datalist></div>' +
             '<label>Deskripsi (kondisi, spesifikasi, kelengkapan)<textarea data-s="deskripsi" rows="3" placeholder="mis. mulus, action rendah, bonus softcase"></textarea></label>' +
+            '<fieldset class="ly-card ly-f"><legend>Link marketplace (opsional)</legend><p class="ly-hint" style="margin:0">Tempel link produk ini dari Tokopedia atau Shopee; di halaman unit muncul tombol "Beli di ...". Hanya alamat tokopedia.com, tokopedia.link, shopee.co.id, dan shope.ee yang diterima.</p>' +
+            '<label>Link Tokopedia<input type="url" inputmode="url" autocomplete="off" autocapitalize="off" data-s="link_tokopedia" placeholder="https://www.tokopedia.com/..."></label>' +
+            '<label>Link Shopee<input type="url" inputmode="url" autocomplete="off" autocapitalize="off" data-s="link_shopee" placeholder="https://shopee.co.id/..."></label></fieldset>' +
             (L.ai.aktif ? '<div class="ly-btns"><button type="button" class="ly-btn ly-btn--sm" id="sk-ai">✨ Tulis deskripsi dengan AI</button></div><p class="ly-hint" style="margin:0">Tulis catatan singkat dulu (mis. lecet kecil di body, bonus softcase); AI ikut melihat foto yang sudah diunggah (maks. 3) dan menambah spesifikasi model (jumlah senar, bahan, konstruksi). Spesifikasi itu dari pengetahuan AI, jadi cek lagi dengan barangnya sebelum menyimpan.</p>' : '') + '</fieldset>' +
             '<fieldset class="ly-card ly-f ly-grid"><legend>Harga &amp; jumlah</legend>' +
             '<div class="ly-row2">' + (owner() ? '<label>Modal / harga beli per unit (Rp)<input type="text" inputmode="numeric" autocomplete="off" data-rp data-s="harga_beli"></label>' : '') + '<label>Harga jual (Rp)<input type="text" inputmode="numeric" autocomplete="off" data-rp data-s="harga_jual"></label></div>' +
@@ -3687,6 +3690,10 @@
             s.status = 'tersedia'; masuk = +s.jumlah;
         }
         if (s.status === 'tersedia' && !(+s.jumlah > 0)) return toast('Jumlah tersedia masih 0, jadi barang tetap Terjual. Isi jumlah 1 bila barangnya memang ada lagi.', true);
+        var mpT = String(s.link_tokopedia || '').trim(), mpS = String(s.link_shopee || '').trim();
+        if (mpT && !AYRI_UTIL.tautMarket(mpT, 'tokopedia')) return toast('Link Tokopedia tidak dikenali. Tempel alamat produk dari tokopedia.com atau tokopedia.link.', true);
+        if (mpS && !AYRI_UTIL.tautMarket(mpS, 'shopee')) return toast('Link Shopee tidak dikenali. Tempel alamat produk dari shopee.co.id atau shope.ee.', true);
+        s.link_tokopedia = mpT ? AYRI_UTIL.tautMarket(mpT, 'tokopedia') : ''; s.link_shopee = mpS ? AYRI_UTIL.tautMarket(mpS, 'shopee') : '';
         s.merek = String(s.merek || '').trim();
         if (sk.baru && !s.merek) return toast('Isi merek.', true);
         if (s.kategori === 'aksesoris' ? !String(s.nama || '').trim() : !String(s.gitar_merk || '').trim()) return toast(s.kategori === 'aksesoris' ? 'Isi nama / model produk.' : 'Isi model gitar.', true);
