@@ -321,7 +321,6 @@ function jumlahSenar(v) { return v.f.filter(function (x) { return x >= 0; }).len
    "e" dan "a" = bentuk barre yang digeser: bentuk E (nada dasar di senar 6, fret = jarak dari E) dan bentuk A (nada dasar di senar 5, fret = jarak dari A); -1 = senar tidak dimainkan.
    Chord yang punya bentuk terbuka memakainya; chord tanpa bentuk terbuka (Bb, B, F#m7 ...) memilih antara bentuk E dan bentuk A yang paling dekat dengan chord di sekitarnya. */
 var UMUM = {
-    maj: { buka: { 0: 'x-3-2-0-1-0', 2: 'x-x-0-2-3-2', 7: '3-2-0-0-0-3' }, e: [0, 2, 2, 1, 0, 0], a: [-1, 0, 2, 2, 2, 0] },
     m: { buka: { 2: 'x-x-0-2-3-1' }, e: [0, 2, 2, 0, 0, 0], a: [-1, 0, 2, 2, 1, 0] },
     '7': { buka: { 0: 'x-3-2-3-1-0', 2: 'x-x-0-2-1-2', 7: '3-2-0-0-0-1' }, e: [0, 2, 0, 1, 0, 0], a: [-1, 0, 2, 0, 2, 0] },
     maj7: { buka: { 0: 'x-3-2-0-0-0', 2: 'x-x-0-2-2-2', 5: 'x-x-3-2-1-0', 7: '3-2-0-0-0-2' }, e: [0, 2, 1, 1, 0, 0], a: [-1, 0, 2, 1, 2, 0] },
@@ -364,7 +363,7 @@ function rencanaBentuk(lagu, inst) {
             dua = dua.map(function (v, j) { return { v: v, j: j, m: Math.min.apply(null, v.f.filter(function (x) { return x > 0; })) }; }).sort(function (a, b) { return a.m - b.m || a.j - b.j; }).map(function (x) { return x.v; });
             if (dua.length >= 2) full = dua;
         }
-        /* jenis chord yang umum (maj, m, 7, maj7, m7, sus2, sus4, 6, add9): hanya bentuk yang umum dipakai gitaris yang bersaing sebagai bentuk awal */
+        /* jenis chord yang umum (m, 7, maj7, m7, sus2, sus4, 6, add9): hanya bentuk yang umum dipakai gitaris yang bersaing sebagai bentuk awal */
         var ku = kodeUmum(c.r, tk), um = ku ? all.filter(function (v) { return ku.indexOf(kodeBentuk(v)) >= 0; }) : [];
         if (um.length) { full = um.map(function (v, j) { return { v: v, j: j, d: sulitBentuk(v) }; }).sort(function (a, b) { return a.d - b.d || a.j - b.j; }).map(function (x) { return x.v; }); umum[c.k] = 1; }
         mudah[c.k] = full.concat(ok.filter(function (v) { return full.indexOf(v) < 0; }));
