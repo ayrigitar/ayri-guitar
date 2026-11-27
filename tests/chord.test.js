@@ -148,3 +148,10 @@ test('bentuk pilihan: tersimpan bersama chord (riwayat urung/ulang dan edit ters
     assert.match(html, /xBentuk\(\); \$\('dr-edit'\)\.hidden = false;/, 'panel bentuk diisi saat laci Edit chord dibuka');
     assert.match(html, /if \(!\$\('dr-edit'\)\.hidden\) xBentuk\(\);/, 'urung/ulang saat laci terbuka memperbarui panel');
 });
+
+test('transkrip: mengetuk chord di daftar hanya memutar lagu dari chord itu (tidak membuka menu edit)', () => {
+    const html = baca('transkrip.html').replace(/\r\n/g, '\n'), a = html.indexOf("$('sheet').addEventListener('click'"), blok = html.slice(a, html.indexOf('});', a) + 3);
+    assert.match(blok, /au\.currentTime = s\.t0; mark\(s\.t0, true\);/);
+    assert.match(blok, /if \(au\.paused && !counting\) play\(\);/);
+    assert.doesNotMatch(blok, /\$\('edit'\)|st\.sel|dr-edit/, 'tidak membuka panel edit');
+});
