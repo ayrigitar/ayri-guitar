@@ -1149,8 +1149,10 @@
         app.setAttribute('data-daftar', 'buka');
     })();
     $('sheet').addEventListener('click', function (e) {
-        var b = e.target.closest('[data-i]'); if (!b) return; var i = +b.dataset.i, s = segs[i]; st.sel = i; au.currentTime = s.t0; mark(s.t0, true);
-        $('edit').hidden = false; $('er').value = sroot(s); $('et').value = s.ti; $('etl').textContent = 'Ubah chord di ' + fmt(s.t0) + ' (sekarang ' + cname(s) + ')';
+        /* ketuk chord di daftar = putar lagu dari chord itu (tidak membuka menu edit; mengedit lewat tombol Edit chord) */
+        var b = e.target.closest('[data-i]'); if (!b) return; var s = segs[+b.dataset.i]; if (!s) return;
+        au.currentTime = s.t0; mark(s.t0, true);
+        if (au.paused && !counting) play();
     });
     /* pengaturan lain (layar lebar): panel kecil, tutup dengan ketuk di luar atau Esc */
     (function () {
