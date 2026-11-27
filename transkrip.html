@@ -179,12 +179,12 @@
                         <label class="ts" title="Kecepatan lagu (nada tetap)"><svg class="ic" aria-hidden="true"><use href="#i-gauge"/></svg><span class="ts-s"><b class="ts-v" aria-hidden="true"></b><select id="rates" aria-label="Kecepatan lagu, nada tetap"></select></span></label>
                         <label class="ts" title="Transpose / kapo: ubah kunci nama chord, atau pakai kapo"><span class="ts-k">Transpose</span><span class="ts-s"><b class="ts-v" aria-hidden="true"></b><select id="capo" aria-label="Transpose atau kapo"></select></span></label>
                     </div>
-                    <button type="button" class="tr-more-btn tr-lstbtn" id="lstbtn" aria-pressed="true" aria-label="Tampilkan daftar chord di samping" title="Daftar chord: tampilkan / sembunyikan"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="14" rx="2.5"/><path d="M14.5 5v14"/></svg></button>
                     <button type="button" class="tr-more-btn" id="morebtn" aria-expanded="false" aria-controls="morepanel" aria-label="Pengaturan lain: instrumen, klik, tempo, tingkat chord" title="Pengaturan lain"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></svg></button>
                     <div class="tr-more-panel" id="morepanel" role="group" aria-label="Pengaturan lain">
                         <label class="ts" title="Instrumen"><svg class="ic" aria-hidden="true"><use href="#i-chord"/></svg><span class="ts-k">Instrumen</span><span class="ts-s"><b class="ts-v" aria-hidden="true"></b><select id="insts" aria-label="Instrumen"></select></span></label>
                         <span class="ts" title="Klik metronom sebelum lagu mulai"><svg class="ic" aria-hidden="true"><use href="#i-metronome"/></svg><span class="ts-s"><b class="ts-v" aria-hidden="true"></b><select id="cnts" aria-label="Jumlah klik metronom sebelum lagu mulai"></select></span><span class="ts-bpm" id="bpmw"><input id="bpm" class="numin" type="number" inputmode="numeric" min="40" max="220" aria-label="Tempo lagu dalam BPM (ketukan per menit), untuk kecepatan klik" title="Tempo lagu (ketukan per menit)"><span class="ts-k">BPM</span><button type="button" id="bpmhalf" title="Bagi dua tempo (bila terbaca dua kali lipat)" aria-label="Bagi dua tempo">&frac12;</button></span></span>
                         <label class="ts" id="modew" title="Tingkat kesulitan chord"><span class="ts-k">Chord</span><span class="ts-s"><b class="ts-v" aria-hidden="true"></b><select id="modes" aria-label="Tingkat kesulitan chord"></select></span></label>
+                        <label class="ts" id="ejaw" title="Penulisan nada hitam: kres (D#), mol (Eb), atau mengikuti kunci lagu"><span class="ts-k">Nada</span><span class="ts-s"><b class="ts-v" aria-hidden="true"></b><select id="ejas" aria-label="Penulisan nada: kres, mol, atau otomatis"></select></span></label>
                         <div class="tr-saran" id="capohint" hidden></div>
                     </div>
                 </div>
@@ -253,19 +253,20 @@
     <script>
 (function () {
     var $ = function (i) { return document.getElementById(i); };
-    var ana = null, akey = null, st = { level: 'asli', inst: 'gtr', capo: 0, rate: 1, count: 0, bpm: 90, a: null, b: null, loop: false, sel: -1 };
-    try { var sv = JSON.parse(localStorage.getItem('ayri-trans') || '{}'); ['inst', 'capo', 'rate', 'count', 'bpm', 'level'].forEach(function (k) { if (sv[k] !== undefined) st[k] = sv[k]; }); } catch (e) {}
+    var ana = null, akey = null, st = { level: 'asli', eja: 'kres', inst: 'gtr', capo: 0, rate: 1, count: 0, bpm: 90, a: null, b: null, loop: false, sel: -1 };
+    try { var sv = JSON.parse(localStorage.getItem('ayri-trans') || '{}'); ['inst', 'capo', 'rate', 'count', 'bpm', 'level', 'eja'].forEach(function (k) { if (sv[k] !== undefined) st[k] = sv[k]; }); } catch (e) {}
     if (st.level === 'rinci' || ['asli', 'sedang', 'mudah'].indexOf(st.level) < 0) st.level = 'asli';
+    if (['kres', 'mol', 'auto'].indexOf(st.eja) < 0) st.eja = 'kres';
     if ([0.5, 0.6, 0.75, 0.9, 1, 1.15, 1.25].indexOf(st.rate) < 0) st.rate = 1;
     if ([0, 2, 4].indexOf(st.count) < 0) st.count = 0;
     st.bpm = Math.max(40, Math.min(220, Math.round(+st.bpm) || 90));
     st.capo = Math.max(-11, Math.min(11, Math.round(+st.capo) || 0)); if (!INSTS[st.inst]) st.inst = 'gtr'; I = INSTS[st.inst]; st.skip = 5;
-    function save() { try { localStorage.setItem('ayri-trans', JSON.stringify({ inst: st.inst, capo: st.capo, rate: st.rate, count: st.count, bpm: st.bpm, level: st.level })); } catch (e) {} }
+    function save() { try { localStorage.setItem('ayri-trans', JSON.stringify({ inst: st.inst, capo: st.capo, rate: st.rate, count: st.count, bpm: st.bpm, level: st.level, eja: st.eja })); } catch (e) {} }
     var au = $('au'), segs = [], dur = 0, fname = '', objUrl = null, cur = -2, raf = 0, pending = null, dragging = false, counting = false, ac2 = null, shown = -1;
     var TT = [['maj', [0, 4, 7], [1, 0.85, 0.85], 0], ['m', [0, 3, 7], [1, 0.85, 0.85], 0], ['7', [0, 4, 7, 10], [1, 0.8, 0.8, 0.55], 0.35], ['m7', [0, 3, 7, 10], [1, 0.8, 0.8, 0.55], 0.35], ['maj7', [0, 4, 7, 11], [1, 0.8, 0.8, 0.55], 0.4], ['sus4', [0, 5, 7], [1, 0.85, 0.85], 0.5], ['dim7', [0, 3, 6, 9], [1, 0.85, 0.85, 0.85], 0.8]];
     var TIDX = TT.map(function (x) { return tIdx(x[0]); });
     var tempo = 0, chartText = '', chartOn = false;
-    function titleUi() { $('ttl').textContent = fname + (akey ? ' \u00b7 kunci perkiraan ' + disp(NM[akey.tonic]) + (akey.minor ? ' minor' : ' mayor') : '') + (tempo ? ' \u00b7 ~' + tempo + ' BPM' : '') + (chartOn ? ' \u00b7 pakai chart' : ''); }
+    function titleUi() { $('ttl').textContent = fname + (akey ? ' \u00b7 kunci perkiraan ' + disp(nm(akey.tonic, true)) + (akey.minor ? ' minor' : ' mayor') : '') + (tempo ? ' \u00b7 ~' + tempo + ' BPM' : '') + (chartOn ? ' \u00b7 pakai chart' : ''); }
     /* susun ulang chord: dari chart tempelan bila aktif, selain itu deteksi otomatis */
     /* Level hanya menyederhanakan NAMA chord; jumlah dan waktu chord tidak berubah. */
     var chartShift = null;
@@ -313,10 +314,22 @@
     /* Dengan kapo, nama utama = bentuk jari yang dimainkan; cname(s, true) = nama bunyi lagu (tanpa kapo). */
     function capoOn() { return st.capo !== 0 && !I.kb; }
     function capoTeks() { return st.capo > 0 ? 'kapo fret ' + st.capo : 'transpose +' + (-st.capo); }
+    /* penulisan nada hitam: kres (D#), mol (Eb), atau mengikuti kunci lagu setelah kapo (kunci F, Bb, Eb, Ab, Db mayor dan minor relatifnya memakai mol) */
+    var NSH = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'], NFL = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B'], KUNCI_MOL = { 1: 1, 3: 1, 5: 1, 8: 1, 10: 1 };
+    function pakaiMol(bunyi) {
+        if (st.eja === 'mol') return true;
+        if (st.eja !== 'auto' || !akey) return false;
+        var t = (akey.tonic - (!bunyi && capoOn() ? st.capo : 0) + 24) % 12;
+        return !!KUNCI_MOL[(akey.minor ? t + 3 : t) % 12];
+    }
+    function nm(i, bunyi) { return (pakaiMol(bunyi) ? NFL : NSH)[((i % 12) + 12) % 12]; }
+    function isiAkar() {
+        ['er', 'xr'].forEach(function (id) { var el = $(id), v = el.value; el.innerHTML = NSH.map(function (n, i) { return '<option value="' + i + '">' + disp(nm(i, false)) + '</option>'; }).join(''); if (v) el.value = v; });
+    }
     function cname(s, bunyi) {
         var sh = !bunyi && capoOn() ? st.capo : 0, r = (s.r - sh + 24) % 12;
-        if (st.level === 'asli' && typeof s.q === 'string') return disp(NM[r] + s.q + (s.bass >= 0 ? '/' + NM[(s.bass - sh + 12) % 12] : ''));
-        return disp(NM[r] + TYPES[lvTi(s)].s);
+        if (st.level === 'asli' && typeof s.q === 'string') return disp(nm(r, bunyi) + s.q + (s.bass >= 0 ? '/' + nm((s.bass - sh + 12) % 12, bunyi) : ''));
+        return disp(nm(r, bunyi) + TYPES[lvTi(s)].s);
     }
     /* ---------- analisis ---------- */
     function makeFFT(N) {
@@ -839,13 +852,14 @@
     }
     /* bentuk jari tiap chord dipilih untuk seluruh lagu: yang mudah dulu, lalu yang paling dekat dengan chord sebelum/sesudahnya (rencanaBentuk di chord-engine.js) */
     var rencana = { sig: '', p: null };
-    function voic(s) {
+    function planBentuk() {
         var sig = I.key + '|' + st.capo + '|' + st.level + '|' + segs.map(function (g) { return sroot(g) + ':' + lvTi(g); }).join(',');
         if (rencana.sig !== sig) rencana = { sig: sig, p: rencanaBentuk(segs.map(function (g) { return { r: sroot(g), ti: lvTi(g) }; }), I) };
-        return rencana.p.of(sroot(s), lvTi(s))[0];
+        return rencana.p;
     }
+    function voic(s) { return planBentuk().of(sroot(s), lvTi(s))[0]; }
     /* nama diagram bila beda dari nama chord (mis. Fmaj9 digambar sebagai Fmaj7) */
-    function diagNote(s) { var full = cname(s), simple = disp(NM[sroot(s)] + TYPES[lvTi(s)].s); return full !== simple ? ' · diagram: ' + simple : ''; }
+    function diagNote(s) { var full = cname(s), simple = disp(nm(sroot(s), false) + TYPES[lvTi(s)].s); return full !== simple ? ' · diagram: ' + simple : ''; }
     function drawChord(idx) {
         if (idx < 0 || !segs[idx]) { $('cn').textContent = '\u2013'; $('cs').textContent = ''; $('cd').innerHTML = ''; $('nx').textContent = ''; $('nd').innerHTML = ''; return; }
         var s = segs[idx], v = voic(s);
@@ -856,8 +870,20 @@
         var nx = segs[idx + 1]; $('nx').textContent = nx ? cname(nx) : 'selesai';
         $('nd').innerHTML = nx && voic(nx) ? diagram(voic(nx), { mini: true }) : '';
     }
+    /* daftar chord: 3 kolom x 3 baris terlihat; baris chord yang berbunyi selalu di tengah dan baris bergulir satu per tiga chord (seperti di aplikasi) */
+    function ukurBaris() { var sh = $('sheet'), t = sh.clientHeight; if (t > 0) sh.style.setProperty('--baris', Math.max(96, Math.floor((t - 32) / 3)) + 'px'); }
+    function gulirBaris(i) {
+        var sh = $('sheet'), ch = sh.children, a = ch[Math.floor(i / 3) * 3]; if (!a) return;
+        sh.scrollTop = a.offsetTop - (sh.clientHeight - a.offsetHeight) / 2;
+    }
+    if (window.ResizeObserver) new ResizeObserver(ukurBaris).observe($('sheet')); else window.addEventListener('resize', ukurBaris);
     function sheet() {
-        $('sheet').innerHTML = segs.map(function (s, i) { return '<button type="button" class="sc" data-i="' + i + '"><b>' + cname(s) + '</b><small>' + fmt(s.t0) + (s.src === 'auto' ? ' *' : '') + '</small></button>'; }).join('');
+        var pl = segs.length ? planBentuk() : null;
+        $('sheet').innerHTML = segs.map(function (s, i) {
+            var v = pl ? pl.of(sroot(s), lvTi(s))[0] : null;
+            return '<button type="button" class="sc" data-i="' + i + '"><span class="sc-h"><b>' + cname(s) + '</b><small>' + fmt(s.t0) + (s.src === 'auto' ? ' *' : '') + '</small></span><span class="sc-d">' + (v ? diagram(v, { mini: true, alt: 'Diagram ' + cname(s) }) : '') + '</span></button>';
+        }).join('');
+        ukurBaris();
         var cnt = {}, u = []; segs.forEach(function (s) { var k = cname(s); if (!cnt[k]) { cnt[k] = 0; u.push(s); } cnt[k]++; });
         u.sort(function (a, b) { return cnt[cname(b)] - cnt[cname(a)]; });
         $('legend').innerHTML = u.map(function (s) { var v = voic(s); return '<div class="lg"><b>' + cname(s) + (capoOn() ? ' <small>(bunyi ' + cname(s, true) + ')</small>' : '') + '</b>' + (v ? diagram(v, { alt: cname(s) }) : '<small>-</small>') + '</div>'; }).join('');
@@ -967,9 +993,9 @@
     function mark(t, force) {
         var i = idxAt(t);
         if (i !== cur || force) {
-            cur = i; var ch = $('sheet').children, k; for (k = 0; k < ch.length; k++) ch[k].className = 'sc' + (k === i ? ' on' : '') + (k === st.sel ? ' sel' : '');
+            cur = i; var ch = $('sheet').children, k; for (k = 0; k < ch.length; k++) ch[k].className = 'sc' + (k === i ? ' on' : k < i ? ' past' : '') + (k === st.sel ? ' sel' : '');
             if (i !== shown || force) { shown = i; drawChord(i); }
-            if (ch[i] && !au.paused && $('sheet').offsetParent) $('sheet').scrollTop = ch[i].offsetTop - $('sheet').clientHeight / 2 + 20;
+            if (ch[i] && !au.paused && $('sheet').offsetParent) gulirBaris(i);
         }
         var hl = chartOn && heard ? heardDiff(segs[i], heard[idxIn(heard, t)]) : '', ht = hl ? 'terdengar: ' + hl : ''; if ($('hd').textContent !== ht) $('hd').textContent = ht;
         var nx = segs[i + 1]; if (nx && !counting) $('nt').textContent = 'dalam ' + Math.max(0, (nx.t0 - t) / st.rate).toFixed(1) + ' dtk';
@@ -1034,7 +1060,7 @@
         $('cnts').innerHTML = [0, 2, 4].map(function (c) { return '<option value="' + c + '"' + (c === st.count ? ' selected' : '') + '>' + (c ? c + ' klik' : 'Mati') + '</option>'; }).join('');
         var tp = []; for (var v = 11; v >= -11; v--) tp.push(v);
         $('capo').innerHTML = tp.map(function (v) { var c = -v; return '<option value="' + c + '"' + (c === st.capo ? ' selected' : '') + '>' + (v === 0 ? '0' : v > 0 ? '+' + v : '\u2212' + (-v) + (c <= 9 ? ' \u00b7 kapo ' + c : '')) + '</option>'; }).join(''); $('capo').disabled = !!I.kb;
-        $('modes').innerHTML = [['asli', 'Asli'], ['sedang', 'Sedang'], ['mudah', 'Mudah']].map(function (m) { return '<option value="' + m[0] + '"' + (m[0] === st.level ? ' selected' : '') + '>' + m[1] + '</option>'; }).join(''); $('modew').hidden = !segs.length; $('bpmw').hidden = !st.count;
+        $('modes').innerHTML = [['asli', 'Asli'], ['sedang', 'Sedang'], ['mudah', 'Mudah']].map(function (m) { return '<option value="' + m[0] + '"' + (m[0] === st.level ? ' selected' : '') + '>' + m[1] + '</option>'; }).join(''); $('ejas').innerHTML = [['kres', 'Kres \u266f'], ['mol', 'Mol \u266d'], ['auto', 'Otomatis']].map(function (m) { return '<option value="' + m[0] + '"' + (m[0] === st.eja ? ' selected' : '') + '>' + m[1] + '</option>'; }).join(''); $('modew').hidden = !segs.length; $('bpmw').hidden = !st.count;
         /* chip menampilkan pilihan yang aktif; kotak pilihan aslinya transparan di atasnya */
         [].forEach.call(document.querySelectorAll('.ts-s select'), function (sel) { var o = sel.options[sel.selectedIndex]; sel.previousElementSibling.textContent = o ? o.text : ''; });
         $('bpm').value = st.bpm; au.playbackRate = st.rate; au.preservesPitch = true; au.webkitPreservesPitch = true; au.mozPreservesPitch = true;
@@ -1090,6 +1116,7 @@
     $('seek').addEventListener('input', function () { henti(); dragging = true; keWaktu(+this.value); }); $('seek').addEventListener('change', function () { dragging = false; });
     $('insts').addEventListener('change', function () { st.inst = this.value; I = INSTS[st.inst]; save(); chips(); sheet(); });
     /* ganti tingkat: hanya nama chord yang berubah, waktu dan suntingan tetap */
+    $('ejas').addEventListener('change', function () { st.eja = this.value; save(); chips(); titleUi(); isiAkar(); sheet(); });
     $('modes').addEventListener('change', function () { if (!segs.length) return; st.level = this.value; save(); chips(); sheet(); });
     $('rates').addEventListener('change', function () { st.rate = +this.value; save(); chips(); });
     $('cnts').addEventListener('change', function () { st.count = +this.value; save(); chips(); });
@@ -1105,12 +1132,8 @@
         function pasang(x) { v = x; app.setAttribute('data-tampil', x); [].forEach.call(tb, function (b) { b.setAttribute('aria-pressed', b.getAttribute('data-tampil') === x); }); try { localStorage.setItem('ayri-tr-tampil', x); } catch (e) {} }
         [].forEach.call(tb, function (b) { b.addEventListener('click', function () { pasang(b.getAttribute('data-tampil')); }); });
         pasang(v);
-        /* layar lebar: tampilan awal seperti rilis pertama (tanpa daftar); tombol daftar membuka panel daftar chord di kanan */
-        var lb = $('lstbtn'), tutup = false;
-        try { tutup = localStorage.getItem('ayri-tr-daftar2') !== 'buka'; } catch (e) {}
-        function daftar(t) { tutup = t; app.setAttribute('data-daftar', t ? 'tutup' : 'buka'); lb.setAttribute('aria-pressed', !t); lb.setAttribute('aria-label', t ? 'Tampilkan daftar chord di samping' : 'Sembunyikan daftar chord di samping'); try { localStorage.setItem('ayri-tr-daftar2', t ? 'tutup' : 'buka'); } catch (e) {} }
-        lb.addEventListener('click', function () { daftar(!tutup); });
-        daftar(tutup);
+        /* layar lebar: daftar chord selalu tampil di kanan (tidak ada tombol untuk menyembunyikan) */
+        app.setAttribute('data-daftar', 'buka');
     })();
     $('sheet').addEventListener('click', function (e) {
         var b = e.target.closest('[data-i]'); if (!b) return; var i = +b.dataset.i, s = segs[i]; st.sel = i; au.currentTime = s.t0; mark(s.t0, true);
@@ -1159,7 +1182,7 @@
     function confirmReplaceEdits() { return !(hasSaved() || snap() !== baseSnap) || window.confirm('Lagu ini punya chord hasil edit.\n\nHasil baru akan menggantikan semua edit tersebut. Lanjutkan?'); }
     $('undo').addEventListener('click', undo); $('redo').addEventListener('click', redo);
     [].forEach.call(document.querySelectorAll('.xreset'), function (b) { b.addEventListener('click', resetAll); });
-    $('er').innerHTML = NM.map(function (n, i) { return '<option value="' + i + '">' + disp(n) + '</option>'; }).join('');
+    isiAkar();
     $('et').innerHTML = TYPES.map(function (t, i) { return '<option value="' + i + '">' + (t.s || 'Mayor') + '</option>'; }).join('');
     $('eok').addEventListener('click', function () { editOp(function () { var s = segs[st.sel]; if (!s) return; s.r = (+$('er').value + (capoOn() ? st.capo : 0) + 12) % 12; s.ti = +$('et').value; delete s.q; delete s.bass; sheet(); }); });
     /* geser awal chord yang dipilih satu ketukan (mengikuti ketukan lagu bila terdeteksi, jika tidak 0,25 detik) */
@@ -1196,7 +1219,6 @@
     function snapBeat(t) { var bs = ana && (ana._bs || ana._bs2), i, b = -1; if (!bs || !bs.t.length) return t; for (i = 0; i < bs.t.length; i++) if (b < 0 || Math.abs(bs.t[i] - t) < Math.abs(bs.t[b] - t)) b = i; return Math.max(0, bs.t[b] - 0.02); }
     function xPick() { return { r: (+$('xr').value + (capoOn() ? st.capo : 0) + 12) % 12, ti: +$('xt').value }; }
     function xDone(msg) { st.sel = -1; $('edit').hidden = true; sheet(); $('dr-edit').hidden = true; var m = $('adjm'); m.textContent = msg; clearTimeout(adjT); adjT = setTimeout(function () { m.textContent = ''; }, 1800); }
-    $('xr').innerHTML = NM.map(function (n, i) { return '<option value="' + i + '">' + disp(n) + '</option>'; }).join('');
     $('xt').innerHTML = TYPES.map(function (t, i) { return '<option value="' + i + '">' + (t.s ? disp(t.s) : 'Mayor') + '</option>'; }).join('');
     $('adjX').addEventListener('click', function () {
         var t = au.currentTime || 0, i = idxAt(t); if (i < 0) i = 0; if (!segs[i]) return;

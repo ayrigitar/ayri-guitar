@@ -82,3 +82,43 @@ test('transkrip: ukulele, bass, dan piano tetap memakai urutan mesin; halaman me
     assert.equal(rencanaBentuk([{ r: 0, ti: maj }], INSTS.pno).of(0, maj).length, 1);
     assert.match(baca('transkrip.html'), /rencanaBentuk\(segs\.map/);
 });
+
+/* Transkrip (web): tampilan dikunci (tanpa tombol daftar chord) dan penulisan nada Kres / Mol / Otomatis seperti di aplikasi. */
+function ejaan(st, akey, capo) {
+    const html = baca('transkrip.html').replace(/\r\n/g, '\n'), a = html.indexOf('var NSH'), b = html.indexOf('    function cname(s, bunyi) {');
+    assert.ok(a > 0 && b > a, 'blok ejaan tidak ditemukan');
+    const sb = { st, akey, capoOn: () => capo !== 0 }; sb.st.capo = capo; vm.createContext(sb);
+    vm.runInContext(html.slice(a, b) + '\nthis.__ex = { nm, pakaiMol };', sb);
+    return sb.__ex;
+}
+test('transkrip: Kres menulis D#, Mol menulis Eb, tanpa campuran', () => {
+    const k = ejaan({ eja: 'kres' }, null, 0), m = ejaan({ eja: 'mol' }, null, 0);
+    assert.deepEqual([1, 3, 6, 8, 10].map((i) => k.nm(i)), ['C#', 'D#', 'F#', 'G#', 'A#']);
+    assert.deepEqual([1, 3, 6, 8, 10].map((i) => m.nm(i)), ['Db', 'Eb', 'Gb', 'Ab', 'Bb']);
+});
+test('transkrip: Otomatis mengikuti kunci lagu setelah kapo (F, Bb, Eb, Ab, Db mayor dan relatif minornya mol; C dan F# kres)', () => {
+    const mol = (tonic, minor, capo = 0) => ejaan({ eja: 'auto' }, { tonic, minor }, capo).pakaiMol(false);
+    assert.equal(mol(5, false), true); assert.equal(mol(10, false), true); assert.equal(mol(3, false), true);
+    assert.equal(mol(2, true), true, 'D minor = relatif F mayor');
+    assert.equal(mol(0, false), false); assert.equal(mol(2, false), false); assert.equal(mol(6, false), false); assert.equal(mol(4, true), false);
+    assert.equal(mol(4, false, 3), true, 'kunci E dengan kapo 3: bentuk jari dalam kunci C#/Db, jadi mol');
+    assert.equal(ejaan({ eja: 'auto' }, { tonic: 4, minor: false }, 3).pakaiMol(true), false, 'nama bunyi lagu (E) tidak digeser kapo');
+    assert.equal(ejaan({ eja: 'auto' }, null, 0).pakaiMol(false), false, 'kunci belum diketahui: kres');
+});
+test('transkrip: tidak ada tombol pilihan tampilan di layar lebar; daftar chord selalu terbuka; pilihan Nada ada di panel pengaturan', () => {
+    const html = baca('transkrip.html'), css = baca('tools.css');
+    assert.doesNotMatch(html, /id="lstbtn"/); assert.doesNotMatch(css, /lstbtn/); assert.doesNotMatch(css, /data-daftar="tutup"/);
+    assert.match(html, /app\.setAttribute\('data-daftar', 'buka'\)/);
+    assert.match(html, /id="ejas"/); assert.match(html, /'ayri-trans'[^]*eja: st\.eja/);
+    assert.doesNotMatch(html, /NM\[/, 'nama nada di halaman ini lewat nm(), bukan daftar campuran NM');
+});
+
+test('transkrip: daftar chord berbentuk kisi 3 kolom seperti di aplikasi (nama, waktu, diagram; yang berbunyi di baris tengah, yang lewat redup)', () => {
+    const html = baca('transkrip.html').replace(/\r\n/g, '\n'), css = baca('tools.css').replace(/\r\n/g, '\n');
+    assert.match(html, /<span class="sc-h"><b>' \+ cname\(s\) \+ '<\/b><small>[^]*<span class="sc-d">' \+ \(v \? diagram\(v, \{ mini: true/, 'tiap sel: nama, waktu, diagram');
+    assert.match(html, /k === i \? ' on' : k < i \? ' past' : ''/, 'chord yang sudah lewat diberi tanda');
+    assert.match(html, /a = ch\[Math\.floor\(i \/ 3\) \* 3\][^]*sh\.scrollTop = a\.offsetTop - \(sh\.clientHeight - a\.offsetHeight\) \/ 2/, 'baris chord yang berbunyi di tengah, bergulir per baris');
+    assert.match(css, /\.tr-lagu \.sheet \{ display: grid; grid-template-columns: repeat\(3, minmax\(0, 1fr\)\)/);
+    assert.match(css, /\.tr-lagu \.sc\.on \{ border: 2px solid var\(--accent\)/);
+    assert.match(css, /#pa \.sc-d \{ display: none; \}/, 'cetak tetap berupa daftar nama dan waktu');
+});
