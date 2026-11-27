@@ -1279,7 +1279,7 @@
                     'Isi memakai subjudul "## ...", poin "- ...", dan **tebal** seperlunya, tanpa judul utama (judul sudah ada). Panjang 600 sampai 900 kata.',
                 prompt: 'Merek: ' + m + '\nJudul artikel: ' + (a.judul || '') + (ada.length ? '\n\nModel ' + m + ' yang pernah atau sedang ada di toko (boleh disinggung sebagai contoh, tanpa klaim tentang kondisi unit):\n' + ada.slice(0, 12).map(function (x) { return '- ' + x; }).join('\n') : '') +
                     (String(a.isi || '').trim() ? '\n\nBahan tambahan dari admin:\n' + String(a.isi).trim() : '') +
-                    '\n\nSusun artikel dengan subjudul berikut, berurutan:\n## Sekilas tentang ' + m + '\n## Sejarah singkat\n## Ciri khas suara dan kualitas\n## Lini produk yang populer (hanya yang kamu yakin)\n' +
+                    '\n\nSusun artikel dengan subjudul berikut, berurutan:\n## ' + m + ' berasal dari mana? (kalimat pertama langsung menjawab: negara asal dan tahun berdiri HANYA bila kamu yakin, lalu ringkasan singkat merek)\n## Sejarah singkat\n## Ciri khas suara dan kualitas\n## Lini produk yang populer (hanya yang kamu yakin)\n' +
                     '## Dipakai oleh siapa (LEWATI bagian ini bila kamu tidak yakin ada pemakai terdokumentasi)\n## Tips memilih dan membeli ' + m + ' bekas\n## Tanya jawab (4 sampai 5 pertanyaan tentang merek, tiap pertanyaan **tebal** lalu jawabannya)\n## ' + m + ' di ' + C.toko.nama + ' (ajak bertanya lewat WhatsApp atau melihat katalog)',
                 maks: 3200
             };
@@ -1294,6 +1294,7 @@
                     'Jujur: jangan mengarang data kasus, merk, harga, atau janji garansi yang tidak ada di bahan. Jangan menyebut nama atau nomor pelanggan. ' +
                     'Format jawaban: baris pertama "RINGKASAN: " diikuti ringkasan paling banyak 150 huruf untuk Google, lalu satu baris kosong, lalu isi artikel. ' +
                     'Isi memakai subjudul "## ...", poin "- ...", dan **tebal** seperlunya, tanpa judul utama (judul sudah ada). Panjang 350 sampai 600 kata. ' +
+                    'Buat subjudul berupa pertanyaan yang sering dicari pemilik gitar (mis. "Berapa biaya ...?", "Apa penyebab ...?", "Kapan perlu ...?") dan jawab langsung di kalimat pertama tiap bagian. Sebut Bogor secara wajar bila relevan, jangan menjejalkan kata kunci. ' +
                     'Akhiri dengan ajakan konsultasi atau servis ke ' + C.toko.nama + ' di Bogor lewat WhatsApp.',
                 prompt: 'Judul artikel: ' + (a.judul || '') + (a.tag ? '\nLabel: ' + a.tag : '') + (kasus ? '\n\nKasus servis di toko (tanpa data pelanggan):\n' + kasus : '') +
                     '\n\nBahan / catatan dari toko:\n' + (String(a.isi || '').trim() || '(tidak ada, tulis dari pengetahuan umum yang aman tentang topik di judul)'),

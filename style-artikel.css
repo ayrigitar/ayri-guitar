@@ -269,3 +269,11 @@ html[data-theme="dark"] .offer { border: 1px solid var(--line); }
 .unit-box__teks { margin: 0; font-weight: 650; color: var(--ink); }
 .unit-box__aksi { display: flex; flex-wrap: wrap; gap: 8px; }
 .unit-box[data-status="tidak-tersedia"] { background: var(--surface-2); border-color: var(--line-strong); }
+
+/* Halaman servis-gitar-bogor.html: daftar harga dan tanya jawab */
+.servis-harga { margin-top: 1rem; }
+.faq { display: grid; gap: 10px; }
+.faq details { border: 1px solid var(--line); border-radius: var(--r-lg); background: var(--surface); padding: 0 18px; }
+.faq summary { cursor: pointer; padding: 14px 0; font-weight: 700; color: var(--ink); list-style-position: outside; }
+.faq details[open] summary { padding-bottom: 6px; }
+.faq details > p { margin: 0 0 14px; font-size: 1rem; line-height: 1.7; }
