@@ -90,9 +90,7 @@ test('transkrip: bentuk awal gitar adalah bentuk yang umum dipakai (B7 dan Bm7 s
     assert.equal(f(ada(5, 'maj7'), 5, 'maj7'), '-1,-1,3,2,1,0');
 });
 test('transkrip: kotak chord di daftar memakai bentuk pilihan pemakai (voic), jadi berubah saat bentuk diganti di menu Edit', () => {
-    const h = baca('transkrip.html').replace(/
-/g, '
-');
+    const h = baca('transkrip.html').replace(/\r\n/g, '\n');
     assert.match(h, /var v = pl \? voic\(s\) : null;/);
     assert.doesNotMatch(h, /pl\.of\(sroot\(s\), lvTi\(s\)\)\[0\]/);
 });
