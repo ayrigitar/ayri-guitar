@@ -329,6 +329,10 @@
         document.addEventListener('click', function (e) { if (tsp.classList.contains('buka') && !tsp.contains(e.target)) tsetBuka(false); });
         document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && tsp.classList.contains('buka')) { tsetBuka(false); tsb.focus(); } });
         tsetTitik();
+        /* PC: baris A4 ada di kartu senar (di atas tombol Mulai); HP: di dalam panel pengaturan */
+        var a4baris = document.querySelector('.a4row'), lebar = window.matchMedia('(min-width: 900px) and (min-height: 520px)');
+        function a4Tempat() { if (lebar.matches) $('start').parentNode.insertBefore(a4baris, $('start')); else tsp.appendChild(a4baris); }
+        a4Tempat(); if (lebar.addEventListener) lebar.addEventListener('change', a4Tempat); else lebar.addListener(a4Tempat);
         $('presisi').addEventListener('change', function () { presisi = this.checked; try { localStorage.setItem('ayri-tuner-presisi', presisi ? '1' : '0'); } catch (e) {} tsetTitik(); if (nd.live) aim(nd.cs); });
         $('inst').addEventListener('change', function () { inst = this.value; tun = 's'; fillTun(); reset(); });
         $('tuning').addEventListener('change', function () { tun = this.value; reset(); });
