@@ -125,11 +125,46 @@
         });
     } catch (e) {}
 
-    /* Senar fretboard bergetar saat disentuh / dilewati kursor */
-    document.querySelectorAll('.fretboard i').forEach(function (s) {
-        function pluck() { s.classList.remove('is-plucked'); void s.offsetWidth; s.classList.add('is-plucked'); }
-        s.addEventListener('pointerenter', pluck);
-        s.addEventListener('pointerdown', pluck);
+    /* Senar fretboard bergetar saat disentuh / dilewati kursor. Bunyi (gitar standar E A D G B E) hanya saat senar diklik/diketuk
+       atau digeser sambil menahan tombol mouse (strum); kursor yang sekadar lewat tetap diam supaya tidak mengagetkan pengunjung.
+       Suara dibuat di browser (Karplus-Strong, tanpa berkas audio), baru dibuat saat senar pertama dipetik, pelan dan pendek. */
+    var NADA = [82.41, 110, 146.83, 196, 246.94, 329.63], ac = null, bufSenar = [], suaraAktif = [];
+    function mesinSuara() {
+        if (ac) return ac;
+        var AC = window.AudioContext || window.webkitAudioContext;
+        if (!AC) return null;
+        try { ac = new AC(); } catch (e) { ac = null; }
+        return ac;
+    }
+    /* senar dipetik: noise pendek yang dihaluskan lalu diulang lewat penyaring rata-rata (Karplus-Strong), meredup sekitar 1,6 detik */
+    function buatSenar(f, sr) {
+        var n = Math.floor(sr * 1.6), N = Math.max(2, Math.round(sr / f)), ring = new Float32Array(N), out = new Float32Array(n), i, k = 0, peak = 0, prev = 0;
+        for (i = 0; i < N; i++) { var r = Math.random() * 2 - 1; ring[i] = prev = (prev + r) * 0.5; }
+        for (i = 0; i < n; i++) {
+            out[i] = ring[k]; if (Math.abs(out[i]) > peak) peak = Math.abs(out[i]);
+            ring[k] = 0.996 * 0.5 * (ring[k] + ring[(k + 1) % N]); k = (k + 1) % N;
+        }
+        var turun = Math.floor(sr * 0.3);
+        for (i = 0; i < n; i++) out[i] = out[i] / (peak || 1) * (i > n - turun ? (n - i) / turun : 1);
+        return out;
+    }
+    function bunyi(idx) {
+        if (document.hidden) return;
+        var c = mesinSuara(); if (!c) return;
+        if (c.state === 'suspended' && c.resume) c.resume();
+        if (!bufSenar[idx]) { var d = buatSenar(NADA[idx % NADA.length], c.sampleRate), b = c.createBuffer(1, d.length, c.sampleRate); b.getChannelData(0).set(d); bufSenar[idx] = b; }
+        var src = c.createBufferSource(), g = c.createGain(), t = c.currentTime, lama = suaraAktif[idx];
+        if (lama) { try { lama.g.gain.cancelScheduledValues(t); lama.g.gain.setTargetAtTime(0, t, 0.02); lama.src.stop(t + 0.1); } catch (e) {} } /* petikan ulang di senar yang sama memotong yang lama */
+        src.buffer = bufSenar[idx]; g.gain.value = 0.16; src.connect(g); g.connect(c.destination); src.start(t);
+        suaraAktif[idx] = { src: src, g: g };
+    }
+    document.querySelectorAll('.fretboard i').forEach(function (s, idx) {
+        function pluck(suara) {
+            s.classList.remove('is-plucked'); void s.offsetWidth; s.classList.add('is-plucked');
+            if (suara) bunyi(idx);
+        }
+        s.addEventListener('pointerenter', function (e) { pluck(e.pointerType === 'mouse' && (e.buttons & 1) === 1); });
+        s.addEventListener('pointerdown', function () { pluck(true); });
     });
 
     /* Teks besar yang harus muat satu baris (mis. nama chord panjang): kecilkan huruf seperlunya */
