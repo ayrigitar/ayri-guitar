@@ -736,6 +736,15 @@ canvas.ctab.seret { cursor: grabbing; }
 .sc.on small { color: inherit; opacity: .8; }
 .sc.sel { outline: 3px solid rgba(47, 181, 116, .55); outline-offset: 1px; }
 
+/* Edit chord: pilihan bentuk jari */
+.bp { display: flex; align-items: center; gap: 14px; margin: .8rem 0; padding: 10px 12px; border: 1px solid var(--line); border-radius: var(--r-md); background: var(--surface-2); }
+.bp[hidden] { display: none; }
+.bp-d { flex: 0 0 112px; }
+.bp-d .cd { display: block; width: 100%; height: auto; }
+.bp-t { display: grid; gap: 6px; min-width: 0; }
+.bp-t b { font-size: 1rem; }
+.bp-t .pg-row { margin: 0; }
+
 /* Chord lagu ini: tampilan kedua di layar utama, di dalam kartu panggung */
 .tr-lagu { display: flex; flex-direction: column; gap: 8px; min-width: 0; min-height: 0; }
 .tr-lagu .sheet { max-height: 30vh; }

@@ -323,7 +323,7 @@ function rencanaBentuk(lagu, inst) {
     var opsi = {};
     if (inst.kb || !bentukPintar(inst)) {
         keys.forEach(function (c) { var all = voicings(c.r, c.ti, inst); opsi[c.k] = inst.kb ? all.slice(0, 1) : all; });
-        return { of: function (r, ti) { return opsi[kunci(r, ti)] || voicings(r, ti, inst); } };
+        return { of: function (r, ti) { return opsi[kunci(r, ti)] || voicings(r, ti, inst); }, easy: function (r, ti) { return (opsi[kunci(r, ti)] || voicings(r, ti, inst)).length; } };
     }
     var mudah = {}, semua = {}, penuh = {}, dipilih = {};
     keys.forEach(function (c) {
@@ -367,5 +367,9 @@ function rencanaBentuk(lagu, inst) {
         var sisa = semua[c.k].map(function (v, j) { return { v: v, j: j, d: sulitBentuk(v) }; }).sort(function (a, b) { return a.d - b.d || a.j - b.j; }).map(function (x) { return x.v; }).filter(function (v) { return lebihMudah.indexOf(v) < 0; });
         opsi[c.k] = lebihMudah.concat(sisa);
     });
-    return { of: function (r, ti) { return opsi[kunci(r, ti)] || voicings(r, ti, inst); } };
+    return { of: function (r, ti) { return opsi[kunci(r, ti)] || voicings(r, ti, inst); }, easy: function (r, ti) { var m = mudah[kunci(r, ti)]; return m ? m.length : (opsi[kunci(r, ti)] || voicings(r, ti, inst)).length; } };
 }
+/* Bentuk yang dipilih pemakai disimpan sebagai fret-nya ("x-3-2-0-1-0"), bukan nomor urut, supaya tetap benar bila urutan bentuk berubah. Satu chord menyimpan satu pilihan per instrumen: "gtr:4-6-6-5-4-4;uke:2-0-1-0" (sama dengan aplikasi Studio Tools). */
+function kodeBentuk(v) { return v.f.map(function (x) { return x < 0 ? 'x' : x; }).join('-'); }
+function kodeUntuk(shape, inst) { var p = String(shape || '').split(';'), i; for (i = 0; i < p.length; i++) if (p[i].indexOf(inst + ':') === 0 && p[i].length > inst.length + 1) return p[i].slice(inst.length + 1); return null; }
+function kodeDengan(shape, inst, kode) { var o = String(shape || '').split(';').filter(function (x) { return x && x.indexOf(inst + ':') !== 0; }); if (kode) o.push(inst + ':' + kode); return o.join(';'); }

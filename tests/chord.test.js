@@ -122,3 +122,29 @@ test('transkrip: daftar chord berbentuk kisi 3 kolom seperti di aplikasi (nama, 
     assert.match(css, /\.tr-lagu \.sc\.on \{ border: 2px solid var\(--accent\)/);
     assert.match(css, /#pa \.sc-d \{ display: none; \}/, 'cetak tetap berupa daftar nama dan waktu');
 });
+
+/* Transkrip (web): pilihan bentuk jari per chord di laci Edit chord, disimpan seperti di aplikasi ("gtr:x-3-2-0-1-0;uke:0-0-0-3"). */
+test('bentuk pilihan: kode berupa fret, satu pilihan per instrumen, sama dengan aplikasi', () => {
+    const sb = { console }; vm.createContext(sb);
+    vm.runInContext(baca('chord-engine.js') + '\nthis.__ex = { kodeBentuk, kodeUntuk, kodeDengan, voicings, INSTS, tIdx, rencanaBentuk };', sb, { filename: 'chord-engine.js' });
+    const { kodeBentuk, kodeUntuk, kodeDengan, voicings, INSTS, tIdx, rencanaBentuk } = sb.__ex;
+    assert.equal(kodeBentuk({ f: [-1, 3, 2, 0, 1, 0] }), 'x-3-2-0-1-0');
+    assert.equal(kodeDengan(null, 'gtr', 'x-3-2-0-1-0'), 'gtr:x-3-2-0-1-0');
+    const dua = kodeDengan('gtr:x-3-2-0-1-0', 'uke', '0-0-0-3');
+    assert.equal(kodeUntuk(dua, 'gtr'), 'x-3-2-0-1-0'); assert.equal(kodeUntuk(dua, 'uke'), '0-0-0-3'); assert.equal(kodeUntuk(dua, 'bas'), null);
+    assert.equal(kodeDengan(dua, 'uke', null), 'gtr:x-3-2-0-1-0'); assert.equal(kodeDengan('gtr:1-1-1-1-1-1', 'gtr', null), '');
+    assert.equal(kodeUntuk('gtr:', 'gtr'), null);
+    const maj = tIdx('maj'), rc = rencanaBentuk([{ r: 0, ti: maj }], INSTS.gtr);
+    assert.ok(rc.easy(0, maj) >= 1 && rc.easy(0, maj) <= rc.of(0, maj).length);
+    assert.equal(rencanaBentuk([{ r: 0, ti: maj }], INSTS.uke).easy(0, maj), voicings(0, maj, INSTS.uke).length);
+});
+test('bentuk pilihan: tersimpan bersama chord (riwayat urung/ulang dan edit tersimpan), hilang bila chord diganti, dipakai di semua tampilan', () => {
+    const html = baca('transkrip.html').replace(/\r\n/g, '\n');
+    assert.match(html, /s\.src \|\| '', s\.shape \|\| ''\]/, 'snap menyimpan bentuk');
+    assert.match(html, /if \(a\[7\]\) g\.shape = a\[7\];/, 'restore memulihkan bentuk');
+    assert.equal((html.match(/delete s\.bass; delete s\.shape;/g) || []).length, 2, 'Ganti chord (dua tempat) menghapus bentuk pilihan');
+    assert.match(html, /kodeUntuk\(s\.shape, I\.key\)/);
+    for (const id of ['xbp', 'xbpd', 'xbpp', 'xbpb', 'xbpa', 'xbpall']) assert.match(html, new RegExp('id="' + id + '"'), id);
+    assert.match(html, /xBentuk\(\); \$\('dr-edit'\)\.hidden = false;/, 'panel bentuk diisi saat laci Edit chord dibuka');
+    assert.match(html, /if \(!\$\('dr-edit'\)\.hidden\) xBentuk\(\);/, 'urung/ulang saat laci terbuka memperbarui panel');
+});
