@@ -211,10 +211,17 @@
         <h2 id="xtl">Edit chord</h2>
         <p class="hint" id="xsub"></p>
         <div class="pg-row"><select id="xr" class="srch" style="width:auto" aria-label="Nada dasar chord"></select><select id="xt" class="srch" style="width:auto" aria-label="Jenis chord"></select></div>
+        <div class="bp" id="xbp" hidden>
+            <div class="bp-d" id="xbpd"></div>
+            <div class="bp-t"><b id="xbpn"></b><span class="hint" id="xbps"></span>
+                <div class="pg-row"><button id="xbpp" type="button" class="chip">&#9664; Bentuk sebelumnya</button><button id="xbpb" type="button" class="chip">Bentuk berikutnya &#9654;</button></div>
+                <div class="pg-row"><button id="xbpa" type="button" class="chip" hidden>Kembali ke bentuk otomatis</button><button id="xbpall" type="button" class="chip" hidden></button></div>
+            </div>
+        </div>
         <div class="pg-row"><button id="xok" type="button" class="t-btn" style="min-height:46px;font-size:1rem">Ganti chord ini</button><button id="xadd" type="button" class="chip">Tambah chord mulai di sini</button><button id="xdel" type="button" class="chip">Hapus chord ini</button></div>
         <div class="pg-row"><button type="button" class="chip xreset" disabled>Kembalikan semua ke awal</button></div>
         <p class="hint" id="xmsg"></p>
-        <p class="hint"><b>Ganti</b>: chord yang sedang tampil diganti dengan pilihan di atas. <b>Tambah</b>: chord pilihan disisipkan mulai dari posisi lagu sekarang (dipaskan ke ketukan terdekat). <b>Hapus</b>: waktunya digabung ke chord sebelumnya.</p>
+        <p class="hint"><b>Ganti</b>: chord yang sedang tampil diganti dengan pilihan di atas. <b>Tambah</b>: chord pilihan disisipkan mulai dari posisi lagu sekarang (dipaskan ke ketukan terdekat). <b>Hapus</b>: waktunya digabung ke chord sebelumnya. <b>Bentuk</b>: ganti bentuk jari chord yang sedang diedit (yang mudah dulu); pilihan ini hanya untuk chord ini sampai Anda menekan "Pakai di semua".</p>
     </div></div>
     <div class="drawer" id="dr-info" hidden><div class="drawer-in">
         <button type="button" class="chip drawer-x" data-close>Tutup</button>
@@ -857,7 +864,12 @@
         if (rencana.sig !== sig) rencana = { sig: sig, p: rencanaBentuk(segs.map(function (g) { return { r: sroot(g), ti: lvTi(g) }; }), I) };
         return rencana.p;
     }
-    function voic(s) { return planBentuk().of(sroot(s), lvTi(s))[0]; }
+    /* bentuk chord ini: pilihan pemakai (s.shape, per instrumen) bila ada di daftar, jika tidak pilihan otomatis */
+    function voic(s) {
+        var l = planBentuk().of(sroot(s), lvTi(s)), kode = !I.kb && s.shape ? kodeUntuk(s.shape, I.key) : null, i;
+        if (kode) for (i = 0; i < l.length; i++) if (kodeBentuk(l[i]) === kode) return l[i];
+        return l[0];
+    }
     /* nama diagram bila beda dari nama chord (mis. Fmaj9 digambar sebagai Fmaj7) */
     function diagNote(s) { var full = cname(s), simple = disp(nm(sroot(s), false) + TYPES[lvTi(s)].s); return full !== simple ? ' · diagram: ' + simple : ''; }
     function drawChord(idx) {
@@ -888,6 +900,7 @@
         u.sort(function (a, b) { return cnt[cname(b)] - cnt[cname(a)]; });
         $('legend').innerHTML = u.map(function (s) { var v = voic(s); return '<div class="lg"><b>' + cname(s) + (capoOn() ? ' <small>(bunyi ' + cname(s, true) + ')</small>' : '') + '</b>' + (v ? diagram(v, { alt: cname(s) }) : '<small>-</small>') + '</div>'; }).join('');
         cur = -2; shown = -1; mark(au.currentTime || 0, true);
+        if (!$('dr-edit').hidden) xBentuk();
     }
     function idxAt(t) { var lo = 0, hi = segs.length - 1, m, r = -1; while (lo <= hi) { m = (lo + hi) >> 1; if (segs[m].t0 <= t) { r = m; lo = m + 1; } else hi = m - 1; } return r; }
     var colors = null, colT = 0;
@@ -1153,8 +1166,8 @@
     document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !$('edit').hidden) tutupEdit(); });
     /* ---------- riwayat edit: simpan otomatis per lagu, urungkan/ulangi, kembalikan ke awal ---------- */
     var hist = [], fut = [], baseSnap = '', HMAX = 50;
-    function snap() { return JSON.stringify(segs.map(function (s) { return [s.r, s.ti, s.t0, s.t1, typeof s.q === 'string' ? s.q : null, s.bass === undefined ? -1 : s.bass, s.src || '']; })); }
-    function restore(str) { segs = JSON.parse(str).map(function (a) { var g = { r: a[0], ti: a[1], t0: a[2], t1: a[3] }; if (typeof a[4] === 'string') { g.q = a[4]; g.bass = a[5]; } if (a[6]) g.src = a[6]; return g; }); st.sel = -1; $('edit').hidden = true; }
+    function snap() { return JSON.stringify(segs.map(function (s) { return [s.r, s.ti, s.t0, s.t1, typeof s.q === 'string' ? s.q : null, s.bass === undefined ? -1 : s.bass, s.src || '', s.shape || '']; })); }
+    function restore(str) { segs = JSON.parse(str).map(function (a) { var g = { r: a[0], ti: a[1], t0: a[2], t1: a[3] }; if (typeof a[4] === 'string') { g.q = a[4]; g.bass = a[5]; } if (a[6]) g.src = a[6]; if (a[7]) g.shape = a[7]; return g; }); st.sel = -1; $('edit').hidden = true; }
     function hashStr(t) { var h = 0, i; t = String(t || ''); for (i = 0; i < t.length; i++) h = (h * 31 + t.charCodeAt(i)) | 0; return (h >>> 0).toString(36); }
     function editKey() { return 'ayri-edit:' + fname + '|' + Math.round(dur || 0); }
     function editBase() { return chartOn ? 'chart:' + hashStr(chartText) : (ana && ana.nn ? 'auto-ai' : 'auto'); }
@@ -1184,7 +1197,7 @@
     [].forEach.call(document.querySelectorAll('.xreset'), function (b) { b.addEventListener('click', resetAll); });
     isiAkar();
     $('et').innerHTML = TYPES.map(function (t, i) { return '<option value="' + i + '">' + (t.s || 'Mayor') + '</option>'; }).join('');
-    $('eok').addEventListener('click', function () { editOp(function () { var s = segs[st.sel]; if (!s) return; s.r = (+$('er').value + (capoOn() ? st.capo : 0) + 12) % 12; s.ti = +$('et').value; delete s.q; delete s.bass; sheet(); }); });
+    $('eok').addEventListener('click', function () { editOp(function () { var s = segs[st.sel]; if (!s) return; s.r = (+$('er').value + (capoOn() ? st.capo : 0) + 12) % 12; s.ti = +$('et').value; delete s.q; delete s.bass; delete s.shape; sheet(); }); });
     /* geser awal chord yang dipilih satu ketukan (mengikuti ketukan lagu bila terdeteksi, jika tidak 0,25 detik) */
     function shiftStart(idx, dir) {
         var s = segs[idx]; if (!s) return null;
@@ -1220,15 +1233,57 @@
     function xPick() { return { r: (+$('xr').value + (capoOn() ? st.capo : 0) + 12) % 12, ti: +$('xt').value }; }
     function xDone(msg) { st.sel = -1; $('edit').hidden = true; sheet(); $('dr-edit').hidden = true; var m = $('adjm'); m.textContent = msg; clearTimeout(adjT); adjT = setTimeout(function () { m.textContent = ''; }, 1800); }
     $('xt').innerHTML = TYPES.map(function (t, i) { return '<option value="' + i + '">' + (t.s ? disp(t.s) : 'Mayor') + '</option>'; }).join('');
+    /* ganti bentuk jari chord yang sedang diedit: ke bentuk lain, kembali ke otomatis, atau pakai di semua chord yang sama */
+    function xBentuk() {
+        var s = segs[xIdx], box = $('xbp'), l, own, cur = 0, i, n, mudah;
+        if (!s || I.kb) { box.hidden = true; return; }
+        l = planBentuk().of(sroot(s), lvTi(s)); if (!l.length) { box.hidden = true; return; }
+        own = kodeUntuk(s.shape, I.key);
+        if (own) for (i = 0; i < l.length; i++) if (kodeBentuk(l[i]) === own) { cur = i; break; }
+        if (own && kodeBentuk(l[cur]) !== own) own = null;
+        mudah = planBentuk().easy(sroot(s), lvTi(s));
+        box.hidden = false; $('xbpd').innerHTML = diagram(l[cur], { mini: true, alt: 'Diagram ' + cname(s) });
+        $('xbpn').textContent = 'Bentuk ' + (cur + 1) + ' dari ' + l.length + (cur >= mudah ? ' (lebih sulit)' : '');
+        $('xbps').textContent = own ? 'Dipilih untuk chord ini saja.' : 'Pilihan otomatis (paling mudah dan dekat dengan chord di sekitarnya).';
+        $('xbpp').disabled = $('xbpb').disabled = l.length < 2;
+        $('xbpa').hidden = !own;
+        n = own ? segs.filter(function (g) { return sroot(g) === sroot(s) && lvTi(g) === lvTi(s); }).length : 0;
+        $('xbpall').hidden = !own || n < 2; $('xbpall').textContent = 'Pakai di semua ' + cname(s) + ' (' + n + ' kali)';
+    }
+    function xBentukPilih(arah) {
+        editOp(function () {
+            var s = segs[xIdx]; if (!s) return;
+            var l = planBentuk().of(sroot(s), lvTi(s)), own = kodeUntuk(s.shape, I.key), cur = 0, i;
+            if (own) for (i = 0; i < l.length; i++) if (kodeBentuk(l[i]) === own) { cur = i; break; }
+            var k = kodeDengan(s.shape, I.key, kodeBentuk(l[(cur + arah + l.length) % l.length]));
+            if (k) s.shape = k; else delete s.shape;
+            sheet();
+        });
+        xBentuk();
+    }
+    $('xbpp').addEventListener('click', function () { xBentukPilih(-1); });
+    $('xbpb').addEventListener('click', function () { xBentukPilih(1); });
+    $('xbpa').addEventListener('click', function () {
+        editOp(function () { var s = segs[xIdx]; if (!s) return; var k = kodeDengan(s.shape, I.key, null); if (k) s.shape = k; else delete s.shape; sheet(); });
+        xBentuk();
+    });
+    $('xbpall').addEventListener('click', function () {
+        editOp(function () {
+            var s = segs[xIdx], own = s && kodeUntuk(s.shape, I.key); if (!own) return;
+            segs.forEach(function (g) { if (sroot(g) === sroot(s) && lvTi(g) === lvTi(s)) g.shape = kodeDengan(g.shape, I.key, own); });
+            sheet();
+        });
+        note('Bentuk ini dipakai di semua ' + cname(segs[xIdx]), 2500); xBentuk();
+    });
     $('adjX').addEventListener('click', function () {
         var t = au.currentTime || 0, i = idxAt(t); if (i < 0) i = 0; if (!segs[i]) return;
         var s = segs[i]; xIdx = i; xT = t;
         $('xr').value = sroot(s); $('xt').value = s.ti;
         $('xtl').textContent = 'Edit chord ' + cname(s);
         $('xsub').textContent = 'Chord ini berbunyi ' + fmt(s.t0) + ' sampai ' + fmt(s.t1) + '. Posisi lagu sekarang ' + fmt(t) + '.';
-        $('xadd').textContent = 'Tambah chord mulai di ' + fmt(snapBeat(t)); $('xmsg').textContent = ''; $('dr-edit').hidden = false;
+        $('xadd').textContent = 'Tambah chord mulai di ' + fmt(snapBeat(t)); $('xmsg').textContent = ''; xBentuk(); $('dr-edit').hidden = false;
     });
-    $('xok').addEventListener('click', function () { editOp(function () { var s = segs[xIdx], c = xPick(); if (!s) return; s.r = c.r; s.ti = c.ti; delete s.q; delete s.bass; xDone('chord diganti menjadi ' + cname(s)); }); });
+    $('xok').addEventListener('click', function () { editOp(function () { var s = segs[xIdx], c = xPick(); if (!s) return; s.r = c.r; s.ti = c.ti; delete s.q; delete s.bass; delete s.shape; xDone('chord diganti menjadi ' + cname(s)); }); });
     $('xadd').addEventListener('click', function () {
         editOp(function () {
             var s = segs[xIdx], c = xPick(), tn = snapBeat(xT); if (!s) return;
