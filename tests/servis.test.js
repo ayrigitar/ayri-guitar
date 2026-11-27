@@ -60,3 +60,19 @@ test('servis-gitar-bogor: skrip penyegar mengisi harga dari beranda dan tidak me
         return jalankan(Promise.reject(new Error('putus')));
     }).then(() => { assert.equal(els[0].textContent, 'lama', 'gagal memuat: isi cadangan tetap'); });
 });
+
+test('servis-gitar-bogor: footer semua halaman artikel, unit, seri, katalog, dan kedua templat menautkan halaman servis; prompt AI dan judul merek memakai kata yang dicari orang', () => {
+    const fs = require('node:fs'), path = require('node:path'), akar = path.join(__dirname, '..');
+    const daftar = [...fs.readdirSync(akar).filter((f) => f.endsWith('.html')).map((f) => f), ...fs.readdirSync(path.join(akar, 'unit')).map((f) => 'unit/' + f), 'scripts/artikel-template.html', 'scripts/unit-template.html'];
+    let diperiksa = 0;
+    for (const f of daftar) {
+        const s = fs.readFileSync(path.join(akar, f), 'utf8');
+        if (!/footer__link">Harga Servis<\/a>/.test(s) || f === 'index.html' || f === 'servis-gitar-bogor.html') continue;
+        diperiksa++; assert.match(s, /servis-gitar-bogor\.html" class="footer__link">Servis Gitar Bogor<\/a>/, f + ' belum menautkan halaman servis');
+        if (f.startsWith('unit/') || f === 'scripts/unit-template.html') assert.match(s, /href="\.\.\/servis-gitar-bogor\.html" class="footer__link"/, f + ': tautan harus relatif ke ../');
+    }
+    assert.ok(diperiksa >= 70, 'terlalu sedikit halaman yang diperiksa: ' + diperiksa);
+    assert.match(baca('scripts/artikel-template.html'), /<a href="servis-gitar-bogor\.html">servis gitar di Bogor<\/a>/);
+    assert.match(baca('layanan.js'), /berasal dari mana\?/); assert.match(baca('layanan.js'), /subjudul berupa pertanyaan yang sering dicari/);
+    assert.match(baca('admin.js'), /': Asal Negara, Sejarah, Ciri Khas, dan Pilihan '/);
+});

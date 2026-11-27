@@ -3431,7 +3431,7 @@
     function artikelMerekStok(s) { var k = s.merek ? L.kunciMerek(s.merek) : ''; return k ? cache.artikel.filter(function (a) { return a.jenis_artikel === 'merek' && a.merek_kunci === k; })[0] : null; }
     function buatArtikelMerek(s, b) {
         var ada = artikelMerekStok(s); if (ada) return pindah('#artikel/' + ada.id);
-        var judul = (s.merek + ': Sejarah, Ciri Khas, dan Pilihan ' + (s.kategori === 'aksesoris' ? 'Produknya' : 'Gitarnya')).slice(0, 110), slug = ArtikelMd.slug(judul), n = 1;
+        var judul = (s.merek + ': Asal Negara, Sejarah, Ciri Khas, dan Pilihan ' + (s.kategori === 'aksesoris' ? 'Produknya' : 'Gitarnya')).slice(0, 110), slug = ArtikelMd.slug(judul), n = 1;
         while (cache.artikel.some(function (x) { return x.slug === slug; })) slug = ArtikelMd.slug(judul) + '-' + (++n);
         sibuk(b, true, 'Membuat draf…');
         A.simpanArtikel({ judul: judul, slug: slug, tag: 'Profil Merek', status: 'draf', jenis_artikel: 'merek', merek_nama: s.merek, merek_kunci: L.kunciMerek(s.merek), isi: '', ringkasan: '', foto: [] }).then(function (row) {
