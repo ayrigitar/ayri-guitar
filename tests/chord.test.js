@@ -173,3 +173,28 @@ test('transkrip: mengetuk chord di daftar hanya memutar lagu dari chord itu (tid
     assert.match(blok, /if \(au\.paused && !counting\) play\(\);/);
     assert.doesNotMatch(blok, /\$\('edit'\)|st\.sel|dr-edit/, 'tidak membuka panel edit');
 });
+
+/* Beranda: senar fretboard berbunyi hanya saat diklik/diketuk atau digeser sambil menahan mouse, bukan saat kursor sekadar lewat. */
+function senarBeranda() {
+    const js = baca('site.js'), a = js.indexOf('var NADA = ['), b = js.indexOf("s.addEventListener('pointerdown'", a);
+    assert.ok(a > 0 && b > a, 'blok senar di site.js tidak ditemukan');
+    const e = js.indexOf('\n    });', b) + 8, log = { konteks: 0, sumber: 0 }, senar = [];
+    const sb = {
+        window: { AudioContext: function () { log.konteks++; this.sampleRate = 22050; this.state = 'running'; this.currentTime = 0; this.destination = {};
+            this.createBuffer = (n, len) => ({ getChannelData: () => new Float32Array(len) });
+            this.createGain = () => ({ gain: { value: 0, cancelScheduledValues() {}, setTargetAtTime() {} }, connect() {} });
+            this.createBufferSource = () => { log.sumber++; return { connect() {}, start() {}, stop() {} }; }; } },
+        document: { hidden: false, querySelectorAll: () => Array.from({ length: 6 }, () => { const h = {}, el = { classList: { add() {}, remove() {} }, offsetWidth: 1, addEventListener: (n, f) => { h[n] = f; } }; senar.push(h); return el; }) }
+    };
+    vm.createContext(sb); vm.runInContext(js.slice(a, e).replace(/^/, 'var NADA_ = 0;\n'), sb);
+    return { log, senar };
+}
+test('beranda: senar tidak berbunyi saat kursor lewat, berbunyi saat diklik atau digeser sambil menahan mouse, mesin suara dibuat saat petikan pertama', () => {
+    const { log, senar } = senarBeranda();
+    assert.equal(log.konteks, 0, 'tanpa petikan belum ada mesin suara');
+    senar[0].pointerenter({ pointerType: 'mouse', buttons: 0 }); senar[1].pointerenter({ pointerType: 'touch', buttons: 1 });
+    assert.equal(log.konteks, 0); assert.equal(log.sumber, 0);
+    senar[0].pointerdown({}); assert.equal(log.konteks, 1); assert.equal(log.sumber, 1);
+    senar[2].pointerenter({ pointerType: 'mouse', buttons: 1 }); assert.equal(log.sumber, 2);
+    senar[5].pointerdown({}); senar[5].pointerdown({}); assert.equal(log.konteks, 1, 'satu mesin suara dipakai bersama'); assert.equal(log.sumber, 4);
+});
