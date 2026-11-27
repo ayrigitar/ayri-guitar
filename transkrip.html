@@ -893,7 +893,7 @@
     function sheet() {
         var pl = segs.length ? planBentuk() : null;
         $('sheet').innerHTML = segs.map(function (s, i) {
-            var v = pl ? pl.of(sroot(s), lvTi(s))[0] : null;
+            var v = pl ? voic(s) : null;
             return '<button type="button" class="sc" data-i="' + i + '"><span class="sc-h"><b>' + cname(s) + '</b><small>' + fmt(s.t0) + (s.src === 'auto' ? ' *' : '') + '</small></span><span class="sc-d">' + (v ? diagram(v, { mini: true, alt: 'Diagram ' + cname(s) }) : '') + '</span></button>';
         }).join('');
         ukurBaris();

@@ -89,6 +89,13 @@ test('transkrip: bentuk awal gitar adalah bentuk yang umum dipakai (B7 dan Bm7 s
     assert.equal(f(ada(2, 'sus4'), 2, 'sus4'), '-1,-1,0,2,3,3'); assert.equal(f(ada(9, 'sus4'), 9, 'sus4'), '-1,0,2,2,3,0');
     assert.equal(f(ada(5, 'maj7'), 5, 'maj7'), '-1,-1,3,2,1,0');
 });
+test('transkrip: kotak chord di daftar memakai bentuk pilihan pemakai (voic), jadi berubah saat bentuk diganti di menu Edit', () => {
+    const h = baca('transkrip.html').replace(/
+/g, '
+');
+    assert.match(h, /var v = pl \? voic\(s\) : null;/);
+    assert.doesNotMatch(h, /pl\.of\(sroot\(s\), lvTi\(s\)\)\[0\]/);
+});
 test('transkrip: ukulele, bass, dan piano tetap memakai urutan mesin; halaman memakai rencanaBentuk', () => {
     const { rencanaBentuk, voicings, INSTS, tIdx } = pemilih(), maj = tIdx('maj');
     for (const k of ['uke', 'bas']) assert.deepEqual(JSON.stringify(rencanaBentuk([{ r: 0, ti: maj }], INSTS[k]).of(0, maj)), JSON.stringify(voicings(0, maj, INSTS[k])));
