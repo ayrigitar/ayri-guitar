@@ -242,3 +242,11 @@ test('tahan: 0,2 detik pertama setelah petikan adalah serangan, dan nada yang me
     assert.equal(b.tahan(t + 20, 0).attack, false, 'tanpa ukuran keras tidak ada yang ditahan');
     assert.equal(b.tahan(t + 20, 0).fading, false);
 });
+
+test('tuner: mode presisi, mikrofon, dan A4 ada di panel tombol pengaturan; alat musik dan setelan tetap di baris atas', () => {
+    const panel = /<div class="tset-panel" id="tsetpanel"[^>]*>([\s\S]*?)\n        <\/div>/.exec(html);
+    assert.ok(panel, 'panel pengaturan tidak ditemukan');
+    for (const id of ['presisi', 'sens', 'a4', 'a4m', 'a4p']) assert.ok(panel[1].includes('id="' + id + '"'), id + ' harus di dalam panel');
+    for (const id of ['inst', 'tuning', 'tsetbtn']) assert.ok(!panel[1].includes('id="' + id + '"'), id + ' harus di baris atas');
+    assert.match(html, /id="tsetbtn"[^>]*aria-expanded="false"/);
+});

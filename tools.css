@@ -98,6 +98,9 @@
 }
 .t-note sup { margin-top: .12em; font: 700 .32em/1 var(--font-sans); color: var(--ink-3); letter-spacing: 0; }
 .tm.idle .t-note { color: var(--ink-3); }
+/* tuner: nada jadi pusat layar (besar), penunjuk setinggi secukupnya */
+.tuner-app .bf { flex: 0 0 auto; height: clamp(110px, 22dvh, 230px); }
+.tuner-app .t-note { margin-top: 14px; font-size: clamp(3.6rem, 13dvh, 8rem); }
 .tm.ok .t-note { text-shadow: 0 0 28px rgba(46, 180, 115, .55); }
 .t-status { min-height: 1.4em; font-size: 1rem; font-weight: 700; color: var(--ink-2); }
 .t-status.ok { color: #5CD196; }
@@ -770,6 +773,7 @@ canvas.ctab.seret { cursor: grabbing; }
 .tr-more-panel.buka { display: flex; }
 .tr-more-panel .tr-saran { flex: 0 0 auto; }
 .tr-more-btn { position: relative; }
+.tr-more-btn.ada::after { content: ""; position: absolute; top: -1px; right: -1px; width: 9px; height: 9px; border-radius: 50%; background: var(--accent); border: 2px solid var(--surface); }
 .tr-kontrol:has(#capohint:not([hidden])) .tr-more-btn::after { content: ""; position: absolute; top: -1px; right: -1px; width: 9px; height: 9px; border-radius: 50%; background: var(--accent); border: 2px solid var(--surface); }
 .tr-tampil { flex: 0 0 auto; display: inline-flex; gap: 2px; padding: 2px; border: 1px solid var(--line-strong); border-radius: var(--r-pill); background: var(--surface-2); }
 .tr-tampil .tt-b { display: inline-flex; align-items: center; justify-content: center; width: 34px; height: 28px; padding: 0; border: 0; border-radius: var(--r-pill); background: none; color: var(--ink-3); cursor: pointer; }
